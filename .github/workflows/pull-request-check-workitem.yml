@@ -1,0 +1,32 @@
+name: Work item should be linked
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize]
+
+jobs:
+  check-work-item-link:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Work item link
+        id: check-work-item
+        shell: pwsh
+        run: |
+          $pattern = "((AB#)\d+)\b"
+          $prBody = @'
+          ${{ github.event.pull_request.title }}
+          ${{ github.event.pull_request.body }}
+          '@
+          if ($prBody -notmatch $pattern)
+          {
+              Write-Host "Pull Request body does not match regex pattern: $pattern"
+              Write-Host ::set-output name=has_link::false
+          }
+
+      - name: Set Failed
+        if: steps.check-work-item.outputs.has_link == 'false'
+        uses: actions/github-script@v6
+        with:
+          script: |
+            core.notice('Work item should conform to the AB#{NUMBER} or #{NUMBER} format')
+            core.setFailed('Work item should be linked')

@@ -4,6 +4,7 @@ packages/
 **/bin/
 **/obj/
 **/.idea/
+**/.meteor/
 **/node_modules
 **/.vs/
 # IGNORE FILES
