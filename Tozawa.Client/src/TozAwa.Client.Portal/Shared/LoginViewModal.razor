@@ -1,0 +1,88 @@
+@namespace Tozawa.Client.Portal.Shared
+@using HttpClients.Helpers
+@inherits BaseDialog
+@implements IDisposable
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Login" Class="mr-3 mb-n1" />
+            <span>Toz'Awa</span>
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <ErrorBoundary>
+            <ChildContent>
+                <MudCard>
+                    <MudForm Model="@model" @ref="@form" @bind-IsValid="@_success" @bind-bind-bind-Errors="@_errors"
+                        ValidationDelay="0">
+                        <MudCardContent>
+                            @if (_errors.Any() && _currentErrorView == model.LoginAsRoot)
+                            {
+                                @foreach (var item in _errors)
+                                {
+                                    <MudText Color=Color.Error>
+                                        @item
+                                    </MudText>
+                                }
+                            }
+                            @if (!model.LoginAsRoot)
+                            {
+                                <MudTextField Class="tz_admin tz_loginAsAdmin" Disabled="@_processing"
+                                Validation="LoginValidator().ValidateValue" Required="true" Adornment="Adornment.End"
+                                AdornmentIcon="@ToggleAdminIcon" OnAdornmentClick="@ButtonAdminclick"
+                                AdornmentAriaLabel="@Translate(SystemTextId.Administration, "Administration")"
+                                RequiredError="@Translate(SystemTextId.EmailIsRequired, "Email is required")"
+                                @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Email"
+                                For="@(() => model.Email)" Immediate="true" Label=@(Translate(SystemTextId.Email,
+                                "Email")) />
+                            }
+                            else
+                            {
+                                <MudTextField Class="tz_admin tz_loginAsNotAdmin" Disabled="@_processing"
+                                Validation="LoginValidator().ValidateValue" Required="true" Adornment="Adornment.End"
+                                AdornmentIcon="@ToggleAdminIcon" AdornmentColor="@Color.Primary"
+                                OnAdornmentClick="@ButtonAdminclick"
+                                AdornmentAriaLabel="@Translate(SystemTextId.Administration, "Administration")"
+                                RequiredError="@Translate(SystemTextId.Usernamecannotbeempty, "User name is required")"
+                                @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.UserName"
+                                For="@(() => model.UserName)" Immediate="true" Label=@(Translate(SystemTextId.UserName,
+                                "Username")) />
+                            }
+                            <MudTextField Disabled="@_processing" Class="tz_password"
+                                Validation="LoginValidator().ValidateValue" Required="true"
+                                RequiredError="@Translate(SystemTextId.YourPasswordCannotBeEmpty, "Password is required")"
+                                @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Password"
+                                For="@(() => model.Password)" Immediate="true" Label=@(Translate(SystemTextId.Password,
+                                "Password")) InputType="InputType.Password" />
+                        </MudCardContent>
+                    </MudForm>
+                </MudCard>
+            </ChildContent>
+            <ErrorContent>
+                Sorry, I can't show because of an internal error.
+            </ErrorContent>
+        </ErrorBoundary>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Disabled="@_processing" Variant="Variant.Filled" OnClick="Cancel">
+            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel"></SystemText>
+        </MudButton>
+        <MudButton Disabled="@DisabledLoginButton()" OnClick="@((MouseEventArgs e)=>LoginByClick(@loginButton, e))"
+            Color="Color.Primary" Variant="Variant.Filled" Class="ml-auto" Target="_top">
+            @if (_processing)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">
+                    <SystemText TextId=SystemTextId.Processing FallbackText="Processing..."></SystemText>
+                </MudText>
+            }
+            else
+            {
+                <MudText>
+                    <SystemText TextId=SystemTextId.Login FallbackText="Login"></SystemText>
+                </MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>

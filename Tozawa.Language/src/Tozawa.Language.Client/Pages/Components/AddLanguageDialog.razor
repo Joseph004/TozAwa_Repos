@@ -1,0 +1,11 @@
+﻿<MudDialog>    
+    <DialogContent>        
+        <MudTextField @bind-Value="LanguageDto.ShortName" Label="ShortName" />
+        <MudTextField @bind-Value="LanguageDto.LongName" Label="LongName" />
+        <MudTextField @bind-Value="LanguageDto.Name" Label="Name" />
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">Cancel</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Add">Add</MudButton>
+    </DialogActions>
+</MudDialog>

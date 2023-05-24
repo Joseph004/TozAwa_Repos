@@ -1,0 +1,37 @@
+﻿@attribute [AllowAnonymous]
+
+<MudMenu AnchorOrigin="@Origin.BottomRight" TransformOrigin="@Origin.TopRight" Class="mr-5"
+    Icon="@Icons.Material.Filled.ArrowDropDown" OffsetY="true" Dense="true">
+    <ActivatorContent>
+        <MudIcon Icon="@Icons.Filled.ManageAccounts" />
+    </ActivatorContent>
+    <ChildContent>
+        @foreach (var organization in CurrentUser.Organizations)
+        {
+            <MudMenuItem Class="disabled">
+                <MudText>
+                    <MudIcon Class="text-icon" Icon="@Icons.Filled.ShoppingBasket" Size="Size.Small" Color="Color.Primary">
+                    </MudIcon>
+                    @organization.Name
+                </MudText>
+            </MudMenuItem>
+        }
+        <MudDivider />
+        <MudMenuItem Class="disabled">
+            <MudText>
+                <MudIcon Class="text-icon" Icon="@Icons.Filled.Person" Size="Size.Small" Color="Color.Warning">
+                </MudIcon>
+                @CurrentUser.UserName
+            </MudText>
+        </MudMenuItem>
+        <MudDivider />
+        <MudMenuItem>
+            <MudButton OnClick="@(()=>Logout())" Color="Color.Inherit">
+                <MudText>
+                    <MudIcon class="text-icon" Icon="@Icons.Filled.Logout" Size="Size.Small"></MudIcon>
+                    Logout
+                </MudText>
+            </MudButton>
+        </MudMenuItem>
+    </ChildContent>
+</MudMenu>

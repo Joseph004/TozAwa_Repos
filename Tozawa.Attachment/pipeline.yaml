@@ -1,0 +1,173 @@
+trigger:
+    batch: false
+    branches:
+        include:
+        - master
+    paths: # paths of repo that should trigger build & deploy
+        include:
+        - 'Tozawa.Attachment'
+pr:
+    paths: # paths of repo that should trigger build & test on PR
+        include:
+        - 'Tozawa.Attachment'
+pool:
+    name: Azure Pipelines
+    vmImage: 'windows-latest'
+    demands:
+        - msbuild
+        - visualstudio
+variables:
+    isOnlySvc: true
+    hasStorageArm: true
+    App.Solution.Name: 'Tozawa.Attachment' # TO SET: solution name
+    App.Base.Name: 'Tozawaattachment' # TO SET: used with environmentprefix and app-type suffix to create names
+    App.Svc.ApiKey.Name: 'Tozawaattachmentsvcapikey' #TO SET: name of the secret in keyvault
+    App.Svc.ApiKey: '$(Tozawaattachmentsvcapikey)' #TO SET (should be set to a variable with same string as in App.Svc.ApiKey.Name): value of the secret in keyvault (will be created if not existing).
+    App.Drop: '$(Pipeline.Workspace)/drop'
+    App.Bff.Name: '$(EnvironmentPrefix)-$(App.Base.Name)bff'
+    App.Bff.Zip: '$(Pipeline.Workspace)/drop/$(App.Solution.Name).Bff.zip'
+    App.Client.Name:  '$(EnvironmentPrefix)-$(App.Base.Name)client'
+    App.Client.Zip: '$(Pipeline.Workspace)/drop/$(App.Solution.Name).Client.zip'
+    App.Svc.Name: '$(EnvironmentPrefix)-$(App.Base.Name)svc'
+    App.Svc.Zip: '$(Pipeline.Workspace)/drop/$(App.Solution.Name).Svc.zip'
+    App.WebJob.Name: '$(EnvironmentPrefix)-$(App.Base.Name)job'
+    App.WebJob.Folder: '$(Pipeline.Workspace)/drop/webjob'
+    ARM.DropPath: '$(Pipeline.Workspace)/drop/infrastructure'
+    ARM.Location: 'West Europe'
+    ARM.Template: '$(ARM.DropPath)/azuredeploy.json'
+    ARM.Template.Storage: '$(ARM.DropPath)/azuredeploy.storage.json'
+    KeyVault.Name: '$(EnvironmentPrefix)-Tozawakeyvault'
+    isMasterBranch:  $[eq(variables['Build.SourceBranch'], 'refs/heads/master')]
+    workingDirectory: '$(System.DefaultWorkingDirectory)/$(App.Solution.Name)'
+    hasSqlServer: true
+    Sql.Loginname: '$(EnvironmentPrefix)$(App.Base.Name)Login'
+    Sql.Username: '$(EnvironmentPrefix)$(App.Base.Name)User'
+    Sql.Database.Name: '$(EnvironmentPrefix)-$(App.Base.Name)db'
+    Sql.Admin.Password.Vault.Name: 'SqlServerAdminPassword' # name of secret with admin password in keyvault
+    Sql.Schema: 'Attachment' # TO SET: name of db schema
+    ARM.ServiceBus.Name: 'sb-Tozawa-$(EnvironmentPrefix)'
+    ARM.ServiceBus.KeyName: 'RootManageSharedAccessKey'
+    ARM.ApplicationInsights.Name: 'appi-Tozawa-$(EnvironmentPrefix)'
+    hasServiceBus: false
+    hasStorageAccount: true
+    AppSettings.ConnectionStrings.ServiceBus: '$(Output.ServiceBusConnectionString)' # output from getservicebusconnectionstring.ps1 if hasServiceBus = true
+    AppSettings.ConnectionStrings.Storage: 'DefaultEndpointsProtocol=https;AccountName=$(ARM.StorageAccount);AccountKey=$(Output.StorageKey);EndpointSuffix=core.windows.net' # output from getstorageaccountkey.ps1 if hasStorageAccount = true
+    AppSettings.ConnectionStrings.AzureWebJobsDashboard: 'DefaultEndpointsProtocol=https;AccountName=$(ARM.StorageAccount);AccountKey=$(Output.StorageKey);EndpointSuffix=core.windows.net' # output from getstorageaccountkey.ps1 if hasStorageAccount = true
+    AppSettings.ConnectionStrings.AzureWebJobsStorage: 'DefaultEndpointsProtocol=https;AccountName=$(ARM.StorageAccount);AccountKey=$(Output.StorageKey);EndpointSuffix=core.windows.net' # output from getstorageaccountkey.ps1 if hasStorageAccount = true
+    AppSettings.ConnectionStrings.Sql: 'Server=tcp:$(Sql.Server.Name).database.windows.net,1433;Initial Catalog=$(Sql.Database.Name);Persist Security Info=False;User ID=$(Output.SqlLogin);Password=$(Output.SqlPassword);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+    AppSettings.ConnectionStrings.MigrationSql: 'Server=tcp:$(Sql.Server.Name).database.windows.net,1433;Initial Catalog=$(Sql.Database.Name);Persist Security Info=False;User ID=$(Sql.Admin.Login);Password=$(SqlServerAdminPassword);MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+    AppSettings.ApiKey: '$(App.Svc.ApiKey)'
+    AppSettings.ApplicationInsights.ConnectionString: '$(Output.ApplicationInsightsConnectionString)' # output from get-application-insights-connectionstring.ps1
+    AppSettings.AuthSettings.ApiUrl: 'https://$(EnvironmentPrefix)-Tozawaauthorizationsvc.azurewebsites.net/api/'
+    AppSettings.AuthSettings.ApiKey: '$(TozawaAuthApiKey)'    
+stages:
+-   stage: 'stage_build_and_test'
+    displayName: 'build, test and publish artifacts'
+    variables:
+        EnvironmentPrefix: 'dev'
+        Sql.Admin.Login: "deTozawadbadmin"
+        Sql.Server.Name: "nonprodTozawasqlserver02"
+        ConnectionString: "$(AppSettings.ConnectionStrings.MigrationSql)"
+        AppBuild.Attachment.Svc.Path: "$(workingDirectory)/src/$(App.Solution.Name).Svc"
+        AppBuild.Attachment.Svc.Project: "$(AppBuild.Attachment.Svc.Path)/$(App.Solution.Name).Svc.csproj"
+        AppBuild.Attachment.Svc.MigrationScript: "$(AppBuild.Attachment.Svc.Path)/migrationscript/attachment.migration.sql"
+    pool:
+        name: Azure Pipelines
+        vmImage: 'windows-latest'
+    jobs:
+    -   job: 'build_test_publish'
+        pool:
+            name: Azure Pipelines
+            vmImage: 'windows-latest'
+        displayName: "build test publish"
+        steps:
+        -   template: build-and-test.yaml
+
+-   stage: 'stage_nonprod'
+    condition: and(succeeded(), eq(variables.isMasterBranch, 'true'))
+    displayName: "nonprod"
+    dependsOn: 'stage_build_and_test'
+    variables:
+        Sql.Admin.Login: 'deTozawadbadmin'
+        Sql.Server.Name: 'nonprodTozawasqlserver02'
+    pool:
+        name: Azure Pipelines
+        vmImage: 'windows-latest'
+    jobs:
+    -   deployment: 'dev_deploy'
+        pool:
+            name: Azure Pipelines
+            vmImage: 'windows-latest'
+        displayName: 'dev: deploy'
+        environment: 'nonprod'
+        variables:
+            ARM.StorageAccount: 'devTozawaattachmentblob'
+            AppSettings.IdentityServerSettings.Authority: 'https://dev-auth-Tozawa.cabgroup.net'
+            ARM.TemplateParameters: '$(ARM.DropPath)/azuredeploy.parameters.dev.json'
+            ARM.TemplateParameters.Storage: '$(ARM.DropPath)/azuredeploy.storage.parameters.dev.json'
+            ARM.ResourceGroup: 'NonProd-Tozawa-RG'
+            ARM.ResourceGroup.Servicebus: 'NonProd-Tozawa-Storage-RG'
+            ARM.ResourceGroup.Storage: 'NonProd-Tozawa-Storage-RG'
+            ARM.ResourceGroup.ApplicationInsights: 'NonProd-Tozawa-Storage-RG'
+            EnvironmentPrefix: 'dev'
+        strategy:
+            runOnce:
+                deploy:
+                    steps:
+                    -   template: deploy-nonprod.yaml
+
+    -   deployment: 'test_deploy'
+        pool:
+            name: Azure Pipelines
+            vmImage: 'windows-latest'        
+        displayName: 'test: deploy'
+        environment: 'nonprod'
+        variables:
+            ARM.StorageAccount: 'testTozawaattachmentblob'
+            AppSettings.IdentityServerSettings.Authority: 'https://test-auth-Tozawa.cabgroup.net'
+            ARM.TemplateParameters.Storage: '$(ARM.DropPath)/azuredeploy.storage.parameters.test.json'
+            ARM.TemplateParameters: '$(ARM.DropPath)/azuredeploy.parameters.test.json'
+            ARM.ResourceGroup: 'NonProd-Tozawa-RG'
+            ARM.ResourceGroup.Servicebus: 'NonProd-Tozawa-Storage-RG'
+            ARM.ResourceGroup.Storage: 'NonProd-Tozawa-Storage-RG'
+            ARM.ResourceGroup.ApplicationInsights: 'NonProd-Tozawa-Storage-RG'
+            EnvironmentPrefix: 'systemtest'
+        strategy:
+            runOnce:
+                deploy:
+                    steps:
+                    -   template: deploy-nonprod.yaml
+
+-   stage: 'stage_prod'
+    condition: and(succeeded(), eq(variables.isMasterBranch, 'true'))
+    displayName: "prod"
+    dependsOn: 'stage_nonprod'
+    variables:
+        Sql.Admin.Login: 'Tozawadbadmin'
+        Sql.Server.Name: 'prodTozawasqlserver02'
+    pool:
+        name: Azure Pipelines
+        vmImage: 'windows-latest'
+    jobs:
+    -   deployment: 'prodeu_deploy'
+        displayName: 'prodeu: deploy'
+        environment: 'prod'
+        pool:
+            name: Azure Pipelines
+            vmImage: 'windows-latest'
+        variables:
+            ARM.ServiceBus.Name: 'sb-Tozawa-$(EnvironmentPrefix)'
+            ARM.StorageAccount: 'prodeuTozawaattachmentblob'
+            AppSettings.IdentityServerSettings.Authority: 'https://auth-Tozawa.cabgroup.net'
+            ARM.TemplateParameters.Storage: '$(ARM.DropPath)/azuredeploy.storage.parameters.prodeu.json'
+            ARM.TemplateParameters: '$(ARM.DropPath)/azuredeploy.parameters.prodeu.json'
+            ARM.ResourceGroup: 'Prod-Tozawa-RG'
+            ARM.ResourceGroup.Servicebus: 'Prod-Tozawa-Storage-RG'
+            ARM.ResourceGroup.Storage: 'Prod-Tozawa-Storage-RG'
+            ARM.ResourceGroup.ApplicationInsights: 'Prod-Tozawa-Storage-RG'
+            EnvironmentPrefix: 'prodeu'
+        strategy:
+            runOnce:
+                deploy:
+                    steps:
+                    -   template: deploy-prod.yaml

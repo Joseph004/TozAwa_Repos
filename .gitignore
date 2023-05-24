@@ -1,0 +1,26 @@
+######################################
+# IGNORE FOLDERS
+packages/
+**/bin/
+**/obj/
+**/.idea/
+**/node_modules
+**/.vs/
+# IGNORE FILES
+*.tmp
+*.tmp_proj
+*.vspscc
+*.vssscc
+*/.Development.json
+**/terraform-provider-azurerm_v3.25.0_x5.exe
+**/local.settings.json
+*.csproj.user
+*.user
+
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+*/.local.json
+**/TestResults
+
+*/.DotSettings.user

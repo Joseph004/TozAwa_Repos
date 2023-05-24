@@ -1,0 +1,27 @@
+@namespace Tozawa.Client.Portal.Shared
+@using HttpClients.Helpers
+@inherits BaseDialog
+@implements IDisposable
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Logout" Class="mr-3 mb-n1" />
+            <span>
+                <SystemText TextId=SystemTextId.Logout FallbackText="long out"></SystemText>
+            </span>
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText> <SystemText TextId=SystemTextId.YoureAboutToGetLogout FallbackText="You are about to ge log out"></SystemText></MudText>
+        <MudText Typo="Typo.h3">@Counter</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Filled" OnClick="Cancel">
+            <SystemText TextId=SystemTextId.StayLogIn FallbackText="Stay login"></SystemText>
+        </MudButton>
+        <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="Confirm">
+            <SystemText TextId=SystemTextId.Logout FallbackText="long out"></SystemText>
+        </MudButton>
+    </DialogActions>
+</MudDialog>
