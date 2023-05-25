@@ -11,8 +11,7 @@ jobs:
       - name: Run a multi-line script
         run: |
           echo Add other actions to build,
-          echo test, and deploy your project
-          - name: java version
+          echo test, and deploy your project.
       - name: java version
         run: java -version
       - name: maven version
