@@ -14,11 +14,6 @@ provider "aws" {
   region = var.region
 }
 
-resource "azurerm_resource_group" "tozawa_nonprod" {
-  name     = "tf_tozawa_nonprod_rg"
-  location = "West Europe"
-}
-
 resource "aws_instance" "container_nonprod" {
   ami                    = "ami-0989fb15ce71ba39e"
   instance_type          = "t2.micro"
