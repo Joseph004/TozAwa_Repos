@@ -48,7 +48,8 @@ resource "aws_security_group" "nonprod-group" {
       cidr_blocks      = ["0.0.0.0/0"]
       description      = ""
       from_port        = 0
-      iov6_cidr_blocks = []
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
       protocol         = "-1"
       security_groups  = []
       self             = false
@@ -60,7 +61,8 @@ resource "aws_security_group" "nonprod-group" {
       cidr_blocks      = ["0.0.0.0/0"]
       description      = ""
       from_port        = 22
-      iov6_cidr_blocks = []
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
       protocol         = "tcp"
       security_groups  = []
       self             = false
@@ -70,7 +72,8 @@ resource "aws_security_group" "nonprod-group" {
       cidr_blocks      = ["0.0.0.0/0"]
       description      = ""
       from_port        = 80
-      iov6_cidr_blocks = []
+      ipv6_cidr_blocks = []
+      prefix_list_ids  = []
       protocol         = "tcp"
       security_groups  = []
       self             = false
