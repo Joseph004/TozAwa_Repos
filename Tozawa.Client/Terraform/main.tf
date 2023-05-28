@@ -15,7 +15,7 @@ provider "aws" {
 }
 
 resource "aws_instance" "container_nonprod" {
-  ami                    = "ami-0989fb15ce71ba39e"
+  ami                    = "ami-01dd271720c1ba44f"
   instance_type          = "t2.micro"
   key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.nonprod-group.id]
