@@ -33,7 +33,7 @@ resource "aws_instance" "container_nonprod" {
 }
 
 resource "aws_iam_instance_profile" "ec2-nonprod-profile" {
-  name = "ec2-profile"
+  name = "ec2-nonprod-profile"
   role = "EC2-ECR-AUTH-NONPROD"
 }
 
