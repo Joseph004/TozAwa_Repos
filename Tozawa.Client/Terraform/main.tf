@@ -11,7 +11,6 @@ terraform {
 }
 
 provider "aws" {
-  features {}
   region = var.region
 }
 
