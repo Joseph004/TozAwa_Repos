@@ -17,7 +17,7 @@ provider "aws" {
 resource "aws_instance" "container_nonprod" {
   ami                    = "ami-0989fb15ce71ba39e"
   instance_type          = "t2.micro"
-  key_name               = aws_key_pair.deployer-key.key_name
+  key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.nonprod-group.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2-nonprod-profile.name
   connection {
@@ -77,7 +77,7 @@ resource "aws_security_group" "nonprod-group" {
   ]
 }
 
-resource "aws_key_pair" "deployer-key" {
+resource "aws_key_pair" "deployer" {
   key_name   = var.key_name
   public_key = var.public_key
 }
