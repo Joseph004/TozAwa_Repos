@@ -1,0 +1,81 @@
+@page "/"
+@using AuthenticationServices
+@using Configuration
+@using Models.Dtos
+@using Services
+@using System.Web
+@inject NavigationManager NavManager
+@attribute [AllowAnonymous]
+
+<h1 style="float: left">Waiting for you to login...</h1>
+
+@code {
+    [CascadingParameter] protected Task<AuthenticationState> AuthStat { get; set; }
+    [Inject] private IDialogService DialogService { get; set; }
+    [Inject] ICurrentUserService CurrentUserService { get; set; }
+    [Inject] IJSRuntime JSRuntime { get; set; }
+    [Inject] AppSettings AppSettings { get; set; }
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        try
+        {
+            var user = (await AuthStat).User;
+            if (!user.Identity.IsAuthenticated)
+            {
+                await Login();
+            }
+            else
+            {
+                var currentUser = await CurrentUserService.GetCurrentUser();
+                if (currentUser != null)
+                {
+                    NavManager.NavigateTo("/translations");
+                }
+                else
+                {
+                    await Login();
+                }
+
+            }
+        }
+        catch
+        {
+            Console.WriteLine("Oh no..");
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+    private string Encode(string param)
+    {
+        return HttpUtility.UrlEncode(param);
+    }
+    private async Task Login()
+    {
+        var parameters = new DialogParameters
+        {
+            ["Title"] = "Login"
+        };
+        DialogOptions options = new DialogOptions()
+        {
+            DisableBackdropClick = true,
+            Position = DialogPosition.Center,
+            FullWidth = true,
+            MaxWidth = MaxWidth.Medium,
+            CloseButton = false
+        };
+        var dialog = DialogService.Show<LoginViewModal>("Login", parameters, options);
+        var result = await dialog.Result;
+
+        if (!result.Cancelled)
+        {
+            var user = (CurrentUserDto)result.Data;
+            if (user != null)
+            {
+                var rootUser = user.RootUser ? AppSettings.RootKey.Key : "NotNotRoot";
+                await CurrentUserService.SetCurrentUser(user);
+                var loginUrl =
+                $"/login?paramUserName={Encode(user.UserName)}&paramRootUser={Encode(rootUser)}&paramUserId={Encode(user.Id.ToString())}";
+                await JSRuntime.InvokeVoidAsync("open", loginUrl, "_top");
+            }
+        }
+    }
+}

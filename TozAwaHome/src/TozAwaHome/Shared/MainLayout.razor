@@ -1,0 +1,73 @@
+﻿@implements IDisposable
+
+@using TozAwaHome.Models;
+@using TozAwaHome.Services;
+
+@inherits LayoutComponentBase
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" CloseButton="true" DisableBackdropClick="false"
+				   NoHeader="false" Position="DialogPosition.Center" />
+
+<div class="page @_disableAttrString">
+	<div class="sidebar">
+		@if (_userIsLoggedIn)
+		{
+		<NavMenu />
+		}
+	</div>
+
+	<main>
+		<LoadingScreen>
+		<LanguageSelection />
+
+		<MudSpacer />
+		<div class="top-row px-4">
+			<a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+		</div>
+
+		<article class="content pageBody px-4">
+			@Body
+		</article>
+		</LoadingScreen>
+	</main>
+</div>
+
+@code {
+	private bool _userIsLoggedIn = false;
+	private bool _disabledPage = false;
+	private string _disableAttrString = "";
+	[Inject] LoadingState LoadingState { get; set; }
+
+	protected override void OnInitialized()
+	{
+		LoadingState.OnChange += DisabledPage;
+	}
+
+	private void DisabledPage()
+	{
+		_disabledPage = LoadingState.RequestInProgress;
+
+		_disableAttrString = _disabledPage ? "disabledPage" : "";
+
+		StateHasChanged();
+	}
+
+	void IDisposable.Dispose()
+	{
+		LoadingState.OnChange -= DisabledPage;
+	}
+
+	protected async override Task OnInitializedAsync()
+	{
+		var currentUser = await currentUserService.GetCurrentUser();
+		_userIsLoggedIn = currentUser != null && currentUser.Id != Guid.Empty;
+		await base.OnInitializedAsync();
+	}
+
+	[Inject] public ICurrentUserService currentUserService { get; set; }
+}
+

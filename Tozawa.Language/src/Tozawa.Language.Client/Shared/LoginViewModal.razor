@@ -1,0 +1,51 @@
+@namespace Tozawa.Language.Client.Shared
+@implements IDisposable
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Filled.Login" Class="mr-3 mb-n1" />
+            <span>Toz'Awa</span>
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudCard>
+            <MudForm Model="@model" @bind-IsValid="@_success" @bind-bind-bind-Errors="@_errors" @ref="@form"
+                ValidationDelay="0">
+                <MudCardContent>
+                    @if (_errors.Any())
+                    {
+                        @foreach (var item in _errors)
+                        {
+                            <MudText Color=Color.Error>
+                                @item
+                            </MudText>
+                        }
+                    }
+                    <MudTextField Validation="LoginValidator().ValidateValue"
+                        @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.UserName"
+                        For="@(() => model.UserName)" Immediate="true" Label="Username" />
+
+                    <MudTextField Validation="LoginValidator().ValidateValue"
+                        @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Password"
+                        For="@(() => model.Password)" Immediate="true" Label="Password"
+                        InputType="InputType.Password" />
+                </MudCardContent>
+            </MudForm>
+        </MudCard>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Disabled="@DisabledLoginButton()" OnClick="@((MouseEventArgs e)=>LoginByClick(@loginButton, e))"
+            Color="Color.Primary" Variant="Variant.Filled" Class="ml-auto" Target="_top">
+            @if (_processing)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">Processing</MudText>
+            }
+            else
+            {
+                <MudText>Login</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>

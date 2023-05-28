@@ -1,0 +1,29 @@
+@* @implements IDisposable *@
+@namespace Tozawa.Language.Client.Shared
+@inject NavigationManager NavManager
+
+
+<MudAppBar Elevation="3">
+    <img src="/images/Tozawa-Big-TFormat_Without-Background-White.png" asp-append-version="true" height="40px"
+        width="350px" />
+    <NavBarButtons />
+    <MudSpacer />
+
+    <AuthorizeView>
+        <Authorized>
+            <LoadingScreen>
+                <UserMenu />
+            </LoadingScreen>
+        </Authorized>
+        <NotAuthorized>
+            <LoadingScreen>
+                <MudButton OnClick="@(()=>Login())" Color="Color.Inherit">
+                    <MudText>
+                        <MudIcon class="text-icon" Icon="@Icons.Filled.Login" Size="Size.Small"></MudIcon>
+                        Login
+                    </MudText>
+                </MudButton>
+            </LoadingScreen>
+        </NotAuthorized>
+    </AuthorizeView>
+</MudAppBar>

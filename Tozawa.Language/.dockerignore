@@ -1,0 +1,16 @@
+######################################
+# IGNORE FOLDERS
+packages/
+**/bin/
+**/obj/
+**/.idea/
+**/node_modules
+**/.vs/
+/.vs
+
+# IGNORE FILES
+*.tmp
+*.tmp_proj
+*.vspscc
+*.vssscc
+*.Development.json
