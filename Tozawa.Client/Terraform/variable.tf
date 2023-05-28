@@ -1,7 +1,7 @@
 variable "region" {
-  default = "us-east-1"
+  default = "eu-north-1"
 }
-variable "public_ip" {
+variable "public_key" {
 
 }
 variable "private_key" {
