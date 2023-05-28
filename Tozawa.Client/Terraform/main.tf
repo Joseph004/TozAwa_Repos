@@ -77,7 +77,7 @@ resource "aws_security_group" "nonprod-group" {
   ]
 }
 
-resource "aws_key_pair" "deployer_nonprod" {
+resource "aws_key_pair" "deployer" {
   key_name   = var.key_name
   public_key = var.public_key
 }
