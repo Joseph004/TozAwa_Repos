@@ -45,7 +45,7 @@ jobs:
         - name: Terraform init
           id: init
           run: terraform init -backend-config="bucket=$TF_STATE_BUCKET_NAME" -backend-config="region=us-east-1"
-          working-directory: Tozawa.Client/terraform
+          working-directory: Tozawa.Client/Terraform
         - name: Terraform Plan
           id: plan
           run: |-
@@ -55,8 +55,8 @@ jobs:
             -var="private_key=$PRIVATE_SSH_KEY" \
             -var="key_name=deployer-key" \
             -out=PLAN
-          working-directory: Tozawa.Client/terraform
+          working-directory: Tozawa.Client/Terraform
         - name: Terraform Apply
           id: apply
           run: terraform apply PLAN
-          working-directory: Tozawa.Client/terraform
+          working-directory: Tozawa.Client/Terraform
