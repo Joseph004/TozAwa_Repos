@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 WORKDIR /usr/app
 # Copy csproj and restore
-COPY *.csproj ./
+COPY src/TozAwa.Client.Portal/TozAwa.Client.Portal.csproj ./
 RUN dotnet restore
 
 # Copy everything else and build
