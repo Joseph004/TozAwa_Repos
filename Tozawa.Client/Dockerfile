@@ -7,14 +7,14 @@ RUN dotnet restore
 
 # Copy everything else and build
 COPY . ./
-# RUN dotnet publish -c Release -o out
+RUN dotnet publish -c Release -o out
 
 # Generate runtime image
-#FROM mcr.microsoft.com/dotnet/sdk:6.0
-#WORKDIR /tozawa_repos
+FROM mcr.microsoft.com/dotnet/sdk:6.0
+WORKDIR /tozawa-repos
 # Ensure we listen on any IP Address 
-#ENV DOTNET_URLS=http://+:80
-EXPOSE 8080
-#VOLUME [ "/CustomerSettings" ]
-#COPY --from=build-env /tozawa_repos/out .
-CMD ["dotnet", "src/TozAwa.Client.Portal/TozAwa.Client.Portal.dll"]
+ENV DOTNET_URLS=http://+:80
+EXPOSE 80
+VOLUME [ "src/TozAwa.Client.Portal/TozAwa.Client.Portal/CustomerSettings" ]
+COPY --from=build-env /tozawa-repos/out .
+ENTRYPOINT ["dotnet", "src/TozAwa.Client.Portal/TozAwa.Client.Portal.dll"]
