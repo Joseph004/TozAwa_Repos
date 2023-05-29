@@ -80,7 +80,7 @@ jobs:
         - name: Build, push docker image
           env:
             REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            REPOSITORY: tozawa_repos
+            REPOSITORY: tozawa-repos
             IMAGE_TAG: ${{ github.sha }}
           run: |-
             docker build -t $REGISTRY/REPOSITORY:$IMAGE_TAG .
@@ -89,7 +89,7 @@ jobs:
         - name: Deploy docker iamge to EC2
           env: 
             REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-            REPOSITORY: tozawa_repos
+            REPOSITORY: tozawa-repos
             IMAGE_TAG: ${{ github.sha }}
             AWS_DEFAULT_REGION: eu-east-1
           uses: appleboy/ssh-action@master
