@@ -12,6 +12,12 @@ terraform {
 
 provider "aws" {
   region = var.region
+
+  default_tags {
+    tags = {
+      hashicorp-learn = "refresh"
+    }
+  }
 }
 
 resource "aws_instance" "container_nonprod" {

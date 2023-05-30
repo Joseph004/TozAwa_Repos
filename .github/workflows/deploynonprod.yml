@@ -51,7 +51,7 @@ jobs:
         - name: Terraform Plan
           id: plan
           run: |-
-            terraform plan \
+            terraform plan -refresh-only \
             -var="region=eu-west-1" \
             -var="public_key=$PUBLIC_SSH_KEY" \
             -var="private_key=$PRIVATE_SSH_KEY" \
@@ -60,7 +60,7 @@ jobs:
           working-directory: Tozawa.Client/Terraform
         - name: Terraform Apply
           id: apply
-          run: terraform apply --refresh-only PLAN
+          run: terraform apply -refresh-only PLAN
           working-directory: Tozawa.Client/Terraform
         - name: Set output
           id: set-ip
