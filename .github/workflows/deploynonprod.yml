@@ -65,22 +65,19 @@ jobs:
         - name: Set output
           id: set-ip
           run: |-
-            echo "instance_public_ip=$(terraform output instance_public_ip)"
+            echo "instance_public_ip=$(terraform output instance_public_ip)" >> "$GITHUB_OUTPUT"
           working-directory: Tozawa.Client/Terraform
-        - name: Test2 ${{ steps.set-ip.outputs.instance_public_ip }}
-          run: ${{ steps.set-ip.outputs.instance_public_ip }}
-        - name: Test3 ${{ steps.apply.outputs.instance_public_ip }}
-          run: ${{ steps.apply.outputs.instance_public_ip }}
     deploy-app:
       runs-on: ubuntu-latest
       needs: deploy-infra
       steps:
+        - env:
+            TEST1: ${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}
+          run: echo "$TEST1"
         - name: Checkout
           uses: actions/checkout@v3
         - name: Set IP env variable
-          run: echo "SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}" >> $GITHUB_ENV
-        - name: Test1 ${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}
-          run: ${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }}
+          run: echo SERVER_PUBLIC_IP=${{ needs.deploy-infra.outputs.SERVER_PUBLIC_IP }} >> "$GITHUB_ENV"
         - name: Login to AWS ECR
           id: login-ecr
           uses: aws-actions/amazon-ecr-login@v1
