@@ -110,4 +110,5 @@ jobs:
               sudo docker stop tznonprodcontainer || true
               sudo docker rm tznonprodcontainer || true
               sudo docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+              sudo docker build . -t $REGISTRY/$REPOSITORY:$IMAGE_TAG
               sudo docker run --name tznonprodcontainer -p 80:8080 $REGISTRY/$REPOSITORY:$IMAGE_TAG
