@@ -65,7 +65,7 @@ jobs:
         - name: Set output
           id: set-ip
           run: |-
-            echo "instance_public_ip=$(terraform output instance_public_ip)" PLAN
+            echo "instance_public_ip=$(terraform output instance_public_ip)" -out=PLAN
           working-directory: Tozawa.Client/Terraform
     deploy-app:
       runs-on: ubuntu-latest
