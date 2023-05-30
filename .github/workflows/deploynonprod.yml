@@ -60,7 +60,7 @@ jobs:
           working-directory: Tozawa.Client/Terraform
         - name: Terraform Apply
           id: apply
-          run: terraform apply PLAN
+          run: terraform apply --refresh-only PLAN
           working-directory: Tozawa.Client/Terraform
         - name: Set output
           id: set-ip
