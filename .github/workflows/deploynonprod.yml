@@ -91,10 +91,12 @@ jobs:
               sudo $(aws ecr get-login --no-include-email --region eu-west-1) 2>/dev/null
               sudo chmod 666 /var/run/docker.sock
               sudo docker ps -q --filter "status=exited" | xargs --no-run-if-empty docker rm
-              docker volume ls -qf dangling=true | xargs -r docker volume rm
+              sudo docker volume ls -qf dangling=true | xargs -r docker volume rm
               sudo docker image prune -f
               sudo docker system prune -f
-              docker system prune --volumes
+              sudo docker system prune --volumes -f
+              sudo docker system df
+              sudo docker builder prune -f
               sudo docker ps -a
               sudo docker ps -q --filter "name=tznonprodcontainer" | grep -q . && sudo docker stop tznonprodcontainer && sudo docker rm -fv tznonprodcontainer
               sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
