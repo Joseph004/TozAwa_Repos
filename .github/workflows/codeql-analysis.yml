@@ -11,12 +11,12 @@
 #
 name: "CodeQL"
 on:
-  # push:
+   push:
   #   paths:
   #     - '.github/**'
   # run at every hours between every day
-  schedule:
-    - cron: "40 7-17 * * *"
+  #schedule:
+    #- cron: "40 7-17 * * *"
 
 jobs:
   analyze:

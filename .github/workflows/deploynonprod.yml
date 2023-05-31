@@ -67,8 +67,10 @@ jobs:
             REPOSITORY: tozawa-repos
             IMAGE_TAG: ${{ github.sha }}
           run: |-
+            docker rmi $(docker images -a --filter=dangling=true -q)
+            docker rm $(docker ps --filter=status=exited --filter=status=created -q)
             docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG . --no-cache
-            docker tag $REGISTRY/$REPOSITORY:latest $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:$IMAGE_TAG
             docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           working-directory: Tozawa.Client
         - name: Deploy docker iamge to EC2
