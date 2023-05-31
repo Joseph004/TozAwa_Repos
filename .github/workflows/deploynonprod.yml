@@ -88,7 +88,7 @@ jobs:
               sudo apt-get update
               sudo apt-get install docker.io -y
               sudo apt-get install awscli -y
-              sudo $(aws ecr get-login --no-include-email --region eu-west-1 | awk '{printf $6}' | docker login -u AWS --password-stdin $(aws ecr get-login --no-include-email --region eu-west-1 | awk '{print $7}'))
+              sudo $(aws ecr get-login --no-include-email --region eu-west-1) 2>/dev/null
               sudo docker stop tznonprodcontainer || true
               sudo docker rm tznonprodcontainer || true
               sudo docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
