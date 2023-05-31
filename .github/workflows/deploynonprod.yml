@@ -69,6 +69,7 @@ jobs:
           run: |-
             docker image prune --filter="dangling=true"
             docker image prune --filter="status=exited" --filter="status=created"
+            docker system prune -a
             docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG . --no-cache
             docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:$IMAGE_TAG
             docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
