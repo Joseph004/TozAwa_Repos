@@ -91,8 +91,6 @@ jobs:
               sudo $(aws ecr get-login --no-include-email --region eu-west-1) 2>/dev/null
               sudo docker ps -a
               sudo docker ps -q --filter "name=tznonprodcontainer" | grep -q . && sudo docker stop tznonprodcontainer && sudo docker rm -fv tznonprodcontainer
-              sudo docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-              sudo docker build . -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --no-cache
-              sudo docker tag $IMAGE_TAG $REGISTRY/$REPOSITORY:latest
+              sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
               sudo docker images
               sudo docker run -p 80:8080 --name tznonprodcontainer $REGISTRY/$REPOSITORY:$IMAGE_TAG
