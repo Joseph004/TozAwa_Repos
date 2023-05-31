@@ -67,7 +67,7 @@ jobs:
             REPOSITORY: tozawa-repos
             IMAGE_TAG: ${{ github.sha }}
           run: |-
-            docker rmi $(docker images --filter=reference="${{ steps.login-ecr.outputs.registry }}/tozawa-repos:${{ github.sha }}" -q || true) || true
+            docker image prune -a
             docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG . --no-cache
             docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           working-directory: Tozawa.Client
