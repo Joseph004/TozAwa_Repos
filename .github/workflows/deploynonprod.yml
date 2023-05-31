@@ -89,6 +89,7 @@ jobs:
               sudo apt-get install docker.io -y
               sudo apt-get install awscli -y
               sudo $(aws ecr get-login --no-include-email --region eu-west-1) 2>/dev/null
+              sudo chmod 666 /var/run/docker.sock
               sudo docker ps -q --filter "status=exited" | xargs --no-run-if-empty docker rm
               docker volume ls -qf dangling=true | xargs -r docker volume rm
               sudo docker ps -a
