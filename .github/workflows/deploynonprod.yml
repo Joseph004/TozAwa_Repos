@@ -13,26 +13,6 @@ env:
   AWS_REGION: eu-west-1
 
 jobs:
-    build:
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v2
-        - name: Run a one-line script
-          run: echo Hello, world!
-        - name: Run a multi-line script
-          run: |
-            echo Add other actions to build,
-            echo test, and deploy your project.
-        - name: java version
-          run: java -version
-        - name: maven version
-          run: mvn --version
-        - name: python version
-          run: python --version
-        - name: docker version
-          run: docker -v
-        - name: terraform version
-          run: terraform --version
     deploy-infra:
       runs-on: ubuntu-latest
       outputs: 
@@ -87,7 +67,7 @@ jobs:
             REPOSITORY: tozawa-repos
             IMAGE_TAG: ${{ github.sha }}
           run: |-
-            docker rmi $(docker images --filter=reference="${{ steps.login-ecr.outputs.registry }}/tozawa-repos:${{ github.sha }}" -q)
+            docker rmi $(docker images --filter=reference="${{ steps.login-ecr.outputs.registry }}/tozawa-repos:${{ github.sha }}" -q || true) || true
             docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG . --no-cache
             docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
           working-directory: Tozawa.Client
