@@ -87,8 +87,8 @@ jobs:
             REPOSITORY: tozawa-repos
             IMAGE_TAG: ${{ github.sha }}
           run: |-
-            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG .
-            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
+            docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG:latest .
+            docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG:latest
           working-directory: Tozawa.Client
         - name: Deploy docker iamge to EC2
           env: 
@@ -109,6 +109,6 @@ jobs:
               sudo $(aws ecr get-login --no-include-email --region eu-east-1)
               sudo docker stop tznonprodcontainer || true
               sudo docker rm tznonprodcontainer || true
-              sudo docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
-              sudo docker build . -t $REGISTRY/$REPOSITORY:$IMAGE_TAG
+              sudo docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG:latest
+              sudo docker build . -t $REGISTRY/$REPOSITORY:$IMAGE_TAG:latest
               sudo docker run --name tznonprodcontainer -p 80:8080 $REGISTRY/$REPOSITORY:$IMAGE_TAG
