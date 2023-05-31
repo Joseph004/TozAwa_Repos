@@ -67,8 +67,6 @@ jobs:
             REPOSITORY: tozawa-repos
             IMAGE_TAG: ${{ github.sha }}
           run: |-
-            docker image prune -f
-            docker system prune -f
             docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG . --no-cache
             docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:$IMAGE_TAG
             docker images
@@ -90,7 +88,7 @@ jobs:
               sudo apt-get update
               sudo apt-get install docker.io -y
               sudo apt-get install awscli -y
-              sudo $(aws ecr get-login --no-include-email --region eu-west-1)
+              sudo $(aws ecr get-login --no-include-email --region --password-stdin eu-west-1)
               sudo docker stop tznonprodcontainer || true
               sudo docker rm tznonprodcontainer || true
               sudo docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
