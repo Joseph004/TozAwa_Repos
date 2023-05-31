@@ -89,8 +89,8 @@ jobs:
               sudo apt-get install docker.io -y
               sudo apt-get install awscli -y
               sudo $(aws ecr get-login --no-include-email --region eu-west-1) 2>/dev/null
-              sudo docker stop tznonprodcontainer || true
-              sudo docker rm tznonprodcontainer || true
+              sudo docker container stop tznonprodcontainer || true
+              sudo docker container rm -f tznonprodcontainer || true
               sudo docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
               sudo docker build . -t $REGISTRY/$REPOSITORY:$IMAGE_TAG --no-cache
-              sudo docker run --name tznonprodcontainer -p 80:8080 $REGISTRY/$REPOSITORY:$IMAGE_TAG
+              sudo docker run -p 80:8080 --name tznonprodcontainer $REGISTRY/$REPOSITORY:$IMAGE_TAG
