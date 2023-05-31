@@ -94,6 +94,7 @@ jobs:
               docker volume ls -qf dangling=true | xargs -r docker volume rm
               sudo docker image prune -f
               sudo docker system prune -f
+              docker system prune --volumes
               sudo docker ps -a
               sudo docker ps -q --filter "name=tznonprodcontainer" | grep -q . && sudo docker stop tznonprodcontainer && sudo docker rm -fv tznonprodcontainer
               sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
