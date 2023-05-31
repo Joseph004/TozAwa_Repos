@@ -67,9 +67,8 @@ jobs:
             REPOSITORY: tozawa-repos
             IMAGE_TAG: ${{ github.sha }}
           run: |-
-            docker image prune --filter="dangling=true" -f
-            docker image prune --filter="status=exited" --filter="status=created" -f
-            docker system prune -a -f
+            docker image prune -f
+            docker system prune -f
             docker build -t $REGISTRY/$REPOSITORY:$IMAGE_TAG . --no-cache
             docker tag $REGISTRY/$REPOSITORY:$IMAGE_TAG $REGISTRY/$REPOSITORY:$IMAGE_TAG
             docker push $REGISTRY/$REPOSITORY:$IMAGE_TAG
