@@ -13,6 +13,7 @@ RUN dotnet publish src/TozAwa.Client.Portal/TozAwa.Client.Portal.csproj -c Relea
 
 # Generate runtime image
 FROM mcr.microsoft.com/dotnet/sdk:6.0
+RUN dotnet tool install -g dotnet-ef --version 6.0
 WORKDIR /app
 # Ensure we listen on any IP Address 
 ENV DOTNET_URLS=http://+:80
