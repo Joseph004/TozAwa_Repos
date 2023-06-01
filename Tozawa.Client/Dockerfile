@@ -15,7 +15,7 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0
 WORKDIR /app
 COPY --from=build-env /app ./
 # Ensure we listen on any IP Address 
-ENV DOTNET_URLS=http://+:80
+#ENV DOTNET_URLS=http://+:80
 EXPOSE 8080
-VOLUME [ "CustomerSettings" ]
+#VOLUME [ "CustomerSettings" ]
 ENTRYPOINT ["dotnet", "TozAwa.Client.Portal.dll"]
