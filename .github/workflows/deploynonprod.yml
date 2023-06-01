@@ -100,7 +100,7 @@ jobs:
               sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
               sudo docker images
               sudo add-apt-repository universe
-              sudo apt-get install apt-transport-https
+              sudo apt-get -f install apt-transport-https
               sudo apt-get update
-              sudo apt-get install dotnet-sdk-6.0
+              sudo apt-get -f install dotnet-sdk-6.0
               sudo docker run -p 80:8080 --name tznonprodcontainer $REGISTRY/$REPOSITORY:$IMAGE_TAG
