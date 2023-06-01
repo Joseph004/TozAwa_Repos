@@ -4,12 +4,12 @@ ENV PATH $PATH:/root/.dotnet/tools
 RUN dotnet tool install -g dotnet-ef --version 6.0
 WORKDIR /src/TozAwa.Client.Portal
 # Copy csproj and restore
-COPY TozAwa.Client.Portal.csproj ./
+COPY *.csproj ./
 RUN dotnet restore
 
 # Copy everything else and build
 COPY . ./
-RUN dotnet publish TozAwa.Client.Portal.csproj -c Release -o out
+RUN dotnet publish -c Release -o out
 
 # Generate runtime image
 FROM mcr.microsoft.com/dotnet/sdk:6.0

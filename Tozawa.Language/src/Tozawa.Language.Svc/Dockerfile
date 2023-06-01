@@ -15,6 +15,6 @@ WORKDIR /tozawa_repos
 # Ensure we listen on any IP Address 
 ENV DOTNET_URLS=http://+:80
 EXPOSE 80
-VOLUME [ "/CustomerSettings" ]
+VOLUME [ "CustomerSettings" ]
 COPY --from=build-env /tozawa_repos/out .
 ENTRYPOINT ["dotnet", "Tozawa.Language.Svc.dll"]
