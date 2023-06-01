@@ -11,7 +11,9 @@
 #
 name: "CodeQL"
 on:
-   push:
+  pull_request:
+    types: [opened, edited, synchronize]
+  #push:
   #   paths:
   #     - '.github/**'
   # run at every hours between every day

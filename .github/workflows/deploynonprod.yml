@@ -88,7 +88,6 @@ jobs:
               sudo apt-get update
               sudo apt-get install docker.io -y
               sudo apt-get install awscli -y
-              sudo apt-get install -y donet-sdk-6.0
               sudo $(aws ecr get-login --no-include-email --region eu-west-1) 2>/dev/null
               sudo chmod 666 /var/run/docker.sock
               sudo docker ps -q --filter "status=exited" | xargs --no-run-if-empty docker rm
@@ -103,6 +102,8 @@ jobs:
               sudo docker ps -q --filter "name=tznonprodcontainer" | grep -q . && sudo docker stop tznonprodcontainer && sudo docker rm -fv tznonprodcontainer
               sudo docker pull $REGISTRY/$REPOSITORY:$IMAGE_TAG
               sudo docker images
-              export PATH="$PATH:$HOME/.dotnet"
-              dotnet tool install -g dotnet-ef --version 6.0
+              sudo add-apt-repository universe
+              sudo apt-get install apt-transport-https
+              sudo apt-get update
+              sudo apt-get install dotnet-sdk-6.0
               sudo docker run -p 80:8080 --name tznonprodcontainer $REGISTRY/$REPOSITORY:$IMAGE_TAG
