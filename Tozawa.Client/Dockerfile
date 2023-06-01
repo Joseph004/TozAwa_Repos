@@ -17,4 +17,5 @@ ENV DOTNET_URLS=http://+:80
 EXPOSE 8080
 VOLUME [ "src/TozAwa.Client.Portal/TozAwa.Client.Portal/CustomerSettings" ]
 # COPY --from=build-env /tozawa-repos/out .
+ADD bin/Release/net6.0/src/TozAwa.Client.Portal/TozAwa.Client.Portal.dll src/TozAwa.Client.Portal/TozAwa.Client.Portal.dll
 ENTRYPOINT ["dotnet", "src/TozAwa.Client.Portal/TozAwa.Client.Portal.dll"]
