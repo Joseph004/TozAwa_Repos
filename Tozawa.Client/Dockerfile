@@ -7,7 +7,7 @@ RUN dotnet restore
 
 # Copy everything else and build
 COPY . ./
-RUN dotnet publish Tozawa.Client.sln -c Release -o out
+RUN dotnet publish src/TozAwa.Client.Portal/TozAwa.Client.Portal.csproj -c Release -o out
 
 # Generate runtime image
 FROM mcr.microsoft.com/dotnet/sdk:6.0
