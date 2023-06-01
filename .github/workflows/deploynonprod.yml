@@ -95,7 +95,6 @@ jobs:
               sudo docker image prune -f
               sudo docker system prune -f
               sudo docker system prune -a --volumes -f
-              sudo docker system -f df
               sudo docker builder prune -f
               sudo docker images -a -q -f | % { docker image rm $_ -f }
               sudo docker ps -a
