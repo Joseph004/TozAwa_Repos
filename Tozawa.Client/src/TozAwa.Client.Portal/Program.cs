@@ -20,8 +20,8 @@ namespace TozAwa.Client.Portal
         {
             var config = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("CustomerSettings/appsettings.json", false)
-                .AddJsonFile($"CustomerSettings/appsettings.Development.json", optional: true, reloadOnChange: true)
+                .AddJsonFile("appsettings.json", false)
+                .AddJsonFile($"appsettings.Development.json", optional: true, reloadOnChange: true)
                 .AddCommandLine(args)
                 .Build();
             return Host.CreateDefaultBuilder(args).ConfigureWebHostDefaults(webBuilder =>
