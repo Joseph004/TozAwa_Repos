@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Identity.Web.Resource;
 using Tozawa.Bff.Portal.ClientMessages;
 using Tozawa.Bff.Portal.Configuration;
 using Tozawa.Bff.Portal.Models;
@@ -11,7 +12,8 @@ using Tozawa.Bff.Portal.Services;
 
 namespace Tozawa.Bff.Portal.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = "tzappauthentication")]
+    [Authorize(AuthenticationSchemes = "tzuserauthentication")]
     [Route("api/[controller]")]
     [Produces("application/json")]
     public class MemberController : InitController

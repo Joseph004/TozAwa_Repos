@@ -6,10 +6,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using Tozawa.Client.Portal.Configurations;
 using Tozawa.Client.Portal.Extensions;
@@ -27,12 +27,14 @@ namespace Tozawa.Client.Portal.HttpClients
         private readonly ICurrentUserService _currentUserService;
         private readonly ITranslationService _translationService;
         private readonly AppSettings _appSettings;
+        private readonly ILocalStorageService _localStorage;
 
         public HttpClientHelper(
             HttpClient client,
             ICurrentUserService currentUserService,
             ITranslationService translationService,
             AppSettings appSettings,
+            ILocalStorageService localStorage,
             ILogger<HttpClientHelper> logger)
         {
             _logger = logger;
@@ -40,6 +42,7 @@ namespace Tozawa.Client.Portal.HttpClients
             _appSettings = appSettings;
             _currentUserService = currentUserService;
             _translationService = translationService;
+            _localStorage = localStorage;
         }
 
         public static HttpResponseMessage CreateHttpResonseMessage(HttpRequestMessage request, HttpResponseMessage response)
@@ -259,11 +262,18 @@ namespace Tozawa.Client.Portal.HttpClients
 
         protected async Task<HttpResponseMessage> Send(HttpRequestMessage request)
         {
-            var token = await GetToken();
+            /* var token = await GetToken();
+            request.Headers.Authorization =
+                   new AuthenticationHeaderValue("tzappauthentication", token); */
+
             var activeLanguage = await _translationService.GetActiveLanguage();
 
-            request.Headers.Authorization =
-                   new AuthenticationHeaderValue("bearer", token);
+            var userToken = await _localStorage.GetItemAsync<string>("authToken");
+
+            if (!string.IsNullOrEmpty(userToken))
+            {
+                request.Headers.Add("tzuserauthentication", userToken);
+            }
 
             var currentUser = await _currentUserService.GetCurrentUser();
             request.Headers.Add("current-user", System.Text.Json.JsonSerializer.Serialize(currentUser));
@@ -275,43 +285,96 @@ namespace Tozawa.Client.Portal.HttpClients
 
         protected async Task<HttpResponseMessage> PostFile(string url, HttpContent request)
         {
-            var token = await GetToken();
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            /*  var token = await GetToken();
+             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("tzappauthentication", token); */
+            var userToken = await _localStorage.GetItemAsync<string>("authToken");
+
+            if (!string.IsNullOrEmpty(userToken))
+            {
+                request.Headers.Add("tzuserauthentication", userToken);
+            }
             var response = await _client.PostAsync(url, request).ConfigureAwait(false);
 
             return response;
         }
-        public async Task<string> GetToken()
-        {
-            var result = await RunAsync();
+        /*  public async Task<string> GetToken()
+         {
+             var result = await RunAsync();
 
-            if (string.IsNullOrEmpty(result.AccessToken))
-            {
-                throw new ArgumentNullException(nameof(result.AccessToken));
-            }
-            return result.AccessToken;
-        }
-        public async Task<AuthenticationResult> RunAsync()
-        {
-            IConfidentialClientApplication app;
+             if (string.IsNullOrEmpty(result.AccessToken))
+             {
+                 throw new ArgumentNullException(nameof(result.AccessToken));
+             }
+             return result.AccessToken;
+         }
+         public async Task<AuthenticationResult> RunAsync()
+         {
+             IConfidentialClientApplication app;
 
-            app = ConfidentialClientApplicationBuilder.Create(_appSettings.AADClient.ClientId)
-                .WithClientSecret(_appSettings.AADClient.ClientSecret)
-                .WithAuthority(new Uri(_appSettings.AADClient.Authority))
-                .Build();
+             app = ConfidentialClientApplicationBuilder.Create(_appSettings.AADClient.ClientId)
+                 .WithClientSecret(_appSettings.AADClient.ClientSecret)
+                 .WithAuthority(new Uri(_appSettings.AADClient.Authority))
+                 .Build();
 
-            var ResourceIds = new string[] { _appSettings.TozAwaBffApiSettings.ResourceId };
+             var ResourceIds = new string[] { _appSettings.TozAwaBffApiSettings.ResourceId };
 
-            AuthenticationResult result = null;
-            try
-            {
-                result = await app.AcquireTokenForClient(ResourceIds).ExecuteAsync();
-            }
-            catch (MsalClientException ex)
-            {
-                _logger.LogError(ex, "Fail to get token");
-            }
-            return result;
-        }
+             AuthenticationResult result = null;
+             try
+             {
+                 result = await app.AcquireTokenForClient(ResourceIds).ExecuteAsync();
+             }
+             catch (MsalClientException ex)
+             {
+                 _logger.LogError(ex, "Fail to get token");
+             }
+             return result;
+         } */
+
+        /*  public async Task<string> GetToken()
+         {
+             var result = await RunAsync();
+
+             if (string.IsNullOrEmpty(result.Access_token))
+             {
+                 throw new ArgumentNullException(nameof(result.Access_token));
+             }
+             return result.Access_token;
+         }
+         public async Task<TokenResponse> RunAsync()
+         {
+             var tokenUrl = $"{_appSettings.AADClient.Authority}/oauth2/v2.0/token";
+
+             using var client = new HttpClient();
+
+             client.DefaultRequestHeaders.Add("Accept", "application/x-www-form-urlencoded");
+
+             var formContent = new FormUrlEncodedContent(new[]
+             {
+               new KeyValuePair<string, string>("client_id", _appSettings.AADClient.ClientId),
+               new KeyValuePair<string, string>("scope", _appSettings.TozAwaBffApiSettings.ResourceId),
+               new KeyValuePair<string, string>("client_secret", _appSettings.AADClient.ClientSecret),
+               new KeyValuePair<string, string>("grant_type", "client_credentials"),
+             });
+             TokenResponse result = null;
+             try
+             {
+                 var req = new HttpRequestMessage(HttpMethod.Post, tokenUrl) { Content = formContent };
+                 var response = await client.SendAsync(req);
+                 result = await response.Content.ReadAsJsonAsync<TokenResponse>();
+             }
+             catch (Exception ex)
+             {
+                 _logger.LogError(ex, "Fail to get token");
+             }
+             return result;
+         }
+
+         public class TokenResponse
+         {
+             public string Token_type { get; set; }
+             public string Expires_in { get; set; }
+             public string Ext_expires_in { get; set; }
+             public string Access_token { get; set; }
+         } */
     }
 }

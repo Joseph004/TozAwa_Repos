@@ -32,8 +32,9 @@ namespace Tozawa.Auth.Svc.Controllers
         private readonly ICurrentCountry _currentCountry;
         private readonly IMediator _mediator;
         private readonly IDataProtectionProviderService _dataProtectionProviderService;
+        private readonly IUserTokenService _userTokenService;
 
-        public AuthenticateController(UserManager<ApplicationUser> userManager, IDataProtectionProviderService dataProtectionProviderService, ICurrentCountry currentCountry, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IMediator mediator)
+        public AuthenticateController(UserManager<ApplicationUser> userManager, IDataProtectionProviderService dataProtectionProviderService, ICurrentCountry currentCountry, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IUserTokenService userTokenService, IMediator mediator)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -41,6 +42,7 @@ namespace Tozawa.Auth.Svc.Controllers
             _currentCountry = currentCountry;
             _mediator = mediator;
             _dataProtectionProviderService = dataProtectionProviderService;
+            _userTokenService = userTokenService;
         }
 
         [HttpGet, Route("current/{oid:Guid}")]
@@ -55,7 +57,7 @@ namespace Tozawa.Auth.Svc.Controllers
                 ErrorMessage = ""
             };
 
-            var pswd = await _dataProtectionProviderService.DecryptAsync(request.Content);
+            var pswd = request.Content;
 
             var command = new LoginCommand
             {
@@ -96,8 +98,12 @@ namespace Tozawa.Auth.Svc.Controllers
                 return Ok(response);
             }
 
-            response.User = await _mediator.Send(new GetCurrentUserQuery(user.UserId));
+            var userDto = await _mediator.Send(new GetCurrentUserQuery(user.UserId));
 
+            var securityToken = _userTokenService.GenerateTokenOptions(userDto);
+            var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
+
+            response.Token = token;
             /* var ng = userManager.Users.Where(x => x.RootUser).FirstOrDefault();
             await userManager.AddPasswordAsync(ng, "Zairenumber01?"); */
 
@@ -168,7 +174,8 @@ namespace Tozawa.Auth.Svc.Controllers
                 ErrorMessage = ""
             };
 
-            var pswd = await _dataProtectionProviderService.DecryptAsync(request.Content);
+            var pswd = request.Content;
+            //await _dataProtectionProviderService.DecryptAsync(request.Content);
 
             var command = new LoginRootCommand
             {
@@ -214,7 +221,8 @@ namespace Tozawa.Auth.Svc.Controllers
                 response.ErrorMessageGuid = SystemTextId.Unauthorized;
                 return Ok(response);
             }
-
+            //var token = await userManager.GeneratePasswordResetTokenAsync(user);
+            //await userManager.ResetPasswordAsync(user, token, pswd);
             //await userManager.AddPasswordAsync(user, request.Password);
 
             var validPassword = await userManager.CheckPasswordAsync(user, command.Password);
@@ -258,7 +266,12 @@ namespace Tozawa.Auth.Svc.Controllers
                 }
             }
 
-            response.User = await _mediator.Send(new GetCurrentUserQuery(user.UserId));
+            var userDto = await _mediator.Send(new GetCurrentUserQuery(user.UserId));
+
+            var securityToken = _userTokenService.GenerateTokenOptions(userDto);
+            var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
+
+            response.Token = token;
 
             return Ok(response);
         }

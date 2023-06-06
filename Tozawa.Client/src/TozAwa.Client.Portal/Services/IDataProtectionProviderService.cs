@@ -5,6 +5,6 @@ namespace Tozawa.Client.Portal.Services;
 
 public interface IDataProtectionProviderService
 {
-    Task<byte[]> EncryptAsync(string clearText);
-    Task<string> DecryptAsync(byte[] encrypted);
+    Task<string> EncryptAsync(string clearText);
+    Task<string> DecryptAsync(string encrypted);
 }

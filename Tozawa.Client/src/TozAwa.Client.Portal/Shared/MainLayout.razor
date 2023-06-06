@@ -9,27 +9,29 @@
 <MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" CloseButton="true" DisableBackdropClick="false"
     NoHeader="false" Position="DialogPosition.TopCenter" />
 
-<MudLayout @onkeypress="RefreshTimer" @onmousemove="RefreshTimer">
+<MudLayout @onkeypress="RefreshTimer" Class="@_disableAttrString" @onmousemove="RefreshTimer">
     <AppBar OnSidebarToggled="ToggleSidebar" OnThemeToggled="ToggleTheme" />
 
     <NavMenu SideBarOpen="_sidebarOpen" />
+    <LoadingScreen>
+        <MudMainContent Class="tz-main pageBody pt-16 px-16">
 
-    <MudMainContent Class="tz-main pt-16 px-16">
-        <MudContainer Class="tz-content mt-6">
-            <ErrorBoundary>
-                <ChildContent>
-                    @Body
-                </ChildContent>
-                <ErrorContent>
-                    <p class="errorUI">
-                        <SystemText TextId=SystemTextId.ErrorOccursPleaseContactSupport
-                            FallbackText="Opps, something went wrong. Please contact support!"></SystemText>
-                    </p>
-                </ErrorContent>
-            </ErrorBoundary>
+            <MudContainer Class="tz-content mt-6">
+                <ErrorBoundary>
+                    <ChildContent>
+                        @Body
+                    </ChildContent>
+                    <ErrorContent>
+                        <p class="errorUI">
+                            <SystemText TextId=SystemTextId.ErrorOccursPleaseContactSupport
+                                FallbackText="Opps, something went wrong. Please contact support!"></SystemText>
+                        </p>
+                    </ErrorContent>
+                </ErrorBoundary>
 
-            <button id="tz-add">Add Content</button>
-        </MudContainer>
-        <Footer />
-    </MudMainContent>
+                <button id="tz-add">Add Content</button>
+            </MudContainer>
+            <Footer />
+        </MudMainContent>
+    </LoadingScreen>
 </MudLayout>

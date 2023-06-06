@@ -1,17 +1,35 @@
 using Microsoft.Extensions.DependencyInjection;
 using Tozawa.Client.Portal.HttpClients;
+using System.Net.Http.Headers;
 
-namespace Tozawa.Client.Portal.Shared
+namespace Tozawa.Client.Portal.Shared;
+
+public static class HttpClientsServiceCollectionExtension
 {
-    public static class HttpClientsServiceExtensions
+    public static IServiceCollection RegisterHttpClients(this IServiceCollection services, string baseAddress)
     {
-        public static IServiceCollection RegisterHttpClients(this IServiceCollection services)
+        services.AddHttpClient<IAuthHttpClient, AuthHttpClient>(client =>
         {
-            services.AddScoped<IAuthHttpClient, AuthHttpClient>();
-            services.AddScoped<ITozAwaBffHttpClient, TozAwaBffHttpClient>();
-            services.AddScoped<IAuthHttpClient, AuthHttpClient>();
+            client.BaseAddress = new Uri(baseAddress);
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        });
+        services.AddHttpClient<ITozAwaBffHttpClient, TozAwaBffHttpClient>(client =>
+        {
+            client.BaseAddress = new Uri(baseAddress);
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        });
+        services.AddHttpClient<IAuthHttpClient, AuthHttpClient>(client =>
+        {
+            client.BaseAddress = new Uri(baseAddress);
+            client.DefaultRequestHeaders.Clear();
+            client.DefaultRequestHeaders.Accept.Clear();
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+        });
 
-            return services;
-        }
+        return services;
     }
 }

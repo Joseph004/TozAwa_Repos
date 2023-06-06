@@ -10,6 +10,7 @@ using Microsoft.JSInterop;
 using MudBlazor.Extensions.Helper;
 using System.Web;
 using Microsoft.AspNetCore.Components.Web;
+using TozAwa.Client.Portal.Services;
 
 namespace Tozawa.Client.Portal.Shared;
 public partial class MainLayout : LayoutComponentBase
@@ -40,6 +41,24 @@ public partial class MainLayout : LayoutComponentBase
     private void ToggleSidebar() => _sidebarOpen = !_sidebarOpen;
     private Timer _timer;
     private readonly int _timerInterval = 15 * 60 * 1000; //15 min
+    private bool _disabledPage = false;
+    private string _disableAttrString = "";
+    [Inject] LoadingState LoadingState { get; set; }
+
+    protected override void OnInitialized()
+    {
+        LoadingState.OnChange += DisabledPage;
+    }
+
+    private void DisabledPage()
+    {
+        _disabledPage = LoadingState.RequestInProgress;
+
+        _disableAttrString = _disabledPage ? "disabledPage" : "";
+
+        StateHasChanged();
+    }
+
     protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -93,8 +112,9 @@ public partial class MainLayout : LayoutComponentBase
         _timer.Interval = _timerInterval;
     }
 
-    void IDisposable.Dispose()
+    public void Dispose()
     {
+        LoadingState.OnChange -= DisabledPage;
         if (_timer != null)
         {
             _timer.Elapsed -= Logout;

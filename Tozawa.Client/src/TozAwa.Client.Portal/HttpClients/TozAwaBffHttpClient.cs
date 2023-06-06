@@ -11,6 +11,7 @@ using Tozawa.Client.Portal.Models.Dtos;
 using Microsoft.AspNetCore.Http;
 using Tozawa.Client.Portal.Models.ResponseRequests;
 using System.Collections.Generic;
+using Blazored.LocalStorage;
 
 namespace Tozawa.Client.Portal.HttpClients
 {
@@ -28,7 +29,7 @@ namespace Tozawa.Client.Portal.HttpClients
     {
         private readonly HttpContextAccessor _httpContextAccessor;
         private readonly AppSettings _appSettings;
-        public TozAwaBffHttpClient(HttpClient client, AppSettings appSettings, HttpContextAccessor httpContextAccessor, ILogger<TozAwaBffHttpClient> logger, ICurrentUserService currentUserService, ITranslationService translationService) : base(client, currentUserService, translationService, appSettings, logger)
+        public TozAwaBffHttpClient(HttpClient client, AppSettings appSettings, ILocalStorageService localStorage, HttpContextAccessor httpContextAccessor, ILogger<TozAwaBffHttpClient> logger, ICurrentUserService currentUserService, ITranslationService translationService) : base(client, currentUserService, translationService, appSettings, localStorage, logger)
         {
             _appSettings = appSettings;
             if (client.BaseAddress == null)

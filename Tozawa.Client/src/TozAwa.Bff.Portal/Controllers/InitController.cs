@@ -5,13 +5,14 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Identity.Web.Resource;
 using Tozawa.Bff.Portal.Models.Dtos;
 using Tozawa.Bff.Portal.Models.Enums;
 using Tozawa.Bff.Portal.Services;
 
 namespace Tozawa.Bff.Portal.Controllers
 {
-    [Authorize]
+    //[Authorize(AuthenticationSchemes = "tzappauthentication")]
     public abstract class InitController : Controller
     {
         public readonly IMediator _mediator;
@@ -41,6 +42,10 @@ namespace Tozawa.Bff.Portal.Controllers
             else
             {
                 c._currentUserService.User = new CurrentUserDto();
+            }
+            if (!string.IsNullOrEmpty(c.Request.GetUserAuthenticationHeader()))
+            {
+                c._currentUserService.User.AccessToken = System.Text.Json.JsonSerializer.Deserialize<string>(c.Request.GetUserAuthenticationHeader());
             }
             if (!string.IsNullOrEmpty(c.Request.GetActiveLanguageHeader()))
             {

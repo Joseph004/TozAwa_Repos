@@ -28,15 +28,15 @@ public class DataProtectionProviderService : IDataProtectionProviderService
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
     0x09, 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16
     };
-    public async Task<byte[]> EncryptAsync(string clearText)
+    public async Task<string> EncryptAsync(string clearText)
     {
-        var firstOutPut = await Crypt(clearText, _appSettings.LoginEncryptKey);
-
-        var secondOutPut = await CryptBytes(firstOutPut);
-
-        return secondOutPut;
+        /* var options = new CryptoOptions() { Key = _appSettings.LoginEncryptKey };
+        var crypto = new CryptoService(_jSRuntime, options);
+        CryptoResult encrypted = await crypto.EncryptAsync(clearText);
+        return encrypted.Value; */
+        return "";
     }
-    private async Task<byte[]> Crypt(string text, string key)
+    /* private async Task<byte[]> Crypt(string text, string key)
     {
         using Aes aes = Aes.Create();
         aes.Key = DeriveKeyFromPassword(key);
@@ -58,7 +58,7 @@ public class DataProtectionProviderService : IDataProtectionProviderService
         await cryptoStream.WriteAsync(passBytes);
         await cryptoStream.FlushFinalBlockAsync();
         return output.ToArray();
-    }
+    } 
     private async Task<byte[]> DecryptByte(byte[] encrypted)
     {
         using Aes aes = Aes.Create();
@@ -80,13 +80,14 @@ public class DataProtectionProviderService : IDataProtectionProviderService
         using MemoryStream output = new();
         await cryptoStream.CopyToAsync(output);
         return Encoding.Unicode.GetString(output.ToArray());
-    }
-    public async Task<string> DecryptAsync(byte[] encrypted)
+    }*/
+    public async Task<string> DecryptAsync(string encrypted)
     {
-        var firstOutPut = await DecryptByte(encrypted);
+        /*  var options = new CryptoOptions() { Key = _appSettings.LoginEncryptKey };
+         var crypto = new CryptoService(_jSRuntime, options);
+         string decrypt = await crypto.DecryptAsync(encrypted);
 
-        var secondOutPut = await Decrypt(firstOutPut, _appSettings.LoginEncryptKey);
-
-        return secondOutPut;
+         return decrypt; */
+        return "";
     }
 }

@@ -2,6 +2,7 @@
 
 using System.Net;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -12,7 +13,7 @@ using Tozawa.Attachment.Svc.Services;
 
 namespace Tozawa.Attachment.Svc.Controllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public abstract class InitController : Controller
     {
         public readonly IMediator _mediator;

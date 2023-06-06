@@ -1,9 +1,11 @@
 using System.Reflection;
+using System.Text;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Tozawa.Language.Svc.Configuration;
@@ -22,10 +24,23 @@ ConfigurationManager configuration = builder.Configuration; // allows both to ac
 IWebHostEnvironment environment = builder.Environment;
 
 var appSettings = builder.Services.ConfigureAppSettings<AppSettings>(configuration.GetSection("AppSettings"));
+var jwtSettings = configuration.GetSection("AppSettings:JWTSettings");
 
-// Add services to the container.
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-               .AddJwtBearer(opt =>
+builder.Services.AddAuthentication()
+               .AddJwtBearer("tzuserauthentication", options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = jwtSettings["validIssuer"],
+        ValidAudience = jwtSettings["validAudience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["securityKey"]))
+    };
+}).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
                {
                    opt.Audience = appSettings.AAD.ResourceId;
                    opt.Authority = $"{appSettings.AAD.Instance}{appSettings.AAD.TenantId}";

@@ -186,7 +186,7 @@ namespace Tozawa.Language.Client.HttpClients
         {
             var token = await GetToken();
             request.Headers.Authorization =
-                   new AuthenticationHeaderValue("bearer", token);
+                   new AuthenticationHeaderValue("tzappauthentication", token);
 
             var currentUser = await _currentUserService.GetCurrentUser();
             request.Headers.Add("current-user", System.Text.Json.JsonSerializer.Serialize(currentUser));
@@ -198,7 +198,7 @@ namespace Tozawa.Language.Client.HttpClients
         protected async Task<HttpResponseMessage> PostFile(string url, HttpContent request)
         {
             var token = await GetToken();
-            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("tzappauthentication", token);
             var response = await _client.PostAsync(url, request).ConfigureAwait(false);
 
             return response;

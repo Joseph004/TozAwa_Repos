@@ -4,13 +4,14 @@ using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web.Resource;
 using Tozawa.Bff.Portal.ClientMessages;
 using Tozawa.Bff.Portal.Configuration;
 using Tozawa.Bff.Portal.Services;
 
 namespace Tozawa.Bff.Portal.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = "tzappauthentication")]
     [Route("api/[controller]")]
     [Produces("application/json")]
     public class AttachmentController : InitController

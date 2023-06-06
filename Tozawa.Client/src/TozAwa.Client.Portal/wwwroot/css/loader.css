@@ -1,5 +1,6 @@
 .ta-loading {
     position: fixed;
+    height: 10vh;
     right: -200px;
     opacity: 0;
     visibility: hidden;

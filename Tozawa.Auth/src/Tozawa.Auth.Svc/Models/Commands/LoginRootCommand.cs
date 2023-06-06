@@ -28,7 +28,7 @@ namespace Tozawa.Auth.Svc.Models.Commands
     public class LoginRootRequest
     {
         public string UserName { get; set; }
-        public byte[] Content { get; set; }
+        public string Content { get; set; }
     }
 }
 

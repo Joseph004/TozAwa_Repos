@@ -1,13 +1,9 @@
-@inject Tozawa.Client.Portal.Services.TokenProvider TokenProvider
 @using Tozawa.Client.Portal.Shared
 
 @code {
-    [Parameter]
-    public Tozawa.Client.Portal.Services.InitialApplicationState InitialState { get; set; }
 
     protected override Task OnInitializedAsync()
     {
-        TokenProvider.XsrfToken = InitialState.XsrfToken;
 
         return base.OnInitializedAsync();
 

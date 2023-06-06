@@ -19,6 +19,8 @@ using Tozawa.Attachment.Svc.Context;
 using Tozawa.Attachment.Svc.Validation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Tozawa.Attachment.Svc.Services;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace Tozawa.Attachment.Svc;
 
@@ -35,13 +37,27 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         AppSettings = services.ConfigureAppSettings<AppSettings>(Configuration.GetSection("AppSettings"));
+        var jwtSettings = Configuration.GetSection("AppSettings:JWTSettings");
         services.AddSingleton(Configuration);
         services.AddApplicationInsightsTelemetry();
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-               .AddJwtBearer(opt =>
+        services.AddAuthentication()
+               .AddJwtBearer("tzuserauthentication", options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = jwtSettings["validIssuer"],
+        ValidAudience = jwtSettings["validAudience"],
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["securityKey"]))
+    };
+}).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
                {
                    opt.Audience = AppSettings.AAD.ResourceId;
                    opt.Authority = $"{AppSettings.AAD.Instance}{AppSettings.AAD.TenantId}";

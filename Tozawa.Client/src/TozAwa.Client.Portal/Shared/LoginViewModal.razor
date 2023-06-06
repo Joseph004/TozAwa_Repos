@@ -14,10 +14,10 @@
         <ErrorBoundary>
             <ChildContent>
                 <MudCard>
-                    <MudForm Model="@model" @ref="@form" @bind-IsValid="@_success" @bind-bind-bind-Errors="@_errors"
+                    <MudForm Model="@model" @ref="@form" @bind-IsValid="@_success" @bind-Errors="@_errors"
                         ValidationDelay="0">
                         <MudCardContent>
-                            @if (_errors.Any() && _currentErrorView == model.LoginAsRoot)
+                            @if (_errors.Any() && model.LoginAsRoot && _currentErrorView == model.LoginAsRoot)
                             {
                                 @foreach (var item in _errors)
                                 {

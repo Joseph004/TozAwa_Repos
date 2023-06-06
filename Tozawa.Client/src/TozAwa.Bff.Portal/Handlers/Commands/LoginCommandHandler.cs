@@ -1,3 +1,4 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using FluentValidation;
 using MediatR;
@@ -13,7 +14,7 @@ namespace Tozawa.Bff.Portal.Handlers.Commands
         public bool LoginAsRoot { get; set; } = false;
         public string UserName { get; set; } = "";
         public string Email { get; set; } = "";
-        public byte[] Content { get; set; }
+        public string Content { get; set; }
     }
     public class LoginCommandFluentValidator : AbstractValidator<LoginCommand>
     {
@@ -52,11 +53,13 @@ namespace Tozawa.Bff.Portal.Handlers.Commands
         private readonly ITozAwaAuthHttpClient _tozAwaAuthHttpClient;
         private readonly ITranslationService _translationService;
         private readonly IGoogleService _googleService;
-        public LoginCommandHandler(ITozAwaAuthHttpClient tozAwaAuthHttpClient, ITranslationService translationService, IGoogleService googleService)
+        private readonly IUserTokenService _userTokenService;
+        public LoginCommandHandler(ITozAwaAuthHttpClient tozAwaAuthHttpClient, ITranslationService translationService, IGoogleService googleService, IUserTokenService userTokenService)
         {
             _tozAwaAuthHttpClient = tozAwaAuthHttpClient;
             _translationService = translationService;
             _googleService = googleService;
+            _userTokenService = userTokenService;
         }
 
         public async Task<AddResponse<LoginResponseDto>> Handle(LoginCommand request, CancellationToken cancellationToken)
@@ -92,6 +95,7 @@ namespace Tozawa.Bff.Portal.Handlers.Commands
                 }));
             }
 
+            response.Token = new JwtSecurityTokenHandler().WriteToken(_userTokenService.GenerateTokenOptions(response.Token));
             return await Task.FromResult(new AddResponse<LoginResponseDto>(true, await _translationService.GetHttpStatusText(HttpStatusCode.OK), HttpStatusCode.OK, response));
         }
     }

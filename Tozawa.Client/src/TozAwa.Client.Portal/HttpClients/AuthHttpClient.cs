@@ -6,13 +6,14 @@ using System.IO;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
-using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using Tozawa.Client.Portal.Configurations;
 using Tozawa.Client.Portal.Extensions;
@@ -33,7 +34,12 @@ namespace Tozawa.Client.Portal.HttpClients
         private readonly HttpClient _client;
         private readonly ILogger<AuthHttpClient> _logger;
         private readonly ILocalStorageService _localStorageService;
-        public AuthHttpClient(HttpClient client, AppSettings appSettings, ILocalStorageService localStorageService, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authState)
+        private readonly IHttpClientFactory _httpClientFactory;
+
+        public BrowserRequestCache DefaultBrowserRequestCache { get; set; }
+        public BrowserRequestCredentials DefaultBrowserRequestCredentials { get; set; }
+        public BrowserRequestMode DefaultBrowserRequestMode { get; set; }
+        public AuthHttpClient(HttpClient client, AppSettings appSettings, ILocalStorageService localStorageService, IHttpClientFactory httpClientFactory, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authState)
         {
             client.BaseAddress = new Uri(appSettings.TozAwaBffApiSettings.ApiUrl);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
@@ -42,15 +48,22 @@ namespace Tozawa.Client.Portal.HttpClients
             _logger = logger;
             _appSettings = appSettings;
             _localStorageService = localStorageService;
+            _httpClientFactory = httpClientFactory;
 
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
         }
-
         public virtual async Task<HttpResponseMessage> Send(HttpRequestMessage request)
         {
-            var token = await GetToken();
+            /* var token = await GetToken();
             request.Headers.Authorization =
-                   new AuthenticationHeaderValue("bearer", token);
+                   new AuthenticationHeaderValue("tzappauthentication", token); */
+
+            var userToken = await _localStorageService.GetItemAsync<string>("authToken");
+
+            if (!string.IsNullOrEmpty(userToken))
+            {
+                request.Headers.Add("tzuserauthentication", userToken);
+            }
 
             var activeLanguage = await _localStorageService.GetItemAsync<ActiveLanguageDto>($"ActiveLanguageKey_activeLanguage");
 
@@ -136,39 +149,64 @@ namespace Tozawa.Client.Portal.HttpClients
             }
         }
 
-        public async Task<string> GetToken()
+        /* private async Task<string> GetToken()
         {
             var result = await RunAsync();
 
-            if (string.IsNullOrEmpty(result.AccessToken))
+            if (string.IsNullOrEmpty(result.Access_token))
             {
-                throw new ArgumentNullException(nameof(result.AccessToken));
+                throw new ArgumentNullException(nameof(result.Access_token));
             }
-            return result.AccessToken;
+            return result.Access_token;
         }
-        public async Task<AuthenticationResult> RunAsync()
+        private async Task<TokenResponse> RunAsync()
         {
-            IConfidentialClientApplication app;
+            var tokenUrl = $"/oauth2/v2.0/token";
 
-            app = ConfidentialClientApplicationBuilder.Create(_appSettings.AADClient.ClientId)
-                .WithClientSecret(_appSettings.AADClient.ClientSecret)
-                .WithAuthority(new Uri(_appSettings.AADClient.Authority))
-                .Build();
-
-            string[] ResourceIds = new string[] { _appSettings.TozAwaBffApiSettings.ResourceId };
-
-            AuthenticationResult result = null;
+            using var client = _httpClientFactory.CreateClient("TzDefault");
+    
+            var postObject = new
+            {
+                client_id = _appSettings.AADClient.ClientId,
+                scope = _appSettings.TozAwaBffApiSettings.ResourceId,
+                client_secret = _appSettings.AADClient.ClientSecret,
+                grant_type = "client_credentials"
+            };
+           
+            var formContent = new FormUrlEncodedContent(new[]
+           {
+              new KeyValuePair<string, string>("client_id", _appSettings.AADClient.ClientId),
+              new KeyValuePair<string, string>("scope", _appSettings.TozAwaBffApiSettings.ResourceId),
+              new KeyValuePair<string, string>("client_secret", _appSettings.AADClient.ClientSecret),
+              new KeyValuePair<string, string>("grant_type", "client_credentials"),
+            });
+            TokenResponse result = null;
             try
             {
-                result = await app.AcquireTokenForClient(ResourceIds).ExecuteAsync();
+                var req = PostRequest(tokenUrl, postObject);
+                var response = await client.SendAsync(req, CancellationToken.None).ConfigureAwait(false);
+                if (response.IsSuccessStatusCode)
+                {
+                    result = await response.Content.ReadAsJsonAsync<TokenResponse>();
+                }
+                else
+                {
+                    var message = response.ReasonPhrase;
+                }
             }
-            catch (MsalClientException ex)
+            catch (Exception ex)
             {
                 _logger.LogError(ex, "Fail to get token");
             }
             return result;
-        }
+        }*/
     }
-
+    public class TokenResponse
+    {
+        public string Token_type { get; set; }
+        public string Expires_in { get; set; }
+        public string Ext_expires_in { get; set; }
+        public string Access_token { get; set; }
+    }
 }
 

@@ -1,6 +1,5 @@
 @namespace Tozawa.Client.Portal.Shared
 @using HttpClients.Helpers
-@inject Tozawa.Client.Portal.Services.TokenProvider TokenProvider
 @inject NavigationManager NavManager
 @inherits BaseComponent
 
@@ -19,7 +18,6 @@
     <LanguageSelection />
     <AuthorizeView>
         <Authorized>
-            <LoadingScreen>
                 <MudMenu AnchorOrigin="Origin.BottomCenter">
                     <ActivatorContent>
                         <MudAvatar Image="/images/profile_avatar.jpg" />
@@ -45,17 +43,14 @@
                         </MudMenuItem>
                     </ChildContent>
                 </MudMenu>
-            </LoadingScreen>
         </Authorized>
         <NotAuthorized>
-            <LoadingScreen>
                 <MudButton OnClick="@(()=>Login())" Color="Color.Inherit">
                     <MudText>
                         <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Login" Size="Size.Small"></MudIcon>
                         <SystemText TextId=SystemTextId.Login FallbackText="Login"></SystemText>
                     </MudText>
                 </MudButton>
-            </LoadingScreen>
         </NotAuthorized>
     </AuthorizeView>
     @* @if (_isLightMode)

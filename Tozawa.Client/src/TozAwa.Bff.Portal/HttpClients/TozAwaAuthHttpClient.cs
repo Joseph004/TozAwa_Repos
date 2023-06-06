@@ -13,7 +13,7 @@ namespace Tozawa.Bff.Portal.HttpClients
 
     public class TozAwaAuthHttpClient : HttpClientBase, ITozAwaAuthHttpClient
     {
-        public TozAwaAuthHttpClient(HttpClient client, AppSettings appSettings, ICurrentUserService currentUserService, ILogger<TozAwaAuthHttpClient> logger) : base(client, appSettings, currentUserService, logger)
+        public TozAwaAuthHttpClient(HttpClient client, AppSettings appSettings, ICurrentUserService currentUserService, IUserTokenService userTokenService, ILogger<TozAwaAuthHttpClient> logger) : base(client, appSettings, currentUserService, userTokenService, logger)
         {
         }
     }

@@ -9,16 +9,21 @@ namespace Tozawa.Bff.Portal.Handlers.Queries
     {
         private readonly ITranslationService _translationService;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IUserCountryByIp _getUserCountryByIp;
 
         public GetActiveLanguagesQueryHandler(ITranslationService translationService,
+        IUserCountryByIp getUserCountryByIp,
             ICurrentUserService currentUserService)
         {
             _translationService = translationService;
             _currentUserService = currentUserService;
+            _getUserCountryByIp = getUserCountryByIp;
         }
 
         public async Task<List<ActiveLanguageDto>> Handle(GetActiveLanguagesQuery request, CancellationToken cancellationToken)
         {
+            var country = await _getUserCountryByIp.GetUserCountryByIp();
+
             var organization = new CurrentUserOrganizationDto();
             var languages = await Task.FromResult(_translationService.GetActiveLanguages());
 

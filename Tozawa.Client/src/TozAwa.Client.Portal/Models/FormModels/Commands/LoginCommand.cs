@@ -79,6 +79,6 @@ namespace Tozawa.Client.Portal.Models.FormModels
         public bool LoginAsRoot { get; set; } = false;
         public string UserName { get; set; } = "";
         public string Email { get; set; } = "";
-        public byte[] Content { get; set; }
+        public string Content { get; set; }
     }
 }

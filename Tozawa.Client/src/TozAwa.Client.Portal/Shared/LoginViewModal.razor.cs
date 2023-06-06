@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
@@ -11,6 +13,7 @@ using Tozawa.Client.Portal.HttpClients.Helpers;
 using Tozawa.Client.Portal.Models.Dtos;
 using Tozawa.Client.Portal.Models.FormModels;
 using Tozawa.Client.Portal.Services;
+using TozAwa.Client.Portal;
 using TozAwa.Client.Portal.Services;
 
 namespace Tozawa.Client.Portal.Shared
@@ -33,6 +36,9 @@ namespace Tozawa.Client.Portal.Shared
         [Inject] AuthenticationService AuthenticationService { get; set; }
         [Inject] ILogger<LoginViewModal> Logger { get; set; }
         [Inject] IDataProtectionProviderService _dataProtectionProviderService { get; set; }
+        [Inject] LoadingState LoadingState { get; set; }
+        [Inject] ILocalStorageService _localStorage { get; set; }
+        [Inject] AuthenticationStateProvider _authStateProvider { get; set; }
         private bool _processing = false;
         private bool _currentErrorView = false;
         private bool _success;
@@ -129,6 +135,8 @@ namespace Tozawa.Client.Portal.Shared
             {
                 if (!_success) return;
 
+                LoadingState.SetRequestInProgress(true);
+
                 _errors = Array.Empty<string>();
                 _processing = true;
                 _currentErrorView = model.LoginAsRoot;
@@ -139,7 +147,7 @@ namespace Tozawa.Client.Portal.Shared
                     Email = model.Email,
                     UserName = model.UserName,
                     LoginAsRoot = model.LoginAsRoot,
-                    Content = await _dataProtectionProviderService.EncryptAsync(model.Password)
+                    Content = model.Password
                 };
                 var userLoginResponse = await AuthenticationService.PostLogin(request);
 
@@ -186,9 +194,7 @@ namespace Tozawa.Client.Portal.Shared
                     }
                     else
                     {
-                        _attemptLoginCount = 0;
-                        await CurrentUserService.SetCurrentUser(entity.User);
-                        Confirm(entity.User);
+                        Confirm(entity);
                     }
                 }
 
@@ -197,27 +203,30 @@ namespace Tozawa.Client.Portal.Shared
             }
             catch (Exception ex)
             {
+                LoadingState.SetRequestInProgress(false);
                 ErrorHandling?.ProcessError(ex, Translate(SystemTextId.LoginError, "Login error"), Translate(SystemTextId.ErrorOccursWhenLogIn, "Error occurs when login"));
 
                 _processing = false;
                 StateHasChanged();
             }
+            LoadingState.SetRequestInProgress(false);
+            StateHasChanged();
         }
         private void Cancel()
         {
             MudDialog.Cancel();
         }
 
-        private void Confirm(CurrentUserDto user)
+        private void Confirm(LoginResponseDto loginResponse)
         {
             InvokeAsync(async () =>
           {
-              MudDialog.Close(DialogResult.Ok(user));
+              MudDialog.Close(DialogResult.Ok(loginResponse));
               await Task.CompletedTask;
           });
         }
 
-        void IDisposable.Dispose()
+        public override void Dispose()
         {
         }
     }

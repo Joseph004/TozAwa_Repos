@@ -1,6 +1,27 @@
+@implements IDisposable
+
+@using TozAwa.Client.Portal.Services;
+
+
 @if (isLoaded)
 {
     @ChildContent
+    @if (_RequestInProgress)
+    {
+        <div class="ta-loading loading loaderDiv" style="width: 250px;">
+            <div class="row loaderDiv">
+                <div class="col-md-12">
+                    <div class="d-flex align-center">
+                        <MudProgressCircular Style="@($"color: {"#ff5e14"};")" Size="Size.Medium" Indeterminate="true" />
+                        <h3>
+                            <img src="/images/Tozawa-Text-Picture-No-Background-White.png" height="50px" width="150px"
+                                alt="loading tozawa image" />
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 }
 else
 {
@@ -11,7 +32,7 @@ else
                     <MudProgressCircular Style="@($"color: {"#ff5e14"};")" Size="Size.Medium" Indeterminate="true" />
                     <h3>
                         <img src="/images/Tozawa-Text-Picture-No-Background-White.png" height="50px" width="150px"
-                        alt="loading tozawa image" />
+                            alt="loading tozawa image" />
                     </h3>
                 </div>
             </div>
@@ -24,7 +45,26 @@ else
 
     [Parameter]
     public RenderFragment ChildContent { get; set; }
+    [Inject] LoadingState LoadingState { get; set; }
+    private bool _RequestInProgress = false;
 
+    protected override async Task OnInitializedAsync()
+    {
+        LoadingState.OnChange += CloseLoading;
+
+        await base.OnInitializedAsync();
+    }
+
+    private void CloseLoading()
+    {
+        _RequestInProgress = LoadingState.RequestInProgress;
+
+        StateHasChanged();
+    }
+    void IDisposable.Dispose()
+    {
+        LoadingState.OnChange -= CloseLoading;
+    }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)

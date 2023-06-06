@@ -105,5 +105,5 @@ jobs:
               sudo add-apt-repository universe
               sudo apt-get -f install apt-transport-https -y
               dpkg -L apt-transport-https
-              sudo apt-get -f install dotnet-sdk-6.0 -y
+              sudo apt-get -f install dotnet-sdk-7.0 -y
               sudo docker run -p 80:8080 --name tznonprodcontainer $REGISTRY/$REPOSITORY:$IMAGE_TAG

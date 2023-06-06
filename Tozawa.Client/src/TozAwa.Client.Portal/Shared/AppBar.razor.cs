@@ -3,12 +3,15 @@ using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Web;
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using MudBlazor;
+using Newtonsoft.Json;
 using Tozawa.Client.Portal.Models.Dtos;
 using Tozawa.Client.Portal.Services;
+using TozAwa.Client.Portal;
 
 namespace Tozawa.Client.Portal.Shared
 {
@@ -22,6 +25,8 @@ namespace Tozawa.Client.Portal.Shared
         [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] ICurrentUserService CurrentUserService { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
+        [Inject] ILocalStorageService _localStorage { get; set; }
+        [Inject] AuthenticationStateProvider _authStateProvider { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
         private MudTheme _currentTheme = new MudTheme();
         public string _loginUrl { get; set; } = $"";
@@ -112,28 +117,34 @@ namespace Tozawa.Client.Portal.Shared
 
                 if (!result.Cancelled)
                 {
-                    var user = (CurrentUserDto)result.Data;
-                    if (user != null)
-                    {
-                        var rootUser = user.RootUser ? "UserIsRoot" : "";
-                        var userName = user.RootUser ? user.UserName : $"{user.FirstName} {user.LastName}";
-                        var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
-                        var returnUrl = string.IsNullOrEmpty(currentPath) ? "" : currentPath;
-                        await CurrentUserService.SetCurrentUser(user);
-                        _loginUrl = $"/login?paramUserName={Encode(userName)}&paramUserId={Encode(user.Id.ToString())}&paramUseremail={Encode(user.Email)}&paramRootUser={Encode(rootUser)}&returnUrl={Encode(returnUrl)}";
-                        await JSRuntime.InvokeVoidAsync("open", _loginUrl, "_top");
-                    }
+                    var userResponse = (LoginResponseDto)result.Data;
+                    await _localStorage.SetItemAsync("authToken", userResponse.Token);
+                    ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(userResponse.Token);
+
+                    NavigateToReturnPage();
                 }
             }
         }
+        private void NavigateToReturnPage()
+        {
+            var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
 
+            if (string.IsNullOrEmpty(currentPath))
+            {
+                _navigationManager.NavigateTo("/home");
+            }
+            else
+            {
+                _navigationManager.NavigateTo($"/{currentPath}");
+            }
+        }
         private async Task Logout()
         {
             await CurrentUserService.RemoveCurrentUser();
-            var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
-            var returnUrl = string.IsNullOrEmpty(currentPath) ? "" : currentPath;
-            var _logoutUrl = $"/logout?returnUrl={Encode(returnUrl)}";
-            await JSRuntime.InvokeVoidAsync("open", _logoutUrl, "_top");
+            await _localStorage.RemoveItemAsync("authToken");
+            ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
+
+            NavigateToReturnPage();
         }
         private MudTheme GenerateDarkTheme() =>
             new MudTheme

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Tozawa.Language.Svc.extension;
@@ -9,7 +10,7 @@ using Tozawa.Language.Svc.Services;
 
 namespace Tozawa.Language.Svc.Controllers.TranslationControllers
 {
-    [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Produces("application/json")]
     [Route("api/[controller]")]
     public class TranslationController : InitController

@@ -1,6 +1,4 @@
 using Blazored.LocalStorage;
-using IpInfo.Api.Client;
-using IpInfo.Api.Client.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
@@ -11,12 +9,10 @@ using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 using Tozawa.Client.Portal.HttpClients;
 using Tozawa.Client.Portal.HttpClients.Helpers;
 using Tozawa.Client.Portal.Models.Dtos;
-using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Tozawa.Client.Portal.Services
 {
@@ -63,40 +59,6 @@ namespace Tozawa.Client.Portal.Services
 
                 _translationLoaded = true;
             }
-        }
-        public async Task<string> GetUserCountryByIp()
-        {
-            var ipInfo = new GetIpInfoResponse();
-            try
-            {
-                var httpClient = new HttpClient();
-                var ipResponse = httpClient.Send(new HttpRequestMessage(HttpMethod.Get, "https://ipv4.icanhazip.com/"));
-
-                var jsonString = await ipResponse.Content.ReadAsStringAsync();
-
-                var ip = jsonString.Replace("\n", "").Replace("\r", "");
-                if (!string.IsNullOrEmpty(ip))
-                {
-                    try
-                    {
-                        var response = httpClient.Send(new HttpRequestMessage(HttpMethod.Get, "http://ipinfo.io/" + ip));
-
-                        ipInfo = JsonConvert.DeserializeObject<GetIpInfoResponse>(await response.Content.ReadAsStringAsync());
-
-                        RegionInfo myRI1 = new RegionInfo(ipInfo.Country);
-                        ipInfo.Country = myRI1.EnglishName;
-                    }
-                    catch (Exception)
-                    {
-                        ipInfo.Country = null;
-                    }
-                }
-            }
-            catch (Exception ex)
-            {
-                ipInfo.Country = null;
-            }
-            return ipInfo.Country;
         }
         private async Task LoadTranslations()
         {
@@ -154,17 +116,11 @@ namespace Tozawa.Client.Portal.Services
 
         public async Task<List<ActiveLanguageDto>> GetActiveLanguages()
         {
-            var country = await GetUserCountryByIp();
             Dictionary<string, string> queryParameters = new();
-
-            if (!string.IsNullOrEmpty(country))
-            {
-                queryParameters.Add("country", country);
-            }
 
             if (_activeLanguages == null)
             {
-                var response = await _client.SendGet<List<ActiveLanguageDto>>($"translation/activelanguages", queryParameters);
+                var response = await _client.SendGet<List<ActiveLanguageDto>>($"translation/activelanguages");
                 if (!response.Success)
                 {
                     _snackBarService.Add(response);

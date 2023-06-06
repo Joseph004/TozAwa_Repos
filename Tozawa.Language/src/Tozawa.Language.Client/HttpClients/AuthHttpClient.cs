@@ -44,7 +44,7 @@ namespace Tozawa.Language.Client.HttpClients
             {
                 var token = await GetToken();
                 request.Headers.Authorization =
-                       new AuthenticationHeaderValue("bearer", token);
+                       new AuthenticationHeaderValue("tzappauthentication", token);
 
                 var result = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
                 if (!result.IsSuccessStatusCode)

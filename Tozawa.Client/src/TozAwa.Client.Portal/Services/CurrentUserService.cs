@@ -7,6 +7,7 @@ using System;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
 
 namespace Tozawa.Client.Portal.Services;
 public class CurrentUserService : ICurrentUserService
@@ -65,22 +66,13 @@ public class CurrentUserService : ICurrentUserService
 
             if (!user.Identity.IsAuthenticated)
             {
-                _logger.LogError("User is not authenticated");
+                //_logger.LogError("User is not authenticated");
                 return new CurrentUserDto();
             }
 
-            var oid = user.Claims.Where(x => x.Type == "http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier").Select(c => c.Value).SingleOrDefault();
+            var userString = user.Claims.Where(x => x.Type == nameof(CurrentUserDto)).Select(c => c.Value).SingleOrDefault();
 
-            var currentUserResponse = await _client.SendGet<CurrentUserDto>($"authenticate/current/{oid}");
-            if (!currentUserResponse.Success)
-            {
-                _snackBarService.Add(currentUserResponse);
-                return new CurrentUserDto();
-            }
-            var currentUser = currentUserResponse.Entity ?? new CurrentUserDto();
-            await _sessionStorageService.SetItemAsync("currentUser", currentUser);
-
-            return currentUser;
+            return JsonConvert.DeserializeObject<CurrentUserDto>(userString);
         }
         catch (Exception ex)
         {

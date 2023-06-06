@@ -12,8 +12,8 @@ namespace TozAwaHome.Shared
     public partial class LanguageSelection : BaseComponent
     {
         [Inject] private NavigationManager _navigationManager { get; set; }
-		[Inject] LoadingState LoadingState { get; set; }
-		public List<ActiveLanguageDto> ActiveLanguages { get; set; }
+        [Inject] LoadingState LoadingState { get; set; }
+        public List<ActiveLanguageDto> ActiveLanguages { get; set; }
         public ActiveLanguageDto ActiveLanguage { get; set; }
         public bool _isLoading = false;
 
@@ -44,29 +44,20 @@ namespace TozAwaHome.Shared
             //IDialogReference dialog = null;
             try
             {
-            var options = new DialogOptions
-			{
-				MaxWidth = MaxWidth.ExtraSmall,
-                CloseButton = true
-			};
-           
-			var parameters = new DialogParameters
-			{
-				["body"] = "spinner"
-			};
-             _isLoading = true;
-            LoadingState.SetRequestInProgress(true);
+                _isLoading = true;
+                LoadingState.SetRequestInProgress(true);
 
-			await _translationService.ChangeActiveLanguage(languageId);
-            ActiveLanguage = await _translationService.GetActiveLanguage();
-            //await Task.Delay(40000000); // TODO actual initialization job
-            Language = GetShortName(ActiveLanguage);
+                await _translationService.ChangeActiveLanguage(languageId);
+                ActiveLanguage = await _translationService.GetActiveLanguage();
+                //await Task.Delay(40000000); // TODO actual initialization job
+                Language = GetShortName(ActiveLanguage);
 
-			
-            }catch (Exception ex)
+
+            }
+            catch (Exception ex)
             {
-				LoadingState.SetRequestInProgress(false);
-			}
+                LoadingState.SetRequestInProgress(false);
+            }
 
             LoadingState.SetRequestInProgress(false);
             StateHasChanged();

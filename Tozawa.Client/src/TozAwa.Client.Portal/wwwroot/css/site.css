@@ -314,3 +314,21 @@ input::-webkit-file-upload-button:hover {
 }
 
 /* Footer-Section End */
+
+/* Loading screen Bigen */
+
+.disabledPage> :not(.loaderDiv) {
+    pointer-events: none;
+    filter: opacity(0.5);
+}
+
+.loaderDiv {
+    opacity: 1;
+}
+
+.pageBody {
+    overflow: auto;
+    height: calc(100vh - 5vh);
+}
+
+/* Loading screen Bigen */

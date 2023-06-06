@@ -1,6 +1,8 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using Tozawa.Bff.Portal.Configuration;
@@ -30,13 +32,15 @@ namespace Tozawa.Client.Portal.HttpClients
         private readonly ICurrentUserService _currentUserService;
         private readonly ILogger<LanguageHttpClient> _logger;
         private readonly AppSettings _appSettings;
+        private readonly IUserTokenService _userTokenService;
 
-        public LanguageHttpClient(HttpClient client, ICurrentUserService currentUserService, AppSettings appSettings, ILogger<LanguageHttpClient> logger)
+        public LanguageHttpClient(HttpClient client, ICurrentUserService currentUserService, IUserTokenService userTokenService, AppSettings appSettings, ILogger<LanguageHttpClient> logger)
         {
             _client = client;
             _currentUserService = currentUserService;
             _logger = logger;
             _appSettings = appSettings;
+            _userTokenService = userTokenService;
 
             client.BaseAddress = new Uri(appSettings.LanguageSettings.ApiUrl);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
@@ -77,9 +81,14 @@ namespace Tozawa.Client.Portal.HttpClients
         {
             var token = await GetToken();
             request.Headers.Authorization =
-                   new AuthenticationHeaderValue("bearer", token);
+                   new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
 
             var currentUser = _currentUserService.User;
+            if (!string.IsNullOrEmpty(currentUser.AccessToken))
+            {
+                var userToken = new JwtSecurityTokenHandler().WriteToken(_userTokenService.GenerateTokenOptionsForAthService(currentUser.AccessToken));
+                request.Headers.Add("tzuserauthentication", userToken);
+            }
             request.Headers.Add("current-user", System.Text.Json.JsonSerializer.Serialize(currentUser));
             request.Headers.Add("toza-active-language", _currentUserService.LanguageId.ToString());
         }

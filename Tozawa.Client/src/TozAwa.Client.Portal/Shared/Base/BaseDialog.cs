@@ -62,7 +62,7 @@ namespace Tozawa.Client.Portal.Shared
             return _currentUser.Features.Any(f => features.Contains(f));
         }
 
-        public void Dispose()
+        public virtual void Dispose()
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
         }

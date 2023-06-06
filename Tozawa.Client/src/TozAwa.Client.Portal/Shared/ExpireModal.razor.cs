@@ -50,7 +50,7 @@ namespace Tozawa.Client.Portal.Shared
           });
         }
 
-        void IDisposable.Dispose()
+        public override void Dispose()
         {
             if (aTimer != null)
             {

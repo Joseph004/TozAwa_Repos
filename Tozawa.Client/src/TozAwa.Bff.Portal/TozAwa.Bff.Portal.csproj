@@ -12,10 +12,11 @@
     <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="7.*" />
     <PackageReference Include="MediatR" Version="10.*" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.*" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.12" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.5" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="6.0.5" />
+    <PackageReference Include="IpInfo.Api.Client" Version="1.0.4" />
 
     <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.*" />
     <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.*" />
@@ -30,6 +31,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.Identity.Web" Version="2.11.0" />
     <PackageReference Include="Microsoft.IdentityModel.Clients.ActiveDirectory" Version="5.2.9" />
     <PackageReference Include="Newtonsoft.Json" Version="13.*" />
     <PackageReference Include="Svg" Version="3.4.4" />
@@ -40,7 +42,6 @@
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.*" />
     <PackageReference Include="FluentValidation" Version="10.4.0" />
-    <PackageReference Include="Microsoft.Identity.Client" Version="4.46.2" />
     <PackageReference Include="MediatR" Version="10.*" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.*" />
   </ItemGroup>

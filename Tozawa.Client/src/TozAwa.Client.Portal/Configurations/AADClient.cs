@@ -10,6 +10,7 @@ namespace Tozawa.Client.Portal.Configurations
         public string TenantId { get; set; }
         public string ClientId { get; set; }
         public string ClientSecret { get; set; }
+        public bool ValidateAuthority { get; set; }
         public string Authority
         {
             get

@@ -39,7 +39,7 @@ namespace Tozawa.Auth.Svc.Controllers.Login
     public class LoginRequest
     {
         public string Email { get; set; }
-        public byte[] Content { get; set; }
+        public string Content { get; set; }
     }
     public class LoginCommandHandler : IRequestHandler<LoginCommand, LoginResponseDto>
     {

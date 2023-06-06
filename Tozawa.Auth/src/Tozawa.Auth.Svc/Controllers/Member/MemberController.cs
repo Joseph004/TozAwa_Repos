@@ -12,6 +12,7 @@ using Tozawa.Auth.Svc.Services;
 namespace Tozawa.Auth.Svc.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(AuthenticationSchemes = "tzuserauthentication")]
     [Produces("application/json")]
     [Route("api/[controller]")]
     public class MemberController : InitController

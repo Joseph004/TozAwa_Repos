@@ -1,4 +1,6 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Client;
 using Newtonsoft.Json;
 using Tozawa.Bff.Portal.Configuration;
@@ -12,16 +14,19 @@ namespace Tozawa.Bff.Portal.HttpClients
         private readonly ICurrentUserService _currentUserService;
         private readonly AppSettings _appSettings;
         protected readonly ILogger<HttpClientBase> _logger;
+        private readonly IUserTokenService _userTokenService;
 
         public HttpClientBase(HttpClient httpClient,
         AppSettings appSettings,
             ICurrentUserService currentUserService,
+            IUserTokenService userTokenService,
              ILogger<HttpClientBase> logger)
         {
             _httpClient = httpClient;
             _currentUserService = currentUserService;
             _appSettings = appSettings;
             _logger = logger;
+            _userTokenService = userTokenService;
         }
 
         public async Task<T> Get<T>(string uri)
@@ -101,9 +106,14 @@ namespace Tozawa.Bff.Portal.HttpClients
         {
             var token = await GetToken();
             request.Headers.Authorization =
-                   new AuthenticationHeaderValue("bearer", token);
+                   new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
 
             var currentUser = _currentUserService.User;
+            if (!string.IsNullOrEmpty(currentUser.AccessToken))
+            {
+                var userToken = new JwtSecurityTokenHandler().WriteToken(_userTokenService.GenerateTokenOptionsForAthService(currentUser.AccessToken));
+                request.Headers.Add("tzuserauthentication", userToken);
+            }
             request.Headers.Add("current-user", System.Text.Json.JsonSerializer.Serialize(currentUser));
             request.Headers.Add("toza-active-language", _currentUserService.LanguageId.ToString());
         }
