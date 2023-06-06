@@ -85,6 +85,7 @@ jobs:
             key: ${{ env.PRIVATE_SSH_KEY }}
             envs: PRIVATE_SSH_KEY,REGISTRY,REPOSITORY,IMAGE_TAG,AWS_ACCESS_KEY_ID,AWS_SECRET_ACCESS_KEY,AWS_DEFAULT_REGION,AWS_REGION,SERVER_PUBLIC_IP
             script: |-
+              sudo apt-get purge
               sudo apt-get update
               sudo apt-get install docker.io -y
               sudo apt-get install awscli -y
