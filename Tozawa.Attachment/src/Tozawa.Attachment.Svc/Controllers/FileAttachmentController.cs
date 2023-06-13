@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Tozawa.Attachment.Svc.Context;
@@ -13,11 +14,12 @@ using Tozawa.Attachment.Svc.Services;
 namespace Tozawa.Attachment.Svc.Controllers;
 
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[EnableCors("TozAwaCorsPolicyBff")]
 [Produces("application/json")]
 [Route("api/[controller]")]
 public class FileAttachmentController : InitController
 {
-    public FileAttachmentController(IMediator mediator, ICurrentUserService currentUserService) : base(mediator, currentUserService)
+    public FileAttachmentController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService) : base(mediator, currentUserService, userTokenService)
     {
     }
 

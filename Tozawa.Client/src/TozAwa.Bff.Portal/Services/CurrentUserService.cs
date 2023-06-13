@@ -58,6 +58,23 @@ namespace Tozawa.Bff.Portal.Services
             return true;
         }
 
+        public bool IsAuthorizedFor(params string[] roles)
+        {
+            try
+            {
+                if (User == null)
+                {
+                    return false;
+                }
+                return User.RootUser /* || User.GetFunctions().ContainsAtLeastOne(functions) */;
+            }
+            catch (Exception ex)
+            {
+                ex.Message.ToString();
+            }
+            return true;
+        }
+
         public bool IsRoot()
         {
             if (User == null)

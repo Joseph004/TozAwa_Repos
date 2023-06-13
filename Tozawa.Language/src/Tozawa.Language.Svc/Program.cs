@@ -1,11 +1,10 @@
 using System.Reflection;
-using System.Text;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Tozawa.Language.Svc.Configuration;
@@ -24,28 +23,20 @@ ConfigurationManager configuration = builder.Configuration; // allows both to ac
 IWebHostEnvironment environment = builder.Environment;
 
 var appSettings = builder.Services.ConfigureAppSettings<AppSettings>(configuration.GetSection("AppSettings"));
-var jwtSettings = configuration.GetSection("AppSettings:JWTSettings");
 
 builder.Services.AddAuthentication()
-               .AddJwtBearer("tzuserauthentication", options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-
-        ValidIssuer = jwtSettings["validIssuer"],
-        ValidAudience = jwtSettings["validAudience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["securityKey"]))
-    };
-}).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
+               .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
                {
                    opt.Audience = appSettings.AAD.ResourceId;
                    opt.Authority = $"{appSettings.AAD.Instance}{appSettings.AAD.TenantId}";
                });
-
+builder.Services.AddAuthorization(options =>
+           {
+               options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                   .RequireAuthenticatedUser()
+                   .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                   .Build();
+           });
 builder.Services.AddControllers();
 
 // For Entity Framework  
@@ -62,6 +53,7 @@ builder.Services.AddScoped<IXliffConverter, XliffConverter>();
 builder.Services.AddScoped<IExporter, Exporter>();
 builder.Services.AddScoped<IXliffImporter, XliffImporter>();
 builder.Services.AddScoped<IImportResultService, ImportResultService>();
+builder.Services.AddScoped<IUserTokenService, UserTokenService>();
 builder.Services.AddScoped<ITranslatedTextConverter, TranslatedTextConverter>();
 
 builder.Services.AddScoped<IXliffImportTransaction, XliffImportTransaction>();
@@ -72,7 +64,11 @@ builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.RegisterValidationService();
 
-builder.Services.AddCors();
+builder.Services.AddCors(options => options.AddPolicy("TozAwaCorsPolicyBff", builder =>
+    {
+        var origins = appSettings.CorsOrigins.Split(",");
+        builder.WithOrigins(origins).AllowAnyMethod().AllowAnyHeader();
+    }));
 builder.Services.AddMvc(options =>
 {
     options.EnableEndpointRouting = false;
@@ -88,10 +84,9 @@ builder.Services.AddMvc(options =>
 
 var app = builder.Build();
 
-app.UseCors("ALL");
-
 app.MapControllers();
 app.UseRouting();
+app.UseCors("TozAwaCorsPolicyBff");
 app.UseAuthentication();
 
 app.UseAuthorization();

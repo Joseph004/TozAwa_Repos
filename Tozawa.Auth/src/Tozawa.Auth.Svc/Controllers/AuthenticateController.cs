@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -20,6 +21,7 @@ using Tozawa.Auth.Svc.Services;
 namespace Tozawa.Auth.Svc.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [EnableCors("TozAwaCorsPolicyBff")]
     [Route("api/[controller]")]
     [Produces("application/json")]
 
@@ -102,6 +104,10 @@ namespace Tozawa.Auth.Svc.Controllers
 
             var securityToken = _userTokenService.GenerateTokenOptions(userDto);
             var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
+
+            user.RefreshToken = _userTokenService.GenerateRefreshToken();
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            await userManager.UpdateAsync(user);
 
             response.Token = token;
             /* var ng = userManager.Users.Where(x => x.RootUser).FirstOrDefault();
@@ -267,11 +273,24 @@ namespace Tozawa.Auth.Svc.Controllers
             }
 
             var userDto = await _mediator.Send(new GetCurrentUserQuery(user.UserId));
+            JwtSecurityToken securityToken = null;
+            string token = "";
+            try
+            {
+                securityToken = _userTokenService.GenerateTokenOptions(userDto);
+                token = new JwtSecurityTokenHandler().WriteToken(securityToken);
+            }
+            catch (Exception ex)
+            {
+                var m = ex.Message;
+            }
 
-            var securityToken = _userTokenService.GenerateTokenOptions(userDto);
-            var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
+            user.RefreshToken = _userTokenService.GenerateRefreshToken();
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            await userManager.UpdateAsync(user);
 
             response.Token = token;
+            response.RefreshToken = user.RefreshToken;
 
             return Ok(response);
         }

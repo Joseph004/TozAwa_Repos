@@ -96,4 +96,11 @@ public static partial class SystemTextId
     public static Guid FileUpload => Guid.Parse("fde8cfd5-5670-44c4-a5b9-0469b00e0b31");
     public static Guid Filesize => Guid.Parse("7d1747ad-b243-40ec-a1ee-43cab5af5012");
     public static Guid AttachmentType => Guid.Parse("65ff3356-f87b-43e9-8228-7d757f5bcea9");
+    public static Guid PleaseSelectAnImage => Guid.Parse("f04fe30b-dcb5-4dd6-93d2-7a1ee0c90727");
+    public static Guid PleaseUsevalidFileName => Guid.Parse("0a12f107-5899-4410-9820-c70e5c26acb7");
+    public static Guid PleaseUseNormalFileNameLength => Guid.Parse("09e30fc1-245a-46b6-bf2a-dafd00039e5b");
+
+    public static Guid OnlyExcelFileAllowed => Guid.Parse("a0293f9f-9dc1-4c3b-b9a8-60ddd4109dd0");
+    public static Guid OnlyXmlFileAllowed => Guid.Parse("0d8a1051-8fd3-408e-92ae-255b4db78b9c");
+    public static Guid PleaseUseValidAllowedFiles => Guid.Parse("9ec2bab4-4b69-4c6d-aa8c-a8fbe79fe88b");
 }

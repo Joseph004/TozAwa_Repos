@@ -5,10 +5,11 @@ namespace Tozawa.Language.Svc.Controllers
     {
         private static readonly string currentUserHeaderKey = "current-user";
         private static readonly string activeLanguageHeaderKey = "toza-active-language";
+        private static readonly string userAuthenticationHeaderKey = "tzuserauthentication";
 
-        public static string GetCurrentUserHeader(this HttpRequest request)
+        public static string GetUserAuthenticationHeader(this HttpRequest request)
         {
-            return request.GetHeader(currentUserHeaderKey);
+            return request.GetHeader(userAuthenticationHeaderKey);
         }
         public static string GetActiveLanguageHeader(this HttpRequest request)
         {

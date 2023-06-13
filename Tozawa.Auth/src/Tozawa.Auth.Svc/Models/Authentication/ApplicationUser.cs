@@ -17,6 +17,8 @@ namespace Tozawa.Auth.Svc.Models.Authentication
         public string LastLoginState { get; set; } = "XXXXXXXXXXX";
         public string LastLoginIPAdress { get; set; } = "xxxxxxxxx";
         public DateTime LastAttemptLogin { get; set; }
+        public string RefreshToken { get; set; }
+        public DateTime RefreshTokenExpiryTime { get; set; }
         public string UserCountry { get; set; }
         public bool Deleted { get; set; }
         public Guid WorkingOrganizationId { get; set; }

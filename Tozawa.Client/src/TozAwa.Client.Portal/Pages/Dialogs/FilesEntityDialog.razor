@@ -3,7 +3,7 @@
 @using Tozawa.Client.Portal.Shared
 @using Tozawa.Client.Portal.Models.Dtos
 @using Tozawa.Client.Portal.Models.Enums
-@using Tozawa.Client.Portal.Extensions
+@using TozAwa.Client.Portal.Helpers;
 @inherits BaseDialog
 
 <style>
@@ -91,7 +91,7 @@
                 <MudSelectItem Value="@item">@item</MudSelectItem>
             }
         </MudSelect>
-        <InputFile id="fileInput" OnChange="UploadFiles" hidden multiple />
+        <InputFile id="fileInput" accept="@FileValidator._validContentTypes" OnChange="UploadFiles" hidden multiple />
         <MudButton Disabled="@DisabledUploadFiles()" HtmlTag="label" Variant="Variant.Filled" Color="Color.Primary"
             StartIcon="@Icons.Material.Filled.CloudUpload" for="fileInput">
             @if (_onProgress)

@@ -1,10 +1,12 @@
 
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Tozawa.Auth.Svc.Configurations;
 using Tozawa.Auth.Svc.extension;
 using Tozawa.Auth.Svc.Models.Dtos;
 
@@ -13,82 +15,58 @@ namespace Tozawa.Auth.Svc.Services;
 public interface IUserTokenService
 {
     JwtSecurityToken GenerateTokenOptions(CurrentUserDto user);
+    CurrentUserDto GenerateUseFromToken(string token);
+    string GenerateRefreshToken();
+    CurrentUserDto GetUserFromExpiredToken(string token);
 }
 
 public class UserTokenService : IUserTokenService
 {
-    private readonly IConfiguration _configuration;
-    private readonly IConfigurationSection _jwtSettings;
-    public UserTokenService(IConfiguration configuration)
+    private AppSettings _appSettings;
+    public UserTokenService(AppSettings appSettings)
     {
-        _configuration = configuration;
-        _jwtSettings = _configuration.GetSection("JwtSettings");
+        _appSettings = appSettings;
     }
 
     private SigningCredentials GetSigningCredentials()
     {
-        var key = Encoding.UTF8.GetBytes(_jwtSettings["securityKey"]);
+        var key = Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey);
         var secret = new SymmetricSecurityKey(key);
 
         return new SigningCredentials(secret, SecurityAlgorithms.HmacSha256);
     }
-    /* private List<Claim> GetFunctionClaims(FunctionDto function)
+    public CurrentUserDto GenerateUseFromToken(string token)
     {
-        var claims = new List<Claim>
-        {
-          new Claim("RoleId", function.RoleId.ToString()),
-          new Claim("FunctionType", function.FunctionType.ToString()),
-          new Claim("FunctionTypeValues", JsonConvert.SerializeObject(GetFunctionTypeValuesClaims(function.FunctionTypeValues)))
-        };
+        var claims = ParseClaimsFromJwt(token);
+        var claimValue = claims.First(x => x.Type == nameof(CurrentUserDto)).Value;
 
+        return System.Text.Json.JsonSerializer.Deserialize<CurrentUserDto>(claimValue);
+    }
+    private static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
+    {
+        var claims = new List<Claim>();
+        var payload = jwt.Split('.')[1];
+
+        var jsonBytes = ParseBase64WithoutPadding(payload);
+
+        var keyValuePairs = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
+        claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
         return claims;
     }
-    private List<Claim> GetFunctionTypeValuesClaims(FunctionTypeValues functionTypeValues)
+    private static byte[] ParseBase64WithoutPadding(string base64)
     {
-        var claims = new List<Claim>
+        switch (base64.Length % 4)
         {
-            new Claim("PairId", functionTypeValues.PairId),
-            new Claim("OnlyVisibleForRoot", functionTypeValues.OnlyVisibleForRoot.ToString(), ClaimValueTypes.Boolean),
-            new Claim("Obsolete", functionTypeValues.Obsolete.ToString(), ClaimValueTypes.Boolean),
-            new Claim("AccessType", functionTypeValues.AccessType.ToString())
-        };
-
-        return claims;
+            case 2: base64 += "=="; break;
+            case 3: base64 += "="; break;
+        }
+        return Convert.FromBase64String(base64);
     }
-    private List<Claim> GetUserFunction(CurrentUserFunctionDto currentUserFunction)
-    {
-        return new List<Claim>
-        {
-          new Claim("FunctionType", currentUserFunction.FunctionType.ToString()),
-          new Claim("TextId", currentUserFunction.TextId.ToString())
-        };
-    }
-    private List<Claim> GetRoleClaims(CurrentUserRoleDto role)
-    {
-        return new List<Claim>
-        {
-          new Claim("TextId", role.TextId.ToString()),
-          new Claim("OrganizationId", role.OrganizationId.ToString()),
-          new Claim("FunctionTypeValues", JsonConvert.SerializeObject(role.Functions.Select(x => GetFunctionClaims(x))))
-        };
-    } */
     private List<Claim> GetClaims(CurrentUserDto user)
     {
         var claims = new List<Claim>
     {
         new Claim(nameof(CurrentUserDto), JsonConvert.SerializeObject(user))
-       /*  new Claim("Email", user.Email),
-        new Claim("FirstName", user.FirstName),
-        new Claim("LastName", user.LastName),
-        new Claim("RootUser", user.RootUser.ToString(), ClaimValueTypes.Boolean),
-        new Claim("Roles", JsonConvert.SerializeObject(user.Roles.Select(x => GetRoleClaims(x)))),
-        new Claim("Functions", JsonConvert.SerializeObject(user.Functions.Select(x => GetUserFunction(x)))),
-        new Claim("OrganizationId", user.OrganizationId.ToString()),
-        new Claim("FallbackLanguageId", user.FallbackLanguageId.ToString()),
-        new Claim("LanguageId", user.LanguageId.ToString()),
-        new Claim("Organization", user.Organization),
-        new Claim("Id", user.Id.ToString()),
-        new Claim("Oid", user.Oid.ToString()), */
     };
 
         return claims;
@@ -99,12 +77,53 @@ public class UserTokenService : IUserTokenService
         var claims = GetClaims(user);
 
         var tokenOptions = new JwtSecurityToken(
-            issuer: _jwtSettings["validIssuer"],
-            audience: _jwtSettings["validAudience"],
+            issuer: _appSettings.JWTSettings.ValidIssuer,
+            audience: _appSettings.JWTSettings.ValidAudience,
             claims: claims,
-            expires: DateTime.Now.AddMinutes(Convert.ToDouble(_jwtSettings["expiryInMinutes"])),
+            expires: DateTime.Now.AddMinutes(Convert.ToDouble(_appSettings.JWTSettings.ExpiryInMinutes)),
             signingCredentials: signingCredentials);
 
         return tokenOptions;
+    }
+    public string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[32];
+        using (var rng = RandomNumberGenerator.Create())
+        {
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
+    }
+    public CurrentUserDto GetUserFromExpiredToken(string token)
+    {
+        var principal = GetPrincipalFromExpiredToken(token);
+        var claimValue = principal.Identity.Name;
+
+        return System.Text.Json.JsonSerializer.Deserialize<CurrentUserDto>(claimValue);
+    }
+    private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
+    {
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateAudience = true,
+            ValidateIssuer = true,
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey)),
+            ValidateLifetime = false,
+            ValidIssuer = _appSettings.JWTSettings.ValidIssuer,
+            ValidAudience = _appSettings.JWTSettings.ValidAudience,
+        };
+        var tokenHandler = new JwtSecurityTokenHandler();
+        SecurityToken securityToken;
+        var principal = tokenHandler.ValidateToken(token, tokenValidationParameters, out securityToken);
+        var jwtSecurityToken = securityToken as JwtSecurityToken;
+        if (jwtSecurityToken == null || !jwtSecurityToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256,
+            StringComparison.InvariantCultureIgnoreCase))
+        {
+            throw new SecurityTokenException("Invalid token");
+        }
+
+        return principal;
     }
 }

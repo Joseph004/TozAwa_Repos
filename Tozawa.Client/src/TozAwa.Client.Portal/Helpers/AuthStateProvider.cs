@@ -40,6 +40,13 @@ public class AuthStateProvider : AuthenticationStateProvider
 
         return JsonConvert.DeserializeObject<CurrentUserDto>(userString);
     }
+    private async Task<string> GetUserTokenWhenUserIsAuthenticate()
+    {
+        var authUser = await GetAuthenticationStateAsync();
+        if (!authUser.User.Claims.Any()) return string.Empty;
+
+        return authUser.User.Claims.Where(x => x.Type == nameof(CurrentUserDto)).Select(c => c.Value).SingleOrDefault();
+    }
     private async Task RemoveCurrentUser()
     {
         if (await _sessionStorageService.ContainKeyAsync("currentUser"))
@@ -55,18 +62,41 @@ public class AuthStateProvider : AuthenticationStateProvider
         }
         await _sessionStorageService.SetItemAsync("currentUser", user);
     }
+    public async void NotifyUserAuthentication()
+    {
+        var user = await GetUserFromToken();
+        await SetCurrentUser(user);
+        var claims = new List<Claim>
+        {
+            new Claim(nameof(CurrentUserDto), await GetUserTokenWhenUserIsAuthenticate()),
+            new Claim(ClaimTypes.Email, string.IsNullOrEmpty(user.Email) ? "" : user.Email),
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        };
+        if (user.RootUser)
+        {
+            claims.Add(new Claim("root-user", "true"));
+        }
+        var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwtAuthType"));
+        var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+        NotifyAuthenticationStateChanged(authState);
+    }
     public async void NotifyUserAuthentication(string token)
     {
         var user = await GetUserFromToken();
         await SetCurrentUser(user);
-        var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(new[]
+        var claims = new List<Claim>
         {
             new Claim(nameof(CurrentUserDto), token),
-            new Claim("root-user", user.RootUser ? "" : "UserIsRoot"),
             new Claim(ClaimTypes.Email, string.IsNullOrEmpty(user.Email) ? "" : user.Email),
             new Claim(ClaimTypes.Name, user.UserName),
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-         }, "jwtAuthType"));
+        };
+        if(user.RootUser)
+        {
+           claims.Add(new Claim("root-user", "true"));
+        }
+        var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwtAuthType"));
         var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
         NotifyAuthenticationStateChanged(authState);
     }

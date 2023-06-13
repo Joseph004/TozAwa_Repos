@@ -4,6 +4,7 @@ namespace Tozawa.Auth.Svc.Configurations
     {
         public ConnectionStrings ConnectionStrings { get; set; }
         public AAD AAD { get; set; }
-        public string LoginEncryptKey { get; set; }
+        public JWTSettings JWTSettings { get; set; }
+        public string CorsOrigins { get; set; }
     }
 }

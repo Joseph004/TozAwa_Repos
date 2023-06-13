@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using Tozawa.Language.Svc.extension;
@@ -12,12 +13,13 @@ using Tozawa.Language.Svc.Services;
 namespace Tozawa.Language.Svc.Controllers.SystemTypeControllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [EnableCors("TozAwaCorsPolicyBff")]
     [Produces("application/json")]
     [Route("api/[controller]")]
     public class SystemTypesController : InitController
     {
-        public SystemTypesController(IMediator mediator, ICurrentUserService currentUserService)
-         : base(mediator, currentUserService)
+        public SystemTypesController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService)
+         : base(mediator, currentUserService, userTokenService)
         {
         }
 

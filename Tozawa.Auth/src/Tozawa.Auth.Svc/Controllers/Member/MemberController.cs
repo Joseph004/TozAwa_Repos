@@ -3,6 +3,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
@@ -12,12 +13,13 @@ using Tozawa.Auth.Svc.Services;
 namespace Tozawa.Auth.Svc.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [EnableCors("TozAwaCorsPolicyBff")]
     [Authorize(AuthenticationSchemes = "tzuserauthentication")]
     [Produces("application/json")]
     [Route("api/[controller]")]
     public class MemberController : InitController
     {
-        public MemberController(IMediator mediator, ICurrentUserService currentUserService) : base(mediator, currentUserService)
+        public MemberController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService) : base(mediator, currentUserService, userTokenService)
         {
         }
 

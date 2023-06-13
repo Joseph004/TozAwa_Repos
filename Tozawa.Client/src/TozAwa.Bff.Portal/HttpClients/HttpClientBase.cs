@@ -1,4 +1,3 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Identity.Client;
@@ -109,9 +108,9 @@ namespace Tozawa.Bff.Portal.HttpClients
                    new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, token);
 
             var currentUser = _currentUserService.User;
-            if (!string.IsNullOrEmpty(currentUser.AccessToken))
+            if (currentUser != null && !string.IsNullOrEmpty(currentUser.AccessToken))
             {
-                var userToken = new JwtSecurityTokenHandler().WriteToken(_userTokenService.GenerateTokenOptionsForAthService(currentUser.AccessToken));
+                var userToken = _userTokenService.GetTokenToAuth(currentUser.AccessToken);
                 request.Headers.Add("tzuserauthentication", userToken);
             }
             request.Headers.Add("current-user", System.Text.Json.JsonSerializer.Serialize(currentUser));

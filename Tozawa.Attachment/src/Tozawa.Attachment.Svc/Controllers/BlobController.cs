@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Tozawa.Attachment.Svc.Context;
@@ -13,9 +14,10 @@ namespace Tozawa.Attachment.Svc.Controllers
     [Produces("application/json")]
     [Route("api/[controller]")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+     [EnableCors("TozAwaCorsPolicyBff")]
     public class BlobController : InitController
     {
-        public BlobController(IMediator mediator, ICurrentUserService currentUserService) : base(mediator, currentUserService)
+        public BlobController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService) : base(mediator, currentUserService, userTokenService)
         {
         }
 

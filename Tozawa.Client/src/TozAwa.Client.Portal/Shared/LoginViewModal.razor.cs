@@ -37,8 +37,6 @@ namespace Tozawa.Client.Portal.Shared
         [Inject] ILogger<LoginViewModal> Logger { get; set; }
         [Inject] IDataProtectionProviderService _dataProtectionProviderService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
-        [Inject] ILocalStorageService _localStorage { get; set; }
-        [Inject] AuthenticationStateProvider _authStateProvider { get; set; }
         private bool _processing = false;
         private bool _currentErrorView = false;
         private bool _success;
@@ -49,8 +47,6 @@ namespace Tozawa.Client.Portal.Shared
         private string ToggleAdminIcon = Icons.Material.Filled.ToggleOff;
         private bool isShow;
         MudForm form;
-        string _message = string.Empty;
-        bool _is_server_authenticated = false;
         private List<Action> actionsToRunAfterRender = new List<Action>();
 
         protected async override Task OnAfterRenderAsync(bool firstRender)

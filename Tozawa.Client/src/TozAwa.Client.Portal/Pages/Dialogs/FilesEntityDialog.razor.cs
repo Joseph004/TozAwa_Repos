@@ -11,6 +11,7 @@ using Tozawa.Client.Portal.Models.Enums;
 using Tozawa.Client.Portal.Models.FormModels;
 using Tozawa.Client.Portal.Services;
 using Tozawa.Client.Portal.Shared;
+using TozAwa.Client.Portal.Helpers;
 using TozAwa.Client.Portal.Services;
 
 namespace Tozawa.Client.Portal.Pages
@@ -29,9 +30,38 @@ namespace Tozawa.Client.Portal.Pages
         protected int _thumbnailSize = 24;
         private bool _onProgress;
         private readonly List<IBrowserFile> _files = new();
+        private string _alphaNumericFileNameValidationMessage;
+        private string _fileNameLengthValidationMessage;
+        private string _fileTypeValidationMessage;
 
         protected void Add() => MudDialog.Close(DialogResult.Ok(Entity));
         protected void Cancel() => MudDialog.Cancel();
+        protected override void OnInitialized()
+        {
+            _alphaNumericFileNameValidationMessage = _translationService.Translate(SystemTextId.PleaseUsevalidFileName, "The file name should be alpha numeric").Text;
+            _fileNameLengthValidationMessage = _translationService.Translate(SystemTextId.PleaseUseNormalFileNameLength, "Please the file name is too large, use maz 255 characters as recommanded").Text;
+            _fileTypeValidationMessage = _translationService.Translate(SystemTextId.PleaseUseValidAllowedFiles, "the file type is not valid, only images pdf word textfile and excel are allowed").Text;
+        }
+        private bool IsValideFile(IBrowserFile file)
+        {
+            if (!FileValidator.IsValidContentType(file.ContentType))
+            {
+                Snackbar.Add(_fileTypeValidationMessage, Severity.Info);
+                return false;
+            }
+            else if (!FileValidator.IsValidName(file.Name))
+            {
+                Snackbar.Add(_alphaNumericFileNameValidationMessage, Severity.Info);
+                return false;
+            }
+            else if (!FileValidator.IsValidLength(file.Name))
+            {
+                Snackbar.Add(_fileNameLengthValidationMessage, Severity.Info);
+                return false;
+            }
+
+            return true;
+        }
 
         protected string GetFileTypeIcon(FileAttachmentDto attachment) =>
             attachment.MimeType.Contains("image") ? Icons.Material.Filled.Image : Icons.Material.Filled.FileCopy;
@@ -97,6 +127,7 @@ namespace Tozawa.Client.Portal.Pages
             StateHasChanged();
             foreach (var file in e.GetMultipleFiles())
             {
+                if (!IsValideFile(file)) return;
                 if (Entity.Attachments.Any(x => x.Name == file.Name && x.MimeType == file.ContentType))
                 {
                     Snackbar.Add($"{Translate(SystemTextId.FileName, "Filename")} {file.Name.ToUpper()} {Translate(SystemTextId.AlreadyExists, "already exist")} : {Translate(SystemTextId.Name, "Name")} {Entity.Code}", Severity.Warning);
@@ -113,15 +144,19 @@ namespace Tozawa.Client.Portal.Pages
             if (_files.Any())
             {
                 var request = new AttachmentUploadRequest();
-                long maxSize = 10 * 1024 * 1024;
 
-                if (_files.Any(x => x.Size > maxSize))
+                if (_files.Any(x => x.Size > FileValidator.MaxAllowedSize))
                 {
-                    Snackbar.Add($"{Translate(SystemTextId.TheAllowedMaximumSizeIs, "The Allowed maximum size is")} {Math.Round(Convert.ToDouble(maxSize) / 1000, 2)}KB", Severity.Warning);
+                    Snackbar.Add($"{Translate(SystemTextId.TheAllowedMaximumSizeIs, "The Allowed maximum size is")} {Math.Round(Convert.ToDouble(FileValidator.MaxAllowedSize) / 1000, 2)}KB", Severity.Warning);
                     _files.Clear();
                 }
                 else
                 {
+                    foreach (var file in _files)
+                    {
+                        var buffers = new byte[file.Size];
+                        await file.OpenReadStream(maxAllowedSize: FileValidator.MaxAllowedSize).ReadAsync(buffers);
+                    }
                     await request.AddFiles(_files);
                     request.FileAttachmentType = _attachmentType;
                     request.FolderName = Entity.Email;

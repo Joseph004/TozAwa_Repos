@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Tozawa.Bff.Portal.Models.Dtos;
+using TozAwa.Bff.Portal.Helper;
 
 namespace Tozawa.Bff.Portal.Models.Request.Frontend
 {
@@ -13,6 +14,7 @@ namespace Tozawa.Bff.Portal.Models.Request.Frontend
 
         public async Task AddFiles(List<IBrowserFile> files)
         {
+            if(files.Any() && files.Count > 0 && files.Any(x => !FileValidator.IsValideFile(x))) return;
             foreach (var file in files)
             {
                 long maxSize = 10 * 1024 * 1024;

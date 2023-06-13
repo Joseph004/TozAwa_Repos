@@ -9,11 +9,10 @@ using MudBlazor.Services;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Tozawa.Client.Portal.Configurations;
-using Tozawa.Client.Portal.HttpClients;
-using Tozawa.Client.Portal.HttpClients.Helpers;
 using Tozawa.Client.Portal.Services;
 using Tozawa.Client.Portal.Shared;
 using Tozawa.Client.Portal.StateHandler;
+using TozAwa.Client.Portal.Helpers;
 using TozAwa.Client.Portal.Services;
 
 namespace TozAwa.Client.Portal
@@ -35,23 +34,15 @@ namespace TozAwa.Client.Portal
             builder.Logging.AddConfiguration(builder.Configuration.GetSection("Logging"));
 
             // Register the Message Handler
-            builder.Services.AddScoped(_ => new DefaultBrowserOptionsMessageHandler
+            builder.Services.AddTransient(_ => new CustomMessageHandler()
             {
-                /*  DefaultBrowserRequestCache = BrowserRequestCache.NoStore,
-                 DefaultBrowserRequestCredentials = BrowserRequestCredentials.Include, */
-                DefaultBrowserRequestMode = BrowserRequestMode.Cors
+                DefaultBrowserRequestMode = BrowserRequestMode.Cors,
+                DefaultBrowserRequestCache = BrowserRequestCache.NoStore
             });
 
-            builder.Services.AddHttpClient("TzDefault", client =>
-            {
-                client.BaseAddress = new Uri($"{appSettings.AADClient.Authority}");
-                client.DefaultRequestHeaders.Add("Access-Control-Allow-Origin", "https://localhost:44331");
-                client.DefaultRequestHeaders.Add("Accept", "application/x-www-form-urlencoded");
-            })
-                .AddHttpMessageHandler<DefaultBrowserOptionsMessageHandler>();
-
-            builder.Services.AddScoped<HttpClient>(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("TzDefault"));
-
+            // Optional: Register the HttpClient service using the named client "Default"
+            // This will use this client when using @inject HttpClient
+            builder.Services.AddScoped<HttpClient>(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("BlazorServerHttpClient"));
             builder.Services.AddApiAuthorization();
             builder.Services.AddScoped<IDataProtectionProviderService, DataProtectionProviderService>();
             builder.Services.AddTransient<IUserInfos, UserInfos>();
@@ -100,11 +91,8 @@ namespace TozAwa.Client.Portal
 
             // or this to add only the MudBlazor.Extensions
             builder.Services.AddMudExtensions();
-
             builder.Services.RegisterHttpClients(appSettings.TozAwaBffApiSettings.ApiUrl);
-            builder.Services.AddHttpClient<AuthHttpClient>();
-            
-            builder.Services.AddScoped<HttpClient>();
+
             builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
             builder.Services.AddScoped<CookieStorageAccessor>();
             builder.Services.AddScoped<ICookie, Cookie>();
@@ -122,7 +110,7 @@ namespace TozAwa.Client.Portal
 
             builder.Services.AddAuthorizationCore(options =>
             {
-                options.AddPolicy("root-user", policy => policy.RequireClaim("root-user", "UserIsRoot"));
+                options.AddPolicy("tozawaroot", policy => policy.RequireClaim("root-user", "true"));
             });
             await builder.Build().RunAsync();
         }

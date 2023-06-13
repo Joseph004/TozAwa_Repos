@@ -54,7 +54,7 @@ namespace Tozawa.Bff.Portal.Handlers.Commands
         private readonly ITranslationService _translationService;
         private readonly IGoogleService _googleService;
         private readonly IUserTokenService _userTokenService;
-        public LoginCommandHandler(ITozAwaAuthHttpClient tozAwaAuthHttpClient, ITranslationService translationService, IGoogleService googleService, IUserTokenService userTokenService)
+        public LoginCommandHandler(ITozAwaAuthHttpClient tozAwaAuthHttpClient, ITranslationService translationService, IUserTokenService userTokenService, IGoogleService googleService)
         {
             _tozAwaAuthHttpClient = tozAwaAuthHttpClient;
             _translationService = translationService;
@@ -94,12 +94,9 @@ namespace Tozawa.Bff.Portal.Handlers.Commands
                     LoginSuccess = false
                 }));
             }
-
-            response.Token = new JwtSecurityTokenHandler().WriteToken(_userTokenService.GenerateTokenOptions(response.Token));
+            response.Token = _userTokenService.GenerateToken(response.Token);
             return await Task.FromResult(new AddResponse<LoginResponseDto>(true, await _translationService.GetHttpStatusText(HttpStatusCode.OK), HttpStatusCode.OK, response));
         }
     }
-
-
 }
 

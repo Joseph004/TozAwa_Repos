@@ -1,27 +1,27 @@
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Identity.Web.Resource;
 using Tozawa.Bff.Portal.ClientMessages;
 using Tozawa.Bff.Portal.Configuration;
-using Tozawa.Bff.Portal.Models;
+using Tozawa.Bff.Portal.Helper;
 using Tozawa.Bff.Portal.Models.Enums;
 using Tozawa.Bff.Portal.Services;
 
 namespace Tozawa.Bff.Portal.Controllers
 {
-    //[Authorize(AuthenticationSchemes = "tzappauthentication")]
-    [Authorize(AuthenticationSchemes = "tzuserauthentication")]
+    [EnableCors("TozAwaCorsPolicyBff")]
+    [AuthorizeUserRequirement]
     [Route("api/[controller]")]
     [Produces("application/json")]
     public class MemberController : InitController
     {
-        public MemberController(IMediator mediator, ICurrentUserService currentUserService, ILanguageService LanguageService, AppSettings appSettings)
-        : base(mediator, currentUserService)
+        public MemberController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService, ILanguageService languageService, AppSettings appSettings)
+        : base(mediator, currentUserService, userTokenService)
         {
-            UpdateMessages.Configure(LanguageService, appSettings, currentUserService);
+            UpdateMessages.Configure(languageService, appSettings, currentUserService);
         }
 
         [HttpGet, Route(""), CheckRole(FunctionType.ReadSetting, FunctionType.ReadMember)]

@@ -3,11 +3,11 @@ namespace Tozawa.Auth.Svc.Controllers
 {
     public static class HttpRequestExtension
     {
-        private static readonly string currentUserHeaderKey = "current-user";
+        private static readonly string userAuthenticationHeaderKey = "tzuserauthentication";
 
-        public static string GetCurrentUserHeader(this HttpRequest request)
+        public static string GetUserAuthenticationHeader(this HttpRequest request)
         {
-            return request.GetHeader(currentUserHeaderKey);
+            return request.GetHeader(userAuthenticationHeaderKey);
         }
         public static string GetHeader(this HttpRequest request, string key)
         {

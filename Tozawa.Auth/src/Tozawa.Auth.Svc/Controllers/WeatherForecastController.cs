@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Tozawa.Auth.Svc.Controllers
 {
     [Authorize]
+    [EnableCors("TozAwaCorsPolicyBff")]
     [ApiController]
     [Produces("application/json")]
     [Route("api/[controller]")]

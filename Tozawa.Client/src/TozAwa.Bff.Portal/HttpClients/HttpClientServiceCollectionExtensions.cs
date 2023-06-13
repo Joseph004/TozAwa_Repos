@@ -49,3 +49,16 @@ public static class HttpClientServiceCollectionExtensions
         return services;
     }
 }
+
+public static class ResponseHeaderExtensions
+{
+    public static IApplicationBuilder UseNoSniffHeaders(this IApplicationBuilder builder)
+    {
+        return builder.Use(async (context, next) =>
+        {
+            context.Response.Headers.Add("X-Content-Type-Options", "nosniff");
+            await next();
+        });
+    }
+
+}

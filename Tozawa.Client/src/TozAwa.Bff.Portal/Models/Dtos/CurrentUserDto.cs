@@ -8,7 +8,7 @@ public class CurrentUserDto : BaseDto
 {
     public string UserName { get; init; } = "";
     public string Email { get; init; } = "";
-    public string AccessToken { get; set; }
+    public string AccessToken { get; set; } = "";
     public string RefreshToken { get; set; }
 
     // public string UserAvatar { get; set; }
@@ -34,6 +34,12 @@ public class CurrentUserDto : BaseDto
             ? Roles.SelectMany(x => x.Functions).Distinct().Select(x => x.FunctionType).Distinct().ToArray()
             : new FunctionType[0];
     }
+    /* public string[] GetFunctions()
+    {
+        return Roles != null
+            ? Roles.SelectMany(x => x.).Distinct().Select(x => x.FunctionType).Distinct().ToArray()
+            : new string[0];
+    } */
 
     public List<CurrentUserOrganizationDto> Organizations { get; init; } = new();
 }

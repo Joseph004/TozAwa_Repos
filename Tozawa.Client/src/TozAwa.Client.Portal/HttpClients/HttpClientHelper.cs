@@ -1,50 +1,91 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
 using Blazored.LocalStorage;
+using Blazored.SessionStorage;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using Tozawa.Client.Portal.Configurations;
 using Tozawa.Client.Portal.Extensions;
 using Tozawa.Client.Portal.HttpClients.Helpers;
+using Tozawa.Client.Portal.Models.Dtos;
 using Tozawa.Client.Portal.Models.ResponseRequests;
 using Tozawa.Client.Portal.Services;
-using TozAwa.Client.Portal.Services;
+using TozAwa.Client.Portal;
 
 namespace Tozawa.Client.Portal.HttpClients
 {
     public class HttpClientHelper
     {
         protected readonly ILogger<HttpClientHelper> _logger;
-        private readonly HttpClient _client;
-        private readonly ICurrentUserService _currentUserService;
         private readonly ITranslationService _translationService;
         private readonly AppSettings _appSettings;
+        private readonly AuthenticationStateProvider _authProvider;
         private readonly ILocalStorageService _localStorage;
+        private readonly NavigationManager _navigationManager;
+        private readonly ISessionStorageService _sessionStorageService;
+        private readonly HttpClient _client;
 
         public HttpClientHelper(
-            HttpClient client,
-            ICurrentUserService currentUserService,
+           HttpClient client,
             ITranslationService translationService,
             AppSettings appSettings,
+            AuthenticationStateProvider authProvider,
             ILocalStorageService localStorage,
+            NavigationManager navigationManager,
+            ISessionStorageService sessionStorageService,
             ILogger<HttpClientHelper> logger)
         {
             _logger = logger;
             _client = client;
             _appSettings = appSettings;
-            _currentUserService = currentUserService;
-            _translationService = translationService;
+            _authProvider = authProvider;
             _localStorage = localStorage;
+            _translationService = translationService;
+            _navigationManager = navigationManager;
+            _sessionStorageService = sessionStorageService;
         }
+        public async Task RemoveCurrentUser()
+        {
+            if (await _sessionStorageService.ContainKeyAsync("currentUser"))
+            {
+                await _sessionStorageService.RemoveItemAsync("currentUser");
+            }
+        }
+        private async Task<AddResponse<LoginResponseDto>> PostRefresh(string url, RefreshTokenDto value)
+        {
+            var request = PostRequest(url, value);
 
+            if (!string.IsNullOrEmpty(value.Token))
+            {
+                request.Headers.Add("tzuserauthentication", value.Token);
+            }
+
+            var activeLanguage = await _localStorage.GetItemAsync<ActiveLanguageDto>($"ActiveLanguageKey_activeLanguage");
+
+            if (activeLanguage != null && activeLanguage.Id != Guid.Empty)
+            {
+                request.Headers.Add("toza-active-language", activeLanguage.Id.ToString());
+            }
+
+            var postResponse = await _client.SendAsync(request);
+
+            var postContent = postResponse.IsSuccessStatusCode ? await postResponse.Content.ReadAsJsonAsync<AddResponse<LoginResponseDto>>() :
+                     new AddResponse<LoginResponseDto>(postResponse.IsSuccessStatusCode, StatusTexts.GetHttpStatusText(postResponse.StatusCode), postResponse.StatusCode, null);
+
+            if (!postResponse.IsSuccessStatusCode || !postContent.Success)
+                return postContent;
+
+            var result = postContent.Entity ?? new LoginResponseDto();
+
+            await _localStorage.SetItemAsync("authToken", result.Token);
+            await _localStorage.SetItemAsync("refreshToken", result.RefreshToken);
+
+            return postContent;
+        }
         public static HttpResponseMessage CreateHttpResonseMessage(HttpRequestMessage request, HttpResponseMessage response)
         {
             var result = response ?? new HttpResponseMessage
@@ -259,40 +300,93 @@ namespace Tozawa.Client.Portal.HttpClients
             var request = new HttpRequestMessage(HttpMethod.Delete, endpoint);
             return request;
         }
+        private async Task<string> TryRefreshToken()
+        {
+            var authState = await _authProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var exp = user.FindFirst(c => c.Type.Equals("exp"))?.Value;
+            if (string.IsNullOrEmpty(exp)) return string.Empty;
+            var expTime = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(exp));
+            var timeUTC = DateTime.UtcNow;
+            var diff = expTime - timeUTC;
 
+            var token = await _localStorage.GetItemAsync<string>("authToken");
+            var refreshToken = await _localStorage.GetItemAsync<string>("refreshToken");
+
+            var request = new RefreshTokenDto()
+            {
+                Token = token,
+                RefreshToken = refreshToken
+            };
+
+            if (diff.TotalMinutes <= 2)
+            {
+                var response = await PostRefresh("token/refresh", request);
+                if (response.Success)
+                {
+                    var result = response.Entity ?? new LoginResponseDto();
+                    return result.Token;
+                }
+            } else
+            {
+                if(!string.IsNullOrEmpty(request.Token))
+                {
+                    return request.Token;
+                }
+            }
+            return string.Empty;
+        }
         protected async Task<HttpResponseMessage> Send(HttpRequestMessage request)
         {
-            /* var token = await GetToken();
-            request.Headers.Authorization =
-                   new AuthenticationHeaderValue("tzappauthentication", token); */
-
             var activeLanguage = await _translationService.GetActiveLanguage();
 
-            var userToken = await _localStorage.GetItemAsync<string>("authToken");
-
-            if (!string.IsNullOrEmpty(userToken))
+            var token = await TryRefreshToken();
+            var context = await _authProvider.GetAuthenticationStateAsync();
+            if (string.IsNullOrEmpty(token) && context.User.Identity.IsAuthenticated)
             {
-                request.Headers.Add("tzuserauthentication", userToken);
+                await Logout();
+                token = string.Empty;
             }
+        
+            request.Headers.Add("tzuserauthentication", token);
 
-            var currentUser = await _currentUserService.GetCurrentUser();
-            request.Headers.Add("current-user", System.Text.Json.JsonSerializer.Serialize(currentUser));
             request.Headers.Add("toza-active-language", activeLanguage.Id.ToString());
             var response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
 
             return response;
         }
+        private async Task Logout()
+        {
+            await RemoveCurrentUser();
+            await _localStorage.RemoveItemAsync("authToken");
+            await _localStorage.RemoveItemAsync("refreshToken");
+            ((AuthStateProvider)_authProvider).NotifyUserLogout();
 
+            NavigateToReturnPage();
+        }
+        private void NavigateToReturnPage()
+        {
+            var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
+
+            if (string.IsNullOrEmpty(currentPath))
+            {
+                _navigationManager.NavigateTo("/home");
+            }
+            else
+            {
+                _navigationManager.NavigateTo($"/{currentPath}");
+            }
+        }
         protected async Task<HttpResponseMessage> PostFile(string url, HttpContent request)
         {
-            /*  var token = await GetToken();
-             _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("tzappauthentication", token); */
-            var userToken = await _localStorage.GetItemAsync<string>("authToken");
-
-            if (!string.IsNullOrEmpty(userToken))
+            var token = await TryRefreshToken();
+            var context = await _authProvider.GetAuthenticationStateAsync();
+            if (string.IsNullOrEmpty(token) && context.User.Identity.IsAuthenticated)
             {
-                request.Headers.Add("tzuserauthentication", userToken);
+                await Logout();
+                token = string.Empty;
             }
+            request.Headers.Add("tzuserauthentication", token);
             var response = await _client.PostAsync(url, request).ConfigureAwait(false);
 
             return response;

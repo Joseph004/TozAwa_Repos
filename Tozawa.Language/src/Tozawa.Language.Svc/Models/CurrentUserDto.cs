@@ -9,6 +9,7 @@ public record CurrentUserDto
     public string UserName { get; init; } = "";
     public string Email { get; init; } = "";
     public string FirstName { get; set; } = "";
+    public string AccessToken { get; set; }
     public string LastName { get; set; } = "";
     public bool RootUser { get; init; }
     public List<CurrentUserRoleDto> Roles { get; init; } = new();

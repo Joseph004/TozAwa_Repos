@@ -1,6 +1,7 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Tozawa.Language.Svc.Models.Enums;
 using Tozawa.Language.Svc.Services;
@@ -8,12 +9,13 @@ using Tozawa.Language.Svc.Services;
 namespace Tozawa.Language.Svc.Controllers.ImportControllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [EnableCors("TozAwaCorsPolicyBff")]
     [Produces("application/json")]
     [Route("api/[controller]")]
     public class ImportController : InitController
     {
-        public ImportController(IMediator mediator, ICurrentUserService currentUserService)
-            : base(mediator, currentUserService)
+        public ImportController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService)
+            : base(mediator, currentUserService, userTokenService)
         {
         }
 

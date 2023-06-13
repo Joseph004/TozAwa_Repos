@@ -1,25 +1,22 @@
-
-
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Net;
-using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text;
-using System.Threading.Tasks;
 using Blazored.LocalStorage;
+using Blazored.SessionStorage;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.AspNetCore.Components.WebAssembly.Http;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Tozawa.Client.Portal.Configurations;
 using Tozawa.Client.Portal.Extensions;
 using Tozawa.Client.Portal.HttpClients.Helpers;
 using Tozawa.Client.Portal.Models.Dtos;
 using Tozawa.Client.Portal.Models.ResponseRequests;
+using Tozawa.Client.Portal.Services;
+using TozAwa.Client.Portal;
 
 namespace Tozawa.Client.Portal.HttpClients
 {
@@ -31,41 +28,98 @@ namespace Tozawa.Client.Portal.HttpClients
     public class AuthHttpClient : IAuthHttpClient
     {
         private readonly AppSettings _appSettings;
-        private readonly HttpClient _client;
         private readonly ILogger<AuthHttpClient> _logger;
-        private readonly ILocalStorageService _localStorageService;
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly AuthenticationStateProvider _authProvider;
+        private readonly ILocalStorageService _localStorage;
+        private readonly NavigationManager _navigationManager;
+        private readonly ISessionStorageService _sessionStorageService;
+        private readonly HttpClient _client;
 
         public BrowserRequestCache DefaultBrowserRequestCache { get; set; }
         public BrowserRequestCredentials DefaultBrowserRequestCredentials { get; set; }
         public BrowserRequestMode DefaultBrowserRequestMode { get; set; }
-        public AuthHttpClient(HttpClient client, AppSettings appSettings, ILocalStorageService localStorageService, IHttpClientFactory httpClientFactory, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authState)
+        public AuthHttpClient(HttpClient client, AppSettings appSettings, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authProvider, ILocalStorageService localStorage, NavigationManager navigationManager,
+           ISessionStorageService sessionStorageService, AuthenticationStateProvider authState)
         {
-            client.BaseAddress = new Uri(appSettings.TozAwaBffApiSettings.ApiUrl);
-            client.DefaultRequestHeaders.Add("Accept", "application/json");
-
             _client = client;
             _logger = logger;
             _appSettings = appSettings;
-            _localStorageService = localStorageService;
-            _httpClientFactory = httpClientFactory;
-
+            _localStorage = localStorage;
+            _authProvider = authProvider;
+            _navigationManager = navigationManager;
+            _sessionStorageService = sessionStorageService;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+        }
+        private async Task<string> TryRefreshToken()
+        {
+            var authState = await _authProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var exp = user.FindFirst(c => c.Type.Equals("exp"))?.Value;
+            if (string.IsNullOrEmpty(exp)) return string.Empty;
+            var expTime = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(exp));
+            var timeUTC = DateTime.UtcNow;
+            var diff = expTime - timeUTC;
+
+            var token = await _localStorage.GetItemAsync<string>("authToken");
+            var refreshToken = await _localStorage.GetItemAsync<string>("refreshToken");
+
+            var request = new RefreshTokenDto()
+            {
+                Token = token,
+                RefreshToken = refreshToken
+            };
+
+            if (diff.TotalMinutes <= 2)
+            {
+                var response = await PostRefresh("token/refresh", request);
+                if (response.Success)
+                {
+                    var result = response.Entity ?? new LoginResponseDto();
+                    return result.Token;
+                }
+            }
+            return string.Empty;
+        }
+        private async Task Logout()
+        {
+            await RemoveCurrentUser();
+            await _localStorage.RemoveItemAsync("authToken");
+            await _localStorage.RemoveItemAsync("refreshToken");
+            ((AuthStateProvider)_authProvider).NotifyUserLogout();
+
+            NavigateToReturnPage();
+        }
+        public async Task RemoveCurrentUser()
+        {
+            if (await _sessionStorageService.ContainKeyAsync("currentUser"))
+            {
+                await _sessionStorageService.RemoveItemAsync("currentUser");
+            }
+        }
+        private void NavigateToReturnPage()
+        {
+            var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
+
+            if (string.IsNullOrEmpty(currentPath))
+            {
+                _navigationManager.NavigateTo("/home");
+            }
+            else
+            {
+                _navigationManager.NavigateTo($"/{currentPath}");
+            }
         }
         public virtual async Task<HttpResponseMessage> Send(HttpRequestMessage request)
         {
-            /* var token = await GetToken();
-            request.Headers.Authorization =
-                   new AuthenticationHeaderValue("tzappauthentication", token); */
-
-            var userToken = await _localStorageService.GetItemAsync<string>("authToken");
-
-            if (!string.IsNullOrEmpty(userToken))
+            var token = await TryRefreshToken();
+            var context = await _authProvider.GetAuthenticationStateAsync();
+            if (string.IsNullOrEmpty(token) && context.User.Identity.IsAuthenticated)
             {
-                request.Headers.Add("tzuserauthentication", userToken);
+               await Logout();
+                token = string.Empty;
             }
-
-            var activeLanguage = await _localStorageService.GetItemAsync<ActiveLanguageDto>($"ActiveLanguageKey_activeLanguage");
+            request.Headers.Add("tzuserauthentication", token);
+            var activeLanguage = await _localStorage.GetItemAsync<ActiveLanguageDto>($"ActiveLanguageKey_activeLanguage");
 
             if (activeLanguage != null && activeLanguage.Id != Guid.Empty)
             {
@@ -125,7 +179,37 @@ namespace Tozawa.Client.Portal.HttpClients
             }
 
         }
+        private async Task<AddResponse<LoginResponseDto>> PostRefresh(string url, RefreshTokenDto value)
+        {
+            var request = PostRequest(url, value);
 
+            if (!string.IsNullOrEmpty(value.Token))
+            {
+                request.Headers.Add("tzuserauthentication", value.Token);
+            }
+
+            var activeLanguage = await _localStorage.GetItemAsync<ActiveLanguageDto>($"ActiveLanguageKey_activeLanguage");
+
+            if (activeLanguage != null && activeLanguage.Id != Guid.Empty)
+            {
+                request.Headers.Add("toza-active-language", activeLanguage.Id.ToString());
+            }
+
+            var postResponse = await _client.SendAsync(request);
+
+            var postContent = postResponse.IsSuccessStatusCode ? await postResponse.Content.ReadAsJsonAsync<AddResponse<LoginResponseDto>>() :
+                     new AddResponse<LoginResponseDto>(postResponse.IsSuccessStatusCode, StatusTexts.GetHttpStatusText(postResponse.StatusCode), postResponse.StatusCode, null);
+
+            if (!postResponse.IsSuccessStatusCode || !postContent.Success)
+                return postContent;
+
+            var result = postContent.Entity ?? new LoginResponseDto();
+
+            await _localStorage.SetItemAsync("authToken", result.Token);
+            await _localStorage.SetItemAsync("refreshToken", result.RefreshToken);
+
+            return postContent;
+        }
         public async Task<AddResponse<T>> SendPost<T>(string url, object value) where T : class
         {
             try

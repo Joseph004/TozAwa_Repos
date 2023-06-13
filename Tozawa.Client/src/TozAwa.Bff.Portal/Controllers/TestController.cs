@@ -1,6 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
 using Tozawa.Bff.Portal.ClientMessages;
@@ -10,6 +11,7 @@ using Tozawa.Bff.Portal.Services;
 
 namespace Tozawa.Bff.Portal.Controllers
 {
+    [EnableCors("TozAwaCorsPolicyBff")]
     [Route("api/[controller]")]
     [Produces("application/json")]
     public class TestController : ControllerBase

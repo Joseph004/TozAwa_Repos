@@ -1,8 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Identity.Web.Resource;
+using Tozawa.Bff.Portal.ClientMessages;
+using Tozawa.Bff.Portal.Configuration;
 using Tozawa.Bff.Portal.Handlers.Commands;
 using Tozawa.Bff.Portal.Handlers.Queries;
 using Tozawa.Bff.Portal.Services;
@@ -10,13 +13,15 @@ using Tozawa.Bff.Portal.Services;
 namespace Tozawa.Bff.Portal.Controllers
 {
     //[Authorize(AuthenticationSchemes = "tzappauthentication")]
+    [EnableCors("TozAwaCorsPolicyBff")]
     [Route("api/[controller]")]
     [Produces("application/json")]
     public class AuthenticateController : InitController
     {
-        public AuthenticateController(IMediator mediator, ICurrentUserService currentUserService)
-        : base(mediator, currentUserService)
+        public AuthenticateController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService, ILanguageService languageService, AppSettings appSettings)
+        : base(mediator, currentUserService, userTokenService)
         {
+            UpdateMessages.Configure(languageService, appSettings, currentUserService);
         }
 
         [HttpGet, Route("current/{oid:Guid}")]

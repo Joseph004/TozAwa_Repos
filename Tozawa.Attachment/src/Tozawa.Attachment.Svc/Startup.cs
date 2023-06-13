@@ -19,8 +19,7 @@ using Tozawa.Attachment.Svc.Context;
 using Tozawa.Attachment.Svc.Validation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Tozawa.Attachment.Svc.Services;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Tozawa.Attachment.Svc;
 
@@ -37,32 +36,25 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         AppSettings = services.ConfigureAppSettings<AppSettings>(Configuration.GetSection("AppSettings"));
-        var jwtSettings = Configuration.GetSection("AppSettings:JWTSettings");
         services.AddSingleton(Configuration);
         services.AddApplicationInsightsTelemetry();
 
         services.AddScoped<ICurrentUserService, CurrentUserService>();
 
         services.AddAuthentication()
-               .AddJwtBearer("tzuserauthentication", options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-
-        ValidIssuer = jwtSettings["validIssuer"],
-        ValidAudience = jwtSettings["validAudience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["securityKey"]))
-    };
-}).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
+               .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
                {
                    opt.Audience = AppSettings.AAD.ResourceId;
                    opt.Authority = $"{AppSettings.AAD.Instance}{AppSettings.AAD.TenantId}";
                });
-
+        services
+            .AddAuthorization(options =>
+            {
+                options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                    .RequireAuthenticatedUser()
+                    .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                    .Build();
+            });
         JsonConvert.DefaultSettings = () => new JsonSerializerSettings
         {
             Formatting = Formatting.None,
@@ -88,6 +80,7 @@ public class Startup
 
         services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
         services.AddTransient<IPrincipal>(provider => provider.GetService<IHttpContextAccessor>().HttpContext.User);
+        services.AddScoped<IUserTokenService, UserTokenService>();
 
         services.AddControllers();
         // For Entity Framework  
@@ -100,13 +93,11 @@ public class Startup
         services.AddSingleton(AppSettings);
 
         services.AddHealthChecks();
-        services.AddCors((opt) =>
-        {
-            opt.AddPolicy("ALL", (o) =>
-            {
-                o.AllowAnyHeader().AllowAnyMethod().AllowAnyOrigin();
-            });
-        });
+        services.AddCors(options => options.AddPolicy("TozAwaCorsPolicyBff", builder =>
+    {
+        var origins = AppSettings.CorsOrigins.Split(",");
+        builder.WithOrigins(origins).AllowAnyMethod().AllowAnyHeader();
+    }));
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -122,9 +113,7 @@ public class Startup
         {
             UpdateDatabase(app);
         }
-
-        app.UseCors("ALL");
-
+        app.UseCors("TozAwaCorsPolicyBff");
         var options = new RewriteOptions()
             .AddRedirectToHttps(StatusCodes.Status301MovedPermanently, 44384);
         app.UseRewriter(options);

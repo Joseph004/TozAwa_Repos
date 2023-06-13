@@ -44,31 +44,29 @@ namespace Tozawa.Client.Portal.Shared
         {
             if (firstRender)
             {
-                await SetUserRoot();
+                await SetUserClaims();
                 StateHasChanged();
             }
         }
-        private async Task SetUserRoot()
+        private async Task SetUserClaims()
         {
             var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             if (context.User.Identity.IsAuthenticated)
             {
                 _currentUser = await CurrentUserService.GetCurrentUser();
-                if (_currentUser != null && _currentUser.RootUser)
+                if (_currentUser != null && _currentUser.Id != Guid.Empty)
                 {
-                    if (context.User.Claims.Any(x => x.Type == "root-user"))
-                    {
-                        if (!context.User.Claims.Where(x => x.Type == "root-user").Any(z => z.Value == "UserIsRoot"))
-                        {
-                            var claim = context.User.Claims.Where(x => x.Type == "root-user").Where(x => x.Type != "root-user");
-                            context.User.Claims.Append(new Claim("root-user", "UserIsRoot"));
-                        }
-                    }
-                    else
-                    {
-                        context.User.Claims.Append(new Claim("root-user", "UserIsRoot"));
-                    }
+                    ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication();
+                    StateHasChanged();
                 }
+                else
+                {
+                    await Logout();
+                }
+            }
+            else
+            {
+                await Logout();
             }
         }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
@@ -119,8 +117,9 @@ namespace Tozawa.Client.Portal.Shared
                 {
                     var userResponse = (LoginResponseDto)result.Data;
                     await _localStorage.SetItemAsync("authToken", userResponse.Token);
+                    await _localStorage.SetItemAsync("refreshToken", userResponse.RefreshToken);
                     ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(userResponse.Token);
-
+                    StateHasChanged();
                     NavigateToReturnPage();
                 }
             }
@@ -142,6 +141,7 @@ namespace Tozawa.Client.Portal.Shared
         {
             await CurrentUserService.RemoveCurrentUser();
             await _localStorage.RemoveItemAsync("authToken");
+             await _localStorage.RemoveItemAsync("refreshToken");
             ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
 
             NavigateToReturnPage();

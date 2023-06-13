@@ -1,13 +1,9 @@
 using System.Reflection;
-using System.Text;
 using FluentValidation.AspNetCore;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Identity.Web;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Tozawa.Bff.Portal.Configuration;
@@ -23,34 +19,14 @@ ConfigurationManager configuration = builder.Configuration; // allows both to ac
 IWebHostEnvironment environment = builder.Environment;
 
 var appSettings = builder.Services.ConfigureAppSettings<AppSettings>(configuration.GetSection("AppSettings"));
-var jwtSettings = configuration.GetSection("JWTSettings");
 
-/* builder.Services.Configure<JwtBearerOptions>(
-    JwtBearerDefaults.AuthenticationScheme, options =>
-    {
-        options.TokenValidationParameters.NameClaimType = "name";
-    }); */
-
-builder.Services.AddAuthentication()
-               .AddJwtBearer("tzuserauthentication", options =>
-{
-    options.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-
-        ValidIssuer = jwtSettings["validIssuer"],
-        ValidAudience = jwtSettings["validAudience"],
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["securityKey"]))
-    };
-}).AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, opt =>
-               {
-                   opt.Audience = appSettings.AAD.ResourceId;
-                   opt.Authority = $"{appSettings.AAD.Instance}{appSettings.AAD.TenantId}";
-               });
-
+builder.Services.AddAuthorization(options =>
+           {
+               options.DefaultPolicy = new AuthorizationPolicyBuilder()
+                   .RequireAuthenticatedUser()
+                   .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme)
+                   .Build();
+           });
 builder.Services.AddDataProtection();
 
 builder.Services.AddControllers();
@@ -75,7 +51,11 @@ builder.Services.AddHttpClient<ILanguageHttpClient, LanguageHttpClient>();
 builder.Services.RegisterValidationService();
 builder.Services.AddScoped<IUserCountryByIp, UserCountryByIp>();
 
-builder.Services.AddCors();
+builder.Services.AddCors(options => options.AddPolicy("TozAwaCorsPolicyBff", builder =>
+    {
+        var origins = appSettings.CorsOrigins.Split(",");
+        builder.WithOrigins(origins).AllowAnyMethod().AllowAnyHeader();
+    }));
 builder.Services.AddMvc(options =>
 {
     options.EnableEndpointRouting = false;
@@ -98,19 +78,13 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseCors("ALL");
 app.UseHttpsRedirection();
 app.MapControllers();
 app.UseRouting();
+app.UseCors("TozAwaCorsPolicyBff");
 app.UseAuthentication();
 
 app.UseAuthorization();
-
-app.UseCors(
-       builder => builder
-     .AllowAnyOrigin()
-     .AllowAnyMethod()
-     .AllowAnyHeader()
-   );
+app.UseNoSniffHeaders();
 app.UseMvc();
 app.Run();

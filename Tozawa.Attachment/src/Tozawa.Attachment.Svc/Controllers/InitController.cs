@@ -4,6 +4,7 @@ using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,16 +15,18 @@ using Tozawa.Attachment.Svc.Services;
 namespace Tozawa.Attachment.Svc.Controllers
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [EnableCors("TozAwaCorsPolicyBff")]
     public abstract class InitController : Controller
     {
         public readonly IMediator _mediator;
         public readonly ICurrentUserService _currentUserService;
         private ActionExecutingContext Context;
-        public InitController(IMediator mediator, ICurrentUserService currentUserService)
+        public readonly IUserTokenService _userTokenService;
+        public InitController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService)
         {
             _mediator = mediator;
             _currentUserService = currentUserService;
-
+            _userTokenService = userTokenService;
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -35,10 +38,12 @@ namespace Tozawa.Attachment.Svc.Controllers
         public void SetUser(ActionExecutingContext context)
         {
             var c = context.Controller as InitController;
-            if (!string.IsNullOrEmpty(c.Request.GetCurrentUserHeader()))
+            if (!string.IsNullOrEmpty(c.Request.GetUserAuthenticationHeader()))
             {
-                c._currentUserService.User = System.Text.Json.JsonSerializer.Deserialize<CurrentUserDto>(c.Request.GetCurrentUserHeader());
-                c._currentUserService.LanguageId = c._currentUserService.User.LanguageId;
+                c._currentUserService.User = new CurrentUserDto();
+                var token = c.Request.GetUserAuthenticationHeader();
+                c._currentUserService.User = _userTokenService.GenerateUseFromToken(token);
+                c._currentUserService.User.AccessToken = token;
             }
             else
             {
@@ -63,14 +68,16 @@ namespace Tozawa.Attachment.Svc.Controllers
             SetUser(context);
             var c = context.Controller as InitController;
             var currentUserService = context.HttpContext.RequestServices.GetService<ICurrentUserService>();
-            if (!string.IsNullOrEmpty(c.Request.GetCurrentUserHeader()))
+            if (!string.IsNullOrEmpty(c.Request.GetUserAuthenticationHeader()))
             {
-                currentUserService.User = System.Text.Json.JsonSerializer.Deserialize<CurrentUserDto>(c.Request.GetCurrentUserHeader());
-                currentUserService.LanguageId = c._currentUserService.User.LanguageId;
+                c._currentUserService.User = new CurrentUserDto();
+                var token = c.Request.GetUserAuthenticationHeader();
+                c._currentUserService.User = c._userTokenService.GenerateUseFromToken(token);
+                c._currentUserService.User.AccessToken = token;
             }
             else
             {
-                currentUserService.User = new CurrentUserDto();
+                c._currentUserService.User = new CurrentUserDto();
             }
             if (!string.IsNullOrEmpty(c.Request.GetActiveLanguageHeader()))
             {
@@ -85,10 +92,12 @@ namespace Tozawa.Attachment.Svc.Controllers
         public void SetUser(ActionExecutingContext context)
         {
             var c = context.Controller as InitController;
-            if (!string.IsNullOrEmpty(c.Request.GetCurrentUserHeader()))
+            if (!string.IsNullOrEmpty(c.Request.GetUserAuthenticationHeader()))
             {
-                c._currentUserService.User = System.Text.Json.JsonSerializer.Deserialize<CurrentUserDto>(c.Request.GetCurrentUserHeader());
-                c._currentUserService.LanguageId = c._currentUserService.User.LanguageId;
+                c._currentUserService.User = new CurrentUserDto();
+                var token = c.Request.GetUserAuthenticationHeader();
+                c._currentUserService.User = c._userTokenService.GenerateUseFromToken(token);
+                c._currentUserService.User.AccessToken = token;
             }
             else
             {
@@ -126,14 +135,16 @@ namespace Tozawa.Attachment.Svc.Controllers
             SetUser(context);
             var c = context.Controller as InitController;
             var currentUserService = context.HttpContext.RequestServices.GetService<ICurrentUserService>();
-            if (!string.IsNullOrEmpty(c.Request.GetCurrentUserHeader()))
+            if (!string.IsNullOrEmpty(c.Request.GetUserAuthenticationHeader()))
             {
-                currentUserService.User = System.Text.Json.JsonSerializer.Deserialize<CurrentUserDto>(c.Request.GetCurrentUserHeader());
-                currentUserService.LanguageId = c._currentUserService.User.LanguageId;
+                c._currentUserService.User = new CurrentUserDto();
+                var token = c.Request.GetUserAuthenticationHeader();
+                c._currentUserService.User = c._userTokenService.GenerateUseFromToken(token);
+                c._currentUserService.User.AccessToken = token;
             }
             else
             {
-                currentUserService.User = new CurrentUserDto();
+                c._currentUserService.User = new CurrentUserDto();
             }
 
             if (_featureIds != null)
@@ -157,10 +168,12 @@ namespace Tozawa.Attachment.Svc.Controllers
         public void SetUser(ActionExecutingContext context)
         {
             var c = context.Controller as InitController;
-            if (!string.IsNullOrEmpty(c.Request.GetCurrentUserHeader()))
+            if (!string.IsNullOrEmpty(c.Request.GetUserAuthenticationHeader()))
             {
-                c._currentUserService.User = System.Text.Json.JsonSerializer.Deserialize<CurrentUserDto>(c.Request.GetCurrentUserHeader());
-                c._currentUserService.LanguageId = c._currentUserService.User.LanguageId;
+                c._currentUserService.User = new CurrentUserDto();
+                var token = c.Request.GetUserAuthenticationHeader();
+                c._currentUserService.User = c._userTokenService.GenerateUseFromToken(token);
+                c._currentUserService.User.AccessToken = token;
             }
             else
             {

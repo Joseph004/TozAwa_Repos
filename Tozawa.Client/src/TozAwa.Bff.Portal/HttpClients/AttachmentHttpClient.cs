@@ -13,7 +13,7 @@ namespace Tozawa.Bff.Portal.HttpClients
 
     public class AttachmentHttpClient : HttpClientBase, IAttachmentHttpClient
     {
-        public AttachmentHttpClient(HttpClient client, AppSettings appSettings, ICurrentUserService currentUserService, IUserTokenService userTokenService, ILogger<AttachmentHttpClient> logger) : base(client, appSettings, currentUserService, userTokenService, logger)
+        public AttachmentHttpClient(HttpClient client, AppSettings appSettings, IUserTokenService userTokenService, ICurrentUserService currentUserService, ILogger<AttachmentHttpClient> logger) : base(client, appSettings, currentUserService, userTokenService, logger)
         {
         }
     }

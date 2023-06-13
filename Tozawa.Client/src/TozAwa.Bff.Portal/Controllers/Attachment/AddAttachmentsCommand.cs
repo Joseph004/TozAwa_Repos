@@ -5,6 +5,7 @@ using Tozawa.Bff.Portal.Helpers;
 using Tozawa.Bff.Portal.Models.Dtos;
 using Tozawa.Bff.Portal.Models.Request.Frontend;
 using Tozawa.Bff.Portal.Models.ResponseRequests;
+using TozAwa.Bff.Portal.Helper;
 
 namespace Tozawa.Bff.Portal.Controllers
 {
@@ -19,7 +20,8 @@ namespace Tozawa.Bff.Portal.Controllers
     {
         public AddAttachmentsCommandValidator()
         {
-            RuleFor(x => x.Files).NotEmpty();
+            RuleFor(x => x.Files).NotEmpty().Must(a => a.All(y => FileValidator.IsValideFile(y)))
+                                .WithMessage("The given file is not valid");
             RuleFor(x => x.FolderName).NotEmpty();
         }
     }
