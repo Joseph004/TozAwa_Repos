@@ -20,9 +20,8 @@ namespace Tozawa.Bff.Portal.Controllers
     {
         public AddAttachmentsCommandValidator()
         {
-            RuleFor(x => x.Files).NotEmpty().Must(a => a.All(y => FileValidator.IsValideFile(y)))
-                                .WithMessage("The given file is not valid");
-            RuleFor(x => x.FolderName).NotEmpty();
+            RuleFor(x => x.Files).NotEmpty().Must(a => a.All(y => FileValidator.IsValideFile(y)));
+            RuleFor(x => x.FolderName).NotEmpty().Must(x => FileValidator.IsValidLength(x));
         }
     }
 }

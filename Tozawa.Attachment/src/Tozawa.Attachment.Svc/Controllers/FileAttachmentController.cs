@@ -10,6 +10,7 @@ using Tozawa.Attachment.Svc.Models.Commands;
 using Tozawa.Attachment.Svc.Models.Dtos;
 using Tozawa.Attachment.Svc.Models.Queries;
 using Tozawa.Attachment.Svc.Services;
+using Tozawa.Attachment.Svc.Helpers;
 
 namespace Tozawa.Attachment.Svc.Controllers;
 
@@ -64,6 +65,10 @@ public class FileAttachmentController : InitController
         {
             request.MetaData = formMetaData;
         }
+
+      if(!FileValidator.IsValideFile(request)) {
+        return Ok(StatusCode(500));
+       }
 
         return Ok(await _mediator.Send(request));
     }

@@ -29,10 +29,8 @@ public static class FileValidator
 
     public static bool IsValidLength(string fileName) => fileName.Length <= FileNameLength;
 
-    private static bool IsValidFileName(string name)
-    {
-        return Regex.IsMatch(name, _pattern);
-    }
+    private static bool IsValidFileName(string name) => !string.IsNullOrEmpty(name) && Regex.IsMatch(name, _pattern);
+    private static bool IsValidContent(byte[] bytes) => bytes != null && bytes.Length <= MaxAllowedSize;
     public static bool IsValideFile(IBrowserFile file)
     {
         if (!IsValidContentType(file.ContentType))
@@ -60,6 +58,10 @@ public static class FileValidator
             return false;
         }
         else if (!IsValidLength(file.Name))
+        {
+            return false;
+        }
+        else if (!IsValidContent(file.Content))
         {
             return false;
         }
