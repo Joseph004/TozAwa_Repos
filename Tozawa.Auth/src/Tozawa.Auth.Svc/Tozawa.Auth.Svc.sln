@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.002.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tozawa.Auth.Svc", "Tozawa.Auth.Svc.csproj", "{54EF215F-A81E-45A7-976E-8792B32D5116}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{54EF215F-A81E-45A7-976E-8792B32D5116}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54EF215F-A81E-45A7-976E-8792B32D5116}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54EF215F-A81E-45A7-976E-8792B32D5116}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54EF215F-A81E-45A7-976E-8792B32D5116}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {9A32937A-3EC5-4E8E-B588-0FBADAECB5B2}
+	EndGlobalSection
+EndGlobal

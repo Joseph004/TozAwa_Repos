@@ -1,0 +1,73 @@
+@namespace TozawaNGO.Pages
+@using TozawaNGO.Helpers
+@using TozawaNGO.Shared
+@inherits BaseDialog
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_addForm" @bind-IsValid="@_success" @bind-Errors="@_errors" Model="@_addFormModel">
+            <MudPaper MaxHeight="1200px" class="overflow-scroll">
+                <div class="d-flex align-center">
+                    <MudTextField Immediate="true" Margin="Margin.Dense" T="string" @bind-Value="_addFormModel.FirstName"
+                        Label="@(Translate(SystemTextId.FirstName))" Required="true"
+                        RequiredError="@(Translate(SystemTextId.FirstNameIsRequired))" />
+                    <MudTextField Immediate="true" Margin="Margin.Dense" T="string" @bind-Value="_addFormModel.LastName"
+                        Label="@(Translate(SystemTextId.LastName))" Required="true"
+                        RequiredError="@(Translate(SystemTextId.LastNameIsRequired))" />
+                    <MudTextField Immediate="true" Margin="Margin.Dense" T="string" @bind-Value="_addFormModel.Email"
+                        Label="@(Translate(SystemTextId.Email))" Required="true"
+                        RequiredError="@(Translate(SystemTextId.EmailIsRequired))" 
+                        Validation="@(new Func<string, Task<IEnumerable<string>>>(EmailExists))"/>
+                    <MudTextField Immediate="true" Margin="Margin.Dense" T="string"
+                        @bind-Value="_addFormModel.Description" Label="@(Translate(SystemTextId.Description))" Required="true"
+                        RequiredError="@(Translate(SystemTextId.DescriptionIsRequired))" />
+                </div>
+                @foreach (var item in _activeLanguages.Where(l => l.Id != _currentCulture.Id).Select((value, i) => new
+                {
+                    i,
+                    value
+                }))
+                {
+                    var culture = item.value;
+                    var index = item.i;
+                    <div class="d-flex align-center">
+                        <MudTextField Immediate="true" Disabled="true" Margin="Margin.Dense" T="string"
+                        @bind-Value="_addFormModel.FirstName"
+                        Label="@GetLabelText(Translate(SystemTextId.FirstName), culture)" />
+                        <MudTextField Immediate="true" Disabled="true" Margin="Margin.Dense" T="string"
+                        @bind-Value="_addFormModel.LastName"
+                        Label="@GetLabelText(Translate(SystemTextId.LastName), culture)" />
+                        <MudTextField Immediate="true" Disabled="true" Margin="Margin.Dense" T="string"
+                        @bind-Value="_addFormModel.Email"
+                        Label="@GetLabelText(Translate(SystemTextId.Email), culture)" />
+                        <MudTextField Immediate="true" Margin="Margin.Dense" T="string" Class="ml-3"
+                        Required="true" RequiredError="@Translate(SystemTextId.DescriptionIsRequired)"
+                        @bind-Value="_addFormModel.DescriptionTranslations[index].Text"
+                        Label="@Translate(SystemTextId.Description)" />
+                    </div>
+                }
+
+            </MudPaper>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">
+            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" />
+        </MudButton>
+        <MudButton Color="Color.Primary" OnClick="AddItem" Disabled="@DisabledAddButton()">
+            @if (_onProgress)
+            {
+                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
+                <MudText Class="ms-2">
+                    <SystemText TextId=SystemTextId.Processing FallbackText="Processing..." />
+                </MudText>
+            }
+            else
+            {
+                <MudText>
+                    <SystemText TextId=SystemTextId.Add FallbackText="Add" />
+                </MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
