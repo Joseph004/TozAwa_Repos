@@ -1,0 +1,208 @@
+<style>
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.selected,
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.selected:nth-of-type(odd) {
+        background-color: var(--mud-palette-info-darken);
+    }
+
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.selected:hover,
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.selected:hover:nth-of-type(odd) {
+        background-color: var(--mud-palette-info-lighten);
+    }
+
+    .mud-table-row.selected>td.mud-table-cell,
+    .mud-table-row.selected:nth-of-type(odd)>td.mud-table-cell {
+        color: var(--mud-palette-primary-text);
+    }
+
+    .mud-table-row.selected>td.mud-table-cell .mud-input,
+    .mud-table-row.selected:nth-of-type(odd)>td.mud-table-cell .mud-input {
+        color: var(--mud-palette-primary-text);
+    }
+
+    .mud-table-row.selected .mud-icon-root.mud-svg-icon {
+        fill: var(--mud-palette-primary-text);
+    }
+
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.created,
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.created:nth-of-type(odd) {
+        background-color: var(--mud-palette-primary-lighten);
+    }
+
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.created:hover,
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.created:hover:nth-of-type(odd) {
+        background-color: var(--mud-palette-primary-lighten);
+    }
+
+    .mud-table-row.created>td.mud-table-cell,
+    .mud-table-row.created:nth-of-type(odd)>td.mud-table-cell {
+        color: var(--mud-palette-primary-text);
+    }
+
+    .mud-table-row.created>td.mud-table-cell .mud-input,
+    .mud-table-row.created:nth-of-type(odd)>td.mud-table-cell .mud-input {
+        color: var(--mud-palette-primary-text);
+    }
+
+    .mud-table-row.created .mud-icon-root.mud-svg-icon {
+        fill: var(--mud-palette-primary-text);
+    }
+
+    .mud-table-row.selected .mud-icon-root.mud-svg-icon.mud-success-text {
+        fill: var(--mud-palette-success-lighten);
+    }
+
+    .mud-table-row.selected .mud-icon-root.mud-svg-icon.mud-error-text {
+        fill: var(--mud-palette-error-darken);
+    }
+
+    .mud-table-row.selected .mud-button-root.mud-icon-button.mud-error-text .mud-icon-root.mud-svg-icon {
+        fill: var(--mud-palette-error-darken);
+    }
+
+    .disabledPointer {
+        pointer-events: none;
+    }
+</style>
+@namespace TozawaNGO.Pages
+@using TozawaNGO.Helpers
+@using Models.Dtos
+@using TozawaNGO.Shared
+@inherits BasePage
+
+@if(_pagedData != null) {
+    <MudPaper Class="@_disabledPointer">
+    <MudTable ServerData="@(new Func<TableState, Task<TableData<MemberDto>>>(ServerReload))" Dense="true" Hover="true"
+        Striped="true" @ref="_table" CustomHeader="true" FixedHeader="true" FixedFooter="true" Height="800px"
+        Loading="@_loading" ReadOnly="@DisabledEditRow()" RowClassFunc="@SelectedRowClassFunc"
+        OnRowClick="RowClickEvent" OnCommitEditClick="ItemHasBeenCommitted" @bind-SelectedItem="_selectedItem"
+        T="MemberDto" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" CanCancelEdit="true"
+        RowsPerPage="20">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">
+                <SystemText TextId=SystemTextId.Members FallbackText="Members" />
+            </MudText>
+            <MudSpacer />
+            <MudTextField T="string" DebounceInterval="500" Margin="Margin.Dense" @bind-Value="_searchString"
+                OnDebounceIntervalElapsed="s => OnSearch(s)" Placeholder="@Translate(SystemTextId.SearchText)"
+                Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+                Class="mt-0">
+            </MudTextField>
+            <MudSpacer />
+            <MudAvatar Color="Color.Primary" Rounded="true" Variant="Variant.Outlined">
+                <MudMenu AnchorOrigin="@Origin.BottomRight" TransformOrigin="@Origin.TopRight" OffsetY="true"
+                    Dense="true" Icon="@Icons.Material.Filled.MoreVert" Color="Color.Secondary">
+                    <MudMenuItem OnClick="@((e) => OpenDialog())">
+                        <MudText Typo="Typo.body1">
+                            <MudIcon Class="text-icon" Icon="@Icons.Material.Filled.AddCircle"></MudIcon>
+                            <SystemText TextId=SystemTextId.Add FallbackText="Add" />
+                        </MudText>
+                    </MudMenuItem>
+                </MudMenu>
+            </MudAvatar>
+        </ToolBarContent>
+        <ColGroup>
+            <col style="width: 14%;" />
+            <col style="width: 14%;" />
+            <col style="width: 18%;" />
+            <col style="width: 39%;" />
+            <col style="width: 10%;" />
+            <col style="width: 5%;" />
+        </ColGroup>
+        <HeaderContent>
+            <MudTHeadRow Class="header-centered">
+                <MudTh>
+                    <SystemText TextId=SystemTextId.FirstName FallbackText="First name" />
+                </MudTh>
+                <MudTh>
+                    <SystemText TextId=SystemTextId.LastName FallbackText="Last name" />
+                </MudTh>
+                <MudTh>
+                    <SystemText TextId=SystemTextId.Email FallbackText="Email" />
+                </MudTh>
+                <MudTh>
+                    <SystemText TextId=SystemTextId.Description FallbackText="Description" />
+                </MudTh>
+                <MudTh></MudTh>
+                <MudTh></MudTh>
+            </MudTHeadRow>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="FirstName">@context.FirstName</MudTd>
+            <MudTd DataLabel="LastName">@context.LastName</MudTd>
+            <MudTd DataLabel="Email">@context.Email </MudTd>
+            <MudTd DataLabel="Description">
+                <MudTextField T="string" ReadOnly HelperText="@GetHelpText(context.Description)" Text="@GetDescription(context)"></MudTextField>
+            </MudTd>
+                <MudTd DataLabel="Files" onclick="event.stopPropagation()" @onmousedown="() => ToggleFiles(context)">
+                    @if (!string.IsNullOrEmpty(context.Thumbnail))
+                    {
+                        var thumb = "data:image/png;base64," + context.Thumbnail;
+                        <MudTooltip>
+                            <ChildContent>
+                                <img src="@thumb" height="@ThumbnailSize" width="@ThumbnailSize" />
+                            </ChildContent>
+                            <TooltipContent>
+                                <img src="@thumb" />
+                            </TooltipContent>
+                        </MudTooltip>
+                    }
+                    else {
+                        <MudIcon Icon="@Icons.Material.Filled.Image" Color="Color.Default" style="height:24px;width:24px" />                        
+                    }
+                        <MudBadge Content="@context.Attachments.Count()" Overlap="true" Color="Color.Primary">
+                            <MudIcon Icon="@Icons.Material.Filled.AttachFile" Color="Color.Primary"/>
+                        </MudBadge>
+            </MudTd>
+            <MudTd DataLabel="Deleted">
+                <div class="d-flex align-center">
+                <div @onclick:stopPropagation="true" @onclick:preventDefault="true">
+                    <MudIconButton
+                        Title="@(context.Deleted == true ? Translate(SystemTextId.Restore) : Translate(SystemTextId.Delete))"
+                        Icon="@(context.Deleted != true ? Icons.Material.Filled.Delete : Icons.Material.Filled.RestoreFromTrash)" @onclick="@(e => ToggleDeleted(context))" Color=@(context.Deleted
+                        == true ? Color.Error : Color.Default)></MudIconButton>
+                </div>
+                @if (context.Deleted)
+                {
+                    <MudText>|</MudText>
+                    <div @onclick:stopPropagation="true" @onclick:preventDefault="true">
+                        <MudIconButton Title="@(Translate(SystemTextId.Delete) + " " + Translate(SystemTextId.definitively))" Icon="@Icons.Material.Filled.Delete"
+                        @onclick="@(e => ToggleDeleted(context, true))" Color=@(Color.Error)></MudIconButton>
+                    </div>
+                }
+                </div>
+            </MudTd>
+        </RowTemplate>
+        <RowEditingTemplate>
+            <MudTd DataLabel="FirstName">
+                <MudTextField Immediate="true" Margin="Margin.Dense" @bind-Value="@context.FirstName" Required />
+            </MudTd>
+            <MudTd DataLabel="LastName">
+                <MudTextField Immediate="true" Margin="Margin.Dense" @bind-Value="@context.LastName" Required />
+            </MudTd>
+            <MudTd DataLabel="Email">
+                <MudTextField Immediate="true" Margin="Margin.Dense" @bind-Value="@context.Email" Required />
+            </MudTd>
+            <MudTd DataLabel="Description">
+                <MudTextField Immediate="true" Margin="Margin.Dense" @bind-Value="@context.Description" Lines="5" />
+            </MudTd>
+        </RowEditingTemplate>
+
+        <NoRecordsContent>
+            <MudText>
+                <SystemText TextId=SystemTextId.NoMachingRecords FallbackText="No matching records found" />
+            </MudText>
+        </NoRecordsContent>
+        <LoadingContent>
+            <MudText>
+                <SystemText TextId=SystemTextId.Loading FallbackText="Loading" />
+            </MudText>
+        </LoadingContent>
+        <PagerContent>
+            <MudTablePager Class="pa-4" PageSizeOptions="_pageSizeOptions"
+                RowsPerPageString="@(Translate(SystemTextId.RowsPerPage, "Rows per page"))" />
+        </PagerContent>
+    </MudTable>
+    <MudSwitch @bind-Checked="_includeDeleted" @onclick="@(() => ToggleIncludeDeleted())" Color="Color.Primary"
+        Label="@(Translate(SystemTextId.ShowDeletedItems))" />
+</MudPaper>
+}

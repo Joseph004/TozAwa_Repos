@@ -3,13 +3,10 @@ using Microsoft.AspNetCore.Components.Authorization;
 using System.Timers;
 using Timer = System.Timers.Timer;
 using MudBlazor;
-using System.Threading.Tasks;
-using System;
 using Tozawa.Client.Portal.Services;
 using Microsoft.JSInterop;
 using MudBlazor.Extensions.Helper;
 using System.Web;
-using Microsoft.AspNetCore.Components.Web;
 using TozAwa.Client.Portal.Services;
 
 namespace Tozawa.Client.Portal.Shared;

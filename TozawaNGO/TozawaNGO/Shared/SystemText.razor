@@ -1,0 +1,30 @@
+@inherits BaseComponent
+@implements IDisposable
+@namespace TozawaNGO.Shared
+<style>
+    .notTranslated {
+        color: #c00 !important;
+        text-decoration: underline double;
+    }
+
+    .mud-popover.mud-popover-open.opaque {
+        opacity: 80%;
+    }
+</style>
+@if (AfterRenderState.IsFirstLoaded)
+{
+    <MudTooltip Class="pa-0 ma-0 opaque">
+        <ChildContent>
+            <MudText Style="@($"font-family: {FontFamily}; font-size: {FontSize};")" data-guid="@TextId"
+                Class="@NotTranslated" Typo=SystemTextTypo>@Translate()</MudText>
+        </ChildContent>
+        <TooltipContent>
+            @if (!string.IsNullOrEmpty(NotTranslatedTitle))
+            {
+                <MudPaper Class="pa-1" Style="@($"color:{Colors.Grey.Lighten5}; background:{Colors.Red.Lighten1};")">
+                    <MudText Typo="Typo.body1">@NotTranslatedTitle</MudText>
+                </MudPaper>
+            }
+        </TooltipContent>
+    </MudTooltip>
+}
