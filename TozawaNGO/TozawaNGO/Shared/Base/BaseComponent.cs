@@ -7,7 +7,7 @@ namespace TozawaNGO.Shared
     public partial class BaseComponent : ComponentBase, IDisposable
     {
         [Inject] protected ITranslationService _translationService { get; set; }
-        [Inject] public AfterRenderState AfterRenderState { get; set; }
+        public bool IsFirstLoaded { get; set; }
         [Inject] public ICurrentUserService _currentUserService { get; set; }
 
         public CurrentUserDto _currentUser { get; set; } = new();
@@ -18,6 +18,7 @@ namespace TozawaNGO.Shared
         }
         protected override void OnInitialized()
         {
+            IsFirstLoaded = false;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             base.OnInitialized();
         }
@@ -30,6 +31,7 @@ namespace TozawaNGO.Shared
         {
             if (firstRender)
             {
+                IsFirstLoaded = true;
                 _currentUser = await _currentUserService.GetCurrentUser();
             }
             await base.OnAfterRenderAsync(firstRender);
@@ -64,7 +66,6 @@ namespace TozawaNGO.Shared
         }
         public virtual void Dispose()
         {
-            AfterRenderState.OnChange -= StateHasChanged;
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
         }
     }

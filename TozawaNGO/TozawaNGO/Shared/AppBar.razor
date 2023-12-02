@@ -16,7 +16,8 @@
 
     <MudText>
         <SystemText TextId=SystemTextId.ToZawaTitle FontFamily="cursive" FontSize="100%" SystemTextTypo=Typo.h2
-            FallbackText="Svensk Förening för internationella arbete inom teknik och informatik"></SystemText>
+            FallbackText="Svensk Förening för internationella arbete inom teknik och informatik"
+            IsFirstLoaded="@IsFirstLoaded"></SystemText>
     </MudText>
 
     <MudSpacer />
@@ -34,7 +35,8 @@
                             <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Person" Size="Size.Small"
                                 Color="Color.Warning">
                             </MudIcon>
-                            <SystemText TextId=SystemTextId.Hello FallbackText="Hello"></SystemText>
+                            <SystemText TextId=SystemTextId.Hello FallbackText="Hello" IsFirstLoaded="@IsFirstLoaded">
+                            </SystemText>
                             <b>@context.User.Identity.Name!</b>
                         </MudText>
                     </MudMenuItem>
@@ -44,7 +46,8 @@
                             <MudText>
                                 <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Logout" Size="Size.Small">
                                 </MudIcon>
-                                <SystemText TextId=SystemTextId.Logout FallbackText="Logout"></SystemText>
+                                <SystemText TextId=SystemTextId.Logout FallbackText="Logout"
+                                    IsFirstLoaded="@IsFirstLoaded"></SystemText>
                             </MudText>
                         </MudButton>
                     </MudMenuItem>
@@ -58,7 +61,8 @@
                         OnClick="@(()=>Login())" />
                 </ChildContent>
                 <TooltipContent>
-                    <SystemText TextId=SystemTextId.Login FallbackText="Login"></SystemText>
+                    <SystemText TextId=SystemTextId.Login FallbackText="Login" IsFirstLoaded="@IsFirstLoaded">
+                    </SystemText>
                 </TooltipContent>
             </MudTooltip>
         </NotAuthorized>

@@ -7,18 +7,21 @@
         <img src="/images/TR_Max.png" asp-append-version="true" />
     </MudDrawerHeader>
     <MudNavMenu Class="mt-5" Color="Color.Tertiary">
-        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/home" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">
-            <SystemText TextId=SystemTextId.Home FallbackText="Home"></SystemText>
+        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/home" Match="NavLinkMatch.All"
+            Icon="@Icons.Material.Filled.Home">
+            <SystemText TextId=SystemTextId.Home FallbackText="Home" IsFirstLoaded="@IsFirstLoaded"></SystemText>
         </MudNavLink>
-        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/fetchdata" Icon="@Icons.Material.Filled.Storage">FetchData</MudNavLink>
-        <MudNavGroup Style="border-bottom: 0.1px solid;" Title="Expanding" Icon="@Icons.Material.Filled.DashboardCustomize" Expanded="false">
+        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/fetchdata" Icon="@Icons.Material.Filled.Storage">
+            FetchData</MudNavLink>
+        <MudNavGroup Style="border-bottom: 0.1px solid;" Title="Expanding"
+            Icon="@Icons.Material.Filled.DashboardCustomize" Expanded="false">
             <MudNavLink Href="#" Icon="@Icons.Material.Filled.Camera">Photos</MudNavLink>
             <MudNavLink Href="#" Icon="@Icons.Material.Filled.Celebration">Party</MudNavLink>
         </MudNavGroup>
         @if (_currentUser != null && _currentUser.Admin)
         {
             <MudNavLink Style="border-bottom: 0.1px solid;" Href="/settings" Icon="@Icons.Material.Filled.Settings">
-                <SystemText TextId=SystemTextId.Setting FallbackText="Setting"></SystemText>
+                <SystemText TextId=SystemTextId.Setting FallbackText="Setting" IsFirstLoaded="@IsFirstLoaded"></SystemText>
             </MudNavLink>
         }
     </MudNavMenu>

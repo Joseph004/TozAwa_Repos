@@ -60,13 +60,13 @@ namespace TozawaNGO.MyCompiledModels
                 nullable: true);
             modifiedDate.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
-            var passwordHash = runtimeEntityType.AddProperty(
-                "PasswordHash",
+            var passwordSalt = runtimeEntityType.AddProperty(
+                "PasswordSalt",
                 typeof(string),
-                propertyInfo: typeof(UserHashPwd).GetProperty("PasswordHash", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(UserHashPwd).GetField("<PasswordHash>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(UserHashPwd).GetProperty("PasswordSalt", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(UserHashPwd).GetField("<PasswordSalt>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
-            passwordHash.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            passwordSalt.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var userId = runtimeEntityType.AddProperty(
                 "UserId",

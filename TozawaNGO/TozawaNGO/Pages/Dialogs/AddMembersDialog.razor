@@ -52,20 +52,20 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">
-            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" />
+            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" IsFirstLoaded="@IsFirstLoaded" />
         </MudButton>
         <MudButton Color="Color.Primary" OnClick="AddItem" Disabled="@DisabledAddButton()">
             @if (_onProgress)
             {
                 <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
                 <MudText Class="ms-2">
-                    <SystemText TextId=SystemTextId.Processing FallbackText="Processing..." />
+                    <SystemText TextId=SystemTextId.Processing FallbackText="Processing..." IsFirstLoaded="@IsFirstLoaded" />
                 </MudText>
             }
             else
             {
                 <MudText>
-                    <SystemText TextId=SystemTextId.Add FallbackText="Add" />
+                    <SystemText TextId=SystemTextId.Add FallbackText="Add" IsFirstLoaded="@IsFirstLoaded" />
                 </MudText>
             }
         </MudButton>

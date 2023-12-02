@@ -32,13 +32,13 @@
                 </MudTh>
 
                 <MudTh>
-                    <SystemText TextId="@SystemTextId.Name" FallbackText="Name"></SystemText>
+                    <SystemText TextId="@SystemTextId.Name" FallbackText="Name" IsFirstLoaded="@IsFirstLoaded"></SystemText>
                 </MudTh>
                 <MudTh>
-                    <SystemText TextId="@SystemTextId.AttachmentType" FallbackText="Attachment type"></SystemText>
+                    <SystemText TextId="@SystemTextId.AttachmentType" FallbackText="Attachment type" IsFirstLoaded="@IsFirstLoaded"></SystemText>
                 </MudTh>
                 <MudTh>
-                    <SystemText TextId="@SystemTextId.Filesize" FallbackText="Filesize"></SystemText>
+                    <SystemText TextId="@SystemTextId.Filesize" FallbackText="Filesize" IsFirstLoaded="@IsFirstLoaded"></SystemText>
                 </MudTh>
                 <MudTh>
                 </MudTh>
@@ -81,7 +81,7 @@
     </DialogContent>
     <DialogActions>
         <MudButton Disabled="@_onProgress" Color="Color.Primary" OnClick="Add" Variant="Variant.Filled">
-            <SystemText TextId="@SystemTextId.Close" FallbackText="Close"></SystemText>
+            <SystemText TextId="@SystemTextId.Close" FallbackText="Close" IsFirstLoaded="@IsFirstLoaded"></SystemText>
         </MudButton>
         <MudSpacer />
         <MudSelect Disabled="@_onProgress" Style="@($"position: {"relative"}; bottom: {"11px"}")"
@@ -98,13 +98,13 @@
             {
                 <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
                 <MudText Class="ms-2">
-                    <SystemText TextId=SystemTextId.Processing FallbackText="Processing..." />
+                    <SystemText TextId=SystemTextId.Processing FallbackText="Processing..." IsFirstLoaded="@IsFirstLoaded"/>
                 </MudText>
             }
             else
             {
                 <MudText>
-                    <SystemText TextId="@SystemTextId.FileUpload" FallbackText="Upload files"></SystemText>
+                    <SystemText TextId="@SystemTextId.FileUpload" FallbackText="Upload files" IsFirstLoaded="@IsFirstLoaded"></SystemText>
                 </MudText>
             }
         </MudButton>

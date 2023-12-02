@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TozawaNGO.Context;
 
@@ -11,9 +12,10 @@ using TozawaNGO.Context;
 namespace TozawaNGO.Migrations
 {
     [DbContext(typeof(TozawangoDbContext))]
-    partial class TozawangoDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231116163443_addPwdHah")]
+    partial class addPwdHah
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

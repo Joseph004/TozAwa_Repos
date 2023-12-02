@@ -62,6 +62,8 @@ namespace TozawaNGO.Services
                 await LoadTranslations();
 
                 _translationLoaded = true;
+
+                LanguageChanged(this, new EventArgs());
             }
         }
         private async IAsyncEnumerable<LocalizedString> GetAllLocalizedStrings()

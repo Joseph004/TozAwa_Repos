@@ -79,7 +79,7 @@
         RowsPerPage="20">
         <ToolBarContent>
             <MudText Typo="Typo.h6">
-                <SystemText TextId=SystemTextId.Members FallbackText="Members" />
+                <SystemText TextId=SystemTextId.Members FallbackText="Members" IsFirstLoaded="@IsFirstLoaded"/>
             </MudText>
             <MudSpacer />
             <MudTextField T="string" DebounceInterval="500" Margin="Margin.Dense" @bind-Value="_searchString"
@@ -89,12 +89,12 @@
             </MudTextField>
             <MudSpacer />
             <MudAvatar Color="Color.Primary" Rounded="true" Variant="Variant.Outlined">
-                <MudMenu AnchorOrigin="@Origin.BottomRight" TransformOrigin="@Origin.TopRight" OffsetY="true"
+                <MudMenu AnchorOrigin="@Origin.BottomRight" TransformOrigin="@Origin.TopRight"
                     Dense="true" Icon="@Icons.Material.Filled.MoreVert" Color="Color.Secondary">
                     <MudMenuItem OnClick="@((e) => OpenDialog())">
                         <MudText Typo="Typo.body1">
                             <MudIcon Class="text-icon" Icon="@Icons.Material.Filled.AddCircle"></MudIcon>
-                            <SystemText TextId=SystemTextId.Add FallbackText="Add" />
+                            <SystemText TextId=SystemTextId.Add FallbackText="Add" IsFirstLoaded="@IsFirstLoaded"/>
                         </MudText>
                     </MudMenuItem>
                 </MudMenu>
@@ -111,16 +111,16 @@
         <HeaderContent>
             <MudTHeadRow Class="header-centered">
                 <MudTh>
-                    <SystemText TextId=SystemTextId.FirstName FallbackText="First name" />
+                    <SystemText TextId=SystemTextId.FirstName FallbackText="First name" IsFirstLoaded="@IsFirstLoaded"/>
                 </MudTh>
                 <MudTh>
-                    <SystemText TextId=SystemTextId.LastName FallbackText="Last name" />
+                    <SystemText TextId=SystemTextId.LastName FallbackText="Last name" IsFirstLoaded="@IsFirstLoaded"/>
                 </MudTh>
                 <MudTh>
-                    <SystemText TextId=SystemTextId.Email FallbackText="Email" />
+                    <SystemText TextId=SystemTextId.Email FallbackText="Email" IsFirstLoaded="@IsFirstLoaded"/>
                 </MudTh>
                 <MudTh>
-                    <SystemText TextId=SystemTextId.Description FallbackText="Description" />
+                    <SystemText TextId=SystemTextId.Description FallbackText="Description" IsFirstLoaded="@IsFirstLoaded"/>
                 </MudTh>
                 <MudTh></MudTh>
                 <MudTh></MudTh>
@@ -189,12 +189,12 @@
 
         <NoRecordsContent>
             <MudText>
-                <SystemText TextId=SystemTextId.NoMachingRecords FallbackText="No matching records found" />
+                <SystemText TextId=SystemTextId.NoMachingRecords FallbackText="No matching records found" IsFirstLoaded="@IsFirstLoaded"/>
             </MudText>
         </NoRecordsContent>
         <LoadingContent>
             <MudText>
-                <SystemText TextId=SystemTextId.Loading FallbackText="Loading" />
+                <SystemText TextId=SystemTextId.Loading FallbackText="Loading" IsFirstLoaded="@IsFirstLoaded"/>
             </MudText>
         </LoadingContent>
         <PagerContent>

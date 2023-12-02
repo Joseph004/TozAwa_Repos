@@ -8,7 +8,7 @@ namespace TozawaNGO.Shared
     {
         [Inject] protected ITranslationService _translationService { get; set; }
         [Inject] private ICurrentUserService _currentUserService { get; set; }
-        [Inject] public AfterRenderState AfterRenderState { get; set; }
+        public bool IsFirstLoaded { get; set; }
 
         public CurrentUserDto _currentUser { get; set; } = new();
 
@@ -19,7 +19,7 @@ namespace TozawaNGO.Shared
 
         protected override void OnInitialized()
         {
-            AfterRenderState.SetRequestFirstLoaded(true);
+            IsFirstLoaded = true;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             base.OnInitialized();
         }
@@ -36,7 +36,7 @@ namespace TozawaNGO.Shared
         }
         protected override async Task OnInitializedAsync()
         {
-            AfterRenderState.SetRequestFirstLoaded(true);
+            IsFirstLoaded = true;
             await base.OnInitializedAsync();
         }
 
@@ -45,7 +45,7 @@ namespace TozawaNGO.Shared
             return _translationService.Translate(systemTextId, fallback, limit, toUpper).Text;
         }
 
-         public bool HasAtLeastOneRole(params string[] roles)
+        public bool HasAtLeastOneRole(params string[] roles)
         {
             return _currentUser.Roles.Any(r => roles.Any(x => GetRole(x) == r)) || _currentUser.Admin;
         }

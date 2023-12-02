@@ -6,7 +6,6 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using TozawaNGO.Auth.Controllers.Login;
-using TozawaNGO.Helper;
 using TozawaNGO.Auth.Models;
 using TozawaNGO.Auth.Models.Authentication;
 using TozawaNGO.Auth.Models.Dtos;
@@ -15,13 +14,10 @@ using TozawaNGO.Auth.Models.Queries;
 using TozawaNGO.Auth.Services;
 using TozawaNGO.Models.ResponseRequests;
 using System.Net;
-using Microsoft.AspNetCore.Authentication;
-using System.Globalization;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using TozawaNGO.Context;
 using Microsoft.EntityFrameworkCore;
 using TozawaNGO.Configurations;
+using TozawaNGO.Services;
 
 namespace TozawaNGO.Auth.Controllers
 {
@@ -40,8 +36,10 @@ namespace TozawaNGO.Auth.Controllers
         private readonly IUserTokenService _userTokenService;
         private readonly TozawangoDbContext _context;
         private readonly AppSettings _appSettings;
+        private readonly IPasswordHashService _passwordHashService;
+        private readonly IEncryptDecrypt _encryptDecrypt;
 
-        public AuthenticateController(UserManager<ApplicationUser> userManager, AppSettings appSettings, TozawangoDbContext context, IDataProtectionProviderService dataProtectionProviderService, ICurrentCountry currentCountry, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IUserTokenService userTokenService, IMediator mediator)
+        public AuthenticateController(UserManager<ApplicationUser> userManager, AppSettings appSettings, TozawangoDbContext context, IDataProtectionProviderService dataProtectionProviderService, ICurrentCountry currentCountry, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IUserTokenService userTokenService, IMediator mediator, IPasswordHashService passwordHashService, IEncryptDecrypt encryptDecrypt)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
@@ -52,6 +50,8 @@ namespace TozawaNGO.Auth.Controllers
             _userTokenService = userTokenService;
             _context = context;
             _appSettings = appSettings;
+            _passwordHashService = passwordHashService;
+            _encryptDecrypt = encryptDecrypt;
         }
 
         [HttpGet, Route("current/{oid:Guid}")]
@@ -66,7 +66,7 @@ namespace TozawaNGO.Auth.Controllers
                 ErrorMessage = ""
             });
 
-            var pswd = request.Content;
+            var pswd = _encryptDecrypt.DecryptUsingCertificate(request.Content);
 
             var command = new LoginCommand
             {
@@ -90,7 +90,7 @@ namespace TozawaNGO.Auth.Controllers
             }
 
             //var user = await userManager.FindByEmailAsync(command.Email);
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == command.Email);
+            var user = await _context.TzUsers.FirstOrDefaultAsync(x => x.Email == command.Email);
             //await userManager.AddPasswordAsync(user, "Zairenumber01?");
 
             if (user == null)
@@ -100,7 +100,7 @@ namespace TozawaNGO.Auth.Controllers
                 response.StatusCode = HttpStatusCode.BadRequest;
 
                 response.Entity.LoginSuccess = false;
-                response.Entity.ErrorMessageGuid = SystemTextId.EmailOrPasswordWrong;
+                response.Entity.ErrorMessageGuid = Helper.SystemTextId.EmailOrPasswordWrong;
                 return Ok(response);
             }
             if (user.Deleted)
@@ -110,9 +110,10 @@ namespace TozawaNGO.Auth.Controllers
                 response.StatusCode = HttpStatusCode.BadRequest;
 
                 response.Entity.LoginSuccess = false;
-                response.Entity.ErrorMessageGuid = SystemTextId.Unauthorized;
+                response.Entity.ErrorMessageGuid = Helper.SystemTextId.Unauthorized;
                 return Ok(response);
             }
+
             var validPassword = await userManager.CheckPasswordAsync(user, command.Password);
             if (!validPassword)
             {
@@ -121,7 +122,7 @@ namespace TozawaNGO.Auth.Controllers
                 response.StatusCode = HttpStatusCode.BadRequest;
 
                 response.Entity.LoginSuccess = false;
-                response.Entity.ErrorMessageGuid = SystemTextId.EmailOrPasswordWrong;
+                response.Entity.ErrorMessageGuid = Helpers.SystemTextId.EmailOrPasswordWrong;
                 return Ok(response);
             }
 

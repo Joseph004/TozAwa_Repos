@@ -17,6 +17,7 @@ namespace TozawaNGO.Shared
 
         protected async override Task OnInitializedAsync()
         {
+            //AfterRenderState.SetRequestFirstLoaded(true);
             _translationService.LanguageChanged += _translationService_LanguageChanged;
 
             await base.OnInitializedAsync();

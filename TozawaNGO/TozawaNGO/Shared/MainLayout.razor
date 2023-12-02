@@ -18,17 +18,17 @@
             <MudContainer Class="tz_content mt-3">
                 @Body
                
-               @*  <ErrorBoundary>
+                <ErrorBoundary>
                     <ChildContent>
                        
                     </ChildContent>
                     <ErrorContent>
                         <p class="errorUI">
                             <SystemText TextId=SystemTextId.ErrorOccursPleaseContactSupport
-                                FallbackText="Opps, something went wrong. Please contact support!"></SystemText>
+                                FallbackText="Opps, something went wrong. Please contact support!" IsFirstLoaded="@IsFirstLoaded"></SystemText>
                         </p>
                     </ErrorContent>
-                </ErrorBoundary> *@
+                </ErrorBoundary>
                 <Footer></Footer>
             </MudContainer>
         </MudMainContent>

@@ -15,6 +15,7 @@ namespace TozawaNGO.Shared
 
         public CurrentUserDto _currentUser { get; set; } = new();
         public List<ActiveLanguageDto> ActiveLanguages { get; set; } = new();
+        public bool IsFirstLoaded { get; set; }
 
         public BasePage()
         {
@@ -23,6 +24,7 @@ namespace TozawaNGO.Shared
 
         protected override void OnInitialized()
         {
+            IsFirstLoaded = false;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             base.OnInitialized();
         }
@@ -36,15 +38,15 @@ namespace TozawaNGO.Shared
         {
             await base.OnInitializedAsync();
         }
-        /*  protected override async Task OnAfterRenderAsync(bool firstRender)
-         {
-             if (firstRender)
-             {
-                 await _translationService.EnsureTranslations();
-
-                 StateHasChanged();
-             }
-         } */
+        protected override async Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                IsFirstLoaded = true;
+                StateHasChanged();
+            }
+            await base.OnAfterRenderAsync(firstRender);
+        }
         public override async Task SetParametersAsync(ParameterView parameters)
         {
             parameters.SetParameterProperties(this);

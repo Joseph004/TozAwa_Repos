@@ -303,6 +303,14 @@ namespace TozawaNGO.MyCompiledModels
                 maxLength: 256);
             userName.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var userPasswordHash = runtimeEntityType.AddProperty(
+                "UserPasswordHash",
+                typeof(string),
+                propertyInfo: typeof(ApplicationUser).GetProperty("UserPasswordHash", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(ApplicationUser).GetField("<UserPasswordHash>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            userPasswordHash.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
             var key = runtimeEntityType.AddKey(
                 new[] { id });
             runtimeEntityType.SetPrimaryKey(key);
@@ -321,6 +329,10 @@ namespace TozawaNGO.MyCompiledModels
 
             var index1 = runtimeEntityType.AddIndex(
                 new[] { partnerId });
+
+            var index2 = runtimeEntityType.AddIndex(
+                new[] { id, userId, email },
+                unique: true);
 
             return runtimeEntityType;
         }

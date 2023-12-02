@@ -26,6 +26,7 @@ namespace TozawaNGO.Shared
         [Inject] AuthenticationService AuthenticationService { get; set; }
         [Inject] ILogger<LoginViewModal> Logger { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
+        [Inject] IEncryptDecrypt EncryptDecrypt { get; set; }
         private bool _processing = false;
         private bool _currentErrorView = false;
         private bool _success;
@@ -127,8 +128,10 @@ namespace TozawaNGO.Shared
                 var request = new LoginRequest
                 {
                     Email = model.Email,
-                    Content = model.Password
+                    Content = EncryptDecrypt.EncryptUsingCertificate(model.Password)
                 };
+
+
                 var userLoginResponse = await AuthenticationService.PostLogin(request);
 
                 if (!userLoginResponse.Success)

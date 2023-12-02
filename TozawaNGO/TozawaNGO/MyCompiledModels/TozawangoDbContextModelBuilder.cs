@@ -45,7 +45,7 @@ namespace TozawaNGO.MyCompiledModels
             UserLogEntityType.CreateAnnotations(userLog);
             AuditEntityType.CreateAnnotations(audit);
 
-            AddAnnotation("ProductVersion", "6.0.24");
+            AddAnnotation("ProductVersion", "6.0.25");
             AddAnnotation("Relational:DefaultSchema", "Authorization");
             AddAnnotation("Relational:MaxIdentifierLength", 128);
             AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);

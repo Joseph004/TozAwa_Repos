@@ -16,6 +16,7 @@ namespace TozawaNGO.Auth.Models.Authentication
         public string LastLoginState { get; set; } = "XXXXXXXXXXX";
         public string LastLoginIPAdress { get; set; } = "xxxxxxxxx";
         public string Adress { get; set; }
+        public string UserPasswordHash { get; set; }
         [NotMapped]
         public List<Role> Roles { get; set; } = new List<Role> { Role.None };
         public DateTime LastAttemptLogin { get; set; }
@@ -31,6 +32,6 @@ namespace TozawaNGO.Auth.Models.Authentication
         public DateTime CreateDate { get; set; }
         public string ModifiedBy { get; set; } = "";
         public DateTime? ModifiedDate { get; set; }
-        public UserHashPwd UserHashPwd { get; set; }
+        public virtual UserHashPwd UserHashPwd { get; set; }
     }
 }

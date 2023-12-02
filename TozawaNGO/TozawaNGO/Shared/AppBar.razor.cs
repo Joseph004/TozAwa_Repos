@@ -40,13 +40,6 @@ namespace TozawaNGO.Shared
 
             await base.OnInitializedAsync();
         }
-        protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
-            if (firstRender)
-            {
-                StateHasChanged();
-            }
-        }
 
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {

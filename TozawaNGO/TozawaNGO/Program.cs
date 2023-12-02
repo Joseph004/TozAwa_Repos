@@ -203,9 +203,9 @@ builder.Services.AddScoped<MemberService>();
 builder.Services.AddScoped<AttachmentService>();
 builder.Services.AddScoped<BlazorServerAuthStateCache>();
 builder.Services.AddScoped<FileService>();
-
 builder.Services.AddScoped<LoadingState>();
-builder.Services.AddScoped<AfterRenderState>();
+builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
+builder.Services.AddScoped<IEncryptDecrypt, EncryptDecrypt>();
 
 builder.Services.AddControllers();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");

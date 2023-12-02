@@ -10,6 +10,7 @@ namespace TozawaNGO.Shared
         [Inject] private ICurrentUserService _currentUserService { get; set; }
 
         public CurrentUserDto _currentUser { get; set; } = new();
+        public bool IsFirstLoaded { get; set; }
 
         public BaseComponentLayout()
         {
@@ -18,6 +19,7 @@ namespace TozawaNGO.Shared
 
         protected override void OnInitialized()
         {
+            IsFirstLoaded = false;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             base.OnInitialized();
         }
@@ -35,6 +37,7 @@ namespace TozawaNGO.Shared
         {
             if (firstRender)
             {
+                IsFirstLoaded = true;
                 await _translationService.EnsureTranslations();
                 _currentUser = await _currentUserService.GetCurrentUser();
                 StateHasChanged();
