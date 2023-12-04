@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using TozawaNGO.Attachment.Models.Commands;
 
 namespace TozawaNGO.Helpers;
 
@@ -30,5 +31,28 @@ public static class FileValidator
     private static bool IsValidFileName(string name)
     {
         return Regex.IsMatch(name, _pattern);
+    }
+
+    private static bool IsValidSize(double size) => size != null && size <= MaxAllowedSize;
+
+    public static bool IsValideFile(AddAttachmentCommand file)
+    {
+        if (!IsValidContentType(file.MimeType))
+        {
+            return false;
+        }
+        else if (!IsValidName(file.Name))
+        {
+            return false;
+        }
+        else if (!IsValidLength(file.Name))
+        {
+            return false;
+        }
+        else if (!IsValidSize(file.Size))
+        {
+            return false;
+        }
+        return true;
     }
 }

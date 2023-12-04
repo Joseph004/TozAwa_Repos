@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 
-namespace TozawaNGO.Helper
+namespace TozawaNGO.Helpers
 {
     public static class EnumHelper
     {

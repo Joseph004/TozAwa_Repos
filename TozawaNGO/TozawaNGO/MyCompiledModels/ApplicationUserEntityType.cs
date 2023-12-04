@@ -90,6 +90,13 @@ namespace TozawaNGO.MyCompiledModels
                 nullable: true);
             description.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var descriptionTextId = runtimeEntityType.AddProperty(
+                "DescriptionTextId",
+                typeof(Guid),
+                propertyInfo: typeof(ApplicationUser).GetProperty("DescriptionTextId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(ApplicationUser).GetField("<DescriptionTextId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            descriptionTextId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
             var email = runtimeEntityType.AddProperty(
                 "Email",
                 typeof(string),
@@ -270,6 +277,16 @@ namespace TozawaNGO.MyCompiledModels
                 fieldInfo: typeof(IdentityUser<string>).GetField("<SecurityStamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
             securityStamp.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var stationIds = runtimeEntityType.AddProperty(
+                "StationIds",
+                typeof(List<Guid>),
+                propertyInfo: typeof(ApplicationUser).GetProperty("StationIds", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(ApplicationUser).GetField("<StationIds>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true,
+                valueConverter: new ListOfGuidsCoverter(),
+                valueComparer: new ListOfGuidsComparer());
+            stationIds.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var twoFactorEnabled = runtimeEntityType.AddProperty(
                 "TwoFactorEnabled",

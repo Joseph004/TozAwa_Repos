@@ -18,8 +18,15 @@ namespace TozawaNGO.MyCompiledModels
             var identityUserLoginstring = IdentityUserLoginstringEntityType.Create(this);
             var identityUserRolestring = IdentityUserRolestringEntityType.Create(this);
             var identityUserTokenstring = IdentityUserTokenstringEntityType.Create(this);
+            var convertedOwner = ConvertedOwnerEntityType.Create(this);
+            var fileAttachment = FileAttachmentEntityType.Create(this);
+            var ownerFileAttachment = OwnerFileAttachmentEntityType.Create(this);
             var applicationUser = ApplicationUserEntityType.Create(this);
+            var establishment = EstablishmentEntityType.Create(this);
             var partner = PartnerEntityType.Create(this);
+            var report = ReportEntityType.Create(this);
+            var station = StationEntityType.Create(this);
+            var translation = TranslationEntityType.Create(this);
             var userHashPwd = UserHashPwdEntityType.Create(this);
             var userLog = UserLogEntityType.Create(this);
             var audit = AuditEntityType.Create(this);
@@ -30,7 +37,10 @@ namespace TozawaNGO.MyCompiledModels
             IdentityUserRolestringEntityType.CreateForeignKey1(identityUserRolestring, identityRole);
             IdentityUserRolestringEntityType.CreateForeignKey2(identityUserRolestring, applicationUser);
             IdentityUserTokenstringEntityType.CreateForeignKey1(identityUserTokenstring, applicationUser);
+            OwnerFileAttachmentEntityType.CreateForeignKey1(ownerFileAttachment, fileAttachment);
             ApplicationUserEntityType.CreateForeignKey1(applicationUser, partner);
+            EstablishmentEntityType.CreateForeignKey1(establishment, station);
+            ReportEntityType.CreateForeignKey1(report, station);
             UserHashPwdEntityType.CreateForeignKey1(userHashPwd, applicationUser);
 
             IdentityRoleEntityType.CreateAnnotations(identityRole);
@@ -39,8 +49,15 @@ namespace TozawaNGO.MyCompiledModels
             IdentityUserLoginstringEntityType.CreateAnnotations(identityUserLoginstring);
             IdentityUserRolestringEntityType.CreateAnnotations(identityUserRolestring);
             IdentityUserTokenstringEntityType.CreateAnnotations(identityUserTokenstring);
+            ConvertedOwnerEntityType.CreateAnnotations(convertedOwner);
+            FileAttachmentEntityType.CreateAnnotations(fileAttachment);
+            OwnerFileAttachmentEntityType.CreateAnnotations(ownerFileAttachment);
             ApplicationUserEntityType.CreateAnnotations(applicationUser);
+            EstablishmentEntityType.CreateAnnotations(establishment);
             PartnerEntityType.CreateAnnotations(partner);
+            ReportEntityType.CreateAnnotations(report);
+            StationEntityType.CreateAnnotations(station);
+            TranslationEntityType.CreateAnnotations(translation);
             UserHashPwdEntityType.CreateAnnotations(userHashPwd);
             UserLogEntityType.CreateAnnotations(userLog);
             AuditEntityType.CreateAnnotations(audit);

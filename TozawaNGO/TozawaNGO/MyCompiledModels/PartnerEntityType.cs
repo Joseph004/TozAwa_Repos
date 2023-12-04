@@ -36,6 +36,21 @@ namespace TozawaNGO.MyCompiledModels
                 nullable: true);
             adress.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
+            var comment = runtimeEntityType.AddProperty(
+                "Comment",
+                typeof(string),
+                propertyInfo: typeof(Partner).GetProperty("Comment", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(Partner).GetField("<Comment>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            comment.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var commentTextId = runtimeEntityType.AddProperty(
+                "CommentTextId",
+                typeof(Guid),
+                propertyInfo: typeof(Partner).GetProperty("CommentTextId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(Partner).GetField("<CommentTextId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            commentTextId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
             var createDate = runtimeEntityType.AddProperty(
                 "CreateDate",
                 typeof(DateTime),

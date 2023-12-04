@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Newtonsoft.Json;
+using TozawaNGO.Attachment.Models;
 using TozawaNGO.Auth.Models;
 using TozawaNGO.Auth.Models.Authentication;
 using TozawaNGO.Auth.Services;
@@ -21,10 +22,17 @@ namespace TozawaNGO.Context
         }
 
         public DbSet<ApplicationUser> TzUsers { get; set; }
+        public DbSet<Translation> Translations { get; set; }
+        public DbSet<Station> Stations { get; set; }
+        public DbSet<Report> Reports { get; set; }
+        public DbSet<Establishment> Establishments { get; set; }
         public DbSet<Partner> Partners { get; set; }
         public DbSet<UserLog> UserLogs { get; set; }
         public DbSet<Audit> Audits { get; set; }
         public DbSet<UserHashPwd> UserHashPwds { get; set; }
+        public virtual DbSet<ConvertedOwner> ConvertedOwners { get; set; }
+        public virtual DbSet<FileAttachment> FileAttachments { get; set; }
+        public virtual DbSet<OwnerFileAttachment> OwnerFileAttachments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -50,6 +58,28 @@ namespace TozawaNGO.Context
                 .HasOne(p => p.Partner)
                 .WithMany(b => b.Users)
                 .HasForeignKey(p => p.PartnerId);
+
+            builder.Entity<OwnerFileAttachment>().HasKey(x => new
+            {
+                x.OwnerId,
+                x.FileAttachmentId
+            });
+
+            builder.Entity<OwnerFileAttachment>()
+                .HasOne(x => x.FileAttachment)
+                .WithMany(x => x.Owners)
+                .HasForeignKey(x => x.FileAttachmentId);
+
+            builder.Entity<FileAttachment>()
+                .HasMany(x => x.Owners)
+                .WithOne(x => x.FileAttachment)
+                .HasForeignKey(x => x.FileAttachmentId);
+
+            builder.Entity<FileAttachment>()
+                .HasIndex(x => x.BlobId);
+
+            builder.ApplyConfiguration(new TranslationEntityConfiguration());
+            builder.ApplyConfiguration(new ApplicationUserEntityConfiguration());
         }
 
         public int BaseSaveChanges()
@@ -62,7 +92,7 @@ namespace TozawaNGO.Context
 
         public int SaveChangesForTestsOnly()
         {
-            return base.SaveChanges(); ;
+            return base.SaveChanges();
         }
 
         public override int SaveChanges()

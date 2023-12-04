@@ -100,7 +100,7 @@ namespace TozawaNGO.Auth.Controllers
                 response.StatusCode = HttpStatusCode.BadRequest;
 
                 response.Entity.LoginSuccess = false;
-                response.Entity.ErrorMessageGuid = Helper.SystemTextId.EmailOrPasswordWrong;
+                response.Entity.ErrorMessageGuid = Helpers.SystemTextId.EmailOrPasswordWrong;
                 return Ok(response);
             }
             if (user.Deleted)
@@ -110,7 +110,7 @@ namespace TozawaNGO.Auth.Controllers
                 response.StatusCode = HttpStatusCode.BadRequest;
 
                 response.Entity.LoginSuccess = false;
-                response.Entity.ErrorMessageGuid = Helper.SystemTextId.Unauthorized;
+                response.Entity.ErrorMessageGuid = Helpers.SystemTextId.Unauthorized;
                 return Ok(response);
             }
 

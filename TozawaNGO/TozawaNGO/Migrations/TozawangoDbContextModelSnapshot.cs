@@ -156,6 +156,102 @@ namespace TozawaNGO.Migrations
                     b.ToTable("AspNetUserTokens", "Authorization");
                 });
 
+            modelBuilder.Entity("TozawaNGO.Attachment.Models.ConvertedOwner", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ConvertedOwners", "Authorization");
+                });
+
+            modelBuilder.Entity("TozawaNGO.Attachment.Models.FileAttachment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AttachmentType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BlobId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Extension")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("FileAttachmentType")
+                        .HasColumnType("int");
+
+                    b.Property<string>("MetaData")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MimeType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MiniatureId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("OrganizationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("Size")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BlobId");
+
+                    b.ToTable("FileAttachments", "Authorization");
+                });
+
+            modelBuilder.Entity("TozawaNGO.Attachment.Models.OwnerFileAttachment", b =>
+                {
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("FileAttachmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("OwnerId", "FileAttachmentId");
+
+                    b.HasIndex("FileAttachmentId");
+
+                    b.ToTable("OwnerFileAttachments", "Authorization");
+                });
+
             modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.ApplicationUser", b =>
                 {
                     b.Property<string>("Id")
@@ -185,6 +281,9 @@ namespace TozawaNGO.Migrations
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("DescriptionTextId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
                         .HasMaxLength(256)
@@ -258,6 +357,9 @@ namespace TozawaNGO.Migrations
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("StationIds")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
@@ -293,6 +395,49 @@ namespace TozawaNGO.Migrations
                     b.ToTable("AspNetUsers", "Authorization");
                 });
 
+            modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.Establishment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("COO")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("DescriptionTextId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("StationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StationId");
+
+                    b.ToTable("Establishments", "Authorization");
+                });
+
             modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.Partner", b =>
                 {
                     b.Property<Guid>("Id")
@@ -301,6 +446,12 @@ namespace TozawaNGO.Migrations
 
                     b.Property<string>("Adress")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CommentTextId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
@@ -335,6 +486,113 @@ namespace TozawaNGO.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Partners", "Authorization");
+                });
+
+            modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.Report", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CommentTextId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("StationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("StationId");
+
+                    b.ToTable("Reports", "Authorization");
+                });
+
+            modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.Station", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Adresse")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("DescriptionTextId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Stations", "Authorization");
+                });
+
+            modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.Translation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LanguageText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("TextId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Translations", "Authorization");
                 });
 
             modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.UserHashPwd", b =>
@@ -475,6 +733,17 @@ namespace TozawaNGO.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("TozawaNGO.Attachment.Models.OwnerFileAttachment", b =>
+                {
+                    b.HasOne("TozawaNGO.Attachment.Models.FileAttachment", "FileAttachment")
+                        .WithMany("Owners")
+                        .HasForeignKey("FileAttachmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("FileAttachment");
+                });
+
             modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.ApplicationUser", b =>
                 {
                     b.HasOne("TozawaNGO.Auth.Models.Authentication.Partner", "Partner")
@@ -484,6 +753,28 @@ namespace TozawaNGO.Migrations
                         .IsRequired();
 
                     b.Navigation("Partner");
+                });
+
+            modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.Establishment", b =>
+                {
+                    b.HasOne("TozawaNGO.Auth.Models.Authentication.Station", "Station")
+                        .WithMany("Establishments")
+                        .HasForeignKey("StationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Station");
+                });
+
+            modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.Report", b =>
+                {
+                    b.HasOne("TozawaNGO.Auth.Models.Authentication.Station", "Station")
+                        .WithMany("Reports")
+                        .HasForeignKey("StationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Station");
                 });
 
             modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.UserHashPwd", b =>
@@ -498,6 +789,11 @@ namespace TozawaNGO.Migrations
                     b.Navigation("ApplicationUser");
                 });
 
+            modelBuilder.Entity("TozawaNGO.Attachment.Models.FileAttachment", b =>
+                {
+                    b.Navigation("Owners");
+                });
+
             modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.ApplicationUser", b =>
                 {
                     b.Navigation("UserHashPwd");
@@ -506,6 +802,13 @@ namespace TozawaNGO.Migrations
             modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.Partner", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("TozawaNGO.Auth.Models.Authentication.Station", b =>
+                {
+                    b.Navigation("Establishments");
+
+                    b.Navigation("Reports");
                 });
 #pragma warning restore 612, 618
         }

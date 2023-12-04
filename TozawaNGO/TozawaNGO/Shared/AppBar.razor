@@ -57,12 +57,42 @@
         <NotAuthorized>
             <MudTooltip Class="pa-0 ma-0 opaque">
                 <ChildContent>
-                    <MudIconButton Icon="@Icons.Material.Filled.Person" Color="Color.Inherit"
-                        OnClick="@(()=>Login())" />
+                    <MudMenu TransformOrigin="@Origin.TopCenter" AnchorOrigin="Origin.BottomCenter">
+                <ActivatorContent>
+                    <MudIcon Icon="@Icons.Material.Filled.PersonAddAlt1" Size="Size.Small"
+                        Color="Color.Inherit">
+                    </MudIcon>
+                </ActivatorContent>
+                <ChildContent>
+                    <MudMenuItem>
+                        <MudButton OnClick="@(()=>Login())" Color="Color.Inherit">
+                            <MudText>
+                                <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Person" Size="Size.Small">
+                                </MudIcon>
+                                <SystemText TextId=SystemTextId.Login FallbackText="Login"
+                                    IsFirstLoaded="@IsFirstLoaded">
+                                </SystemText>
+                            </MudText>
+                        </MudButton>
+                    </MudMenuItem>
+                    <MudDivider />
+                    <MudMenuItem>
+                        <MudButton OnClick="@(()=>Register())" Color="Color.Inherit">
+                            <MudText>
+                                <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Add" Size="Size.Small">
+                                </MudIcon>
+                                <SystemText TextId=SystemTextId.Register FallbackText="Become a member"
+                                    IsFirstLoaded="@IsFirstLoaded"></SystemText>
+                            </MudText>
+                        </MudButton>
+                    </MudMenuItem>
+                </ChildContent>
+            </MudMenu>
                 </ChildContent>
                 <TooltipContent>
                     <SystemText TextId=SystemTextId.Login FallbackText="Login" IsFirstLoaded="@IsFirstLoaded">
-                    </SystemText>
+                    </SystemText>/<SystemText TextId=SystemTextId.Register FallbackText="Become a member"
+                        IsFirstLoaded="@IsFirstLoaded"></SystemText>
                 </TooltipContent>
             </MudTooltip>
         </NotAuthorized>

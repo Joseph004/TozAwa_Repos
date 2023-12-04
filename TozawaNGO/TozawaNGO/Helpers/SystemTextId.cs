@@ -26,8 +26,8 @@ public static partial class SystemTextId
     public static Guid YoureAboutToGetLogout => Guid.Parse("6c12b3d5-3661-42ff-b97a-74e0a5b2102e");
     public static Guid Member => Guid.Parse("c43eaa7e-3016-420f-8c6a-70c26d82a223");
     public static Guid Members => Guid.Parse("db52be9f-8189-42c2-8dd3-1609caa03173");
-    public static Guid Organization => Guid.Parse("723f9da4-2551-4120-871a-1fc96554a3d7");
-    public static Guid Organizations => Guid.Parse("3cf9101d-15bb-4481-9094-8009b7c92dff");
+    public static Guid Partner => Guid.Parse("723f9da4-2551-4120-871a-1fc96554a3d7");
+    public static Guid Partners => Guid.Parse("3cf9101d-15bb-4481-9094-8009b7c92dff");
     public static Guid Hello => Guid.Parse("7c06ef7d-12f5-4875-8335-fdfd41c55b36");
     public static Guid ToZawaTitle => Guid.Parse("6d10c11a-9e10-4ea2-ab28-b4c9280b5b62");
     public static Guid EntityDeletedSuccess => Guid.Parse("ed26cfa1-ee01-4422-9f66-c5512c5bfd1a");
@@ -104,4 +104,5 @@ public static partial class SystemTextId
     public static Guid OnlyExcelFileAllowed => Guid.Parse("a0293f9f-9dc1-4c3b-b9a8-60ddd4109dd0");
     public static Guid OnlyXmlFileAllowed => Guid.Parse("0d8a1051-8fd3-408e-92ae-255b4db78b9c");
     public static Guid PleaseUseValidAllowedFiles => Guid.Parse("9ec2bab4-4b69-4c6d-aa8c-a8fbe79fe88b");
+    public static Guid Register => Guid.Parse("2042a238-8375-4596-8f59-58d7fbf65d3c");
 }

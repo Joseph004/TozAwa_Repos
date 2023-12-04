@@ -18,6 +18,7 @@ using MudBlazor.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using TozawaNGO;
+using TozawaNGO.Attachment.Converters;
 using TozawaNGO.Auth.Models;
 using TozawaNGO.Auth.Models.Authentication;
 using TozawaNGO.Auth.Models.Converters;
@@ -77,6 +78,8 @@ builder.Services.AddScoped<ICurrentUserConverter, CurrentUserConverter>();
 builder.Services.AddScoped<TozawaNGO.Auth.Services.IDataProtectionProviderService, TozawaNGO.Auth.Services.DataProtectionProviderService>();
 builder.Services.AddScoped<IUserTokenService, UserTokenService>();
 builder.Services.AddScoped<ICurrentCountry, CurrentCountry>();
+builder.Services.AddScoped<IFileAttachmentConverter, FileAttachmentConverter>();
+builder.Services.AddScoped<IFileAttachmentCreator, FileAttachmentCreator>();
 builder.Services.AddScoped<TokenProvider>();
 
 // Optional: Register the HttpClient service using the named client "Default"

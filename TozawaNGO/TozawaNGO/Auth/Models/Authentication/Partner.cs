@@ -14,6 +14,8 @@ namespace TozawaNGO.Auth.Models.Authentication
         public string PhoneNumber { get; set; }
         public string Description { get; set; }
         public string Adress { get; set; }
+        public string Comment { get; set; }
+        public Guid CommentTextId { get; set; }
         public bool Deleted { get; set; }
         public ICollection<ApplicationUser> Users { get; set; }
     }

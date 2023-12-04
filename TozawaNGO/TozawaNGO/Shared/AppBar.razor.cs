@@ -62,9 +62,9 @@ namespace TozawaNGO.Shared
             };
             await OnThemeToggled.InvokeAsync(_currentTheme);
         }
-        private string Encode(string param)
+        private static string Decode(string param)
         {
-            return HttpUtility.UrlEncode(param);
+            return HttpUtility.UrlDecode(param);
         }
 
         private async Task Login()
@@ -130,7 +130,11 @@ namespace TozawaNGO.Shared
             await CurrentUserService.RemoveCurrentUser();
 
             var logoutUrl = $"logout{NavigateToReturnPage()}";
-            await JSRuntime.InvokeVoidAsync("open", logoutUrl, "_top");
+            await JSRuntime.InvokeVoidAsync("open", Decode(logoutUrl), "_top");
+        }
+        private async Task Register()
+        {
+
         }
         private static MudTheme GenerateDarkTheme() =>
             new()

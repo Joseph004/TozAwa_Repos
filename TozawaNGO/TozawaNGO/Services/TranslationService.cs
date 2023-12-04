@@ -22,6 +22,8 @@ using Nextended.Core.Extensions;
 using System.Resources;
 using System.Collections;
 using Humanizer.Localisation;
+using System.Xml.Linq;
+using System.Reflection;
 
 namespace TozawaNGO.Services
 {
@@ -66,6 +68,38 @@ namespace TozawaNGO.Services
                 LanguageChanged(this, new EventArgs());
             }
         }
+       /*  public async Task AddToResource(string text, Guid textId, Guid languageId)
+        {
+            var languages = await GetActiveLanguages();
+            var language = languages.First(x => x.Id == languageId);
+            var languageShortName = language.Culture;
+
+            var path = AppDomain.CurrentDomain.BaseDirectory + "Resources\\App.resx";
+            if (languageShortName == "fr")
+            {
+                path = AppDomain.CurrentDomain.BaseDirectory + "Resources\\App.fr.resx";
+            }
+            else if (languageShortName == "sv")
+            {
+                path = AppDomain.CurrentDomain.BaseDirectory + "Resources\\App.sv.resx";
+            }
+
+            using FileStream stream = File.Open(path, FileMode.Open);
+            XDocument doc = XDocument.Load(stream);
+
+            XElement data = new("data");
+
+            XNamespace ns = "xml";
+            data.Add(new XAttribute("name", textId.ToString()));
+            data.Add(new XAttribute(XNamespace.Xml + "space", "preserve"));
+
+            data.Add(new XElement("value", text));
+            data.Add(new XElement("comment", "."));
+
+            doc.Element("root").Add(data);
+            doc.Save(stream);
+            stream.Close();
+        } */
         private async IAsyncEnumerable<LocalizedString> GetAllLocalizedStrings()
         {
             var activeCulture = await GetActiveLanguage();

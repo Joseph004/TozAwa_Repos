@@ -160,4 +160,108 @@
     <value>Votre mot de passe ne peut etre vide</value>
     <comment>.</comment>
   </data>
+  <data name="ad71d9fe-67aa-4b8a-8661-1c603e4ec35a" xml:space="preserve">
+    <value>Paramètres</value>
+    <comment>.</comment>
+  </data>
+  <data name="db52be9f-8189-42c2-8dd3-1609caa03173" xml:space="preserve">
+    <value>Membres</value>
+    <comment>.</comment>
+  </data>
+  <data name="eaaadc84-0de1-4a6d-ba48-c394b5e484bf" xml:space="preserve">
+    <value>Prenom</value>
+    <comment>.</comment>
+  </data>
+  <data name="84e48e74-3760-4f08-8c75-e98bb728b9ee" xml:space="preserve">
+    <value>Nom</value>
+    <comment>.</comment>
+  </data>
+  <data name="2f21ae24-6168-4047-8ab2-db1849b3868e" xml:space="preserve">
+    <value>Description</value>
+    <comment>.</comment>
+  </data>
+  <data name="db338fe8-8657-492b-9e82-6b44b0bc1252" xml:space="preserve">
+    <value>Etes-vous sure?</value>
+    <comment>.</comment>
+  </data>
+  <data name="28dab09a-c496-40e3-9854-79d7ea96557b" xml:space="preserve">
+    <value>L'adresse email exist déja.</value>
+    <comment>.</comment>
+  </data>
+  <data name="e2d165ce-741d-4388-a7fa-0e104dc94504" xml:space="preserve">
+    <value>Supprimer</value>
+    <comment>.</comment>
+  </data>
+  <data name="c14a265b-0c57-4594-b464-6d22bab412f7" xml:space="preserve">
+    <value>Restorer</value>
+    <comment>.</comment>
+  </data>
+  <data name="b752a56a-f067-4937-ae38-ac8d496d6413" xml:space="preserve">
+    <value>Recherche</value>
+    <comment>.</comment>
+  </data>
+  <data name="c43eaa7e-3016-420f-8c6a-70c26d82a223" xml:space="preserve">
+    <value>Membre</value>
+    <comment>.</comment>
+  </data>
+  <data name="7f1a951d-82e3-4bda-aa5b-011f0552cd22" xml:space="preserve">
+    <value>Rester connecter</value>
+    <comment>.</comment>
+  </data>
+  <data name="bf4c3434-3575-460a-86e2-b757cbdbec07" xml:space="preserve">
+    <value>definitivement</value>
+    <comment>.</comment>
+  </data>
+  <data name="6acec748-2d76-4491-8b77-fd9f990d158a" xml:space="preserve">
+    <value>temporairement</value>
+    <comment>.</comment>
+  </data>
+  <data name="f562400a-d318-4ee3-bf9f-8e8879214b6b" xml:space="preserve">
+    <value>Nom</value>
+    <comment>.</comment>
+  </data>
+  <data name="723f9da4-2551-4120-871a-1fc96554a3d7" xml:space="preserve">
+    <value>Partenaires</value>
+    <comment>.</comment>
+  </data>
+  <data name="3cf9101d-15bb-4481-9094-8009b7c92dff" xml:space="preserve">
+    <value>Partenaire</value>
+    <comment>.</comment>
+  </data>
+  <data name="2042a238-8375-4596-8f59-58d7fbf65d3c" xml:space="preserve">
+    <value>Devenir membre</value>
+    <comment>.</comment>
+  </data>
+  <data name="ffeee73c-ca11-4b14-bc87-f991da14edeb" xml:space="preserve">
+    <value>Ajouter</value>
+    <comment>.</comment>
+  </data>
+  <data name="51353e2a-00db-4b36-be2a-edb59634bbb8" xml:space="preserve">
+    <value>Aucun data trouvé</value>
+    <comment>.</comment>
+  </data>
+  <data name="753c584a-789b-409d-8e9e-89ccac2f0e7d" xml:space="preserve">
+    <value>Chargement...</value>
+    <comment>.</comment>
+  </data>
+  <data name="10cba804-b8b6-49e2-b3b6-b96fdea1035f" xml:space="preserve">
+    <value>Affichez les donnés suprimés</value>
+    <comment>.</comment>
+  </data>
+  <data name="79396871-e984-4746-953a-4dd28cd8c445" xml:space="preserve">
+    <value>Ligne par page</value>
+    <comment>.</comment>
+  </data>
+  <data name="7c06ef7d-12f5-4875-8335-fdfd41c55b36" xml:space="preserve">
+    <value>Salut</value>
+    <comment>.</comment>
+  </data>
+  <data name="d2ff9654-fd31-4cbf-8c52-6ae071d38371" xml:space="preserve">
+    <value>Se deconnecter</value>
+    <comment>.</comment>
+  </data>
+  <data name="536bac48-29c2-4d97-a20d-9e5c85b94933" xml:space="preserve">
+    <value>Desolé, il n'y a rien sur cette adre.</value>
+    <comment>.</comment>
+  </data>
 </root>

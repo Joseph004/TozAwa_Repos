@@ -1,6 +1,7 @@
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace TozawaNGO.Auth.Models.Authentication
 {
@@ -9,6 +10,7 @@ namespace TozawaNGO.Auth.Models.Authentication
         public Guid UserId { get; set; }
         public Guid PartnerId { get; set; }
         public string Description { get; set; }
+        public Guid DescriptionTextId { get; set; }
         public string FirstName { get; set; } = "";
         public string LastName { get; set; } = "";
         public string LastLoginCountry { get; set; } = "XXXXXXXXXXX";
@@ -33,5 +35,14 @@ namespace TozawaNGO.Auth.Models.Authentication
         public string ModifiedBy { get; set; } = "";
         public DateTime? ModifiedDate { get; set; }
         public virtual UserHashPwd UserHashPwd { get; set; }
+        public List<Guid> StationIds { get; set; }
+    }
+
+    internal class ApplicationUserEntityConfiguration : IEntityTypeConfiguration<ApplicationUser>
+    {
+        public void Configure(EntityTypeBuilder<ApplicationUser> builder)
+        {
+            builder.Property(e => e.StationIds).HasConversion<ListOfGuidsCoverter, ListOfGuidsComparer>();
+        }
     }
 }

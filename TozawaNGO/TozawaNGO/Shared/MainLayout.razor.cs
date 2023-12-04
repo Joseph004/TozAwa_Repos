@@ -77,9 +77,9 @@ namespace TozawaNGO.Shared
             }
         }
 
-        private string Encode(string param)
+        private static string Decode(string param)
         {
-            return HttpUtility.UrlEncode(param);
+            return HttpUtility.UrlDecode(param);
         }
 
         private void LogoutTimeout(Object source, ElapsedEventArgs e)
@@ -122,7 +122,7 @@ namespace TozawaNGO.Shared
             await CurrentUserService.RemoveCurrentUser();
 
             var logoutUrl = $"logout{NavigateToReturnPage()}";
-            await JSRuntime.InvokeVoidAsync("open", logoutUrl, "_top");
+            await JSRuntime.InvokeVoidAsync("open", Decode(logoutUrl), "_top");
         }
         private void RefreshTimer(EventArgs e)
         {
