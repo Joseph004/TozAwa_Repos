@@ -25,6 +25,7 @@ namespace TozawaNGO.Auth.Models.Converters
             Deleted = member.Deleted,
             Email = member.Email,
             Description = member.Description,
+            DescriptionTextId = member.DescriptionTextId,
             LastName = member.LastName,
             Roles = member.Roles.Select(x => (RoleDto)x).ToList(),
             DeletedForever = isDeletedForever

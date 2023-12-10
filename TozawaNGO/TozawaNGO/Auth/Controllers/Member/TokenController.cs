@@ -1,10 +1,7 @@
+using Blazored.LocalStorage;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using TozawaNGO.Auth.Models.Authentication;
 using TozawaNGO.Auth.Models.Dtos;
@@ -15,7 +12,7 @@ using TozawaNGO.Helpers;
 namespace TozawaNGO.Auth.Controllers
 {
     [Route("api/[controller]")]
-    [AuthorizeUserRequirement]
+    [AuthorizeUserRequirementWithNoExpireToken]
     [Produces("application/json")]
     [ApiController]
     public class TokenController : ControllerBase
@@ -46,8 +43,10 @@ namespace TozawaNGO.Auth.Controllers
             var userDto = await _mediator.Send(new GetCurrentUserQuery(user.UserId));
             var tokenOptions = _userTokenService.GenerateTokenOptions(userDto);
             var token = new JwtSecurityTokenHandler().WriteToken(tokenOptions);
+
             user.RefreshToken = _userTokenService.GenerateRefreshToken();
             await _userManager.UpdateAsync(user);
+
             return Ok(new LoginResponseDto { Token = token, RefreshToken = user.RefreshToken, LoginSuccess = true });
         }
     }

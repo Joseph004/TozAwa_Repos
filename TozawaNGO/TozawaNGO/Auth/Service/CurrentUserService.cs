@@ -5,6 +5,7 @@ namespace TozawaNGO.Auth.Services;
 public class CurrentUserService : ICurrentUserService
 {
     public CurrentUserDto User { get; set; } = new();
+    public Guid LanguageId { get; set; }
     public CurrentUserService()
     {
     }

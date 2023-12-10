@@ -9,7 +9,6 @@ using TozawaNGO.Helpers;
 using Newtonsoft.Json;
 using TozawaNGO.Auth.Services;
 using Blazored.LocalStorage;
-using Blazored.SessionStorage;
 
 namespace TozawaNGO.Shared
 {
@@ -76,7 +75,7 @@ namespace TozawaNGO.Shared
                 {
                     ["Title"] = "Login"
                 };
-                DialogOptions options = new DialogOptions()
+                DialogOptions options = new()
                 {
                     DisableBackdropClick = true,
                     Position = DialogPosition.TopCenter,
@@ -105,6 +104,10 @@ namespace TozawaNGO.Shared
                         var tokenSerialize = JsonConvert.SerializeObject(_tokenProvider);
 
                         var encryptToken = _provider.EncryptString("vtLJA1vT^qwrqhgtrdfvcj7_", tokenSerialize);
+
+                        await _authStateProvider.SetCurrentUser(userAboutToLogin);
+                        await _localStorageService.SetItemAsync("authToken", userResponse.Token);
+                        await _localStorageService.SetItemAsync("refreshToken", userResponse.RefreshToken);
 
                         _loginUrl = $"login/{encryptToken.Replace("/", "_")}";
                         await JSRuntime.InvokeVoidAsync("open", _loginUrl, "_top");

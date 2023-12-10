@@ -1,4 +1,5 @@
 using System;
+using TozawaNGO.Attachment.Models.Dtos;
 
 namespace TozawaNGO.Auth.Models.Dtos.Backend
 {
@@ -7,6 +8,9 @@ namespace TozawaNGO.Auth.Models.Dtos.Backend
         public string Description { get; set; }
         public bool Deleted { get; set; }
         public bool DeletedForever { get; set; }
+        public Guid DescriptionTextId { get; set; }
+        public string Thumbnail { get; set; } = "";
+        public List<FileAttachmentDto> Attachments { get; set; } = new();
     }
 }
 

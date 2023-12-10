@@ -7,7 +7,6 @@ using Blazored.SessionStorage;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -27,7 +26,6 @@ using TozawaNGO.Configurations;
 using TozawaNGO.Context;
 using TozawaNGO.Data;
 using TozawaNGO.Helpers;
-using TozawaNGO.Models.Dtos;
 using TozawaNGO.Services;
 using TozawaNGO.Shared;
 using TozawaNGO.StateHandler;
@@ -80,12 +78,8 @@ builder.Services.AddScoped<IUserTokenService, UserTokenService>();
 builder.Services.AddScoped<ICurrentCountry, CurrentCountry>();
 builder.Services.AddScoped<IFileAttachmentConverter, FileAttachmentConverter>();
 builder.Services.AddScoped<IFileAttachmentCreator, FileAttachmentCreator>();
+builder.Services.AddScoped<IGoogleService, GoogleService>();
 builder.Services.AddScoped<TokenProvider>();
-
-// Optional: Register the HttpClient service using the named client "Default"
-// This will use this client when using @inject HttpClient
-//builder.Services.AddScoped<HttpClient>(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("BlazorServerHttpClient"));
-//builder.Services.AddApiAuthorization();
 
 builder.Services.AddMudServices(config =>
 {

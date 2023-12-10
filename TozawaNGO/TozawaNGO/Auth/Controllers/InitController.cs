@@ -2,8 +2,6 @@
 
 using System.Net;
 using MediatR;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using TozawaNGO.Auth.Models.Dtos;
@@ -11,8 +9,6 @@ using TozawaNGO.Auth.Services;
 
 namespace TozawaNGO.Auth.Controllers
 {
-    [Authorize(AuthenticationSchemes = "tzuserauthentication")]
-    /* [EnableCors("TozAwaCorsPolicyBff")] */
     public abstract class InitController : Controller
     {
         public readonly IMediator _mediator;
@@ -30,7 +26,6 @@ namespace TozawaNGO.Auth.Controllers
         {
             Context = context;
             SetUser(context);
-
         }
         public void SetUser(ActionExecutingContext context)
         {
@@ -45,6 +40,10 @@ namespace TozawaNGO.Auth.Controllers
             else
             {
                 c._currentUserService.User = new CurrentUserDto();
+            }
+            if (!string.IsNullOrEmpty(c.Request.GetActiveLanguageHeader()))
+            {
+                c._currentUserService.LanguageId = Guid.Parse(c.Request.GetActiveLanguageHeader());
             }
         }
     }
@@ -72,6 +71,10 @@ namespace TozawaNGO.Auth.Controllers
             {
                 c._currentUserService.User = new CurrentUserDto();
             }
+            if (!string.IsNullOrEmpty(c.Request.GetActiveLanguageHeader()))
+            {
+                c._currentUserService.LanguageId = Guid.Parse(c.Request.GetActiveLanguageHeader());
+            }
             if (!currentUserService.IsAuthorizedFor(Roles))
             {
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
@@ -91,6 +94,10 @@ namespace TozawaNGO.Auth.Controllers
             else
             {
                 c._currentUserService.User = new CurrentUserDto();
+            }
+            if (!string.IsNullOrEmpty(c.Request.GetActiveLanguageHeader()))
+            {
+                c._currentUserService.LanguageId = Guid.Parse(c.Request.GetActiveLanguageHeader());
             }
         }
     }

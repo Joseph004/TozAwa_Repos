@@ -1,14 +1,12 @@
 
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using TozawaNGO.Configurations;
-using TozawaNGO.Extension;
 using TozawaNGO.Auth.Models.Dtos;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
 namespace TozawaNGO.Auth.Services;
 
@@ -17,6 +15,7 @@ public interface IUserTokenService
     JwtSecurityToken GenerateTokenOptions(CurrentUserDto user);
     CurrentUserDto GenerateUseFromToken(string token);
     bool ValidateCurrentToken(string token);
+    bool ValidateCurrentTokenByIgnoreExpire(string token);
     string GenerateRefreshToken();
     CurrentUserDto GetUserFromExpiredToken(string token);
 }
@@ -72,6 +71,31 @@ public class UserTokenService : IUserTokenService
 
         return claims;
     }
+    public bool ValidateCurrentTokenByIgnoreExpire(string token)
+    {
+        var myIssuer = _appSettings.JWTSettings.ValidIssuer;
+        var myAudience = _appSettings.JWTSettings.ValidAudience;
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        try
+        {
+            tokenHandler.ValidateToken(token, new TokenValidationParameters
+            {
+                ValidateLifetime = false,
+                ValidateIssuerSigningKey = true,
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidIssuer = myIssuer,
+                ValidAudience = myAudience,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey))
+            }, out SecurityToken validatedToken);
+        }
+        catch (Exception ex)
+        {
+            return false;
+        }
+        return true;
+    }
     public bool ValidateCurrentToken(string token)
     {
         var myIssuer = _appSettings.JWTSettings.ValidIssuer;
@@ -96,6 +120,7 @@ public class UserTokenService : IUserTokenService
         }
         return true;
     }
+
     public JwtSecurityToken GenerateTokenOptions(CurrentUserDto user)
     {
         var signingCredentials = GetSigningCredentials();

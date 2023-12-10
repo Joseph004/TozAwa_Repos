@@ -28,6 +28,7 @@ namespace TozawaNGO.Pages
         private MemberDto _backupItem;
         protected MemberDto _selectedItem = null;
         protected MemberDto _previousSelectedItem = new();
+        protected PatchMemberRequest _patchMemberRequest = new();
         private string _pageOfEmail = null;
         public int ThumbnailSize = 24;
         public string _disabledPointer = "";
@@ -139,12 +140,33 @@ namespace TozawaNGO.Pages
 
         private bool AnyTextIsUpdated()
         {
-            return !_backupItem.Description.Equals(_selectedItem.Description);
+            var response = false;
+            if (!_backupItem.Description.Equals(_selectedItem.Description))
+            {
+                _patchMemberRequest.Description = _selectedItem.Description;
+                response = true;
+            }
+            return response;
         }
         private bool AnyPropertyIsUpdated()
         {
-            return !_backupItem.FirstName.Equals(_selectedItem.FirstName) || !_backupItem.LastName.Equals(_selectedItem.LastName)
-                || !_backupItem.Email.Equals(_selectedItem.Email);
+            var response = false;
+            if (!_backupItem.FirstName.Equals(_selectedItem.FirstName))
+            {
+                _patchMemberRequest.FirstName = _selectedItem.FirstName;
+                response = true;
+            }
+            if (!_backupItem.LastName.Equals(_selectedItem.LastName))
+            {
+                _patchMemberRequest.LastName = _selectedItem.LastName;
+                response = true;
+            }
+            if (!_backupItem.Email.Equals(_selectedItem.Email))
+            {
+                _patchMemberRequest.Email = _selectedItem.Email;
+                response = true;
+            }
+            return response;
         }
         protected async Task<TableData<MemberDto>> ServerReload(TableState state)
         {
@@ -241,32 +263,21 @@ namespace TozawaNGO.Pages
             var item = _selectedItem;
             if (!item.Deleted)
             {
-                if (AnyTextIsUpdated())
+                if (AnyPropertyIsUpdated() || AnyTextIsUpdated())
                 {
-                    var updateTextsRequest = new UpdateObjectTextCommand(UpdateEntityType.Member, item.Id);
-
-                    if (!_backupItem.Description.Equals(_selectedItem.Description))
-                    {
-                        updateTextsRequest.Description = _selectedItem.Description;
-                        updateTextsRequest.DescriptionTextId = _selectedItem.DescriptionTextId;
-                    }
-                    var updateTextResponse = await objectTextService.UpdateObjectText(updateTextsRequest);
-                    snackBarService.Add(updateTextResponse);
-                }
-                if (AnyPropertyIsUpdated())
-                {
-                    var patchRequest = new PatchMemberRequest { FirstName = item.FirstName, LastName = item.LastName, Email = item.Email };
-                    var updateResponse = await memberService.PatchMember(_selectedItem.Id, patchRequest);
+                    var updateResponse = await memberService.PatchMember(_selectedItem.Id, _patchMemberRequest);
                     snackBarService.Add(updateResponse);
 
                     if (!updateResponse.Success)
                     {
+                        _patchMemberRequest = new();
                         _selectedItem.FirstName = _backupItem.FirstName;
                         _selectedItem.LastName = _backupItem.LastName;
                         _selectedItem.Email = _backupItem.Email;
                         return;
                     }
                 }
+                _patchMemberRequest = new();
                 await _table.ReloadServerData();
             }
         }

@@ -82,7 +82,7 @@ public class FileAttachmentController : InitController
     public async Task<IActionResult> GetAttachments(Guid ownerId) => Ok(await _mediator.Send(new GetAttachmentsQuery { OwnerId = ownerId }));
 
     [HttpPost, Route("owners"), CheckRole(RoleDto.President, RoleDto.VicePresident)]
-    public Task<IEnumerable<AnalyseFileAttachments>> GetAttachmentsByOwnerIds([FromBody] GetAttachmentsByOwnerIdsQuery request) => _mediator.Send(request);
+    public async Task<IActionResult> GetAttachmentsByOwnerIds([FromBody] GetAttachmentsByOwnerIdsQuery request) => Ok(await _mediator.Send(request));
 
     [HttpGet, Route("{id}"), CheckRole(RoleDto.President, RoleDto.VicePresident)]
     public async Task<IActionResult> Get(Guid id) => Ok(await _mediator.Send(new GetAttachmentQuery(id)));

@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Components;
 using Blazored.SessionStorage;
 using Microsoft.JSInterop;
 using TozawaNGO.Auth.Models;
+using TozawaNGO.Helpers;
 
 namespace TozawaNGO.HttpClients
 {
@@ -17,7 +18,9 @@ namespace TozawaNGO.HttpClients
         Task<AddResponse<T>> SendPost<T>(string url, object value) where T : class;
         Task<AddResponse> SendNoEntityPost<T>(string url, object value) where T : class;
         Task<UpdateResponse> SendNoEntityPut<T>(string url, object value) where T : class;
-        Task<UpdateResponse> SendPut<T>(string url, object value) where T : class;
+        Task<UpdateResponse<T>> SendPut<T>(string url, object value) where T : class;
+        Task<UpdateResponse> SendNoEntityPatch<T>(string url, object value) where T : class;
+        Task<UpdateResponse<T>> SendPatch<T>(string url, object value) where T : class;
         Task<DeleteResponse> SendDelete<T>(string url) where T : class;
     }
 
@@ -25,7 +28,7 @@ namespace TozawaNGO.HttpClients
     {
         private readonly AppSettings _appSettings;
         public TozAwaBffHttpClient(HttpClient client, AppSettings appSettings, AuthenticationStateProvider authProvider, ILocalStorageService localStorageService,
-            NavigationManager navigationManager, IJSRuntime jSRuntime, ILogger<TozAwaBffHttpClient> logger, ITranslationService translationService) : base(client, translationService, appSettings, authProvider, localStorageService, navigationManager, jSRuntime, logger)
+            NavigationManager navigationManager, IJSRuntime jSRuntime, ILogger<TozAwaBffHttpClient> logger, ITranslationService translationService, AuthStateProvider authStateProvider) : base(client, translationService, appSettings, authProvider, localStorageService, navigationManager, jSRuntime, authStateProvider, logger)
         {
             client.BaseAddress = new Uri(appSettings.TozAwaNGOApiSettings.ApiUrl);
             client.DefaultRequestHeaders.Add("Accept", "application/json");

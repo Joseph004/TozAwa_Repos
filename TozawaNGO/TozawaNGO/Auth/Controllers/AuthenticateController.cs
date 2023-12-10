@@ -30,27 +30,21 @@ namespace TozawaNGO.Auth.Controllers
         private readonly UserManager<ApplicationUser> userManager;
         private readonly RoleManager<IdentityRole> roleManager;
         private readonly IConfiguration _configuration;
-        private readonly ICurrentCountry _currentCountry;
         private readonly IMediator _mediator;
-        private readonly IDataProtectionProviderService _dataProtectionProviderService;
         private readonly IUserTokenService _userTokenService;
         private readonly TozawangoDbContext _context;
         private readonly AppSettings _appSettings;
-        private readonly IPasswordHashService _passwordHashService;
         private readonly IEncryptDecrypt _encryptDecrypt;
 
-        public AuthenticateController(UserManager<ApplicationUser> userManager, AppSettings appSettings, TozawangoDbContext context, IDataProtectionProviderService dataProtectionProviderService, ICurrentCountry currentCountry, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IUserTokenService userTokenService, IMediator mediator, IPasswordHashService passwordHashService, IEncryptDecrypt encryptDecrypt)
+        public AuthenticateController(UserManager<ApplicationUser> userManager, AppSettings appSettings, TozawangoDbContext context, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IUserTokenService userTokenService, IMediator mediator, IEncryptDecrypt encryptDecrypt)
         {
             this.userManager = userManager;
             this.roleManager = roleManager;
             _configuration = configuration;
-            _currentCountry = currentCountry;
             _mediator = mediator;
-            _dataProtectionProviderService = dataProtectionProviderService;
             _userTokenService = userTokenService;
             _context = context;
             _appSettings = appSettings;
-            _passwordHashService = passwordHashService;
             _encryptDecrypt = encryptDecrypt;
         }
 

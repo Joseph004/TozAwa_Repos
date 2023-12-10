@@ -56,4 +56,15 @@ public static class FileUtil
         MemoryStream ms = new(bytes);
         return ms;
     }
+    public static byte[] ReadAllBytesFromStream(Stream instream)
+    {
+        if (instream is MemoryStream)
+            return ((MemoryStream)instream).ToArray();
+
+        using (var memoryStream = new MemoryStream())
+        {
+            instream.CopyTo(memoryStream);
+            return memoryStream.ToArray();
+        }
+    }
 }

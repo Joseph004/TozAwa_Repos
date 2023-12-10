@@ -9,12 +9,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using TozawaNGO.Auth.Models.Dtos;
 using TozawaNGO.Auth.Services;
+using TozawaNGO.Helpers;
 
 namespace TozawaNGO.Auth.Controllers
 {
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-    /* [EnableCors("TozAwaCorsPolicyBff")] */
-    [Authorize(AuthenticationSchemes = "tzuserauthentication")]
+    [AuthorizeUserRequirement]
     [Produces("application/json")]
     [Route("api/[controller]")]
     public class MemberController : InitController

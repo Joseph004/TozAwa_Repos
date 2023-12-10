@@ -2,10 +2,8 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using Blazored.LocalStorage;
-using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
 using TozawaNGO.Configurations;
@@ -14,8 +12,9 @@ using TozawaNGO.Helpers;
 using TozawaNGO.Models.Dtos;
 using TozawaNGO.Models.ResponseRequests;
 using TozawaNGO.Services;
-using TozawaNGO;
 using Microsoft.JSInterop;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
 namespace TozawaNGO.HttpClients
 {
@@ -27,6 +26,7 @@ namespace TozawaNGO.HttpClients
         private readonly AuthenticationStateProvider _authProvider;
         private readonly ILocalStorageService _localStorageService;
         private readonly NavigationManager _navigationManager;
+        private readonly AuthStateProvider _authStateProvider;
         private IJSRuntime _jSRuntime { get; set; }
         private readonly HttpClient _client;
 
@@ -38,6 +38,7 @@ namespace TozawaNGO.HttpClients
             ILocalStorageService localStorageService,
             NavigationManager navigationManager,
             IJSRuntime jSRuntime,
+            AuthStateProvider authStateProvider,
             ILogger<HttpClientHelper> logger)
         {
             _logger = logger;
@@ -48,6 +49,7 @@ namespace TozawaNGO.HttpClients
             _translationService = translationService;
             _navigationManager = navigationManager;
             _jSRuntime = jSRuntime;
+            _authStateProvider = authStateProvider;
         }
         public async Task RemoveCurrentUser()
         {
@@ -77,6 +79,9 @@ namespace TozawaNGO.HttpClients
 
             await _localStorageService.SetItemAsync("authToken", result.Token);
             await _localStorageService.SetItemAsync("refreshToken", result.RefreshToken);
+
+            var user = await _authStateProvider.GetUserFromToken(result.Token);
+            await _authStateProvider.SetCurrentUser(user);
 
             return postContent;
         }
@@ -163,6 +168,25 @@ namespace TozawaNGO.HttpClients
                 return new UpdateResponse(false, "", null);
             }
         }
+        public async Task<UpdateResponse> SendNoEntityPatch<T>(string url, object value) where T : class
+        {
+            try
+            {
+                var putResponse = await Send(PatchRequest(url, value));
+
+                if (!putResponse.IsSuccessStatusCode)
+                {
+                    _logger.LogError("Failed to update {name}. Status Code {StatusCode} Error message {ResponseContent}", nameof(T), putResponse.StatusCode, putResponse.Content);
+                }
+
+                return new UpdateResponse(putResponse.IsSuccessStatusCode, await _translationService.GetHttpStatusText(putResponse.StatusCode), putResponse.StatusCode);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "HttpClient exception occured");
+                return new UpdateResponse(false, "", null);
+            }
+        }
         public async Task<AddResponse> SendNoEntityPost<T>(string url, object value) where T : class
         {
             try
@@ -182,7 +206,7 @@ namespace TozawaNGO.HttpClients
             }
         }
 
-        public async Task<UpdateResponse> SendPut<T>(string url, object value) where T : class
+        public async Task<UpdateResponse<T>> SendPut<T>(string url, object value) where T : class
         {
             try
             {
@@ -194,12 +218,33 @@ namespace TozawaNGO.HttpClients
                     _logger.LogError("Failed to update {name}. Status Code {StatusCode} Error message {ResponseContent}", nameof(T), putResponse.StatusCode, putResponse.Content);
                 }
 
-                return new UpdateResponse(putResponse.IsSuccessStatusCode, await _translationService.GetHttpStatusText(putResponse.StatusCode), putResponse.StatusCode);
+                return new UpdateResponse<T>(putResponse.IsSuccessStatusCode, await _translationService.GetHttpStatusText(putResponse.StatusCode), putResponse.StatusCode, null);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "HttpClient exception occured");
-                return new UpdateResponse(false, "", null);
+                return new UpdateResponse<T>(false, "HttpClient exception occured", null, null);
+            }
+        }
+
+        public async Task<UpdateResponse<T>> SendPatch<T>(string url, object value) where T : class
+        {
+            try
+            {
+                var putResponse = await Send(PatchRequest(url, value));
+                var putContent = putResponse.IsSuccessStatusCode ? await putResponse.Content.ReadAsJsonAsync<T>() : null;
+
+                if (!putResponse.IsSuccessStatusCode)
+                {
+                    _logger.LogError("Failed to update {name}. Status Code {StatusCode} Error message {ResponseContent}", nameof(T), putResponse.StatusCode, putResponse.Content);
+                }
+
+                return new UpdateResponse<T>(putResponse.IsSuccessStatusCode, await _translationService.GetHttpStatusText(putResponse.StatusCode), putResponse.StatusCode, null);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "HttpClient exception occured");
+                return new UpdateResponse<T>(false, "HttpClient exception occured", null, null);
             }
         }
 
@@ -296,16 +341,13 @@ namespace TozawaNGO.HttpClients
         }
         private async Task<string> TryRefreshToken()
         {
-            var authState = await _authProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-            var exp = user.FindFirst(c => c.Type.Equals("exp"))?.Value;
-            if (string.IsNullOrEmpty(exp)) return string.Empty;
-            var expTime = DateTime.UtcNow.AddMinutes(Convert.ToDouble(Convert.ToInt64(exp)));
-            var timeUTC = DateTime.UtcNow;
-            var diff = expTime - timeUTC;
+            /*  var authState = await _authProvider.GetAuthenticationStateAsync();
+             var user = authState.User; */
 
-            var token = user.FindFirst(c => c.Type.Equals("authToken"))?.Value;
-            var refreshToken = user.FindFirst(c => c.Type.Equals("refreshToken"))?.Value;
+            var token = await _localStorageService.GetItemAsync<string>("authToken");
+            var refreshToken = await _localStorageService.GetItemAsync<string>("refreshToken");
+            /* var token = user.FindFirst(c => c.Type.Equals("authToken"))?.Value;
+            var refreshToken = user.FindFirst(c => c.Type.Equals("refreshToken"))?.Value; */
 
             var request = new RefreshTokenDto()
             {
@@ -313,7 +355,7 @@ namespace TozawaNGO.HttpClients
                 RefreshToken = refreshToken
             };
 
-            if (diff.TotalMinutes <= 2)
+            if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken) && !ValidateCurrentToken(token))
             {
                 var response = await PostRefresh("token/refresh/", request);
                 if (response.Success)
@@ -331,6 +373,31 @@ namespace TozawaNGO.HttpClients
             }
             return string.Empty;
         }
+        private bool ValidateCurrentToken(string token)
+        {
+            var myIssuer = _appSettings.JWTSettings.ValidIssuer;
+            var myAudience = _appSettings.JWTSettings.ValidAudience;
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            try
+            {
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = myIssuer,
+                    ValidAudience = myAudience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey))
+                }, out SecurityToken validatedToken);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
+            return true;
+        }
+
         protected async Task<HttpResponseMessage> Send(HttpRequestMessage request)
         {
             var activeLanguage = await _translationService.GetActiveLanguage();
@@ -347,6 +414,15 @@ namespace TozawaNGO.HttpClients
 
             request.Headers.Add("toza-active-language", activeLanguage.Id.ToString());
             var response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
+
+            if (response.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                if (!string.IsNullOrEmpty(content) && content == "Oops, you are not authorized please contact support!!!")
+                {
+                    await Logout();
+                }
+            }
 
             return response;
         }
@@ -387,84 +463,5 @@ namespace TozawaNGO.HttpClients
 
             return response;
         }
-        /*  public async Task<string> GetToken()
-         {
-             var result = await RunAsync();
-
-             if (string.IsNullOrEmpty(result.AccessToken))
-             {
-                 throw new ArgumentNullException(nameof(result.AccessToken));
-             }
-             return result.AccessToken;
-         }
-         public async Task<AuthenticationResult> RunAsync()
-         {
-             IConfidentialClientApplication app;
-
-             app = ConfidentialClientApplicationBuilder.Create(_appSettings.AADClient.ClientId)
-                 .WithClientSecret(_appSettings.AADClient.ClientSecret)
-                 .WithAuthority(new Uri(_appSettings.AADClient.Authority))
-                 .Build();
-
-             var ResourceIds = new string[] { _appSettings.TozAwaBffApiSettings.ResourceId };
-
-             AuthenticationResult result = null;
-             try
-             {
-                 result = await app.AcquireTokenForClient(ResourceIds).ExecuteAsync();
-             }
-             catch (MsalClientException ex)
-             {
-                 _logger.LogError(ex, "Fail to get token");
-             }
-             return result;
-         } */
-
-        /*  public async Task<string> GetToken()
-         {
-             var result = await RunAsync();
-
-             if (string.IsNullOrEmpty(result.Access_token))
-             {
-                 throw new ArgumentNullException(nameof(result.Access_token));
-             }
-             return result.Access_token;
-         }
-         public async Task<TokenResponse> RunAsync()
-         {
-             var tokenUrl = $"{_appSettings.AADClient.Authority}/oauth2/v2.0/token";
-
-             using var client = new HttpClient();
-
-             client.DefaultRequestHeaders.Add("Accept", "application/x-www-form-urlencoded");
-
-             var formContent = new FormUrlEncodedContent(new[]
-             {
-               new KeyValuePair<string, string>("client_id", _appSettings.AADClient.ClientId),
-               new KeyValuePair<string, string>("scope", _appSettings.TozAwaBffApiSettings.ResourceId),
-               new KeyValuePair<string, string>("client_secret", _appSettings.AADClient.ClientSecret),
-               new KeyValuePair<string, string>("grant_type", "client_credentials"),
-             });
-             TokenResponse result = null;
-             try
-             {
-                 var req = new HttpRequestMessage(HttpMethod.Post, tokenUrl) { Content = formContent };
-                 var response = await client.SendAsync(req);
-                 result = await response.Content.ReadAsJsonAsync<TokenResponse>();
-             }
-             catch (Exception ex)
-             {
-                 _logger.LogError(ex, "Fail to get token");
-             }
-             return result;
-         }
-
-         public class TokenResponse
-         {
-             public string Token_type { get; set; }
-             public string Expires_in { get; set; }
-             public string Ext_expires_in { get; set; }
-             public string Access_token { get; set; }
-         } */
     }
 }

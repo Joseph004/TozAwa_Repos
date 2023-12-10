@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using TozawaNGO.Context;
 using TozawaNGO.Extension;
 using TozawaNGO.Auth.Models.Converters;
+using TozawaNGO.Auth.Services;
 
 namespace TozawaNGO.Auth.Controllers
 {
@@ -12,17 +13,19 @@ namespace TozawaNGO.Auth.Controllers
     {
         private readonly TozawangoDbContext _context;
         private readonly ILogger<PatchMemberCommandHandler> _logger;
+        private readonly ICurrentUserService _currentUserService;
 
-        public PatchMemberCommandHandler(TozawangoDbContext context, ILogger<PatchMemberCommandHandler> logger)
+        public PatchMemberCommandHandler(TozawangoDbContext context, ICurrentUserService currentUserService, ILogger<PatchMemberCommandHandler> logger)
         {
             _context = context;
+            _currentUserService = currentUserService;
             _logger = logger;
         }
 
         public async Task<Models.Dtos.Backend.MemberDto> Handle(PatchMemberCommand request, CancellationToken cancellationToken)
         {
             var member = await _context.TzUsers
-                           .FirstOrDefaultAsync(x => x.UserId == request.Id);
+                           .FirstOrDefaultAsync(x => x.UserId == request.Id, cancellationToken: cancellationToken);
 
             if (member == null)
             {
@@ -35,6 +38,44 @@ namespace TozawaNGO.Auth.Controllers
                 _context.TzUsers.Remove(member);
                 _context.SaveChanges();
                 return MemberConverter.Convert(member, true);
+            }
+
+            if (request.PatchModel.GetPatchValue<string>("Description") != null)
+            {
+                if (member.Description != request.PatchModel.GetPatchValue<string>("Description"))
+                {
+                    member.Description = request.PatchModel.GetPatchValue<string>("Description");
+                    if (member.DescriptionTextId == Guid.Empty)
+                    {
+                        var id = Guid.NewGuid();
+                        member.DescriptionTextId = id;
+                        _context.Translations.Add(new Models.Authentication.Translation
+                        {
+                            Id = Guid.NewGuid(),
+                            TextId = id,
+                            LanguageText = new Dictionary<Guid, string> { { _currentUserService.LanguageId, request.PatchModel.GetPatchValue<string>("Description") } }
+                        });
+                    }
+                    else
+                    {
+                        var translation = await _context.Translations.FirstOrDefaultAsync(x => x.TextId == member.DescriptionTextId, cancellationToken: cancellationToken);
+                        if (translation != null)
+                        {
+                            translation.LanguageText[_currentUserService.LanguageId] = request.PatchModel.GetPatchValue<string>("Description");
+                            _context.Entry(translation).State = EntityState.Modified;
+                        }
+                        else
+                        {
+                            var id = member.DescriptionTextId;
+                            _context.Translations.Add(new Models.Authentication.Translation
+                            {
+                                Id = Guid.NewGuid(),
+                                TextId = id,
+                                LanguageText = new Dictionary<Guid, string> { { _currentUserService.LanguageId, request.PatchModel.GetPatchValue<string>("Description") } }
+                            });
+                        }
+                    }
+                }
             }
 
             request.PatchModel.ApplyTo(member);

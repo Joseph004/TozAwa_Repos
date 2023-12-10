@@ -20,7 +20,7 @@ namespace TozawaNGO.Services
         }
         public async Task<UpdateResponse> PatchMember(Guid id, PatchMemberRequest request)
         {
-            return await _client.SendNoEntityPut<PatchMemberRequest>($"{_baseUriPath}/{id}", request);
+            return await _client.SendNoEntityPatch<PatchMemberRequest>($"{_baseUriPath}/{id}", request.ToPatchDocument());
         }
 
         public async Task<bool> EmailExists(string email)
