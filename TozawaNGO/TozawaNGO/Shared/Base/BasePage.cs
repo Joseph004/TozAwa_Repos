@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using TozawaNGO.Helpers;
 using TozawaNGO.Models.Dtos;
 using TozawaNGO.Services;
 
@@ -11,6 +12,7 @@ namespace TozawaNGO.Shared
     public partial class BasePage : ComponentBase, IDisposable
     {
         [Inject] protected ITranslationService _translationService { get; set; }
+        [Inject] protected AuthStateProvider _authStateProvider { get; set; }
         [Inject] private ICurrentUserService _currentUserService { get; set; }
 
         public CurrentUserDto _currentUser { get; set; } = new();
@@ -26,10 +28,15 @@ namespace TozawaNGO.Shared
         {
             IsFirstLoaded = false;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
+            _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
             base.OnInitialized();
         }
 
         private void _translationService_LanguageChanged(object sender, EventArgs e)
+        {
+            StateHasChanged();
+        }
+        private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
             StateHasChanged();
         }
@@ -79,6 +86,7 @@ namespace TozawaNGO.Shared
         public virtual void Dispose()
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
+            _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
         }
     }
 }

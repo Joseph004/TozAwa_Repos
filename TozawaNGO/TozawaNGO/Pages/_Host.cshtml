@@ -23,13 +23,7 @@
 </head>
 
 <body>
-    @{
-        var tokens = new Auth.Models.InitialApplicationState
-            {
-                XsrfToken = Xsrf.GetAndStoreTokens(HttpContext).RequestToken
-            }; 
-    }
-    <component type="typeof(App)" param-InitialState = "@tokens" render-mode="ServerPrerendered" />
+    <component type="typeof(App)" render-mode="ServerPrerendered" />
 
     <div id="blazor-error-ui">
         <environment include="Staging,Production">

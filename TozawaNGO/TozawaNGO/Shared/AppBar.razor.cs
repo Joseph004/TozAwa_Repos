@@ -1,14 +1,11 @@
 using System.Web;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.JSInterop;
 using MudBlazor;
-using TozawaNGO.Auth.Models;
 using TozawaNGO.Models.Dtos;
 using TozawaNGO.Helpers;
-using Newtonsoft.Json;
-using TozawaNGO.Auth.Services;
 using Blazored.LocalStorage;
+using Microsoft.JSInterop;
 
 namespace TozawaNGO.Shared
 {
@@ -18,28 +15,28 @@ namespace TozawaNGO.Shared
         public EventCallback OnSidebarToggled { get; set; }
         [Parameter]
         public EventCallback<MudTheme> OnThemeToggled { get; set; }
-        [Inject] IJSRuntime JSRuntime { get; set; }
-        [Inject] TokenProvider _tokenProvider { get; set; }
-        [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] ILocalStorageService _localStorageService { get; set; }
-        [Inject] TozawaNGO.Services.ICurrentUserService CurrentUserService { get; set; }
-        [Inject] IDataProtectionProviderService _provider { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] AuthStateProvider _authStateProvider { get; set; }
+        [Inject] IJSRuntime JSRuntime { get; set; }
+        [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
-        private MudTheme _currentTheme = new MudTheme();
+        private MudTheme _currentTheme = new();
         public string _loginUrl { get; set; } = $"";
         private bool _isLightMode = true;
-        private CurrentUserDto _currentUser { get; set; } = new();
         private bool _showLogo = false;
 
         protected async override Task OnInitializedAsync()
         {
             _translationService.LanguageChanged += _translationService_LanguageChanged;
+            _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
             await base.OnInitializedAsync();
         }
-
+        private async void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
+        {
+            StateHasChanged();
+        }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
             StateHasChanged();
@@ -65,7 +62,6 @@ namespace TozawaNGO.Shared
         {
             return HttpUtility.UrlDecode(param);
         }
-
         private async Task Login()
         {
             var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
@@ -91,26 +87,11 @@ namespace TozawaNGO.Shared
 
                     if (userResponse.LoginSuccess)
                     {
-                        _tokenProvider.Token = userResponse.Token;
-                        var userAboutToLogin = await _authStateProvider.GetUserFromToken(userResponse.Token);
-                        _tokenProvider.Email = userAboutToLogin.Email;
-                        _tokenProvider.UserName = userAboutToLogin.FirstName + " " + userAboutToLogin.LastName;
-                        _tokenProvider.IsAdmin = userAboutToLogin.Admin;
-                        _tokenProvider.Id = userAboutToLogin.Id.ToString();
-                        _tokenProvider.ReturnUrl = NavigateToReturnPage();
-                        _tokenProvider.RefreshToken = userResponse.RefreshToken;
-                        _tokenProvider.ExpiresIn = userResponse.ExpiresIn;
-
-                        var tokenSerialize = JsonConvert.SerializeObject(_tokenProvider);
-
-                        var encryptToken = _provider.EncryptString("vtLJA1vT^qwrqhgtrdfvcj7_", tokenSerialize);
-
-                        await _authStateProvider.SetCurrentUser(userAboutToLogin);
                         await _localStorageService.SetItemAsync("authToken", userResponse.Token);
                         await _localStorageService.SetItemAsync("refreshToken", userResponse.RefreshToken);
 
-                        _loginUrl = $"login/{encryptToken.Replace("/", "_")}";
-                        await JSRuntime.InvokeVoidAsync("open", _loginUrl, "_top");
+                        _loginUrl = $"login{NavigateToReturnPage()}";
+                        await JSRuntime.InvokeVoidAsync("open", Decode(_loginUrl), "_top");
                     }
                 }
             }
@@ -130,14 +111,17 @@ namespace TozawaNGO.Shared
         }
         private async Task Logout()
         {
-            await CurrentUserService.RemoveCurrentUser();
+            await _localStorageService.RemoveItemAsync("authToken");
+            await _localStorageService.RemoveItemAsync("refreshToken");
+
+            ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
+            StateHasChanged();
 
             var logoutUrl = $"logout{NavigateToReturnPage()}";
             await JSRuntime.InvokeVoidAsync("open", Decode(logoutUrl), "_top");
         }
         private async Task Register()
         {
-
         }
         private static MudTheme GenerateDarkTheme() =>
             new()
@@ -158,9 +142,27 @@ namespace TozawaNGO.Shared
                 }
             };
 
+        protected async override Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                var auth = await _authStateProvider.GetAuthenticationStateAsync();
+                if (auth.User.Identity.IsAuthenticated)
+                {
+                    IsFirstLoaded = true;
+                    ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication();
+
+                    _currentUser = await _currentUserService.GetCurrentUser();
+                    StateHasChanged();
+                }
+
+                await base.OnAfterRenderAsync(firstRender);
+            }
+        }
         public override void Dispose()
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
+            _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
         }
     }
 }

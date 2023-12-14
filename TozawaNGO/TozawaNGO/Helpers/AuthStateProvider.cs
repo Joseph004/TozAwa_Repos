@@ -1,5 +1,4 @@
 
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -7,32 +6,43 @@ using Newtonsoft.Json;
 using TozawaNGO.Models.Dtos;
 using TozawaNGO.Features;
 using Microsoft.JSInterop;
-using TozawaNGO.Auth.Models;
 using System.Globalization;
+using Blazored.LocalStorage;
+using TozawaNGO.Configurations;
 
 namespace TozawaNGO.Helpers;
 
 public class AuthStateProvider : AuthenticationStateProvider
 {
-    private readonly HttpClient _httpClient;
     private readonly ISessionStorageService _sessionStorageService;
+    private readonly ILocalStorageService _localStorage;
     private readonly AuthenticationState _anonymous;
-    private readonly TokenProvider _tokenProvider;
-    public AuthStateProvider(HttpClient httpClient, ISessionStorageService sessionStorageService, TokenProvider tokenProvider)
+    private readonly AppSettings _appSettings;
+
+    public event EventHandler<EventArgs> UserAuthenticationChanged;
+    public AuthStateProvider(ISessionStorageService sessionStorageService, ILocalStorageService localStorage, AppSettings appSettings)
     {
-        _httpClient = httpClient;
         _sessionStorageService = sessionStorageService;
-        _tokenProvider = tokenProvider;
+        _localStorage = localStorage;
+        _appSettings = appSettings;
         _anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
     }
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         try
         {
-            if (string.IsNullOrWhiteSpace(_tokenProvider.Token))
+            string token = null;
+            try
+            {
+                token = await _localStorage.GetItemAsync<string>("authToken");
+            }
+            catch (Exception ex)
+            {
+                token = null;
+            }
+            if (string.IsNullOrWhiteSpace(token))
                 return _anonymous;
-            _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("tzuserauthentication", _tokenProvider.Token);
-            return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(JwtParser.ParseClaimsFromJwt(_tokenProvider.Token), "jwtAuthType"))));
+            return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(JwtParser.ParseClaimsFromJwt(token), "jwtAuthType"))));
         }
         catch (JSDisconnectedException)
         {
@@ -41,9 +51,9 @@ public class AuthStateProvider : AuthenticationStateProvider
     }
     public async Task<CurrentUserDto> GetUserFromToken(string token)
     {
-        if (!string.IsNullOrEmpty(token))
+        if (string.IsNullOrEmpty(token))
         {
-            _tokenProvider.Token = token;
+            token = await _localStorage.GetItemAsync<string>("authToken");
         }
 
         var authUser = await GetAuthenticationStateAsync();
@@ -77,28 +87,9 @@ public class AuthStateProvider : AuthenticationStateProvider
     }
     public async void NotifyUserAuthentication()
     {
-        var refreshAt = DateTimeOffset.UtcNow.AddSeconds(Convert.ToDouble(_tokenProvider.ExpiresIn)).ToString(CultureInfo.InvariantCulture);
-        var user = await GetUserFromToken(string.Empty);
-        await SetCurrentUser(user);
-        var claims = new List<Claim>
-        {
-            new(nameof(CurrentUserDto), await GetUserTokenWhenUserIsAuthenticate()),
-            new(ClaimTypes.Email, string.IsNullOrEmpty(user.Email) ? "" : user.Email),
-            new(ClaimTypes.Name, user.UserName),
-            new("refresh_at", refreshAt),
-            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        };
-        if (user.Admin)
-        {
-            claims.Add(new Claim("admin-member", "MemberIsAdmin"));
-        }
-        var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwtAuthType"));
-        var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
-        NotifyAuthenticationStateChanged(authState);
-    }
-    public async void NotifyUserAuthentication(string token)
-    {
-        var refreshAt = DateTimeOffset.UtcNow.AddSeconds(Convert.ToDouble(_tokenProvider.ExpiresIn)).ToString(CultureInfo.InvariantCulture);
+        var token = await _localStorage.GetItemAsync<string>("authToken");
+
+        var refreshAt = DateTimeOffset.UtcNow.AddSeconds(Convert.ToDouble(_appSettings.JWTSettings.ExpiryInMinutes)).ToString(CultureInfo.InvariantCulture);
         var user = await GetUserFromToken(token);
         await SetCurrentUser(user);
         var claims = new List<Claim>
@@ -108,6 +99,7 @@ public class AuthStateProvider : AuthenticationStateProvider
             new(ClaimTypes.Name, user.UserName),
             new("refresh_at", refreshAt),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new("exp", _appSettings.JWTSettings.ExpiryInMinutes)
         };
         if (user.Admin)
         {
@@ -116,12 +108,14 @@ public class AuthStateProvider : AuthenticationStateProvider
         var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwtAuthType"));
         var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
         NotifyAuthenticationStateChanged(authState);
+        UserAuthenticationChanged(this, new EventArgs());
     }
     public async void NotifyUserLogout()
     {
         await RemoveCurrentUser();
         var authState = Task.FromResult(_anonymous);
         NotifyAuthenticationStateChanged(authState);
+        UserAuthenticationChanged(this, new EventArgs());
     }
 }
 

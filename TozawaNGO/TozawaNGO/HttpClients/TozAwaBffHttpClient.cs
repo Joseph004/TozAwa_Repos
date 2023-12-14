@@ -26,9 +26,8 @@ namespace TozawaNGO.HttpClients
 
     public class TozAwaBffHttpClient : HttpClientHelper, ITozAwaBffHttpClient
     {
-        private readonly AppSettings _appSettings;
         public TozAwaBffHttpClient(HttpClient client, AppSettings appSettings, AuthenticationStateProvider authProvider, ILocalStorageService localStorageService,
-            NavigationManager navigationManager, IJSRuntime jSRuntime, ILogger<TozAwaBffHttpClient> logger, ITranslationService translationService, AuthStateProvider authStateProvider) : base(client, translationService, appSettings, authProvider, localStorageService, navigationManager, jSRuntime, authStateProvider, logger)
+            NavigationManager navigationManager, ILogger<TozAwaBffHttpClient> logger, ITranslationService translationService, IJSRuntime jSRuntime, AuthStateProvider authStateProvider) : base(client, translationService, appSettings, authProvider, localStorageService, navigationManager, authStateProvider, jSRuntime, logger)
         {
             client.BaseAddress = new Uri(appSettings.TozAwaNGOApiSettings.ApiUrl);
             client.DefaultRequestHeaders.Add("Accept", "application/json");

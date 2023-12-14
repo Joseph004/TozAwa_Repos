@@ -13,17 +13,21 @@ namespace TozawaNGO.Shared
         protected async override Task OnInitializedAsync()
         {
             _translationService.LanguageChanged += _translationService_LanguageChanged;
+            _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
             await base.OnInitializedAsync();
         }
-
+        private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
+        {
+            StateHasChanged();
+        }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
             StateHasChanged();
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-           /*  await JS.InvokeAsync<string>("FooterResized", DotNetObjectReference.Create(this)); */
+            /*  await JS.InvokeAsync<string>("FooterResized", DotNetObjectReference.Create(this)); */
         }
 
         protected async Task ToggleSocialIcon()
@@ -33,6 +37,7 @@ namespace TozawaNGO.Shared
         public override void Dispose()
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
+            _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
         }
     }
 }

@@ -1,12 +1,4 @@
-using System.Web;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.JSInterop;
-using MudBlazor;
-using TozawaNGO.Services;
-using System.Timers;
-using Timer = System.Timers.Timer;
-using MudBlazor.Extensions.Helper;
 
 namespace TozawaNGO.Shared
 {
@@ -17,15 +9,24 @@ namespace TozawaNGO.Shared
 
         protected async override Task OnInitializedAsync()
         {
-            //AfterRenderState.SetRequestFirstLoaded(true);
             _translationService.LanguageChanged += _translationService_LanguageChanged;
+            _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
             await base.OnInitializedAsync();
         }
-
+        private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
+        {
+            StateHasChanged();
+        }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
             StateHasChanged();
+        }
+
+        public override void Dispose()
+        {
+            _translationService.LanguageChanged -= _translationService_LanguageChanged;
+            _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
         }
     }
 }

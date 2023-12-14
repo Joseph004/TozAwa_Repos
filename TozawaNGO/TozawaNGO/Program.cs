@@ -7,6 +7,8 @@ using Blazored.SessionStorage;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -18,7 +20,6 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using TozawaNGO;
 using TozawaNGO.Attachment.Converters;
-using TozawaNGO.Auth.Models;
 using TozawaNGO.Auth.Models.Authentication;
 using TozawaNGO.Auth.Models.Converters;
 using TozawaNGO.Auth.Services;
@@ -79,7 +80,6 @@ builder.Services.AddScoped<ICurrentCountry, CurrentCountry>();
 builder.Services.AddScoped<IFileAttachmentConverter, FileAttachmentConverter>();
 builder.Services.AddScoped<IFileAttachmentCreator, FileAttachmentCreator>();
 builder.Services.AddScoped<IGoogleService, GoogleService>();
-builder.Services.AddScoped<TokenProvider>();
 
 builder.Services.AddMudServices(config =>
 {
@@ -103,9 +103,9 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
 
 }).AddJwtBearer("tzuserauthentication", options =>
 {
@@ -120,21 +120,13 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = appSettings.JWTSettings.ValidAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.JWTSettings.SecurityKey))
     };
-})
-.AddCookie(options =>
-{
-    options.Cookie.SameSite = SameSiteMode.None;
-    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-    options.Cookie.MaxAge = options.ExpireTimeSpan; // optional
-    options.SlidingExpiration = true;
-    options.Cookie.HttpOnly = true;
-    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
-});
+}); ;
 
 builder.Services.AddAuthorization(config =>
    {
        config.AddPolicy("admin-member", policy => policy.RequireClaim("admin-member", "MemberIsAdmin"));
    });
+builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 
 
 builder.Services.AddMvcCore(options =>

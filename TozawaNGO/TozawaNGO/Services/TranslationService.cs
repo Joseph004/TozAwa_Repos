@@ -1,29 +1,14 @@
 using Blazored.LocalStorage;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Threading.Tasks;
-using TozawaNGO.HttpClients;
 using TozawaNGO.Helpers;
 using TozawaNGO.Models.Dtos;
-using Blazored.SessionStorage;
 using TozawaNGO.Configurations;
-using System.Text.Json.Nodes;
-using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Localization;
 using Nextended.Core.Extensions;
 using System.Resources;
 using System.Collections;
-using Humanizer.Localisation;
-using System.Xml.Linq;
-using System.Reflection;
 
 namespace TozawaNGO.Services
 {
@@ -31,7 +16,6 @@ namespace TozawaNGO.Services
     {
         private readonly ILogger<TranslationService> _logger;
         private readonly ILocalStorageService _localStorageService;
-        private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly AppSettings _appSettings;
 
         private ConcurrentDictionary<Guid, string> _translations;
@@ -45,12 +29,10 @@ namespace TozawaNGO.Services
 
         public TranslationService(
             ILogger<TranslationService> logger,
-            IHttpContextAccessor httpContextAccessor,
             ILocalStorageService localStorageService,
             AppSettings appSettings)
         {
             _logger = logger;
-            _httpContextAccessor = httpContextAccessor;
             _localStorageService = localStorageService;
             _appSettings = appSettings;
 
@@ -68,38 +50,6 @@ namespace TozawaNGO.Services
                 LanguageChanged(this, new EventArgs());
             }
         }
-       /*  public async Task AddToResource(string text, Guid textId, Guid languageId)
-        {
-            var languages = await GetActiveLanguages();
-            var language = languages.First(x => x.Id == languageId);
-            var languageShortName = language.Culture;
-
-            var path = AppDomain.CurrentDomain.BaseDirectory + "Resources\\App.resx";
-            if (languageShortName == "fr")
-            {
-                path = AppDomain.CurrentDomain.BaseDirectory + "Resources\\App.fr.resx";
-            }
-            else if (languageShortName == "sv")
-            {
-                path = AppDomain.CurrentDomain.BaseDirectory + "Resources\\App.sv.resx";
-            }
-
-            using FileStream stream = File.Open(path, FileMode.Open);
-            XDocument doc = XDocument.Load(stream);
-
-            XElement data = new("data");
-
-            XNamespace ns = "xml";
-            data.Add(new XAttribute("name", textId.ToString()));
-            data.Add(new XAttribute(XNamespace.Xml + "space", "preserve"));
-
-            data.Add(new XElement("value", text));
-            data.Add(new XElement("comment", "."));
-
-            doc.Element("root").Add(data);
-            doc.Save(stream);
-            stream.Close();
-        } */
         private async IAsyncEnumerable<LocalizedString> GetAllLocalizedStrings()
         {
             var activeCulture = await GetActiveLanguage();

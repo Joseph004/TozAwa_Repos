@@ -15,6 +15,7 @@ using TozawaNGO.Services;
 using Microsoft.JSInterop;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using System.Web;
 
 namespace TozawaNGO.HttpClients
 {
@@ -27,7 +28,7 @@ namespace TozawaNGO.HttpClients
         private readonly ILocalStorageService _localStorageService;
         private readonly NavigationManager _navigationManager;
         private readonly AuthStateProvider _authStateProvider;
-        private IJSRuntime _jSRuntime { get; set; }
+        private readonly IJSRuntime _jSRuntime;
         private readonly HttpClient _client;
 
         public HttpClientHelper(
@@ -37,8 +38,8 @@ namespace TozawaNGO.HttpClients
             AuthenticationStateProvider authProvider,
             ILocalStorageService localStorageService,
             NavigationManager navigationManager,
-            IJSRuntime jSRuntime,
             AuthStateProvider authStateProvider,
+            IJSRuntime jSRuntime,
             ILogger<HttpClientHelper> logger)
         {
             _logger = logger;
@@ -48,8 +49,8 @@ namespace TozawaNGO.HttpClients
             _localStorageService = localStorageService;
             _translationService = translationService;
             _navigationManager = navigationManager;
-            _jSRuntime = jSRuntime;
             _authStateProvider = authStateProvider;
+            _jSRuntime = jSRuntime;
         }
         public async Task RemoveCurrentUser()
         {
@@ -80,8 +81,7 @@ namespace TozawaNGO.HttpClients
             await _localStorageService.SetItemAsync("authToken", result.Token);
             await _localStorageService.SetItemAsync("refreshToken", result.RefreshToken);
 
-            var user = await _authStateProvider.GetUserFromToken(result.Token);
-            await _authStateProvider.SetCurrentUser(user);
+            ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication();
 
             return postContent;
         }
@@ -341,13 +341,8 @@ namespace TozawaNGO.HttpClients
         }
         private async Task<string> TryRefreshToken()
         {
-            /*  var authState = await _authProvider.GetAuthenticationStateAsync();
-             var user = authState.User; */
-
             var token = await _localStorageService.GetItemAsync<string>("authToken");
             var refreshToken = await _localStorageService.GetItemAsync<string>("refreshToken");
-            /* var token = user.FindFirst(c => c.Type.Equals("authToken"))?.Value;
-            var refreshToken = user.FindFirst(c => c.Type.Equals("refreshToken"))?.Value; */
 
             var request = new RefreshTokenDto()
             {
@@ -428,13 +423,17 @@ namespace TozawaNGO.HttpClients
         }
         private async Task Logout()
         {
-            await RemoveCurrentUser();
+            await _localStorageService.RemoveItemAsync("authToken");
+            await _localStorageService.RemoveItemAsync("refreshToken");
+
+            ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
 
             var logoutUrl = $"logout{NavigateToReturnPage()}";
-            await _jSRuntime.InvokeVoidAsync("open", logoutUrl, "_top");
-
-            var returnPage = NavigateToReturnPage();
-            _navigationManager.NavigateTo(returnPage);
+            await _jSRuntime.InvokeVoidAsync("open", Decode(logoutUrl), "_top");
+        }
+        private static string Decode(string param)
+        {
+            return HttpUtility.UrlDecode(param);
         }
         private string NavigateToReturnPage()
         {

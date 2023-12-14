@@ -2,7 +2,6 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using TozawaNGO.Helpers;
 using TozawaNGO.Models.Dtos;
-using TozawaNGO.Models.Enums;
 using TozawaNGO.Models.FormModels;
 using TozawaNGO.Models.ResponseRequests;
 using TozawaNGO.Services;
@@ -38,6 +37,7 @@ namespace TozawaNGO.Pages
         {
             _pagedData = Enumerable.Empty<MemberDto>();
             _translationService.LanguageChanged += LanguageChanged;
+            _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
             await base.OnInitializedAsync();
         }
@@ -47,6 +47,14 @@ namespace TozawaNGO.Pages
             return entity.Deleted;
         }
         private async void LanguageChanged(object sender, EventArgs e)
+        {
+            if (_table != null)
+            {
+                await _table.ReloadServerData();
+            }
+            StateHasChanged();
+        }
+        private async void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
             if (_table != null)
             {
@@ -297,6 +305,7 @@ namespace TozawaNGO.Pages
         public override void Dispose()
         {
             _translationService.LanguageChanged -= LanguageChanged;
+            _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
         }
     }
 }

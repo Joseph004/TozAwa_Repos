@@ -6,7 +6,8 @@ using MudBlazor;
 using TozawaNGO.Services;
 using System.Timers;
 using Timer = System.Timers.Timer;
-using TozawaNGO.Auth.Models;
+using Blazored.LocalStorage;
+using TozawaNGO.Helpers;
 
 namespace TozawaNGO.Shared
 {
@@ -17,6 +18,8 @@ namespace TozawaNGO.Shared
         [Inject] ICurrentUserService CurrentUserService { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
+        [Inject] ILocalStorageService _localStorageService { get; set; }
+        [Inject] AuthStateProvider _authStateProvider { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
         public string _loginUrl { get; set; } = $"";
         private Timer _timer;
@@ -64,9 +67,6 @@ namespace TozawaNGO.Shared
                     _timer.AutoReset = false;
                     _timer.Start();
 
-                    //await JSRuntime.InitializeMudBlazorExtensionsAsync();
-
-                    //await SetUserClaims();
                     StateHasChanged();
                 }
 
@@ -76,7 +76,6 @@ namespace TozawaNGO.Shared
             {
             }
         }
-
         private static string Decode(string param)
         {
             return HttpUtility.UrlDecode(param);
@@ -104,6 +103,16 @@ namespace TozawaNGO.Shared
                   }
               });
         }
+        private async Task Logout()
+        {
+            await _localStorageService.RemoveItemAsync("authToken");
+            await _localStorageService.RemoveItemAsync("refreshToken");
+
+            ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
+
+            var logoutUrl = $"logout{NavigateToReturnPage()}";
+            await JSRuntime.InvokeVoidAsync("open", Decode(logoutUrl), "_top");
+        }
         private string NavigateToReturnPage()
         {
             var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
@@ -116,13 +125,6 @@ namespace TozawaNGO.Shared
             {
                 return $"/{currentPath}";
             }
-        }
-        private async Task Logout()
-        {
-            await CurrentUserService.RemoveCurrentUser();
-
-            var logoutUrl = $"logout{NavigateToReturnPage()}";
-            await JSRuntime.InvokeVoidAsync("open", Decode(logoutUrl), "_top");
         }
         private void RefreshTimer(EventArgs e)
         {

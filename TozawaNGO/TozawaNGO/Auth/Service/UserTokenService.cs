@@ -7,6 +7,7 @@ using TozawaNGO.Configurations;
 using TozawaNGO.Auth.Models.Dtos;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using System.Globalization;
 
 namespace TozawaNGO.Auth.Services;
 
@@ -64,11 +65,22 @@ public class UserTokenService : IUserTokenService
     }
     private List<Claim> GetClaims(CurrentUserDto user)
     {
+        var refreshAt = DateTimeOffset.UtcNow.AddSeconds(Convert.ToDouble(_appSettings.JWTSettings.ExpiryInMinutes)).ToString(CultureInfo.InvariantCulture);
+
         var claims = new List<Claim>
     {
-        new(nameof(CurrentUserDto), JsonConvert.SerializeObject(user))
+        new(nameof(CurrentUserDto), JsonConvert.SerializeObject(user)),
+        new(ClaimTypes.Email, string.IsNullOrEmpty(user.Email) ? "" : user.Email),
+        new("userName", user.UserName),
+        new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
+        new("refresh_at", refreshAt),
+        new(ClaimTypes.NameIdentifier, user.Id.ToString()),
+        new("exp", _appSettings.JWTSettings.ExpiryInMinutes)
     };
-
+        if (user.Admin)
+        {
+            claims.Add(new Claim("admin-member", "MemberIsAdmin"));
+        }
         return claims;
     }
     public bool ValidateCurrentTokenByIgnoreExpire(string token)
