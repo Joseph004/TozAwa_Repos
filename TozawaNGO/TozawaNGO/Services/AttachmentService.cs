@@ -1,7 +1,3 @@
-using Microsoft.AspNetCore.Components.Authorization;
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using TozawaNGO.HttpClients;
 using TozawaNGO.Models.Dtos;
 using TozawaNGO.Models.FormModels;
@@ -12,12 +8,17 @@ namespace TozawaNGO.Services;
 public class AttachmentService
 {
     private readonly ITozAwaBffHttpClient _client;
-    private const string _baseUriPath = $"attachment";
+    private const string _baseUriPath = $"fileattachment";
     public AttachmentService(ITozAwaBffHttpClient client) => _client = client;
 
     public event Action OnChange;
-    public void SetNotifyChange()
+    public OwnerAttachments FileAttachmentDtos = new();
+    public bool OnDelete = false;
+    public void SetNotifyChange(OwnerAttachments attachmentDtos, bool onDelete = false)
     {
+        OnDelete = onDelete;
+        FileAttachmentDtos = attachmentDtos;
+
         NotifyStateChanged();
     }
     private void NotifyStateChanged() => OnChange?.Invoke();

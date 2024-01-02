@@ -1,5 +1,5 @@
 ﻿using TozawaNGO.Attachment.Models;
-using TozawaNGO.Attachment.Models.Dtos;
+using TozawaNGO.Models.Dtos;
 
 namespace TozawaNGO.Attachment.Converters
 {

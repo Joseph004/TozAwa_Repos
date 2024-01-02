@@ -67,4 +67,22 @@ public static class FileUtil
             return memoryStream.ToArray();
         }
     }
+    public static IFormFile FileFromByteArray(string name, string contentType, byte[] content)
+    {
+        IFormFile file;
+        MemoryStream stream = new(content);
+
+        file = new FormFile(stream, 0, content.Length, name, name)
+        {
+            Headers = new HeaderDictionary(),
+            ContentType = contentType
+        };
+        return file;
+    }
+    public static MemoryStream StreamFromByteArray(byte[] content)
+    {
+        MemoryStream stream = new(content);
+
+        return stream;
+    }
 }

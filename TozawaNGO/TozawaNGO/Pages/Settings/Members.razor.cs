@@ -15,7 +15,9 @@ namespace TozawaNGO.Pages
         [Inject] protected MemberService memberService { get; set; }
         [Inject] IDialogService DialogService { get; set; }
         [Inject] private ISnackbar SnackBar { get; set; }
+        [Inject] private AttachmentService AttachmentService { get; set; }
         [Inject] private ISnackBarService snackBarService { get; set; }
+        [Inject] private LoadingState LoadingState { get; set; }
         protected IEnumerable<MemberDto> _pagedData = null;
         private MudTable<MemberDto> _table;
         private MemberDto _addedItem;
@@ -35,16 +37,33 @@ namespace TozawaNGO.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            _pagedData = Enumerable.Empty<MemberDto>();
             _translationService.LanguageChanged += LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
+            AttachmentService.OnChange += UpdateMemberAttachments;
 
             await base.OnInitializedAsync();
+        }
+        protected override Task OnAfterRenderAsync(bool firstRender)
+        {
+            if (firstRender)
+            {
+                IsFirstLoaded = true;
+                _pagedData = Enumerable.Empty<MemberDto>();
+            }
+            return base.OnAfterRenderAsync(firstRender);
         }
         private bool DisabledEditRow()
         {
             var entity = _selectedItem ?? new MemberDto();
             return entity.Deleted;
+        }
+        private async void UpdateMemberAttachments()
+        {
+            if (_table != null)
+            {
+                await _table.ReloadServerData();
+            }
+            StateHasChanged();
         }
         private async void LanguageChanged(object sender, EventArgs e)
         {
@@ -90,7 +109,7 @@ namespace TozawaNGO.Pages
             var dialog = DialogService.Show<DeleteEntityDialog>(item.Deleted ? Translate(SystemTextId.Restore) : Translate(SystemTextId.Delete), parameters, options);
             var result = await dialog.Result;
 
-            if (!result.Cancelled)
+            if (!result.Canceled)
             {
                 _loading = true;
                 StateHasChanged();
@@ -179,6 +198,7 @@ namespace TozawaNGO.Pages
         protected async Task<TableData<MemberDto>> ServerReload(TableState state)
         {
             _loading = true;
+            LoadingState.SetRequestInProgress(true);
 
             var data = await memberService.GetItems(state, _includeDeleted, _searchString, _pageOfEmail);
             var entity = data.Entity ?? new TableData<MemberDto>();
@@ -214,6 +234,7 @@ namespace TozawaNGO.Pages
             _loading = false;
             entity.Items = items;
             _pagedData = entity.Items;
+            LoadingState.SetRequestInProgress(false);
             StateHasChanged();
             return entity;
         }
@@ -306,6 +327,7 @@ namespace TozawaNGO.Pages
         {
             _translationService.LanguageChanged -= LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
+            AttachmentService.OnChange -= UpdateMemberAttachments;
         }
     }
 }

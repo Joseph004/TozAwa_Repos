@@ -1,11 +1,12 @@
 using System.Text.RegularExpressions;
 using TozawaNGO.Attachment.Models.Commands;
+using TozawaNGO.Models.Dtos;
 
 namespace TozawaNGO.Helpers;
 
 public static class FileValidator
 {
-    private static readonly string _pattern = @"^[a-zA-zŽžÀ-ÿZ0-9-_]*[.]{0,1}[a-zA-zŽžÀ-ÿZ0-9-_]*$";
+    private static readonly string _pattern = @"^[a-zA-zŽžÀ-ÿZ0-9-_ ]*[.]{0,1}[a-zA-zŽžÀ-ÿZ0-9-_ ]*$";
     private static readonly int FileNameLength = 255;
     private static readonly string _png = "image/png";
     private static readonly string _jpg = "image/jpeg";
@@ -22,7 +23,7 @@ public static class FileValidator
 
     public static bool IsExcel(string conentType) => !string.IsNullOrEmpty(conentType) && _excel.Split(",").Contains(conentType);
     public static bool IsXml(string conentType) => !string.IsNullOrEmpty(conentType) && _xml.Split(",").Contains(conentType);
-
+    private static bool IsValidContent(byte[] bytes) => bytes != null && bytes.Length <= MaxAllowedSize;
     public static bool IsValidName(string fileName)
         => !string.IsNullOrEmpty(fileName) && IsValidFileName(fileName);
 
@@ -33,9 +34,9 @@ public static class FileValidator
         return Regex.IsMatch(name, _pattern);
     }
 
-    private static bool IsValidSize(double size) => size != null && size <= MaxAllowedSize;
+    private static bool IsValidSize(double? size) => size != null && size <= MaxAllowedSize;
 
-    public static bool IsValideFile(AddAttachmentCommand file)
+    public static bool IsValideFile(AddAttachmentRequest file)
     {
         if (!IsValidContentType(file.MimeType))
         {
@@ -50,6 +51,22 @@ public static class FileValidator
             return false;
         }
         else if (!IsValidSize(file.Size))
+        {
+            return false;
+        }
+        return true;
+    }
+    public static bool IsValideFile(AttachmentUploadDto file)
+    {
+        if (!IsValidContentType(file.ContentType))
+        {
+            return false;
+        }
+        else if (!IsValidName(file.Name))
+        {
+            return false;
+        }
+        else if (!IsValidContent(file.Content))
         {
             return false;
         }

@@ -75,7 +75,8 @@ public class UserTokenService : IUserTokenService
         new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}"),
         new("refresh_at", refreshAt),
         new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-        new("exp", _appSettings.JWTSettings.ExpiryInMinutes)
+        new("exp", _appSettings.JWTSettings.ExpiryInMinutes),
+        new("logoutexpat", DateTime.UtcNow.AddMinutes(_appSettings.JWTSettings.LogoutUserOn).ToString())
     };
         if (user.Admin)
         {

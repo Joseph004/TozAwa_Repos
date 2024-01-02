@@ -8,6 +8,10 @@ using System.Timers;
 using Timer = System.Timers.Timer;
 using Blazored.LocalStorage;
 using TozawaNGO.Helpers;
+using TozawaNGO.Configurations;
+using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace TozawaNGO.Shared
 {
@@ -16,6 +20,7 @@ namespace TozawaNGO.Shared
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] ICurrentUserService CurrentUserService { get; set; }
+        [Inject] AppSettings _appSettings { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
         [Inject] ILocalStorageService _localStorageService { get; set; }
@@ -58,23 +63,64 @@ namespace TozawaNGO.Shared
         }
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
+            if (firstRender)
+            {
+                _timer = new Timer(_timerInterval);
+                _timer.Elapsed += LogoutTimeout;
+                _timer.AutoReset = false;
+                _timer.Start();
+
+                await LogoutIfUserExipired();
+                StateHasChanged();
+            }
+
+            await base.OnAfterRenderAsync(firstRender);
+        }
+        private async Task LogoutIfUserExipired()
+        {
+            var auth = await _authStateProvider.GetAuthenticationStateAsync();
+
+            if (auth.User.Identity.IsAuthenticated)
+            {
+                var token = await _localStorageService.GetItemAsync<string>("authToken");
+                var refreshToken = await _localStorageService.GetItemAsync<string>("refreshToken");
+
+                if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken) && !ValidateCurrentToken(token))
+                {
+                    var exp = auth.User.Claims.First(x => x.Type == "logoutexpat").Value;
+                    var currentDate = DateTime.UtcNow;
+                    var expDate = DateTime.Parse(exp);
+
+                    if (currentDate > expDate)
+                    {
+                        await Logout();
+                    }
+                }
+            }
+        }
+        private bool ValidateCurrentToken(string token)
+        {
+            var myIssuer = _appSettings.JWTSettings.ValidIssuer;
+            var myAudience = _appSettings.JWTSettings.ValidAudience;
+
+            var tokenHandler = new JwtSecurityTokenHandler();
             try
             {
-                if (firstRender)
+                tokenHandler.ValidateToken(token, new TokenValidationParameters
                 {
-                    _timer = new Timer(_timerInterval);
-                    _timer.Elapsed += LogoutTimeout;
-                    _timer.AutoReset = false;
-                    _timer.Start();
-
-                    StateHasChanged();
-                }
-
-                await base.OnAfterRenderAsync(firstRender);
+                    ValidateIssuerSigningKey = true,
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidIssuer = myIssuer,
+                    ValidAudience = myAudience,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey))
+                }, out SecurityToken validatedToken);
             }
-            catch (JSDisconnectedException)
+            catch (Exception ex)
             {
+                return false;
             }
+            return true;
         }
         private static string Decode(string param)
         {

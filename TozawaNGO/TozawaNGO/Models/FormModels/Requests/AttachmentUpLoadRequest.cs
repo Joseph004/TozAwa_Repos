@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Forms;
 using TozawaNGO.Models.Dtos;
 using TozawaNGO.Models.Enums;
+using System;
 
 namespace TozawaNGO.Models.FormModels
 {
@@ -20,18 +21,25 @@ namespace TozawaNGO.Models.FormModels
 
         public async Task AddFiles(List<IBrowserFile> files)
         {
-            foreach (var file in files)
+            try
             {
-                Stream stream = file.OpenReadStream(file.Size);
-                using MemoryStream ms = new();
-                await stream.CopyToAsync(ms);
-                stream.Close();
-                Files.Add(new AttachmentUploadDto
+                foreach (var file in files)
                 {
-                    ContentType = file.ContentType,
-                    Content = ms.ToArray(),
-                    Name = file.Name
-                });
+                    await using Stream stream = file.OpenReadStream(file.Size);
+                    await using MemoryStream ms = new(100 * 1024 * 1024);
+                    await stream.CopyToAsync(ms);
+                    stream.Close();
+                    Files.Add(new AttachmentUploadDto
+                    {
+                        ContentType = file.ContentType,
+                        Content = ms.ToArray(),
+                        Name = file.Name
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+
             }
         }
     }

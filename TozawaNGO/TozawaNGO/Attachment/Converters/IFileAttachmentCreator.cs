@@ -6,6 +6,6 @@ namespace TozawaNGO.Attachment.Converters
 {
     public interface IFileAttachmentCreator
     {
-        Task<FileAttachment> Create(AddAttachmentCommand addAttachmentCommand);
+        Task<FileAttachment> Create(AddAttachmentRequest addAttachmentCommand);
     }
 }

@@ -57,10 +57,6 @@ public static class FileValidator
         {
             return false;
         }
-        else if (!IsValidLength(file.Name))
-        {
-            return false;
-        }
         else if (!IsValidContent(file.Content))
         {
             return false;

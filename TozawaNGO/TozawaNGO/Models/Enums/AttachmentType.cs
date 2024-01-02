@@ -2,11 +2,8 @@ namespace TozawaNGO.Models.Enums
 {
     public enum AttachmentType
     {
-        Travling = 1,
-        Activity = 2,
-        Transport = 3,
-        Immovable = 4,
-        Profile = 5,
-        Intern = 6
+        Partner = 1,
+        Profile = 2,
+        Intern = 3
     }
 }

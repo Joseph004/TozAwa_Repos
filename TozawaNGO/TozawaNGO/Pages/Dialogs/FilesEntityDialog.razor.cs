@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
@@ -11,8 +8,6 @@ using TozawaNGO.Models.Enums;
 using TozawaNGO.Models.FormModels;
 using TozawaNGO.Services;
 using TozawaNGO.Shared;
-using TozawaNGO.Helpers;
-using TozawaNGO.Services;
 
 namespace TozawaNGO.Pages
 {
@@ -100,7 +95,7 @@ namespace TozawaNGO.Pages
             var dialog = DialogService.Show<DeleteEntityDialog>(Translate(SystemTextId.Delete), parameters);
             var result = await dialog.Result;
 
-            if (!result.Cancelled)
+            if (!result.Canceled)
             {
                 _onProgress = true;
                 StateHasChanged();
@@ -109,8 +104,13 @@ namespace TozawaNGO.Pages
                 if (deleteResponse.Success)
                 {
                     Entity.Attachments.Remove(attachment);
+                    var files = new OwnerAttachments
+                    {
+                        OwnerId = Entity.Id,
+                        Attachments = new List<FileAttachmentDto> { attachment }
+                    };
                     StateHasChanged();
-                    AttachmentService.SetNotifyChange();
+                    AttachmentService.SetNotifyChange(files, true);
                 }
                 else
                 {
@@ -123,58 +123,75 @@ namespace TozawaNGO.Pages
 
         private async void UploadFiles(InputFileChangeEventArgs e)
         {
-            _onProgress = true;
-            StateHasChanged();
-            foreach (var file in e.GetMultipleFiles())
+            try
             {
-                if (!IsValideFile(file)) return;
-                if (Entity.Attachments.Any(x => x.Name == file.Name && x.MimeType == file.ContentType))
+                _onProgress = true;
+                StateHasChanged();
+                foreach (var file in e.GetMultipleFiles())
                 {
-                    Snackbar.Add($"{Translate(SystemTextId.FileName, "Filename")} {file.Name.ToUpper()} {Translate(SystemTextId.AlreadyExists, "already exist")} : {Translate(SystemTextId.Name, "Name")}", Severity.Warning);
-                    _onProgress = false;
-                    StateHasChanged();
-
-                    return;
-                }
-                else
-                {
-                    _files.Add(file);
-                }
-            }
-            if (_files.Any())
-            {
-                var request = new AttachmentUploadRequest();
-
-                if (_files.Any(x => x.Size > FileValidator.MaxAllowedSize))
-                {
-                    Snackbar.Add($"{Translate(SystemTextId.TheAllowedMaximumSizeIs, "The Allowed maximum size is")} {Math.Round(Convert.ToDouble(FileValidator.MaxAllowedSize) / 1000, 2)}KB", Severity.Warning);
-                    _files.Clear();
-                }
-                else
-                {
-                    foreach (var file in _files)
+                    if (!IsValideFile(file))
                     {
-                        var buffers = new byte[file.Size];
-                        await file.OpenReadStream(maxAllowedSize: FileValidator.MaxAllowedSize).ReadAsync(buffers);
+                        _onProgress = false;
+                        return;
                     }
-                    await request.AddFiles(_files);
-                    request.FileAttachmentType = _attachmentType;
-                    request.FolderName = Entity.Email;
-                    var attachmentsResponse = await AttachmentService.AttachmentUpload(Entity.Id, request);
-                    if (attachmentsResponse.Success)
+
+                    if (Entity.Attachments.Any(x => x.Name == file.Name && x.MimeType == file.ContentType))
                     {
-                        Entity.Attachments.AddRange(attachmentsResponse.Entity ?? new List<FileAttachmentDto>());
-                        _files.Clear();
-                        AttachmentService.SetNotifyChange();
+                        Snackbar.Add($"{Translate(SystemTextId.FileName, "Filename")} {file.Name.ToUpper()} {Translate(SystemTextId.AlreadyExists, "already exist")} : {Translate(SystemTextId.Name, "Name")}", Severity.Warning);
+                        _onProgress = false;
+                        StateHasChanged();
+
+                        return;
                     }
                     else
                     {
-                        Snackbar.Add(attachmentsResponse.Message, Severity.Error);
+                        _files.Add(file);
                     }
                 }
+                if (_files.Any())
+                {
+                    var request = new AttachmentUploadRequest();
+
+                    if (_files.Any(x => x.Size > FileValidator.MaxAllowedSize))
+                    {
+                        Snackbar.Add($"{Translate(SystemTextId.TheAllowedMaximumSizeIs, "The Allowed maximum size is")} {Math.Round(Convert.ToDouble(FileValidator.MaxAllowedSize) / 1000, 2)}KB", Severity.Warning);
+                        _files.Clear();
+                    }
+                    else
+                    {
+                        foreach (var file in _files)
+                        {
+                            var buffers = new byte[file.Size];
+                            await file.OpenReadStream(maxAllowedSize: FileValidator.MaxAllowedSize).ReadAsync(buffers);
+                        }
+                        await request.AddFiles(_files);
+                        request.FileAttachmentType = _attachmentType;
+                        request.FolderName = Entity.Email;
+                        var attachmentsResponse = await AttachmentService.AttachmentUpload(Entity.Id, request);
+                        if (attachmentsResponse.Success)
+                        {
+                            Entity.Attachments.AddRange(attachmentsResponse.Entity ?? new List<FileAttachmentDto>());
+                            _files.Clear();
+                            var files = new OwnerAttachments
+                            {
+                                OwnerId = Entity.Id,
+                                Attachments = attachmentsResponse.Entity ?? new List<FileAttachmentDto>()
+                            };
+                            AttachmentService.SetNotifyChange(files);
+                        }
+                        else
+                        {
+                            Snackbar.Add(attachmentsResponse.Message, Severity.Error);
+                        }
+                    }
+                }
+                _onProgress = false;
+                StateHasChanged();
             }
-            _onProgress = false;
-            StateHasChanged();
+            catch (Exception ex)
+            {
+                _files.Clear();
+            }
         }
     }
 }

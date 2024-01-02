@@ -257,4 +257,24 @@
     <value>Sorry, there's nothing at this address.</value>
     <comment>.</comment>
   </data>
+  <data name="65ff3356-f87b-43e9-8228-7d757f5bcea9" xml:space="preserve">
+    <value>Attachment type</value>
+    <comment>.</comment>
+  </data>
+  <data name="7d1747ad-b243-40ec-a1ee-43cab5af5012" xml:space="preserve">
+    <value>File size</value>
+    <comment>.</comment>
+  </data>
+  <data name="36824adb-80d4-480c-b8fb-474e445673cb" xml:space="preserve">
+    <value>Close</value>
+    <comment>.</comment>
+  </data>
+  <data name="fde8cfd5-5670-44c4-a5b9-0469b00e0b31" xml:space="preserve">
+    <value>Upload files</value>
+    <comment>.</comment>
+  </data>
+  <data name="6c12b3d5-3661-42ff-b97a-74e0a5b2102e" xml:space="preserve">
+    <value>You are about to ge logged ou</value>
+    <comment>.</comment>
+  </data>
 </root>

@@ -9,7 +9,7 @@ using TozawaNGO.Services;
 
 namespace TozawaNGO.Attachment.Handlers.Commands;
 
-public class UpdateAttachmentCommandHandler : IRequestHandler<UpdateAttachmentCommand, FileAttachmentDto>
+public class UpdateAttachmentCommandHandler : IRequestHandler<UpdateAttachmentCommand, TozawaNGO.Models.Dtos.FileAttachmentDto>
 {
     private readonly TozawangoDbContext _context;
     private readonly IFileAttachmentConverter _fileAttachmentConverter;
@@ -24,7 +24,7 @@ public class UpdateAttachmentCommandHandler : IRequestHandler<UpdateAttachmentCo
         _currentUserService = currentUserService;
     }
 
-    public async Task<FileAttachmentDto> Handle(UpdateAttachmentCommand request, CancellationToken cancellationToken)
+    public async Task<TozawaNGO.Models.Dtos.FileAttachmentDto> Handle(UpdateAttachmentCommand request, CancellationToken cancellationToken)
     {
         var attachment = await _context.FileAttachments
             .Include(x => x.Owners)

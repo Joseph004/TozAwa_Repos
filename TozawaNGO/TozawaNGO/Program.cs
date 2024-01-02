@@ -6,11 +6,13 @@ using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using FluentValidation.AspNetCore;
 using MediatR;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using MudBlazor;
@@ -40,7 +42,16 @@ var appSettings = builder.Services.ConfigureAppSettings<AppSettings>(configurati
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-
+builder.Services.AddSignalR(e =>
+{
+    e.MaximumReceiveMessageSize = 100 * 1024 * 1024;
+});
+builder.Services.Configure<HubOptions>(options =>
+{
+    options.DisableImplicitFromServicesParameters = true;
+    options.MaximumReceiveMessageSize = 100 * 1024 * 1024;
+    options.DisableImplicitFromServicesParameters = true;
+});
 if (builder.Environment.IsDevelopment())
 {
     builder.Services.AddServerSideBlazor().AddCircuitOptions(x => x.DetailedErrors = true);
@@ -49,8 +60,6 @@ else
 {
     builder.Services.AddServerSideBlazor();
 }
-
-builder.Services.AddServerSideBlazor();
 
 builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<IConfiguration>(configuration);
@@ -80,6 +89,7 @@ builder.Services.AddScoped<ICurrentCountry, CurrentCountry>();
 builder.Services.AddScoped<IFileAttachmentConverter, FileAttachmentConverter>();
 builder.Services.AddScoped<IFileAttachmentCreator, FileAttachmentCreator>();
 builder.Services.AddScoped<IGoogleService, GoogleService>();
+builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
 
 builder.Services.AddMudServices(config =>
 {
@@ -120,7 +130,7 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = appSettings.JWTSettings.ValidAudience,
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.JWTSettings.SecurityKey))
     };
-}); ;
+});
 
 builder.Services.AddAuthorization(config =>
    {
@@ -247,7 +257,17 @@ app.UseRequestLocalization(GetLocalizationOptions());
 //app.UseMvc();
 app.MapControllers();
 //app.MapRazorPages();
-app.MapBlazorHub();
+app.Use(async (context, next) =>
+{
+    context.Features.Get<IHttpMaxRequestBodySizeFeature>().MaxRequestBodySize = null;
+    await next.Invoke();
+});
+app.MapBlazorHub(configureOptions: options =>
+{
+    options.Transports = HttpTransportType.WebSockets | HttpTransportType.LongPolling;
+    options.TransportMaxBufferSize = 131072;
+    options.ApplicationMaxBufferSize = 131072;
+});
 app.MapFallbackToPage("/_Host");
 //
 

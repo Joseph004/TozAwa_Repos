@@ -1,6 +1,3 @@
-using System;
-using System.Collections.Generic;
-using TozawaNGO.Models.Enums;
 
 namespace TozawaNGO.Models.Dtos
 {

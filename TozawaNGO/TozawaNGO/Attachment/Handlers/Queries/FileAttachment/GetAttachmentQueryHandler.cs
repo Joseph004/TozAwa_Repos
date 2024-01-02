@@ -4,26 +4,23 @@ using TozawaNGO.Attachment.Converters;
 using TozawaNGO.Attachment.Models.Dtos;
 using TozawaNGO.Attachment.Models.Queries;
 using TozawaNGO.Context;
+using TozawaNGO.Models.Dtos;
 using TozawaNGO.Services;
 
 namespace TozawaNGO.Attachment.Handlers.Queries.FileAttachment;
 
-public class GetAttachmentQueryHandler : IRequestHandler<GetAttachmentQuery, FileAttachmentDto>
+public class GetAttachmentQueryHandler : IRequestHandler<GetAttachmentQuery, AttachmentDownloadDto>
 {
     private readonly TozawangoDbContext _context;
-    private readonly IFileAttachmentConverter _attachmentConverter;
-    private readonly ICurrentUserService _currentUserService;
+    private readonly IGoogleService _googleService;
 
-    public GetAttachmentQueryHandler(TozawangoDbContext context,
-        IFileAttachmentConverter attachmentConverter,
-        ICurrentUserService currentUserService)
+    public GetAttachmentQueryHandler(TozawangoDbContext context, IGoogleService googleService)
     {
         _context = context;
-        _attachmentConverter = attachmentConverter;
-        _currentUserService = currentUserService;
+        _googleService = googleService;
     }
 
-    public async Task<FileAttachmentDto> Handle(GetAttachmentQuery request, CancellationToken cancellationToken)
+    public async Task<AttachmentDownloadDto> Handle(GetAttachmentQuery request, CancellationToken cancellationToken)
     {
         var attachment = await _context.FileAttachments
             .Include(x => x.Owners)
@@ -34,6 +31,15 @@ public class GetAttachmentQueryHandler : IRequestHandler<GetAttachmentQuery, Fil
             throw new Exception($"Attachment with Id [{request.Id}] was not found.");
         }
 
-        return _attachmentConverter.Convert(attachment);
+        var stream = await _googleService.StreamFromGoogleFileByFileId(attachment.BlobId);
+        var bytes = FileUtil.ReadAllBytesFromStream(stream);
+
+        var attchmentResponse = new AttachmentDownloadDto
+        {
+            Content = bytes,
+            MineType = attachment.MimeType,
+            Name = attachment.Name
+        };
+        return attchmentResponse;
     }
 }

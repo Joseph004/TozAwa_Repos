@@ -2,7 +2,6 @@
 using TozawaNGO.Attachment.Models.Commands;
 using TozawaNGO.Context;
 using TozawaNGO.Extensions;
-using TozawaNGO.Helpers;
 using TozawaNGO.Models.Enums;
 
 namespace TozawaNGO.Attachment.Converters
@@ -15,7 +14,7 @@ namespace TozawaNGO.Attachment.Converters
         {
             _TozawangoDbContext = TozawangoDbContext;
         }
-        public async Task<FileAttachment> Create(AddAttachmentCommand addAttachmentCommand)
+        public async Task<FileAttachment> Create(AddAttachmentRequest addAttachmentCommand)
         {
             var fileAttachmentId = Guid.NewGuid();
             var fileAttachment = new FileAttachment
