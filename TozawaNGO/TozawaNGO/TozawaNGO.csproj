@@ -10,7 +10,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
     <PackageReference Include="Google.Apis.Drive.v3" Version="1.64.0.3256" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.0.3" />
-    <PackageReference Include="MudBlazor" Version="6.11.12" />
+    <PackageReference Include="MudBlazor" Version="6.11.2" />
     <PackageReference Include="MudBlazor.Extensions" Version="1.7.80" />
     <PackageReference Include="Blazored.LocalStorage" Version="4.4.0" />
     <PackageReference Include="Blazored.SessionStorage" Version="2.4.0" />
