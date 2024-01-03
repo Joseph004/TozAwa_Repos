@@ -4,6 +4,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
+using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -80,7 +81,7 @@ builder.Services.AddDbContext<TozawangoDbContext>(options =>
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+builder.Services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 builder.Services.AddScoped<TozawaNGO.Auth.Services.ICurrentUserService, TozawaNGO.Auth.Services.CurrentUserService>();
 builder.Services.AddScoped<ICurrentUserConverter, CurrentUserConverter>();
 builder.Services.AddScoped<TozawaNGO.Auth.Services.IDataProtectionProviderService, TozawaNGO.Auth.Services.DataProtectionProviderService>();
@@ -142,14 +143,17 @@ builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 builder.Services.AddMvcCore(options =>
 {
     options.Filters.Add(new RequireHttpsAttribute());
-}).AddFluentValidation(options => options.RegisterValidatorsFromAssemblyContaining<Program>())
+})
 .AddNewtonsoftJson(options =>
 {
     options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
     options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Include;
     options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
-}); ;
+});
+
+builder.Services.AddFluentValidationAutoValidation();
+builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
 builder.Services.AddMudServices();
 
