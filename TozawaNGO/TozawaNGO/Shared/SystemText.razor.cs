@@ -13,6 +13,8 @@ public partial class SystemText : BaseComponent
     [Parameter] public string FontSize { get; set; } = "";
     [Parameter] public string FallbackText { get; set; }
     [Parameter] public int? Limit { get; set; }
+    #pragma warning disable CS0108
+    [Parameter] public bool IsFirstLoaded { get; set; }
     [Parameter] public bool? ToUpper { get; set; }
 
     public string NotTranslated = string.Empty;
