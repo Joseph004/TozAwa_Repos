@@ -9,7 +9,7 @@ namespace TozawaNGO.Shared
     {
         [Inject] protected ITranslationService _translationService { get; set; }
         [Inject] protected AuthStateProvider _authStateProvider { get; set; }
-        public bool IsFirstLoaded { get; set; }
+        [Parameter] public bool IsFirstLoaded { get; set; }
         [Inject] public ICurrentUserService _currentUserService { get; set; }
 
         public CurrentUserDto _currentUser { get; set; } = new();
