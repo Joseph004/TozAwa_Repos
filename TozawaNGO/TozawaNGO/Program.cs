@@ -28,7 +28,6 @@ using TozawaNGO.Auth.Models.Converters;
 using TozawaNGO.Auth.Services;
 using TozawaNGO.Configurations;
 using TozawaNGO.Context;
-using TozawaNGO.Data;
 using TozawaNGO.Helpers;
 using TozawaNGO.Services;
 using TozawaNGO.Shared;
@@ -62,7 +61,6 @@ else
     builder.Services.AddServerSideBlazor();
 }
 
-builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<IConfiguration>(configuration);
 
 builder.Services.AddDataProtection();

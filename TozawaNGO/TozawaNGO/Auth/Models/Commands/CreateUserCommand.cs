@@ -9,7 +9,7 @@ namespace TozawaNGO.Auth.Models.Commands
         public string UserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public List<int> Roles { get; set; } = new List<int> { 0 };
+        public List<int> Roles { get; set; } = [0];
         public string Email { get; set; }
         public string Adress { get; set; }
         public string Password { get; set; }

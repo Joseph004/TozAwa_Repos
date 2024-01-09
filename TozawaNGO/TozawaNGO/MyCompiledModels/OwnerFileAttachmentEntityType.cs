@@ -3,7 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage;
 using TozawaNGO.Attachment.Models;
 
 #pragma warning disable 219, 612, 618
@@ -25,7 +27,23 @@ namespace TozawaNGO.MyCompiledModels
                 typeof(Guid),
                 propertyInfo: typeof(OwnerFileAttachment).GetProperty("OwnerId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(OwnerFileAttachment).GetField("<OwnerId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
+            ownerId.TypeMapping = GuidTypeMapping.Default.Clone(
+                comparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                keyComparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                providerValueComparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "uniqueidentifier"));
             ownerId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var fileAttachmentId = runtimeEntityType.AddProperty(
@@ -33,7 +51,23 @@ namespace TozawaNGO.MyCompiledModels
                 typeof(Guid),
                 propertyInfo: typeof(OwnerFileAttachment).GetProperty("FileAttachmentId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(OwnerFileAttachment).GetField("<FileAttachmentId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
+            fileAttachmentId.TypeMapping = GuidTypeMapping.Default.Clone(
+                comparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                keyComparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                providerValueComparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "uniqueidentifier"));
             fileAttachmentId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var key = runtimeEntityType.AddKey(

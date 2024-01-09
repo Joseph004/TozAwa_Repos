@@ -24,7 +24,6 @@ namespace TozawaNGO.Shared
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
         [Inject] ILocalStorageService _localStorageService { get; set; }
-        [Inject] AuthStateProvider _authStateProvider { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
         public string _loginUrl { get; set; } = $"";
         private Timer _timer;
@@ -41,9 +40,9 @@ namespace TozawaNGO.Shared
         }
 
 
-        private MudTheme _currentTheme = new MudTheme
+        private MudTheme _currentTheme = new()
         {
-            Palette = new Palette()
+            Palette = new PaletteLight()
             {
                 AppbarBackground = "#000000"
             }
@@ -116,7 +115,7 @@ namespace TozawaNGO.Shared
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey))
                 }, out SecurityToken validatedToken);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }
@@ -176,7 +175,9 @@ namespace TozawaNGO.Shared
         {
             _timer.Interval = _timerInterval;
         }
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
         public override void Dispose()
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
             LoadingState.OnChange -= DisabledPage;
             if (_timer != null)

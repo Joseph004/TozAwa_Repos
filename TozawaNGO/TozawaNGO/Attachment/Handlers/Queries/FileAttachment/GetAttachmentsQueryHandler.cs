@@ -41,6 +41,6 @@ public class GetAttachmentsQueryHandler : IRequestHandler<GetAttachmentsQuery, I
 
         var fileAttachments = query.ToList().Select(x => x.FileAttachment).ToList();
 
-        return fileAttachments.Select(_attachmentConverter.Convert);
+        return await Task.FromResult(fileAttachments.Select(_attachmentConverter.Convert));
     }
 }

@@ -13,6 +13,7 @@ namespace TozawaNGO.Pages
         }
         public async Task<IActionResult> OnGetAsync(string returnUrl)
         {
+            await Task.FromResult(1);
             return LocalRedirect("/" + returnUrl);
         }
     }

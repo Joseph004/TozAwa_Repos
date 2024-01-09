@@ -386,7 +386,7 @@ namespace TozawaNGO.HttpClients
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey))
                 }, out SecurityToken validatedToken);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }

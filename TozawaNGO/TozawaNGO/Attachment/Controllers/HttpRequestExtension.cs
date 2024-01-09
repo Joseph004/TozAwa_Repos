@@ -5,7 +5,6 @@ namespace TozawaNGO.Attachment.Controllers
 {
     public static class HttpRequestExtension
     {
-        private static readonly string currentUserHeaderKey = "current-user";
         private static readonly string userAuthenticationHeaderKey = "tzuserauthentication";
         private static readonly string activeLanguageHeaderKey = "toza-active-language";
 

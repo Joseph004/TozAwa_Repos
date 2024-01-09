@@ -9,6 +9,6 @@ namespace TozawaNGO.Models.FormModels
         public string FirstName { get; set; } = "";
         public string LastName { get; set; } = "";
         public string Description { get; set; } = "";
-        public List<TranslationRequest> DescriptionTranslations { get; set; } = new List<TranslationRequest>();
+        public List<TranslationRequest> DescriptionTranslations { get; set; } = [];
     }
 }

@@ -12,7 +12,7 @@ namespace TozawaNGO.Attachment.Models.Commands
         public Guid Id { get; set; }
         public string FolderName { get; set; }
         public AttachmentType FileAttachmentType { get; set; }
-        public List<AttachmentUploadDto> Files { get; set; } = new();
+        public List<AttachmentUploadDto> Files { get; set; } = [];
     }
 
     public class AddAttachmentsCommandValidator : AbstractValidator<AddAttachmentCommand>

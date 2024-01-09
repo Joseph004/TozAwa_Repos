@@ -27,14 +27,18 @@ namespace TozawaNGO.Shared
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
+            await Task.FromResult(1);
             /*  await JS.InvokeAsync<string>("FooterResized", DotNetObjectReference.Create(this)); */
         }
 
         protected async Task ToggleSocialIcon()
         {
+            await Task.FromResult(1);
         }
 
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
         public override void Dispose()
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;

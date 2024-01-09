@@ -13,7 +13,7 @@ namespace TozawaNGO.Migrations
 {
     [DbContext(typeof(TozawangoDbContext))]
     [Migration("20231204225912_addNewStationsTable")]
-    partial class addNewStationsTable
+    partial class AddNewStationsTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

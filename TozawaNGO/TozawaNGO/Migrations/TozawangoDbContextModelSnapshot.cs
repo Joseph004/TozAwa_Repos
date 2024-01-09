@@ -18,10 +18,10 @@ namespace TozawaNGO.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("Authorization")
-                .HasAnnotation("ProductVersion", "6.0.25")
+                .HasAnnotation("ProductVersion", "8.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
+            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
@@ -56,7 +56,7 @@ namespace TozawaNGO.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -81,7 +81,7 @@ namespace TozawaNGO.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("ClaimType")
                         .HasColumnType("nvarchar(max)");
@@ -661,6 +661,9 @@ namespace TozawaNGO.Migrations
 
                     b.Property<DateTime>("DateTime")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("InloggedEmail")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("KeyValues")
                         .HasColumnType("nvarchar(max)");

@@ -3,7 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
+using Microsoft.EntityFrameworkCore.Storage;
 using TozawaNGO.Auth.Models;
 using TozawaNGO.Auth.Models.Authentication;
 
@@ -27,7 +30,23 @@ namespace TozawaNGO.MyCompiledModels
                 propertyInfo: typeof(Report).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(Report).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 valueGenerated: ValueGenerated.OnAdd,
-                afterSaveBehavior: PropertySaveBehavior.Throw);
+                afterSaveBehavior: PropertySaveBehavior.Throw,
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
+            id.TypeMapping = GuidTypeMapping.Default.Clone(
+                comparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                keyComparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                providerValueComparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "uniqueidentifier"));
             id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var comment = runtimeEntityType.AddProperty(
@@ -36,20 +55,67 @@ namespace TozawaNGO.MyCompiledModels
                 propertyInfo: typeof(Report).GetProperty("Comment", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(Report).GetField("<Comment>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            comment.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
+                comparer: new ValueComparer<string>(
+                    (string v1, string v2) => v1 == v2,
+                    (string v) => v.GetHashCode(),
+                    (string v) => v),
+                keyComparer: new ValueComparer<string>(
+                    (string v1, string v2) => v1 == v2,
+                    (string v) => v.GetHashCode(),
+                    (string v) => v),
+                providerValueComparer: new ValueComparer<string>(
+                    (string v1, string v2) => v1 == v2,
+                    (string v) => v.GetHashCode(),
+                    (string v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "nvarchar(max)",
+                    dbType: System.Data.DbType.String),
+                storeTypePostfix: StoreTypePostfix.None);
             comment.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var commentTextId = runtimeEntityType.AddProperty(
                 "CommentTextId",
                 typeof(Guid),
                 propertyInfo: typeof(Report).GetProperty("CommentTextId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(Report).GetField("<CommentTextId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(Report).GetField("<CommentTextId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
+            commentTextId.TypeMapping = GuidTypeMapping.Default.Clone(
+                comparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                keyComparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                providerValueComparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "uniqueidentifier"));
             commentTextId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var createDate = runtimeEntityType.AddProperty(
                 "CreateDate",
                 typeof(DateTime),
                 propertyInfo: typeof(CreatedModified).GetProperty("CreateDate", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(CreatedModified).GetField("<CreateDate>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(CreatedModified).GetField("<CreateDate>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified));
+            createDate.TypeMapping = SqlServerDateTimeTypeMapping.Default.Clone(
+                comparer: new ValueComparer<DateTime>(
+                    (DateTime v1, DateTime v2) => v1.Equals(v2),
+                    (DateTime v) => v.GetHashCode(),
+                    (DateTime v) => v),
+                keyComparer: new ValueComparer<DateTime>(
+                    (DateTime v1, DateTime v2) => v1.Equals(v2),
+                    (DateTime v) => v.GetHashCode(),
+                    (DateTime v) => v),
+                providerValueComparer: new ValueComparer<DateTime>(
+                    (DateTime v1, DateTime v2) => v1.Equals(v2),
+                    (DateTime v) => v.GetHashCode(),
+                    (DateTime v) => v));
             createDate.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var createdBy = runtimeEntityType.AddProperty(
@@ -58,6 +124,23 @@ namespace TozawaNGO.MyCompiledModels
                 propertyInfo: typeof(CreatedModified).GetProperty("CreatedBy", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CreatedModified).GetField("<CreatedBy>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            createdBy.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
+                comparer: new ValueComparer<string>(
+                    (string v1, string v2) => v1 == v2,
+                    (string v) => v.GetHashCode(),
+                    (string v) => v),
+                keyComparer: new ValueComparer<string>(
+                    (string v1, string v2) => v1 == v2,
+                    (string v) => v.GetHashCode(),
+                    (string v) => v),
+                providerValueComparer: new ValueComparer<string>(
+                    (string v1, string v2) => v1 == v2,
+                    (string v) => v.GetHashCode(),
+                    (string v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "nvarchar(max)",
+                    dbType: System.Data.DbType.String),
+                storeTypePostfix: StoreTypePostfix.None);
             createdBy.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var modifiedBy = runtimeEntityType.AddProperty(
@@ -66,6 +149,23 @@ namespace TozawaNGO.MyCompiledModels
                 propertyInfo: typeof(CreatedModified).GetProperty("ModifiedBy", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CreatedModified).GetField("<ModifiedBy>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            modifiedBy.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
+                comparer: new ValueComparer<string>(
+                    (string v1, string v2) => v1 == v2,
+                    (string v) => v.GetHashCode(),
+                    (string v) => v),
+                keyComparer: new ValueComparer<string>(
+                    (string v1, string v2) => v1 == v2,
+                    (string v) => v.GetHashCode(),
+                    (string v) => v),
+                providerValueComparer: new ValueComparer<string>(
+                    (string v1, string v2) => v1 == v2,
+                    (string v) => v.GetHashCode(),
+                    (string v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "nvarchar(max)",
+                    dbType: System.Data.DbType.String),
+                storeTypePostfix: StoreTypePostfix.None);
             modifiedBy.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var modifiedDate = runtimeEntityType.AddProperty(
@@ -74,13 +174,42 @@ namespace TozawaNGO.MyCompiledModels
                 propertyInfo: typeof(CreatedModified).GetProperty("ModifiedDate", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 fieldInfo: typeof(CreatedModified).GetField("<ModifiedDate>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 nullable: true);
+            modifiedDate.TypeMapping = SqlServerDateTimeTypeMapping.Default.Clone(
+                comparer: new ValueComparer<DateTime?>(
+                    (Nullable<DateTime> v1, Nullable<DateTime> v2) => v1.HasValue && v2.HasValue && (DateTime)v1 == (DateTime)v2 || !v1.HasValue && !v2.HasValue,
+                    (Nullable<DateTime> v) => v.HasValue ? ((DateTime)v).GetHashCode() : 0,
+                    (Nullable<DateTime> v) => v.HasValue ? (Nullable<DateTime>)(DateTime)v : default(Nullable<DateTime>)),
+                keyComparer: new ValueComparer<DateTime?>(
+                    (Nullable<DateTime> v1, Nullable<DateTime> v2) => v1.HasValue && v2.HasValue && (DateTime)v1 == (DateTime)v2 || !v1.HasValue && !v2.HasValue,
+                    (Nullable<DateTime> v) => v.HasValue ? ((DateTime)v).GetHashCode() : 0,
+                    (Nullable<DateTime> v) => v.HasValue ? (Nullable<DateTime>)(DateTime)v : default(Nullable<DateTime>)),
+                providerValueComparer: new ValueComparer<DateTime?>(
+                    (Nullable<DateTime> v1, Nullable<DateTime> v2) => v1.HasValue && v2.HasValue && (DateTime)v1 == (DateTime)v2 || !v1.HasValue && !v2.HasValue,
+                    (Nullable<DateTime> v) => v.HasValue ? ((DateTime)v).GetHashCode() : 0,
+                    (Nullable<DateTime> v) => v.HasValue ? (Nullable<DateTime>)(DateTime)v : default(Nullable<DateTime>)));
             modifiedDate.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var stationId = runtimeEntityType.AddProperty(
                 "StationId",
                 typeof(Guid),
                 propertyInfo: typeof(Report).GetProperty("StationId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(Report).GetField("<StationId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+                fieldInfo: typeof(Report).GetField("<StationId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                sentinel: new Guid("00000000-0000-0000-0000-000000000000"));
+            stationId.TypeMapping = GuidTypeMapping.Default.Clone(
+                comparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                keyComparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                providerValueComparer: new ValueComparer<Guid>(
+                    (Guid v1, Guid v2) => v1 == v2,
+                    (Guid v) => v.GetHashCode(),
+                    (Guid v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "uniqueidentifier"));
             stationId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var key = runtimeEntityType.AddKey(

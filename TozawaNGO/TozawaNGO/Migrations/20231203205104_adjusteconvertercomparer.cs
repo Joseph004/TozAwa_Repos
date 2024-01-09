@@ -4,7 +4,7 @@
 
 namespace TozawaNGO.Migrations
 {
-    public partial class adjusteconvertercomparer : Migration
+    public partial class Adjusteconvertercomparer : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

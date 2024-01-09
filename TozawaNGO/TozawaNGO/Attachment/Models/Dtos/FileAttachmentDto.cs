@@ -10,7 +10,7 @@ namespace TozawaNGO.Attachment.Models.Dtos
         public string Name { get; set; }
         public string FileAttachmentType { get; set; }
         public string MetaData { get; set; } = "";
-        public List<Guid> OwnerIds { get; set; } = new List<Guid>();
+        public List<Guid> OwnerIds { get; set; } = [];
         public string MiniatureId { get; set; }
         public string BlobUrl { get; set; } = "";
         public string ImageClass { get; set; } = "";

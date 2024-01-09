@@ -4,7 +4,7 @@
 
 namespace TozawaNGO.Migrations
 {
-    public partial class addMoreIndexToUserDb : Migration
+    public partial class AddMoreIndexToUserDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

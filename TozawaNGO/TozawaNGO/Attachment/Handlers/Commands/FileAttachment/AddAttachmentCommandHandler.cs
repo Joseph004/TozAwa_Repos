@@ -54,7 +54,7 @@ public class AddAttachmentCommandHandler : IRequestHandler<AddAttachmentCommand,
 
                 var command = new AddAttachmentRequest
                 {
-                    OwnerIds = new List<Guid> { request.Id },
+                    OwnerIds = [request.Id],
                     FileAttachmentType = request.FileAttachmentType,
                     BlobId = blobId,
                     Extension = extension,

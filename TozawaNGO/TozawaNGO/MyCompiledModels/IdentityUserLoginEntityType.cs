@@ -2,6 +2,7 @@
 using System;
 using System.Reflection;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
@@ -12,22 +13,22 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace TozawaNGO.MyCompiledModels
 {
-    internal partial class IdentityRoleEntityType
+    internal partial class IdentityUserLoginEntityType
     {
         public static RuntimeEntityType Create(RuntimeModel model, RuntimeEntityType baseEntityType = null)
         {
             var runtimeEntityType = model.AddEntityType(
-                "Microsoft.AspNetCore.Identity.IdentityRole",
-                typeof(IdentityRole),
+                "Microsoft.AspNetCore.Identity.IdentityUserLogin<string>",
+                typeof(IdentityUserLogin<string>),
                 baseEntityType);
 
-            var id = runtimeEntityType.AddProperty(
-                "Id",
+            var loginProvider = runtimeEntityType.AddProperty(
+                "LoginProvider",
                 typeof(string),
-                propertyInfo: typeof(IdentityRole<string>).GetProperty("Id", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityRole<string>).GetField("<Id>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                propertyInfo: typeof(IdentityUserLogin<string>).GetProperty("LoginProvider", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(IdentityUserLogin<string>).GetField("<LoginProvider>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
                 afterSaveBehavior: PropertySaveBehavior.Throw);
-            id.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
+            loginProvider.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string l, string r) => string.Equals(l, r, StringComparison.OrdinalIgnoreCase),
                     (string v) => v == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(v),
@@ -44,16 +45,40 @@ namespace TozawaNGO.MyCompiledModels
                     storeTypeName: "nvarchar(450)",
                     size: 450,
                     dbType: System.Data.DbType.String));
-            id.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            loginProvider.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
-            var concurrencyStamp = runtimeEntityType.AddProperty(
-                "ConcurrencyStamp",
+            var providerKey = runtimeEntityType.AddProperty(
+                "ProviderKey",
                 typeof(string),
-                propertyInfo: typeof(IdentityRole<string>).GetProperty("ConcurrencyStamp", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityRole<string>).GetField("<ConcurrencyStamp>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true,
-                concurrencyToken: true);
-            concurrencyStamp.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
+                propertyInfo: typeof(IdentityUserLogin<string>).GetProperty("ProviderKey", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(IdentityUserLogin<string>).GetField("<ProviderKey>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                afterSaveBehavior: PropertySaveBehavior.Throw);
+            providerKey.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
+                comparer: new ValueComparer<string>(
+                    (string l, string r) => string.Equals(l, r, StringComparison.OrdinalIgnoreCase),
+                    (string v) => v == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(v),
+                    (string v) => v),
+                keyComparer: new ValueComparer<string>(
+                    (string l, string r) => string.Equals(l, r, StringComparison.OrdinalIgnoreCase),
+                    (string v) => v == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(v),
+                    (string v) => v),
+                providerValueComparer: new ValueComparer<string>(
+                    (string l, string r) => string.Equals(l, r, StringComparison.OrdinalIgnoreCase),
+                    (string v) => v == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(v),
+                    (string v) => v),
+                mappingInfo: new RelationalTypeMappingInfo(
+                    storeTypeName: "nvarchar(450)",
+                    size: 450,
+                    dbType: System.Data.DbType.String));
+            providerKey.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+
+            var providerDisplayName = runtimeEntityType.AddProperty(
+                "ProviderDisplayName",
+                typeof(string),
+                propertyInfo: typeof(IdentityUserLogin<string>).GetProperty("ProviderDisplayName", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(IdentityUserLogin<string>).GetField("<ProviderDisplayName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                nullable: true);
+            providerDisplayName.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string v1, string v2) => v1 == v2,
                     (string v) => v.GetHashCode(),
@@ -70,42 +95,14 @@ namespace TozawaNGO.MyCompiledModels
                     storeTypeName: "nvarchar(max)",
                     dbType: System.Data.DbType.String),
                 storeTypePostfix: StoreTypePostfix.None);
-            concurrencyStamp.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            providerDisplayName.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
-            var name = runtimeEntityType.AddProperty(
-                "Name",
+            var userId = runtimeEntityType.AddProperty(
+                "UserId",
                 typeof(string),
-                propertyInfo: typeof(IdentityRole<string>).GetProperty("Name", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityRole<string>).GetField("<Name>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true,
-                maxLength: 256);
-            name.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
-                comparer: new ValueComparer<string>(
-                    (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
-                    (string v) => v),
-                keyComparer: new ValueComparer<string>(
-                    (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
-                    (string v) => v),
-                providerValueComparer: new ValueComparer<string>(
-                    (string v1, string v2) => v1 == v2,
-                    (string v) => v.GetHashCode(),
-                    (string v) => v),
-                mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "nvarchar(256)",
-                    size: 256,
-                    dbType: System.Data.DbType.String));
-            name.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
-
-            var normalizedName = runtimeEntityType.AddProperty(
-                "NormalizedName",
-                typeof(string),
-                propertyInfo: typeof(IdentityRole<string>).GetProperty("NormalizedName", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                fieldInfo: typeof(IdentityRole<string>).GetField("<NormalizedName>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly),
-                nullable: true,
-                maxLength: 256);
-            normalizedName.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
+                propertyInfo: typeof(IdentityUserLogin<string>).GetProperty("UserId", BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly),
+                fieldInfo: typeof(IdentityUserLogin<string>).GetField("<UserId>k__BackingField", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly));
+            userId.TypeMapping = SqlServerStringTypeMapping.Default.Clone(
                 comparer: new ValueComparer<string>(
                     (string l, string r) => string.Equals(l, r, StringComparison.OrdinalIgnoreCase),
                     (string v) => v == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(v),
@@ -119,21 +116,30 @@ namespace TozawaNGO.MyCompiledModels
                     (string v) => v == null ? 0 : StringComparer.OrdinalIgnoreCase.GetHashCode(v),
                     (string v) => v),
                 mappingInfo: new RelationalTypeMappingInfo(
-                    storeTypeName: "nvarchar(256)",
-                    size: 256,
+                    storeTypeName: "nvarchar(450)",
+                    size: 450,
                     dbType: System.Data.DbType.String));
-            normalizedName.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
+            userId.AddAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.None);
 
             var key = runtimeEntityType.AddKey(
-                new[] { id });
+                new[] { loginProvider, providerKey });
             runtimeEntityType.SetPrimaryKey(key);
 
             var index = runtimeEntityType.AddIndex(
-                new[] { normalizedName },
-                unique: true);
-            index.AddAnnotation("Relational:Name", "RoleNameIndex");
+                new[] { userId });
 
             return runtimeEntityType;
+        }
+
+        public static RuntimeForeignKey CreateForeignKey1(RuntimeEntityType declaringEntityType, RuntimeEntityType principalEntityType)
+        {
+            var runtimeForeignKey = declaringEntityType.AddForeignKey(new[] { declaringEntityType.FindProperty("UserId") },
+                principalEntityType.FindKey(new[] { principalEntityType.FindProperty("Id") }),
+                principalEntityType,
+                deleteBehavior: DeleteBehavior.Restrict,
+                required: true);
+
+            return runtimeForeignKey;
         }
 
         public static void CreateAnnotations(RuntimeEntityType runtimeEntityType)
@@ -141,7 +147,7 @@ namespace TozawaNGO.MyCompiledModels
             runtimeEntityType.AddAnnotation("Relational:FunctionName", null);
             runtimeEntityType.AddAnnotation("Relational:Schema", "Authorization");
             runtimeEntityType.AddAnnotation("Relational:SqlQuery", null);
-            runtimeEntityType.AddAnnotation("Relational:TableName", "AspNetRoles");
+            runtimeEntityType.AddAnnotation("Relational:TableName", "AspNetUserLogins");
             runtimeEntityType.AddAnnotation("Relational:ViewName", null);
             runtimeEntityType.AddAnnotation("Relational:ViewSchema", null);
 

@@ -20,7 +20,7 @@ namespace TozawaNGO.Auth.Models.Authentication
         public string Adress { get; set; }
         public string UserPasswordHash { get; set; }
         [NotMapped]
-        public List<Role> Roles { get; set; } = new List<Role> { Role.None };
+        public List<Role> Roles { get; set; } = [Role.None];
         public DateTime LastAttemptLogin { get; set; }
         public string RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }

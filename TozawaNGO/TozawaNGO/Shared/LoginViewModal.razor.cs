@@ -11,6 +11,7 @@ namespace TozawaNGO.Shared
 {
     public partial class LoginViewModal : BaseDialog
     {
+        #pragma warning disable CS0649
         [CascadingParameter]
         public ErrorHandling ErrorHandling { get; set; } = null;
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
@@ -30,44 +31,19 @@ namespace TozawaNGO.Shared
         private bool _processing = false;
         private bool _currentErrorView = false;
         private bool _success;
-        private string[] _errors = Array.Empty<string>();
-        private bool _loginAsRoot = false;
-        private int _attemptLoginCount = 0;
-        private MudButton loginButton;
-        private string ToggleAdminIcon = Icons.Material.Filled.ToggleOff;
-        private bool isShow;
+        private string[] _errors = [];
+        private readonly int _attemptLoginCount = 0;
+        private readonly MudButton loginButton;
         MudForm form;
-        private List<Action> actionsToRunAfterRender = new();
 
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
             }
-            foreach (var actionToRun in actionsToRunAfterRender)
-            {
-                actionToRun();
-            }
-            actionsToRunAfterRender.Clear();
             await base.OnAfterRenderAsync(firstRender);
         }
-        void ButtonAdminclick()
-        {
-            if (isShow)
-            {
-                isShow = false;
-                ToggleAdminIcon = Icons.Material.Filled.ToggleOff;
-                model.LoginAsRoot = false;
-            }
-            else
-            {
-                isShow = true;
-                ToggleAdminIcon = Icons.Material.Filled.ToggleOn;
-                model.LoginAsRoot = true;
-            }
-            StateHasChanged();
-            actionsToRunAfterRender.Add(async () => await ActionsToRunAfterRender());
-        }
+
         private LoginCommandFluentValidator LoginValidator()
         {
             return new LoginCommandFluentValidator(_translationService, AuthenticationService);
@@ -120,7 +96,7 @@ namespace TozawaNGO.Shared
 
                 LoadingState.SetRequestInProgress(true);
 
-                _errors = Array.Empty<string>();
+                _errors = [];
                 _processing = true;
                 _currentErrorView = model.LoginAsRoot;
                 StateHasChanged();
@@ -209,7 +185,9 @@ namespace TozawaNGO.Shared
           });
         }
 
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
         public override void Dispose()
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
         }
     }

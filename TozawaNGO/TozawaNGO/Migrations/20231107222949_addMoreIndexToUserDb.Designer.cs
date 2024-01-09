@@ -13,7 +13,7 @@ namespace TozawaNGO.Migrations
 {
     [DbContext(typeof(TozawangoDbContext))]
     [Migration("20231107222949_addMoreIndexToUserDb")]
-    partial class addMoreIndexToUserDb
+    partial class AddMoreIndexToUserDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

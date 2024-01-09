@@ -13,7 +13,7 @@ namespace TozawaNGO.Migrations
 {
     [DbContext(typeof(TozawangoDbContext))]
     [Migration("20231116163443_addPwdHah")]
-    partial class addPwdHah
+    partial class AddPwdHah
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

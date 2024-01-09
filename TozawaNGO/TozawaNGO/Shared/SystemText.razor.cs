@@ -14,7 +14,6 @@ public partial class SystemText : BaseComponent
     [Parameter] public string FallbackText { get; set; }
     [Parameter] public int? Limit { get; set; }
     [Parameter] public bool? ToUpper { get; set; }
-    [Parameter] public bool IsFirstLoaded { get; set; }
 
     public string NotTranslated = string.Empty;
     public string NotTranslatedTitle = string.Empty;

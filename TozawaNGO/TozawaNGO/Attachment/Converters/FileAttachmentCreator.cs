@@ -16,6 +16,7 @@ namespace TozawaNGO.Attachment.Converters
         }
         public async Task<FileAttachment> Create(AddAttachmentRequest addAttachmentCommand)
         {
+            await Task.FromResult(1);
             var fileAttachmentId = Guid.NewGuid();
             var fileAttachment = new FileAttachment
             {

@@ -13,7 +13,7 @@ namespace TozawaNGO.Migrations
 {
     [DbContext(typeof(TozawangoDbContext))]
     [Migration("20231203165906_addTextId")]
-    partial class addTextId
+    partial class AddTextId
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

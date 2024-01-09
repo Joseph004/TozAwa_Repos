@@ -4,24 +4,27 @@
 
 namespace TozawaNGO.Migrations
 {
-    public partial class AddPwdHah : Migration
+    /// <inheritdoc />
+    public partial class AddNewPropertyToAudit : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AddColumn<string>(
-                name: "PasswordSalt",
+                name: "InloggedEmail",
                 schema: "Authorization",
-                table: "UserHashPwds",
+                table: "Audits",
                 type: "nvarchar(max)",
                 nullable: true);
         }
 
+        /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "PasswordSalt",
+                name: "InloggedEmail",
                 schema: "Authorization",
-                table: "UserHashPwds");
+                table: "Audits");
         }
     }
 }

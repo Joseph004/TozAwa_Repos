@@ -70,7 +70,7 @@ namespace TozawaNGO.Auth.Controllers
 
             var validator = new LoginCommandFluentValidator();
 
-            var requestValidate = validator.Validate(command);
+            var requestValidate = await validator.ValidateAsync(command);
 
             if (!requestValidate.IsValid)
             {

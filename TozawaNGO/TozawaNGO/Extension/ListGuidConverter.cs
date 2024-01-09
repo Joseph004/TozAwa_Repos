@@ -17,7 +17,7 @@ namespace TozawaNGO.Extension
             if (string.IsNullOrWhiteSpace(s))
             {
 
-                return new List<Guid>();
+                return [];
             }
 
             return s.Split(Delimiter).Select(Guid.Parse).ToList();

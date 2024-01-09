@@ -17,7 +17,7 @@ public class AttachmentRepository : IAttachmentRepository
 
     public async Task<AddResponse<List<FileAttachmentDto>>> AddAttachment()
     {
-        return new AddResponse<List<FileAttachmentDto>>(false, "", System.Net.HttpStatusCode.InternalServerError, null);
+        return await Task.FromResult(new AddResponse<List<FileAttachmentDto>>(false, "", System.Net.HttpStatusCode.InternalServerError, null));
     }
 }
 

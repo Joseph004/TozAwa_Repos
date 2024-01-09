@@ -36,7 +36,7 @@ public class AuthStateProvider : AuthenticationStateProvider
             {
                 token = await _localStorage.GetItemAsync<string>("authToken");
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 token = null;
             }

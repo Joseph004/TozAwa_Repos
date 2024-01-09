@@ -9,20 +9,12 @@ using TozawaNGO.Auth.Models.Authentication;
 
 namespace TozawaNGO.Auth.Models.Queries
 {
-    public class GetCurrentUserQueryHandler : IRequestHandler<GetCurrentUserQuery, CurrentUserDto>
+    public class GetCurrentUserQueryHandler(TozawangoDbContext context, ICurrentUserConverter currentUserConverter, ILookupNormalizer normalizer, ICurrentCountry currentCountry) : IRequestHandler<GetCurrentUserQuery, CurrentUserDto>
     {
-        private readonly TozawangoDbContext _context;
-        private readonly ICurrentUserConverter _currentUserConverter;
-        private readonly ICurrentCountry _currentCountry;
-        private readonly ILookupNormalizer _normalizer;
-
-        public GetCurrentUserQueryHandler(TozawangoDbContext context, ICurrentUserConverter currentUserConverter, ILookupNormalizer normalizer, ICurrentCountry currentCountry)
-        {
-            _context = context;
-            _currentUserConverter = currentUserConverter;
-            _normalizer = normalizer;
-            _currentCountry = currentCountry;
-        }
+        private readonly TozawangoDbContext _context = context;
+        private readonly ICurrentUserConverter _currentUserConverter = currentUserConverter;
+        private readonly ICurrentCountry _currentCountry = currentCountry;
+        private readonly ILookupNormalizer _normalizer = normalizer;
 
         public async Task<CurrentUserDto> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
         {
@@ -47,7 +39,7 @@ namespace TozawaNGO.Auth.Models.Queries
             {
                 user.LastLoginCity = currentCountry.City;
             }
-            user.LastLogin = DateTime.UtcNow;
+
             _context.SaveChanges();
 
             var response = _currentUserConverter.Convert(user);

@@ -103,7 +103,7 @@ public class UserTokenService : IUserTokenService
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey))
             }, out SecurityToken validatedToken);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return false;
         }
@@ -127,7 +127,7 @@ public class UserTokenService : IUserTokenService
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey))
             }, out SecurityToken validatedToken);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return false;
         }

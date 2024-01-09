@@ -74,7 +74,7 @@ namespace TozawaNGO.Shared
                 ActiveLanguage = await _translationService.GetActiveLanguage();
                 Language = GetShortName(ActiveLanguage);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 LoadingState.SetRequestInProgress(false);
             }

@@ -138,6 +138,7 @@ namespace TozawaNGO.Pages
         }
         protected async Task ToggleFiles(MemberDto item)
         {
+            await Task.FromResult(1);
             var options = new DialogOptions
             {
                 DisableBackdropClick = true,
@@ -276,7 +277,7 @@ namespace TozawaNGO.Pages
             };
             var dialog = DialogService.Show<AddMembersDialog>($"{Translate(SystemTextId.Add)} {Translate(SystemTextId.Member)}", parameters, options);
             var result = await dialog.Result;
-            if (!result.Cancelled)
+            if (!result.Canceled)
             {
                 if (result.Data is AddResponse<MemberDto> data)
                 {
@@ -323,7 +324,9 @@ namespace TozawaNGO.Pages
             return string.Empty;
         }
 
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
         public override void Dispose()
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
             _translationService.LanguageChanged -= LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;

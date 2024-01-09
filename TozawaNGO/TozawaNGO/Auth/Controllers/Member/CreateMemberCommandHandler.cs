@@ -8,17 +8,11 @@ using TozawaNGO.Auth.Models.Converters;
 
 namespace TozawaNGO.Auth.Controllers
 {
-    public class CreateMemberCommandHandler : IRequestHandler<CreateMemberCommand, Models.Dtos.Backend.MemberDto>
+    public class CreateMemberCommandHandler(TozawangoDbContext context, ILookupNormalizer normalizer, ILogger<CreateMemberCommandHandler> logger) : IRequestHandler<CreateMemberCommand, Models.Dtos.Backend.MemberDto>
     {
-        private readonly TozawangoDbContext _context;
-        private readonly ILogger<CreateMemberCommandHandler> _logger;
-        private readonly ILookupNormalizer _normalizer;
-
-        public CreateMemberCommandHandler(TozawangoDbContext context, ILookupNormalizer normalizer, ILogger<CreateMemberCommandHandler> logger)
-        {
-            _context = context;
-            _logger = logger;
-        }
+        private readonly TozawangoDbContext _context = context;
+        private readonly ILogger<CreateMemberCommandHandler> _logger = logger;
+        private readonly ILookupNormalizer _normalizer = normalizer;
 
         public async Task<Models.Dtos.Backend.MemberDto> Handle(CreateMemberCommand request, CancellationToken cancellationToken)
         {

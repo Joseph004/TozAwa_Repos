@@ -9,7 +9,7 @@ namespace TozawaNGO.HttpClients;
 
 public abstract class PatchBase
 {
-    public List<string> RemoveRequest { get; set; } = new List<string>();
+    public List<string> RemoveRequest { get; set; } = [];
     public virtual JsonPatchDocument ToPatchDocument()
     {
         var propertiesWithValues = GetType().GetProperties()
@@ -48,7 +48,7 @@ public static class PatchExtensions
             throw new ArgumentException($"Expression {propertyExpression} refers to a method, not a property.");
         }
 
-        PropertyInfo? propInfo = member.Member as PropertyInfo;
+        PropertyInfo propInfo = member.Member as PropertyInfo;
 
         if (propInfo == null)
         {

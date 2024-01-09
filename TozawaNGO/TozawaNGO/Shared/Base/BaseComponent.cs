@@ -70,7 +70,9 @@ namespace TozawaNGO.Shared
 
             return myRole;
         }
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
         public virtual void Dispose()
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;

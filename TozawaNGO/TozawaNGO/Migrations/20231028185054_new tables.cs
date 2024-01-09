@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TozawaNGO.Migrations
 {
-    public partial class newtables : Migration
+    public partial class Newtables : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

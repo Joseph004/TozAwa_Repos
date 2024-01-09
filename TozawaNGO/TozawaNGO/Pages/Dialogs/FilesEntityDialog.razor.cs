@@ -24,7 +24,7 @@ namespace TozawaNGO.Pages
         protected static Guid _areYouSureTranslation = Guid.Parse("c41187b6-6dc7-4e9a-a403-4982b34f21f8");
         protected int _thumbnailSize = 24;
         private bool _onProgress;
-        private readonly List<IBrowserFile> _files = new();
+        private readonly List<IBrowserFile> _files = [];
         private string _alphaNumericFileNameValidationMessage;
         private string _fileNameLengthValidationMessage;
         private string _fileTypeValidationMessage;
@@ -107,7 +107,7 @@ namespace TozawaNGO.Pages
                     var files = new OwnerAttachments
                     {
                         OwnerId = Entity.Id,
-                        Attachments = new List<FileAttachmentDto> { attachment }
+                        Attachments = [attachment]
                     };
                     StateHasChanged();
                     AttachmentService.SetNotifyChange(files, true);
@@ -170,12 +170,12 @@ namespace TozawaNGO.Pages
                         var attachmentsResponse = await AttachmentService.AttachmentUpload(Entity.Id, request);
                         if (attachmentsResponse.Success)
                         {
-                            Entity.Attachments.AddRange(attachmentsResponse.Entity ?? new List<FileAttachmentDto>());
+                            Entity.Attachments.AddRange(attachmentsResponse.Entity ?? []);
                             _files.Clear();
                             var files = new OwnerAttachments
                             {
                                 OwnerId = Entity.Id,
-                                Attachments = attachmentsResponse.Entity ?? new List<FileAttachmentDto>()
+                                Attachments = attachmentsResponse.Entity ?? []
                             };
                             AttachmentService.SetNotifyChange(files);
                         }
@@ -188,7 +188,7 @@ namespace TozawaNGO.Pages
                 _onProgress = false;
                 StateHasChanged();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 _files.Clear();
             }

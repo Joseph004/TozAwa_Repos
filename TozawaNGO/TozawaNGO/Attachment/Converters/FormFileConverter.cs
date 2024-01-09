@@ -41,10 +41,12 @@ public static class FormFileConverter
         {
             using (var ms = new MemoryStream(fileBytes))
             {
+#pragma warning disable CA1416 // Validate platform compatibility
                 using (Image.FromStream(ms))
                 {
                     return true;
                 }
+#pragma warning restore CA1416 // Validate platform compatibility
             }
         }
         catch (Exception)
@@ -76,8 +78,14 @@ public static class FormFileConverter
     {
         using (var saveStream = new MemoryStream())
         {
+#pragma warning disable CA1416 // Validate platform compatibility
             var image = Image.FromStream(ms);
+#pragma warning restore CA1416 // Validate platform compatibility
+#pragma warning disable CA1416 // Validate platform compatibility
+#pragma warning disable CA1416 // Validate platform compatibility
             image.Save(saveStream, ImageFormat.Png);
+#pragma warning restore CA1416 // Validate platform compatibility
+#pragma warning restore CA1416 // Validate platform compatibility
             return saveStream.ToArray();
         }
     }

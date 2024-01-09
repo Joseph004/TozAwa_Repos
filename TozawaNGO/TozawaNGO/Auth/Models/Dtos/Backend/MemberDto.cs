@@ -7,7 +7,7 @@ namespace TozawaNGO.Auth.Models.Dtos.Backend
         public bool DeletedForever { get; set; }
         public Guid DescriptionTextId { get; set; }
         public string Thumbnail { get; set; } = "";
-        public List<TozawaNGO.Models.Dtos.FileAttachmentDto> Attachments { get; set; } = new();
+        public List<TozawaNGO.Models.Dtos.FileAttachmentDto> Attachments { get; set; } = [];
     }
 }
 

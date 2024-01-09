@@ -153,11 +153,11 @@ namespace TozawaNGO.Services
 
         public async Task<List<ActiveLanguageDto>> GetActiveLanguages()
         {
-            Dictionary<string, string> queryParameters = new();
+            Dictionary<string, string> queryParameters = [];
 
             if (_activeLanguages == null)
             {
-                _activeLanguages = (_appSettings.Languages ?? Array.Empty<ActiveLanguageDto>()).ToList();
+                _activeLanguages = (_appSettings.Languages ?? []).ToList();
             }
 
             return await Task.FromResult(_activeLanguages);

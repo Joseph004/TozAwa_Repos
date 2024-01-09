@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TozawaNGO.Migrations
 {
-    public partial class addTextId : Migration
+    public partial class AddTextId : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

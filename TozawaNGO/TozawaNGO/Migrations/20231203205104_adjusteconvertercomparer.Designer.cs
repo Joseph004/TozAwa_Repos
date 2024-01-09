@@ -13,7 +13,7 @@ namespace TozawaNGO.Migrations
 {
     [DbContext(typeof(TozawangoDbContext))]
     [Migration("20231203205104_adjusteconvertercomparer")]
-    partial class adjusteconvertercomparer
+    partial class Adjusteconvertercomparer
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

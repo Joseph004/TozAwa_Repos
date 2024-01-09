@@ -37,7 +37,7 @@ public class CurrentCountry : ICurrentCountry
                 }
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             ipInfo.Country = null;
         }

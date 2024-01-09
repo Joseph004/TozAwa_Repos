@@ -5,16 +5,12 @@ using TozawaNGO.Auth.Models.Dtos;
 
 namespace TozawaNGO.Auth.Models.Queries
 {
-    public class GetCurrentUserQuery : IRequest<CurrentUserDto>
+    public class GetCurrentUserQuery(Guid oid) : IRequest<CurrentUserDto>
     {
-        public Guid Oid { get; set; }
-        public GetCurrentUserQuery(Guid oid)
-        {
-            Oid = oid;
-        }
+        public Guid Oid { get; set; } = oid;
     }
 
-    
+
     public class GetCurrentUserQueryValidator : AbstractValidator<GetCurrentUserQuery>
     {
         public GetCurrentUserQueryValidator()

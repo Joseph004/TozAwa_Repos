@@ -34,6 +34,7 @@ public class EncryptDecrypt : IEncryptDecrypt
             collection.Import(path);
             var certificate = collection[0];
             var output = "";
+            #pragma warning disable SYSLIB0027
             using (RSA csp = (RSA)certificate.PublicKey.Key)
             {
                 byte[] bytesEncrypted = csp.Encrypt(byteData, RSAEncryptionPadding.OaepSHA1);
@@ -41,7 +42,7 @@ public class EncryptDecrypt : IEncryptDecrypt
             }
             return output;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return "";
         }
@@ -57,7 +58,8 @@ public class EncryptDecrypt : IEncryptDecrypt
             var Password = _appSettings.PrivateKey; //Note This Password is That Password That We Have Put On Generate Keys  
             var collection = new X509Certificate2Collection();
             collection.Import(System.IO.File.ReadAllBytes(path), Password, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
-            X509Certificate2 certificate = new X509Certificate2();
+            #pragma warning disable SYSLIB0026
+            X509Certificate2 certificate = new();
             certificate = collection[0];
             foreach (var cert in collection)
             {
@@ -68,13 +70,14 @@ public class EncryptDecrypt : IEncryptDecrypt
             }
             if (certificate.HasPrivateKey)
             {
+                #pragma warning disable SYSLIB0028
                 RSA csp = (RSA)certificate.PrivateKey;
                 var privateKey = certificate.PrivateKey as RSACryptoServiceProvider;
                 var keys = Encoding.UTF8.GetString(csp.Decrypt(byteData, RSAEncryptionPadding.OaepSHA1));
                 return keys;
             }
         }
-        catch (Exception ex) { }
+        catch (Exception) { }
         return null;
     }
 }

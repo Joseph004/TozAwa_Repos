@@ -23,8 +23,8 @@ namespace TozawaNGO.Pages
         private AddMemberRequest _addFormModel = new();
         private bool _success;
         private bool _onProgress = false;
-        private string[] _errors = Array.Empty<string>();
-        [Parameter] public List<ActiveLanguageDto> _activeLanguages { get; set; } = new();
+        private string[] _errors = [];
+        [Parameter] public List<ActiveLanguageDto> _activeLanguages { get; set; } = [];
         public ActiveLanguageDto _currentCulture { get; set; } = new();
 
         void Cancel() => MudDialog.Cancel();

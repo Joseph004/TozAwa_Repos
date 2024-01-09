@@ -4,7 +4,7 @@
 
 namespace TozawaNGO.Migrations
 {
-    public partial class removePwdHah : Migration
+    public partial class RemovePwdHah : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {

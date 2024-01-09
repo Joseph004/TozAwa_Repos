@@ -227,30 +227,26 @@ namespace TozawaNGO.Context
             return auditEntries.Where(_ => _.HasTemporaryProperties).ToList();
         }
 
-        public class AuditEntry
+        public class AuditEntry(EntityEntry entry, ICurrentUserService currentUserService)
         {
-            private readonly ICurrentUserService _currentUserService;
+            private readonly ICurrentUserService _currentUserService = currentUserService;
 
-            public AuditEntry(EntityEntry entry, ICurrentUserService currentUserService)
-            {
-                _currentUserService = currentUserService;
-                Entry = entry;
-            }
-
-            public EntityEntry Entry { get; }
+            public EntityEntry Entry { get; } = entry;
             public string TableName { get; set; }
-            public Dictionary<string, object> KeyValues { get; } = new Dictionary<string, object>();
-            public Dictionary<string, object> OldValues { get; } = new Dictionary<string, object>();
-            public Dictionary<string, object> NewValues { get; } = new Dictionary<string, object>();
-            public List<PropertyEntry> TemporaryProperties { get; } = new List<PropertyEntry>();
+            public Dictionary<string, object> KeyValues { get; } = [];
+            public Dictionary<string, object> OldValues { get; } = [];
+            public Dictionary<string, object> NewValues { get; } = [];
+            public List<PropertyEntry> TemporaryProperties { get; } = [];
 
-            public bool HasTemporaryProperties => TemporaryProperties.Any();
+            public bool HasTemporaryProperties => TemporaryProperties.Count != 0;
 
             public Audit ToAudit()
             {
                 var audit = new Audit
                 {
+                    Id = Guid.NewGuid(),
                     PartnerId = _currentUserService.User != null ? _currentUserService.User.PartnerId : Guid.NewGuid(),
+                    InloggedEmail = _currentUserService.User != null ? _currentUserService.User.Email : "None",
                     TableName = TableName,
                     DateTime = DateTime.UtcNow,
                     KeyValues = JsonConvert.SerializeObject(KeyValues),
@@ -264,6 +260,7 @@ namespace TozawaNGO.Context
         {
             public Guid Id { get; set; }
             public Guid PartnerId { get; set; }
+            public string InloggedEmail { get; set; }
             public string TableName { get; set; } = "";
             public DateTime DateTime { get; set; }
             public string KeyValues { get; set; } = "";

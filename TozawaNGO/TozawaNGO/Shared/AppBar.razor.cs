@@ -17,7 +17,6 @@ namespace TozawaNGO.Shared
         public EventCallback<MudTheme> OnThemeToggled { get; set; }
         [Inject] ILocalStorageService _localStorageService { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
-        [Inject] AuthStateProvider _authStateProvider { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
@@ -35,6 +34,7 @@ namespace TozawaNGO.Shared
         }
         private async void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
+            await Task.FromResult(1);
             StateHasChanged();
         }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
@@ -122,6 +122,7 @@ namespace TozawaNGO.Shared
         }
         private async Task Register()
         {
+            await Task.FromResult(1);
         }
         private static MudTheme GenerateDarkTheme() =>
             new()
@@ -159,7 +160,9 @@ namespace TozawaNGO.Shared
                 await base.OnAfterRenderAsync(firstRender);
             }
         }
+#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
         public override void Dispose()
+#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
