@@ -42,13 +42,9 @@ var appSettings = builder.Services.ConfigureAppSettings<AppSettings>(configurati
 
 // Add services to the container.
 builder.Services.AddRazorPages();
-builder.Services.AddSignalR(e =>
-{
-    e.MaximumReceiveMessageSize = 100 * 1024 * 1024;
-});
+
 builder.Services.Configure<HubOptions>(options =>
 {
-    options.DisableImplicitFromServicesParameters = true;
     options.MaximumReceiveMessageSize = 100 * 1024 * 1024;
     options.DisableImplicitFromServicesParameters = true;
 });

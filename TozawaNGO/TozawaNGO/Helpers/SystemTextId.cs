@@ -57,8 +57,8 @@ public static partial class SystemTextId
     public static Guid Description => Guid.Parse("2f21ae24-6168-4047-8ab2-db1849b3868e");
     public static Guid NoMachingRecords => Guid.Parse("51353e2a-00db-4b36-be2a-edb59634bbb8");
     public static Guid Loading => Guid.Parse("753c584a-789b-409d-8e9e-89ccac2f0e7d");
-    public static Guid temporarily => Guid.Parse("6acec748-2d76-4491-8b77-fd9f990d158a");
-    public static Guid definitively => Guid.Parse("bf4c3434-3575-460a-86e2-b757cbdbec07");
+    public static Guid Temporarily => Guid.Parse("6acec748-2d76-4491-8b77-fd9f990d158a");
+    public static Guid Definitively => Guid.Parse("bf4c3434-3575-460a-86e2-b757cbdbec07");
     public static Guid AreYouSure => Guid.Parse("db338fe8-8657-492b-9e82-6b44b0bc1252");
     public static Guid EmailIsRequired => Guid.Parse("78e6d2df-ee8d-485f-a7a0-182a33c45988");
     public static Guid FirstNameIsRequired => Guid.Parse("ba415f27-755f-4293-ab4e-71af9fb48983");
@@ -105,4 +105,5 @@ public static partial class SystemTextId
     public static Guid OnlyXmlFileAllowed => Guid.Parse("0d8a1051-8fd3-408e-92ae-255b4db78b9c");
     public static Guid PleaseUseValidAllowedFiles => Guid.Parse("9ec2bab4-4b69-4c6d-aa8c-a8fbe79fe88b");
     public static Guid Register => Guid.Parse("2042a238-8375-4596-8f59-58d7fbf65d3c");
+    public static Guid Files => Guid.Parse("edfda485-050c-4881-9dea-906a3aca1ff6");
 }

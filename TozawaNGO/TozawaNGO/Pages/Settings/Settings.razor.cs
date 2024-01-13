@@ -16,6 +16,7 @@ namespace TozawaNGO.Pages
     public enum ActiveTab
     {
         Members = 1,
-        Organizations = 2
+        Organizations = 2,
+        Files = 3
     }
 }

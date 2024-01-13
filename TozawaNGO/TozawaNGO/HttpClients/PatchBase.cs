@@ -25,7 +25,7 @@ public abstract class PatchBase
             op = "replace",
             value = x.Value
         }));
-        if (RemoveRequest.Any())
+        if (RemoveRequest.Count != 0)
         {
             doc.Operations.AddRange(RemoveRequest.Select(x => new Operation
             {

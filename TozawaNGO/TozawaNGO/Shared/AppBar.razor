@@ -8,14 +8,14 @@
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleSideBar" />
     @if (_showLogo)
     {
-        <MudButton Link="/home" Color="Color.Inherit">
+        <MudButton Href="/home" Color="Color.Inherit">
             <img src="/images/TR_Mini.png" asp-append-version="true" height="60px" width="150px" />
         </MudButton>
     }
     <MudSpacer />
 
     <MudText>
-        <SystemText TextId=SystemTextId.ToZawaTitle FontFamily="cursive" FontSize="100%" SystemTextTypo=Typo.h2
+        <SystemText TextId=SystemTextId.ToZawaTitle FontFamily="cursive" FontSize="max(1.2vw, 13px)" SystemTextTypo=Typo.h2
             FallbackText="Svensk Förening för internationella arbete inom teknik och informatik"
             IsFirstLoaded="@IsFirstLoaded"></SystemText>
     </MudText>

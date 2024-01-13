@@ -148,7 +148,7 @@ namespace TozawaNGO.Pages
                         _files.Add(file);
                     }
                 }
-                if (_files.Any())
+                if (_files.Count != 0)
                 {
                     var request = new AttachmentUploadRequest();
 

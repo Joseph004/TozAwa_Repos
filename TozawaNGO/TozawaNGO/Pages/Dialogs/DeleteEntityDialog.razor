@@ -43,7 +43,7 @@
             {
                 <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="@(e => Confirm(false, true))">
                     <SystemText TextId=SystemTextId.Delete FallbackText="Delete" IsFirstLoaded="@IsFirstLoaded" />
-                    <SystemText TextId=SystemTextId.definitively FallbackText="definitively" IsFirstLoaded="@IsFirstLoaded" />
+                    <SystemText TextId=SystemTextId.Definitively FallbackText="definitively" IsFirstLoaded="@IsFirstLoaded" />
                 </MudButton>
             }
             else
@@ -65,12 +65,12 @@
             {
                 <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@(e => Confirm(true, false))">
                     <SystemText TextId=SystemTextId.Delete FallbackText="Delete" IsFirstLoaded="@IsFirstLoaded"/>
-                    <SystemText TextId=SystemTextId.temporarily FallbackText="temporarily" IsFirstLoaded="@IsFirstLoaded"/>
+                    <SystemText TextId=SystemTextId.Temporarily FallbackText="temporarily" IsFirstLoaded="@IsFirstLoaded"/>
                 </MudButton>
 
                 <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="@(e => Confirm(false, true))">
                     <SystemText TextId=SystemTextId.Delete FallbackText="Delete" IsFirstLoaded="@IsFirstLoaded"/>
-                    <SystemText TextId=SystemTextId.definitively FallbackText="definitively" IsFirstLoaded="@IsFirstLoaded"/>
+                    <SystemText TextId=SystemTextId.Definitively FallbackText="definitively" IsFirstLoaded="@IsFirstLoaded"/>
                 </MudButton>
             }
         }

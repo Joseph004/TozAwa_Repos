@@ -17,4 +17,9 @@
             This is organization
         </MudItem>
     </MudTabPanel>
+    <MudTabPanel OnClick="() => Activate(ActiveTab.Files)" Text=@(Translate(SystemTextId.Files))>
+        <MudItem xs="12" sm="12" md="12">
+            This is files
+        </MudItem>
+    </MudTabPanel>
 </MudTabs>
