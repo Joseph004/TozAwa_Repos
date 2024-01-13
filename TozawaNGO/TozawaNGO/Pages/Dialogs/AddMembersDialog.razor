@@ -17,7 +17,7 @@
                     <MudTextField Immediate="true" Margin="Margin.Dense" T="string" @bind-Value="_addFormModel.Email"
                         Label="@(Translate(SystemTextId.Email))" Required="true"
                         RequiredError="@(Translate(SystemTextId.EmailIsRequired))" 
-                        Validation="@(new Func<string, Task<IEnumerable<string>>>(EmailExists))"/>
+                        Validation="@(new Func<string, Task<IEnumerable<string>>>(EmailExists))" />
                     <MudTextField Immediate="true" Margin="Margin.Dense" T="string"
                         @bind-Value="_addFormModel.Description" Label="@(Translate(SystemTextId.Description))" Required="true"
                         RequiredError="@(Translate(SystemTextId.DescriptionIsRequired))" />
