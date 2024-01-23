@@ -107,7 +107,6 @@ namespace TozawaNGO.Shared
                     Content = EncryptDecrypt.EncryptUsingCertificate(model.Password)
                 };
 
-
                 var userLoginResponse = await AuthenticationService.PostLogin(request);
 
                 if (!userLoginResponse.Success)

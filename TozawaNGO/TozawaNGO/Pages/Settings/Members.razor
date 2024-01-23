@@ -58,11 +58,8 @@
     .mud-table-row.selected .mud-button-root.mud-icon-button.mud-error-text .mud-icon-root.mud-svg-icon {
         fill: var(--mud-palette-error-darken);
     }
-
-    .disabledPointer {
-        pointer-events: none;
-    }
 </style>
+
 @namespace TozawaNGO.Pages
 @using TozawaNGO.Helpers
 @using Models.Dtos
@@ -71,10 +68,8 @@
 
 @if(_pagedData != null) 
 {
- <MudPaper Class="@_disabledPointer">
     <MudTable ServerData="@(new Func<TableState, Task<TableData<MemberDto>>>(ServerReload))" Dense="true" Hover="true"
-        Striped="true" @ref="_table" CustomHeader="true" FixedHeader="true" FixedFooter="true" Height="800px"
-        Loading=false ReadOnly="@DisabledEditRow()" RowClassFunc="@SelectedRowClassFunc"
+        Striped="true" @ref="_table" CustomHeader="true" ReadOnly="@DisabledEditRow()" RowClassFunc="@SelectedRowClassFunc"
         OnRowClick="RowClickEvent" OnCommitEditClick="ItemHasBeenCommitted" @bind-SelectedItem="_selectedItem"
         T="MemberDto" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" CanCancelEdit="true"
         RowsPerPage="20">
@@ -203,7 +198,8 @@
                 RowsPerPageString="@(Translate(SystemTextId.RowsPerPage, "Rows per page"))" />
         </PagerContent>
     </MudTable>
-    <MudSwitch @bind-Checked="_includeDeleted" @onclick="@(() => ToggleIncludeDeleted())" Color="Color.Primary"
+    <div @onclick:stopPropagation="true" @onclick:preventDefault="true">
+        <MudSwitch @bind-Checked="_includeDeleted" @onclick="@(() => ToggleIncludeDeleted())" Color="Color.Primary"
         Label="@(Translate(SystemTextId.ShowDeletedItems))" />
-</MudPaper>
+    </div>
 }

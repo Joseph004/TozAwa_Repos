@@ -92,6 +92,7 @@ namespace TozawaNGO.Pages
             var parameters = new DialogParameters
             {
                 ["hardDelete"] = true,
+                ["body"] = Translate(SystemTextId.AreYouSure),
                 ["item"] = attachment,
                 ["title"] = Translate(SystemTextId.Delete)
             };
@@ -121,7 +122,7 @@ namespace TozawaNGO.Pages
                 {
                     Snackbar.Add(deleteResponse.Message, Severity.Error);
                 }
-                LoadingState.SetRequestInProgress(true);
+                LoadingState.SetRequestInProgress(false);
                 _onProgress = false;
                 StateHasChanged();
             }

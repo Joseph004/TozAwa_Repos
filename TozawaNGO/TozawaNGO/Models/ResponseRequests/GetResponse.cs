@@ -2,7 +2,7 @@ using System.Net;
 using TozawaNGO.Services;
 
 namespace TozawaNGO.Models.ResponseRequests;
-
+#nullable enable
 public class GetResponse<T>(bool success, string message, HttpStatusCode? statusCode, T? entity) : IResponse
 {
     public bool Success { get; set; } = success;

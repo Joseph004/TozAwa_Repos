@@ -31,7 +31,6 @@ namespace TozawaNGO.Pages
         protected PatchMemberRequest _patchMemberRequest = new();
         private string _pageOfEmail = null;
         public int ThumbnailSize = 24;
-        public string _disabledPointer = "";
         protected int[] _pageSizeOptions = new[] { 20, 50, 100 };
 
         protected override async Task OnInitializedAsync()
@@ -68,9 +67,7 @@ namespace TozawaNGO.Pages
         {
             if (_table != null)
             {
-                LoadingState.SetRequestInProgress(true);
                 await _table.ReloadServerData();
-                LoadingState.SetRequestInProgress(false);
             }
             StateHasChanged();
         }
@@ -78,9 +75,7 @@ namespace TozawaNGO.Pages
         {
             if (_table != null)
             {
-                LoadingState.SetRequestInProgress(true);
                 await _table.ReloadServerData();
-                LoadingState.SetRequestInProgress(false);
             }
             StateHasChanged();
         }
@@ -115,9 +110,7 @@ namespace TozawaNGO.Pages
 
             if (!result.Canceled)
             {
-                LoadingState.SetRequestInProgress(true);
-                StateHasChanged();
-                SnackBar.Add(Translate(SystemTextId.Processing), Severity.Info);
+                /* SnackBar.Add(Translate(SystemTextId.Processing), Severity.Info); */
 
                 var modalResponse = (DeleteRequest)result.Data;
                 var patchRequest = new PatchMemberRequest();
@@ -132,6 +125,8 @@ namespace TozawaNGO.Pages
                     patchRequest = new PatchMemberRequest { HardDeleted = modalResponse.HardDeleted };
                 }
 
+                LoadingState.SetRequestInProgress(true);
+                StateHasChanged();
                 var updateResponse = await memberService.PatchMember(item.Id, patchRequest);
 
                 _pageOfEmail = null;
@@ -147,7 +142,7 @@ namespace TozawaNGO.Pages
             {
                 DisableBackdropClick = true,
                 MaxWidth = MaxWidth.Large,
-                CloseButton = true
+                CloseButton = false
             };
             var parameters = new DialogParameters
             {
@@ -270,6 +265,7 @@ namespace TozawaNGO.Pages
         {
             var options = new DialogOptions
             {
+                DisableBackdropClick = true,
                 MaxWidth = MaxWidth.ExtraLarge,
                 CloseButton = false
             };
@@ -295,9 +291,9 @@ namespace TozawaNGO.Pages
             var item = _selectedItem;
             if (!item.Deleted)
             {
-                LoadingState.SetRequestInProgress(true);
                 if (AnyPropertyIsUpdated() || AnyTextIsUpdated())
                 {
+                    LoadingState.SetRequestInProgress(true);
                     var updateResponse = await memberService.PatchMember(_selectedItem.Id, _patchMemberRequest);
                     snackBarService.Add(updateResponse);
 

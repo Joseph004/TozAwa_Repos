@@ -6,7 +6,7 @@ using TozawaNGO.Auth.Services;
 namespace TozawaNGO.Pages
 {
     [AllowAnonymous]
-    public class LoginModel(IDataProtectionProviderService dataProtectionProviderService) : PageModel
+    public class LoginModel : PageModel
     {
         public async Task<IActionResult> OnGetAsync(string returnUrl)
         {
