@@ -138,7 +138,6 @@ namespace TozawaNGO.Pages
                 snackBarService.Add(updateResponse);
 
                 await _table.ReloadServerData();
-                LoadingState.SetRequestInProgress(false);
             }
         }
         protected async Task ToggleFiles(MemberDto item)
@@ -288,7 +287,6 @@ namespace TozawaNGO.Pages
                     _pageOfEmail = data.Entity.Email;
                     _addedItem = data.Entity;
                     await _table.ReloadServerData();
-                    LoadingState.SetRequestInProgress(false);
                 }
             }
         }
@@ -314,7 +312,6 @@ namespace TozawaNGO.Pages
                 }
                 _patchMemberRequest = new();
                 await _table.ReloadServerData();
-                LoadingState.SetRequestInProgress(false);
             }
         }
         protected string SelectedRowClassFunc(MemberDto element, int rowNumber)
