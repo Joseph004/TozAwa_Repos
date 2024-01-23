@@ -13,6 +13,7 @@ namespace TozawaNGO.Pages
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public string Name { get; set; }
         [Inject] MemberService memberService { get; set; }
+        [Inject] private LoadingState LoadingState { get; set; }
         [Inject] private ISnackBarService snackBarService { get; set; }
 
         private MudForm _addForm;
@@ -44,15 +45,15 @@ namespace TozawaNGO.Pages
         {
             if (string.IsNullOrEmpty(email))
             {
-                return new List<string> { Translate(SystemTextId.EmailIsRequired) };
+                return [Translate(SystemTextId.EmailIsRequired)];
             }
 
             var emailExists = await memberService.EmailExists(email);
             if (emailExists)
             {
-                return new List<string> { Translate(SystemTextId.EmailAlreadyExists) };
+                return [Translate(SystemTextId.EmailAlreadyExists)];
             }
-            return new List<string>();
+            return [];
         }
         private bool DisabledAddButton()
         {
@@ -65,6 +66,7 @@ namespace TozawaNGO.Pages
         }
         private async Task AddItem()
         {
+            LoadingState.SetRequestInProgress(true);
             _onProgress = true;
 
             var model = _addForm.Model as AddMemberRequest;
@@ -78,6 +80,7 @@ namespace TozawaNGO.Pages
             {
                 _errors = _errors.Append(await _translationService.GetHttpStatusText(added.StatusCode)).ToArray();
                 snackBarService.Add(added);
+                LoadingState.SetRequestInProgress(false);
                 _onProgress = false;
                 StateHasChanged();
             }

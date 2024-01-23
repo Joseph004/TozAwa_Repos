@@ -11,12 +11,8 @@ namespace TozawaNGO.Attachment.Controllers;
 
 [Produces("application/json")]
 [Route("api/[controller]")]
-public class FileAttachmentController : InitController
+public class FileAttachmentController(IMediator mediator, TozawaNGO.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : InitController(mediator, currentUserService, userTokenService)
 {
-    public FileAttachmentController(IMediator mediator, TozawaNGO.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : base(mediator, currentUserService, userTokenService)
-    {
-    }
-
     [HttpPost, Route("{id}")]
     public async Task<IActionResult> AddAttachment(Guid id, [FromBody] AddAttachmentCommand request)
     {

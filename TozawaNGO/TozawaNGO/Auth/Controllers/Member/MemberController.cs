@@ -13,12 +13,8 @@ namespace TozawaNGO.Auth.Controllers
     [AuthorizeUserRequirement]
     [Produces("application/json")]
     [Route("api/[controller]")]
-    public class MemberController : InitController
+    public class MemberController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService) : InitController(mediator, currentUserService, userTokenService)
     {
-        public MemberController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService) : base(mediator, currentUserService, userTokenService)
-        {
-        }
-
         [HttpGet, Route(""), CheckRole(RoleDto.President, RoleDto.VicePresident)]
         public async Task<IActionResult> Get() => Ok(await _mediator.Send(new GetMembersQuery(Request.QueryString.HasValue ? QueryHelpers.ParseQuery(Request.QueryString.Value) : null)));
 

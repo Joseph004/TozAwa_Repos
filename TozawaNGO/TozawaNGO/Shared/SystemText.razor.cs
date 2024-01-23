@@ -9,11 +9,10 @@ public partial class SystemText : BaseComponent
 {
     [Parameter] public Typo SystemTextTypo { get; set; } = Typo.body1;
     [Parameter] public Guid TextId { get; set; }
-    [Parameter] public string FontFamily { get; set; } = "cursive";
-    [Parameter] public string FontSize { get; set; } = "";
+    [Parameter] public string Style { get; set; } = "font-familly: cursive;";
     [Parameter] public string FallbackText { get; set; }
     [Parameter] public int? Limit { get; set; }
-    #pragma warning disable CS0108
+#pragma warning disable CS0108
     [Parameter] public bool IsFirstLoaded { get; set; }
     [Parameter] public bool? ToUpper { get; set; }
 

@@ -29,14 +29,14 @@
                             <MudTextField Class="tz_admin tz_loginAsAdmin" Disabled="@_processing"
                                 Validation="LoginValidator().ValidateValue" Required="true"
                                 RequiredError="@Translate(SystemTextId.EmailIsRequired, "Email is required")"
-                            @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Email"
+                                @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Email"
                                 For="@(() => model.Email)" Immediate="true" Label=@(Translate(SystemTextId.Email,
                                 "Email")) />
 
                             <MudTextField Disabled="@_processing" Class="tz_password"
                                 Validation="LoginValidator().ValidateValue" Required="true"
                                 RequiredError="@Translate(SystemTextId.YourPasswordCannotBeEmpty, "Password is required")"
-                            @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Password"
+                                @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Password"
                                 For="@(() => model.Password)" Immediate="true" Label=@(Translate(SystemTextId.Password,
                                 "Password")) InputType="InputType.Password" />
                         </MudCardContent>
@@ -54,19 +54,9 @@
         </MudButton>
         <MudButton Disabled="@DisabledLoginButton()" OnClick="@((MouseEventArgs e)=>LoginByClick(@loginButton, e))"
             Color="Color.Primary" Variant="Variant.Filled" Class="ml-auto" Target="_top">
-            @if (_processing)
-            {
-                @* <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" /> *@
-                <MudText Class="ms-2">
-                    <SystemText TextId=SystemTextId.Processing FallbackText="Processing..." IsFirstLoaded="@IsFirstLoaded"></SystemText>
-                </MudText>
-            }
-            else
-            {
-                <MudText>
-                    <SystemText TextId=SystemTextId.Login FallbackText="Login" IsFirstLoaded="@IsFirstLoaded"></SystemText>
-                </MudText>
-            }
+            <MudText>
+                <SystemText TextId=SystemTextId.Login FallbackText="Login" IsFirstLoaded="@IsFirstLoaded"></SystemText>
+            </MudText>
         </MudButton>
     </DialogActions>
 </MudDialog>

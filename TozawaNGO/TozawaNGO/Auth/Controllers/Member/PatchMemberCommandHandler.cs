@@ -9,18 +9,11 @@ using TozawaNGO.Auth.Services;
 
 namespace TozawaNGO.Auth.Controllers
 {
-    public class PatchMemberCommandHandler : IRequestHandler<PatchMemberCommand, Models.Dtos.Backend.MemberDto>
+    public class PatchMemberCommandHandler(TozawangoDbContext context, ICurrentUserService currentUserService, ILogger<PatchMemberCommandHandler> logger) : IRequestHandler<PatchMemberCommand, Models.Dtos.Backend.MemberDto>
     {
-        private readonly TozawangoDbContext _context;
-        private readonly ILogger<PatchMemberCommandHandler> _logger;
-        private readonly ICurrentUserService _currentUserService;
-
-        public PatchMemberCommandHandler(TozawangoDbContext context, ICurrentUserService currentUserService, ILogger<PatchMemberCommandHandler> logger)
-        {
-            _context = context;
-            _currentUserService = currentUserService;
-            _logger = logger;
-        }
+        private readonly TozawangoDbContext _context = context;
+        private readonly ILogger<PatchMemberCommandHandler> _logger = logger;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
         public async Task<Models.Dtos.Backend.MemberDto> Handle(PatchMemberCommand request, CancellationToken cancellationToken)
         {

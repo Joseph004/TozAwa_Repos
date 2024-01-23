@@ -12,6 +12,7 @@ using TozawaNGO.Configurations;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace TozawaNGO.Shared
 {
@@ -30,6 +31,7 @@ namespace TozawaNGO.Shared
         private readonly int _timerInterval = 15 * 60 * 1000; //15 min
         private bool _disabledPage = false;
         private string _disableAttrString = "";
+        private ErrorBoundary _errorBoundary;
 
         private bool _sidebarOpen = true;
         private void ToggleTheme(MudTheme changedTheme) => _currentTheme = changedTheme;
@@ -38,8 +40,14 @@ namespace TozawaNGO.Shared
             _sidebarOpen = !_sidebarOpen;
             StateHasChanged();
         }
-
-
+        protected override void OnParametersSet()
+        {
+            _errorBoundary?.Recover();
+        }
+        public string OnError(Exception ex)
+        {
+            return _translationService.Translate(SystemTextId.ErrorOccursPleaseContactSupport, "Opps, something went wrong. Please contact support!").Text;
+        }
         private MudTheme _currentTheme = new()
         {
             Palette = new PaletteLight()

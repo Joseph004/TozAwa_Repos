@@ -11,7 +11,7 @@ namespace TozawaNGO.Shared
 {
     public partial class LoginViewModal : BaseDialog
     {
-        #pragma warning disable CS0649
+#pragma warning disable CS0649
         [CascadingParameter]
         public ErrorHandling ErrorHandling { get; set; } = null;
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
@@ -49,7 +49,7 @@ namespace TozawaNGO.Shared
             return new LoginCommandFluentValidator(_translationService, AuthenticationService);
         }
 
-        LoginCommand model = new LoginCommand();
+        LoginCommand model = new();
 
         private async Task LoginByClick(MudButton element, MouseEventArgs e)
         {
@@ -113,6 +113,7 @@ namespace TozawaNGO.Shared
                 if (!userLoginResponse.Success)
                 {
                     Snackbar.Add(Translate(SystemTextId.Error, "Error"), Severity.Error);
+                    LoadingState.SetRequestInProgress(false);
                     _processing = false;
                     StateHasChanged();
                 }
@@ -123,18 +124,18 @@ namespace TozawaNGO.Shared
                     {
                         if (entity.LoginAttemptCount == 3)
                         {
-                            _errors = _errors.Append(Translate(SystemTextId.TemporarlyLockout, "You've been temporarely lockedout, please contact a technician!")).ToArray();
+                            _errors = [.. _errors, Translate(SystemTextId.TemporarlyLockout, "You've been temporarely lockedout, please contact a technician!")];
                         }
 
                         if (entity.ErrorMessageGuid.HasValue && entity.ErrorMessageGuid.Value == SystemTextId.EmailOrPasswordWrong)
                         {
                             var errorMessage = Translate(entity.ErrorMessageGuid.Value, entity.ErrorMessage);
-                            _errors = _errors.Append(Translate(SystemTextId.EmailOrPasswordWrong, "Email or password wrong")).ToArray();
+                            _errors = [.. _errors, Translate(SystemTextId.EmailOrPasswordWrong, "Email or password wrong")];
                         }
                         else if (entity.ErrorMessageGuid.HasValue && entity.ErrorMessageGuid.Value == SystemTextId.UserNamelOrPasswordWrong)
                         {
                             var errorMessage = Translate(entity.ErrorMessageGuid.Value, entity.ErrorMessage);
-                            _errors = _errors.Append(Translate(SystemTextId.UserNamelOrPasswordWrong, "User name or password wrong")).ToArray();
+                            _errors = [.. _errors, Translate(SystemTextId.UserNamelOrPasswordWrong, "User name or password wrong")];
                         }
                         else
                         {
@@ -148,6 +149,7 @@ namespace TozawaNGO.Shared
                         StateHasChanged();
                         await form.Validate();
                         Snackbar.Add(entity.ErrorMessageGuid.HasValue ? Translate(entity.ErrorMessageGuid.Value, entity.ErrorMessage) : entity.ErrorMessage, Severity.Error);
+                        LoadingState.SetRequestInProgress(false);
                         _processing = false;
                         StateHasChanged();
                     }

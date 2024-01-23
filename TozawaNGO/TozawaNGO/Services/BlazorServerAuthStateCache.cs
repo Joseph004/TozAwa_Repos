@@ -4,14 +4,9 @@ using Blazored.SessionStorage;
 using TozawaNGO.Models;
 
 namespace TozawaNGO.Services;
-public class BlazorServerAuthStateCache
+public class BlazorServerAuthStateCache(ISessionStorageService sessionStorageService)
 {
-    private ISessionStorageService _sessionStorageService { get; set; }
-
-    public BlazorServerAuthStateCache(ISessionStorageService sessionStorageService)
-    {
-       _sessionStorageService =sessionStorageService;
-    }
+    private ISessionStorageService _sessionStorageService { get; set; } = sessionStorageService;
 
     public async Task<bool> HasObjectId(string oid)
     {

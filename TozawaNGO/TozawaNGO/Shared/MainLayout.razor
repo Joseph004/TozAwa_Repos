@@ -16,17 +16,16 @@
     <LoadingScreen>
         <MudMainContent Class="tz-main pageBody pt-16 px-16">
             <MudContainer Class="tz_content mt-3">
-                @Body
-               
-                <ErrorBoundary>
+                <ErrorBoundary @ref="_errorBoundary">
                     <ChildContent>
-                       
+                        @Body
                     </ChildContent>
-                    <ErrorContent>
-                        <p class="errorUI">
-                            <SystemText TextId=SystemTextId.ErrorOccursPleaseContactSupport
-                                FallbackText="Opps, something went wrong. Please contact support!" IsFirstLoaded="@IsFirstLoaded"></SystemText>
-                        </p>
+                    <ErrorContent Context="ex">
+                        <MudPaper Class="pa-4" Style="@($"background: var(--mud-palette-error);")">
+                            <MudText>
+                                @OnError(@ex);
+                            </MudText>
+                        </MudPaper>
                     </ErrorContent>
                 </ErrorBoundary>
                 <Footer></Footer>

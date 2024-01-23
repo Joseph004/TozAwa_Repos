@@ -289,4 +289,61 @@
     <value>Files</value>
     <comment>.</comment>
   </data>
+  <data name="06e63f65-c762-4650-ba32-b177aa26459f" xml:space="preserve">
+    <value>Success</value>
+    <comment>.</comment>
+  </data>
+  <data name="edd0ed36-48a1-40d5-b15c-4f72ecd03085" xml:space="preserve">
+    <value>Forbidden</value>
+    <comment>.</comment>
+  </data>
+  <data name="1c670beb-c72a-41a3-bd15-8d0dae88c0a1" xml:space="preserve">
+    <value>Unauthorized</value>
+    <comment>.</comment>
+  </data>
+  <data name="ae2a4ae2-0b77-4038-80f1-8e6811ef184a" xml:space="preserve">
+    <value>Not found</value>
+    <comment>.</comment>
+  </data>
+  <data name="aabd1818-fd10-41d0-8ad5-8c0d12e205d4" xml:space="preserve">
+    <value>Find us</value>
+    <comment>.</comment>
+  </data>
+  <data name="a5836384-37d4-439c-a627-ee8b989722db" xml:space="preserve">
+    <value>Call us</value>
+    <comment>.</comment>
+  </data>
+  <data name="08933bdd-7275-4a80-bf3c-79226cded894" xml:space="preserve">
+    <value>Mail us</value>
+    <comment>.</comment>
+  </data>
+  <data name="2f2544a2-82f4-456d-be26-4fd01a7a60b0" xml:space="preserve">
+    <value>This NGO is for helping children in need of developing computer skills This NGO is for helping children in need of developing computer skills This NGO is for helping children in need of developing computer skills
+	</value>
+    <comment>.</comment>
+  </data>
+  <data name="fa0fc6df-5599-47df-adc1-54d604b4080b" xml:space="preserve">
+    <value>Follow us</value>
+    <comment>.</comment>
+  </data>
+  <data name="84d2a41e-bd0e-49ab-9ec5-245da8794e26" xml:space="preserve">
+    <value>Usefull links</value>
+    <comment>.</comment>
+  </data>
+  <data name="45e5f7fa-7fa5-4b5a-9504-27eabb9acded" xml:space="preserve">
+    <value>Subscribe</value>
+    <comment>.</comment>
+  </data>
+  <data name="e7dc189c-2a4c-417b-b766-addc69ae7f93" xml:space="preserve">
+    <value>Don't miss to subscribe to our feeds, kindly fill the form below</value>
+    <comment>.</comment>
+  </data>
+  <data name="1f4ca531-ca3c-4a33-bb20-ff1f0d46b62a" xml:space="preserve">
+    <value>The entity contains no files</value>
+    <comment>.</comment>
+  </data>
+  <data name="2eac4ad7-ada7-48a0-a4ab-a985820140e4" xml:space="preserve">
+    <value>Only 10 files can be uploaded at a moment</value>
+    <comment>.</comment>
+  </data>
 </root>

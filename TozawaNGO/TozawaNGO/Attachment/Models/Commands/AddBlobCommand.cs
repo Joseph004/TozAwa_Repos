@@ -4,12 +4,8 @@ using TozawaNGO.Attachment.Models.Dtos;
 
 namespace TozawaNGO.Attachment.Models.Commands
 {
-    public class AddBlobCommand : IRequest<AddBlobResponse>
+    public class AddBlobCommand(IFormFile file) : IRequest<AddBlobResponse>
     {
-        public AddBlobCommand(IFormFile file)
-        {
-            File = file;
-        }
-        public IFormFile File { get; set; }
+        public IFormFile File { get; set; } = file;
     }
 }

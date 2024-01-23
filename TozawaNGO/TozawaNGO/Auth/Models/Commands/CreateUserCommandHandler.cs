@@ -8,18 +8,11 @@ using TozawaNGO.Services;
 
 namespace TozawaNGO.Auth.Models.Commands
 {
-    public class CreateUserCommandHandler : IRequestHandler<CreateUserCommand, MemberDto>
+    public class CreateUserCommandHandler(TozawangoDbContext context, ILookupNormalizer normalizer, IPasswordHashService passwordHashService) : IRequestHandler<CreateUserCommand, MemberDto>
     {
-        private readonly TozawangoDbContext _context;
-        private readonly ILookupNormalizer _normalizer;
-        private readonly IPasswordHashService _passwordHashService;
-
-        public CreateUserCommandHandler(TozawangoDbContext context, ILookupNormalizer normalizer, IPasswordHashService passwordHashService)
-        {
-            _context = context;
-            _normalizer = normalizer;
-            _passwordHashService = passwordHashService;
-        }
+        private readonly TozawangoDbContext _context = context;
+        private readonly ILookupNormalizer _normalizer = normalizer;
+        private readonly IPasswordHashService _passwordHashService = passwordHashService;
 
         public async Task<MemberDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {

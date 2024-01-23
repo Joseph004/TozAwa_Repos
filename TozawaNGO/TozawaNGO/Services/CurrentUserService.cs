@@ -5,29 +5,21 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Newtonsoft.Json;
 
 namespace TozawaNGO.Services;
-public class CurrentUserService : ICurrentUserService
+public class CurrentUserService(
+    IAuthHttpClient client,
+    ISessionStorageService sessionStorageService,
+    ISnackBarService snackBarService,
+    AuthenticationStateProvider authenticationStateProvider,
+    ILogger<CurrentUserService> logger) : ICurrentUserService
 {
-    private readonly IAuthHttpClient _client;
-    private readonly ISnackBarService _snackBarService;
-    private readonly ISessionStorageService _sessionStorageService;
-    private readonly AuthenticationStateProvider _authenticationStateProvider;
+    private readonly IAuthHttpClient _client = client;
+    private readonly ISnackBarService _snackBarService = snackBarService;
+    private readonly ISessionStorageService _sessionStorageService = sessionStorageService;
+    private readonly AuthenticationStateProvider _authenticationStateProvider = authenticationStateProvider;
 
 
-    private readonly ILogger<CurrentUserService> _logger;
+    private readonly ILogger<CurrentUserService> _logger = logger;
 
-    public CurrentUserService(
-        IAuthHttpClient client,
-        ISessionStorageService sessionStorageService,
-        ISnackBarService snackBarService,
-        AuthenticationStateProvider authenticationStateProvider,
-        ILogger<CurrentUserService> logger)
-    {
-        _client = client;
-        _sessionStorageService = sessionStorageService;
-        _authenticationStateProvider = authenticationStateProvider;
-        _snackBarService = snackBarService;
-        _logger = logger;
-    }
     public async Task RemoveCurrentUser()
     {
         if (await _sessionStorageService.ContainKeyAsync("currentUser"))

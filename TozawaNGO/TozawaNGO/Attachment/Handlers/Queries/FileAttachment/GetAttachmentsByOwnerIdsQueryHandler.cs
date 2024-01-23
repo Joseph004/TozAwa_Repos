@@ -7,17 +7,11 @@ using TozawaNGO.Context;
 
 namespace TozawaNGO.Attachment.Handlers.Queries.FileAttachment;
 
-public class GetAttachmentsByOwnerIdsQueryHandler : IRequestHandler<GetAttachmentsByOwnerIdsQuery, List<OwnerAttachments>>
+public class GetAttachmentsByOwnerIdsQueryHandler(TozawangoDbContext context,
+    IFileAttachmentConverter fileAttachmentConverter) : IRequestHandler<GetAttachmentsByOwnerIdsQuery, List<OwnerAttachments>>
 {
-    private readonly TozawangoDbContext _context;
-    private readonly IFileAttachmentConverter _fileAttachmentConverter;
-
-    public GetAttachmentsByOwnerIdsQueryHandler(TozawangoDbContext context,
-        IFileAttachmentConverter fileAttachmentConverter)
-    {
-        _context = context;
-        _fileAttachmentConverter = fileAttachmentConverter;
-    }
+    private readonly TozawangoDbContext _context = context;
+    private readonly IFileAttachmentConverter _fileAttachmentConverter = fileAttachmentConverter;
 
     public async Task<List<OwnerAttachments>> Handle(GetAttachmentsByOwnerIdsQuery request, CancellationToken cancellationToken)
     {

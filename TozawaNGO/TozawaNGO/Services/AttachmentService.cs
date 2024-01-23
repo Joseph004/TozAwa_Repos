@@ -5,11 +5,10 @@ using TozawaNGO.Models.ResponseRequests;
 
 namespace TozawaNGO.Services;
 
-public class AttachmentService
+public class AttachmentService(ITozAwaBffHttpClient client)
 {
-    private readonly ITozAwaBffHttpClient _client;
+    private readonly ITozAwaBffHttpClient _client = client;
     private const string _baseUriPath = $"fileattachment";
-    public AttachmentService(ITozAwaBffHttpClient client) => _client = client;
 
     public event Action OnChange;
     public OwnerAttachments FileAttachmentDtos = new();

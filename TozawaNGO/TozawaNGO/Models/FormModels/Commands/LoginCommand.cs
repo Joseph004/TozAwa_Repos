@@ -1,7 +1,3 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using FluentValidation;
 using TozawaNGO.Helpers;
 using TozawaNGO.Services;
@@ -69,7 +65,7 @@ namespace TozawaNGO.Models.FormModels
          {
              var result = await ValidateAsync(ValidationContext<LoginCommand>.CreateWithOptions((LoginCommand)model, x => x.IncludeProperties(propertyName)));
              if (result.IsValid)
-                 return Array.Empty<string>();
+                 return [];
              return result.Errors.Select(e => e.ErrorMessage);
          };
     }

@@ -7,7 +7,7 @@ namespace TozawaNGO.Attachment.Converters;
 
 public static class FormFileConverter 
 {
-    private static readonly IList<string> ConvertToPngMimeTypes = new List<string> { "image/tiff", "image/x-tiff", "image/bmp", "image/x-windows-bmp" };
+    private static readonly IList<string> ConvertToPngMimeTypes = ["image/tiff", "image/x-tiff", "image/bmp", "image/x-windows-bmp"];
 
     public static async Task<(byte[] byteArray, string name, string mimeType)> GetConvertedByteByteArray(IFormFile file)
     {

@@ -9,16 +9,10 @@ using TozawaNGO.Services;
 
 namespace TozawaNGO.Attachment.Handlers.Queries.FileAttachment;
 
-public class GetAttachmentQueryHandler : IRequestHandler<GetAttachmentQuery, AttachmentDownloadDto>
+public class GetAttachmentQueryHandler(TozawangoDbContext context, IGoogleService googleService) : IRequestHandler<GetAttachmentQuery, AttachmentDownloadDto>
 {
-    private readonly TozawangoDbContext _context;
-    private readonly IGoogleService _googleService;
-
-    public GetAttachmentQueryHandler(TozawangoDbContext context, IGoogleService googleService)
-    {
-        _context = context;
-        _googleService = googleService;
-    }
+    private readonly TozawangoDbContext _context = context;
+    private readonly IGoogleService _googleService = googleService;
 
     public async Task<AttachmentDownloadDto> Handle(GetAttachmentQuery request, CancellationToken cancellationToken)
     {

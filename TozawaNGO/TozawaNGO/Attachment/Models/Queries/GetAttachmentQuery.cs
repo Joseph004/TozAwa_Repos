@@ -4,10 +4,9 @@ using TozawaNGO.Models.Dtos;
 
 namespace TozawaNGO.Attachment.Models.Queries
 {
-    public class GetAttachmentQuery : IRequest<AttachmentDownloadDto>
+    public class GetAttachmentQuery(Guid id) : IRequest<AttachmentDownloadDto>
     {
-        public GetAttachmentQuery(Guid id) => Id = id;
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = id;
     }
 
     public class GetAttachmentQueryValidator : AbstractValidator<GetAttachmentQuery>

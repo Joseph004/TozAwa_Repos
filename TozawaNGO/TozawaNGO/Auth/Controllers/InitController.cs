@@ -9,18 +9,12 @@ using TozawaNGO.Auth.Services;
 
 namespace TozawaNGO.Auth.Controllers
 {
-    public abstract class InitController : Controller
+    public abstract class InitController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService) : Controller
     {
-        public readonly IMediator _mediator;
-        public readonly ICurrentUserService _currentUserService;
+        public readonly IMediator _mediator = mediator;
+        public readonly ICurrentUserService _currentUserService = currentUserService;
         private ActionExecutingContext Context;
-        public readonly IUserTokenService _userTokenService;
-        public InitController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService)
-        {
-            _mediator = mediator;
-            _currentUserService = currentUserService;
-            _userTokenService = userTokenService;
-        }
+        public readonly IUserTokenService _userTokenService = userTokenService;
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
@@ -47,14 +41,11 @@ namespace TozawaNGO.Auth.Controllers
             }
         }
     }
-    public class CheckRoleAttribute : ActionFilterAttribute
+    public class CheckRoleAttribute(params RoleDto[] r) : ActionFilterAttribute
     {
-        public RoleDto[] Roles;
+        public RoleDto[] Roles = r;
         public readonly ICurrentUserService _currentUserService;
-        public CheckRoleAttribute(params RoleDto[] r)
-        {
-            Roles = r;
-        }
+
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             SetUser(context);

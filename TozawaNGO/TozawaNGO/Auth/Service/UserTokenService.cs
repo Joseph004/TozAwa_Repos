@@ -21,13 +21,9 @@ public interface IUserTokenService
     CurrentUserDto GetUserFromExpiredToken(string token);
 }
 
-public class UserTokenService : IUserTokenService
+public class UserTokenService(AppSettings appSettings) : IUserTokenService
 {
-    private AppSettings _appSettings;
-    public UserTokenService(AppSettings appSettings)
-    {
-        _appSettings = appSettings;
-    }
+    private AppSettings _appSettings = appSettings;
 
     private SigningCredentials GetSigningCredentials()
     {

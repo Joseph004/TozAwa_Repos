@@ -6,14 +6,9 @@ using TozawaNGO.Auth.Models.Dtos.Backend;
 
 namespace TozawaNGO.Auth.Models.Commands
 {
-    public class CreatePartnerCommandHandler : IRequestHandler<CreatePartnerCommand, PartnerDto>
+    public class CreatePartnerCommandHandler(TozawangoDbContext context) : IRequestHandler<CreatePartnerCommand, PartnerDto>
     {
-        private readonly TozawangoDbContext _context;
-
-        public CreatePartnerCommandHandler(TozawangoDbContext context)
-        {
-            _context = context;
-        }
+        private readonly TozawangoDbContext _context = context;
 
         public async Task<PartnerDto> Handle(CreatePartnerCommand request, CancellationToken cancellationToken)
         {

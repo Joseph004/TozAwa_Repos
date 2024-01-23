@@ -11,13 +11,16 @@
                     <MudTextField Immediate="true" Margin="Margin.Dense" T="string" @bind-Value="_addFormModel.FirstName"
                         Label="@(Translate(SystemTextId.FirstName))" Required="true"
                         RequiredError="@(Translate(SystemTextId.FirstNameIsRequired))" />
+                        <MudSpacer />
                     <MudTextField Immediate="true" Margin="Margin.Dense" T="string" @bind-Value="_addFormModel.LastName"
                         Label="@(Translate(SystemTextId.LastName))" Required="true"
                         RequiredError="@(Translate(SystemTextId.LastNameIsRequired))" />
+                        <MudSpacer />
                     <MudTextField Immediate="true" Margin="Margin.Dense" T="string" @bind-Value="_addFormModel.Email"
                         Label="@(Translate(SystemTextId.Email))" Required="true"
                         RequiredError="@(Translate(SystemTextId.EmailIsRequired))" 
                         Validation="@(new Func<string, Task<IEnumerable<string>>>(EmailExists))" />
+                        <MudSpacer />
                     <MudTextField Immediate="true" Margin="Margin.Dense" T="string"
                         @bind-Value="_addFormModel.Description" Label="@(Translate(SystemTextId.Description))" Required="true"
                         RequiredError="@(Translate(SystemTextId.DescriptionIsRequired))" />
@@ -34,12 +37,15 @@
                         <MudTextField Immediate="true" Disabled="true" Margin="Margin.Dense" T="string"
                         @bind-Value="_addFormModel.FirstName"
                         Label="@GetLabelText(Translate(SystemTextId.FirstName), culture)" />
+                        <MudSpacer />
                         <MudTextField Immediate="true" Disabled="true" Margin="Margin.Dense" T="string"
                         @bind-Value="_addFormModel.LastName"
                         Label="@GetLabelText(Translate(SystemTextId.LastName), culture)" />
+                        <MudSpacer />
                         <MudTextField Immediate="true" Disabled="true" Margin="Margin.Dense" T="string"
                         @bind-Value="_addFormModel.Email"
                         Label="@GetLabelText(Translate(SystemTextId.Email), culture)" />
+                        <MudSpacer />
                         <MudTextField Immediate="true" Margin="Margin.Dense" T="string" Class="ml-3"
                         Required="true" RequiredError="@Translate(SystemTextId.DescriptionIsRequired)"
                         @bind-Value="_addFormModel.DescriptionTranslations[index].Text"
@@ -55,19 +61,9 @@
             <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" IsFirstLoaded="@IsFirstLoaded" />
         </MudButton>
         <MudButton Color="Color.Primary" OnClick="AddItem" Disabled="@DisabledAddButton()">
-            @if (_onProgress)
-            {
-                <MudProgressCircular Class="ms-n1" Size="Size.Small" Indeterminate="true" />
-                <MudText Class="ms-2">
-                    <SystemText TextId=SystemTextId.Processing FallbackText="Processing..." IsFirstLoaded="@IsFirstLoaded" />
-                </MudText>
-            }
-            else
-            {
-                <MudText>
-                    <SystemText TextId=SystemTextId.Add FallbackText="Add" IsFirstLoaded="@IsFirstLoaded" />
-                </MudText>
-            }
+            <MudText>
+                <SystemText TextId=SystemTextId.Add FallbackText="Add" IsFirstLoaded="@IsFirstLoaded" />
+            </MudText>
         </MudButton>
     </DialogActions>
 </MudDialog>

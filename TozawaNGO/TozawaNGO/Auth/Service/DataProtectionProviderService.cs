@@ -3,14 +3,10 @@ using System.Text;
 using TozawaNGO.Configurations;
 
 namespace TozawaNGO.Auth.Services;
-public class DataProtectionProviderService : IDataProtectionProviderService
+public class DataProtectionProviderService(AppSettings appSettings) : IDataProtectionProviderService
 {
-    private readonly AppSettings _appSettings;
+    private readonly AppSettings _appSettings = appSettings;
 
-    public DataProtectionProviderService(AppSettings appSettings)
-    {
-        _appSettings = appSettings;
-    }
     public string EncryptString(string key, string plainText)
     {
         byte[] iv = new byte[16];

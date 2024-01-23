@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using TozawaNGO.Models.Dtos;
 using TozawaNGO.Models.Enums;
 using System;
+using TozawaNGO.Helpers;
 
 namespace TozawaNGO.Models.FormModels
 {
@@ -23,7 +24,7 @@ namespace TozawaNGO.Models.FormModels
         {
             foreach (var file in files)
             {
-                await using Stream stream = file.OpenReadStream(file.Size);
+                await using Stream stream = file.OpenReadStream(FileValidator.MaxAllowedSize);
                 await using MemoryStream ms = new(100 * 1024 * 1024);
                 await stream.CopyToAsync(ms);
                 stream.Close();

@@ -7,14 +7,9 @@ using MudBlazor;
 using TozawaNGO.Models.Dtos;
 
 namespace TozawaNGO.Services;
-public class SnackBarService : ISnackBarService
+public class SnackBarService(ISnackbar snackBar) : ISnackBarService
 {
-    private readonly ISnackbar _snackBar;
-
-    public SnackBarService(ISnackbar snackBar)
-    {
-        _snackBar = snackBar;
-    }
+    private readonly ISnackbar _snackBar = snackBar;
 
     public void Add(IResponse response)
     {

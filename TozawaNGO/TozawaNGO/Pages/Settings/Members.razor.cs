@@ -22,7 +22,6 @@ namespace TozawaNGO.Pages
         private MudTable<MemberDto> _table;
         private MemberDto _addedItem;
         protected bool _includeDeleted;
-        protected bool _loading = true;
 
         protected int _totalItems;
         protected string _searchString = null;
@@ -48,7 +47,7 @@ namespace TozawaNGO.Pages
             if (firstRender)
             {
                 IsFirstLoaded = true;
-                _pagedData = Enumerable.Empty<MemberDto>();
+                _pagedData = [];
             }
             return base.OnAfterRenderAsync(firstRender);
         }
@@ -69,7 +68,9 @@ namespace TozawaNGO.Pages
         {
             if (_table != null)
             {
+                LoadingState.SetRequestInProgress(true);
                 await _table.ReloadServerData();
+                LoadingState.SetRequestInProgress(false);
             }
             StateHasChanged();
         }
@@ -77,7 +78,9 @@ namespace TozawaNGO.Pages
         {
             if (_table != null)
             {
+                LoadingState.SetRequestInProgress(true);
                 await _table.ReloadServerData();
+                LoadingState.SetRequestInProgress(false);
             }
             StateHasChanged();
         }
@@ -95,7 +98,8 @@ namespace TozawaNGO.Pages
         {
             var options = new DialogOptions
             {
-                MaxWidth = MaxWidth.Large
+                MaxWidth = MaxWidth.Large,
+                CloseButton = false
             };
 
             var parameters = new DialogParameters
@@ -111,7 +115,7 @@ namespace TozawaNGO.Pages
 
             if (!result.Canceled)
             {
-                _loading = true;
+                LoadingState.SetRequestInProgress(true);
                 StateHasChanged();
                 SnackBar.Add(Translate(SystemTextId.Processing), Severity.Info);
 
@@ -134,6 +138,7 @@ namespace TozawaNGO.Pages
                 snackBarService.Add(updateResponse);
 
                 await _table.ReloadServerData();
+                LoadingState.SetRequestInProgress(false);
             }
         }
         protected async Task ToggleFiles(MemberDto item)
@@ -198,14 +203,13 @@ namespace TozawaNGO.Pages
         }
         protected async Task<TableData<MemberDto>> ServerReload(TableState state)
         {
-            _loading = true;
             LoadingState.SetRequestInProgress(true);
 
             var data = await memberService.GetItems(state, _includeDeleted, _searchString, _pageOfEmail);
             var entity = data.Entity ?? new TableData<MemberDto>();
             _pageOfEmail = null;
 
-            var items = entity.Items ?? Enumerable.Empty<MemberDto>();
+            var items = entity.Items ?? [];
 
             if (items.Any())
             {
@@ -231,8 +235,6 @@ namespace TozawaNGO.Pages
                 _selectedItem = null;
                 _previousSelectedItem = new();
             }
-
-            _loading = false;
             entity.Items = items;
             _pagedData = entity.Items;
             LoadingState.SetRequestInProgress(false);
@@ -269,7 +271,8 @@ namespace TozawaNGO.Pages
         {
             var options = new DialogOptions
             {
-                MaxWidth = MaxWidth.ExtraLarge
+                MaxWidth = MaxWidth.ExtraLarge,
+                CloseButton = false
             };
             var parameters = new DialogParameters
             {
@@ -285,6 +288,7 @@ namespace TozawaNGO.Pages
                     _pageOfEmail = data.Entity.Email;
                     _addedItem = data.Entity;
                     await _table.ReloadServerData();
+                    LoadingState.SetRequestInProgress(false);
                 }
             }
         }
@@ -293,6 +297,7 @@ namespace TozawaNGO.Pages
             var item = _selectedItem;
             if (!item.Deleted)
             {
+                LoadingState.SetRequestInProgress(true);
                 if (AnyPropertyIsUpdated() || AnyTextIsUpdated())
                 {
                     var updateResponse = await memberService.PatchMember(_selectedItem.Id, _patchMemberRequest);
@@ -309,6 +314,7 @@ namespace TozawaNGO.Pages
                 }
                 _patchMemberRequest = new();
                 await _table.ReloadServerData();
+                LoadingState.SetRequestInProgress(false);
             }
         }
         protected string SelectedRowClassFunc(MemberDto element, int rowNumber)

@@ -12,21 +12,15 @@ using TozawaNGO.Configurations;
 
 namespace TozawaNGO.Helpers;
 
-public class AuthStateProvider : AuthenticationStateProvider
+public class AuthStateProvider(ISessionStorageService sessionStorageService, ILocalStorageService localStorage, AppSettings appSettings) : AuthenticationStateProvider
 {
-    private readonly ISessionStorageService _sessionStorageService;
-    private readonly ILocalStorageService _localStorage;
-    private readonly AuthenticationState _anonymous;
-    private readonly AppSettings _appSettings;
+    private readonly ISessionStorageService _sessionStorageService = sessionStorageService;
+    private readonly ILocalStorageService _localStorage = localStorage;
+    private readonly AuthenticationState _anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+    private readonly AppSettings _appSettings = appSettings;
 
     public event EventHandler<EventArgs> UserAuthenticationChanged;
-    public AuthStateProvider(ISessionStorageService sessionStorageService, ILocalStorageService localStorage, AppSettings appSettings)
-    {
-        _sessionStorageService = sessionStorageService;
-        _localStorage = localStorage;
-        _appSettings = appSettings;
-        _anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
-    }
+
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         try

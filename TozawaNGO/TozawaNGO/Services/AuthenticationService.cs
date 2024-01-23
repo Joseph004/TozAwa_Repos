@@ -6,16 +6,10 @@ using TozawaNGO.Models.ResponseRequests;
 
 namespace TozawaNGO.Services;
 
-public partial class AuthenticationService
+public partial class AuthenticationService(AuthenticationStateProvider authenticationStateProvider, IAuthHttpClient authHttpClient)
 {
-    private readonly IAuthHttpClient _authHttpClient;
-    private readonly AuthenticationStateProvider _authenticationStateProvider;
-
-    public AuthenticationService(AuthenticationStateProvider authenticationStateProvider, IAuthHttpClient authHttpClient)
-    {
-        _authenticationStateProvider = authenticationStateProvider;
-        _authHttpClient = authHttpClient;
-    }
+    private readonly IAuthHttpClient _authHttpClient = authHttpClient;
+    private readonly AuthenticationStateProvider _authenticationStateProvider = authenticationStateProvider;
 
     public async Task<AddResponse<LoginResponseDto>> PostLogin(LoginRequest command) => await _authHttpClient.SendPost<LoginResponseDto>("authenticate/signin", command);
     public async Task<AddResponse<LoginResponseDto>> CheckLockout(string userName) => await _authHttpClient.SendPost<LoginResponseDto>($"authenticate/root/{userName}", new object());

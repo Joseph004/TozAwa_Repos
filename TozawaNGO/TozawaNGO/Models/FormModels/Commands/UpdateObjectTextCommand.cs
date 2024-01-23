@@ -3,15 +3,10 @@ using TozawaNGO.Models.Enums;
 
 namespace TozawaNGO.Models.FormModels
 {
-    public class UpdateObjectTextCommand
+    public class UpdateObjectTextCommand(UpdateEntityType type, Guid id)
     {
-        public UpdateObjectTextCommand(UpdateEntityType type, Guid id)
-        {
-            EntityType = type;
-            Id = id;
-        }
-        public UpdateEntityType EntityType { get; set; }
-        public Guid Id { get; set; }
+        public UpdateEntityType EntityType { get; set; } = type;
+        public Guid Id { get; set; } = id;
         public string Description { get; set; } = "";
         public Guid DescriptionTextId { get; set; }
     }

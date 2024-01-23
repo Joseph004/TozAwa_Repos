@@ -10,19 +10,12 @@ using TozawaNGO.Services;
 
 namespace TozawaNGO.Auth.Controllers
 {
-    public class GetMembersQueryHandler : IRequestHandler<GetMembersQuery, TableDataDto<Models.Dtos.Backend.MemberDto>>
+    public class GetMembersQueryHandler(TozawangoDbContext context, IMediator mediator, IGoogleService googleService, TozawaNGO.Auth.Services.ICurrentUserService currentUserService) : IRequestHandler<GetMembersQuery, TableDataDto<Models.Dtos.Backend.MemberDto>>
     {
-        private readonly TozawangoDbContext _context;
-        public readonly IMediator _mediator;
-        private readonly IGoogleService _googleService;
-        private readonly TozawaNGO.Auth.Services.ICurrentUserService _currentUserService;
-        public GetMembersQueryHandler(TozawangoDbContext context, IMediator mediator, IGoogleService googleService, TozawaNGO.Auth.Services.ICurrentUserService currentUserService)
-        {
-            _context = context;
-            _mediator = mediator;
-            _googleService = googleService;
-            _currentUserService = currentUserService;
-        }
+        private readonly TozawangoDbContext _context = context;
+        public readonly IMediator _mediator = mediator;
+        private readonly IGoogleService _googleService = googleService;
+        private readonly TozawaNGO.Auth.Services.ICurrentUserService _currentUserService = currentUserService;
 
         public async Task<TableDataDto<Models.Dtos.Backend.MemberDto>> Handle(GetMembersQuery request, CancellationToken cancellationToken)
         {

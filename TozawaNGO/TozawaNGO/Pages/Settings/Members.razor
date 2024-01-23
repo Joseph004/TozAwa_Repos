@@ -69,11 +69,12 @@
 @using TozawaNGO.Shared
 @inherits BasePage
 
-@if(_pagedData != null) {
-    <MudPaper Class="@_disabledPointer">
+@if(_pagedData != null) 
+{
+ <MudPaper Class="@_disabledPointer">
     <MudTable ServerData="@(new Func<TableState, Task<TableData<MemberDto>>>(ServerReload))" Dense="true" Hover="true"
         Striped="true" @ref="_table" CustomHeader="true" FixedHeader="true" FixedFooter="true" Height="800px"
-        Loading="@_loading" ReadOnly="@DisabledEditRow()" RowClassFunc="@SelectedRowClassFunc"
+        Loading=false ReadOnly="@DisabledEditRow()" RowClassFunc="@SelectedRowClassFunc"
         OnRowClick="RowClickEvent" OnCommitEditClick="ItemHasBeenCommitted" @bind-SelectedItem="_selectedItem"
         T="MemberDto" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" CanCancelEdit="true"
         RowsPerPage="20">

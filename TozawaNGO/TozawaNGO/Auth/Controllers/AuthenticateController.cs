@@ -25,28 +25,16 @@ namespace TozawaNGO.Auth.Controllers
     [Produces("application/json")]
 
     [ApiController]
-    public class AuthenticateController : ControllerBase
+    public class AuthenticateController(UserManager<ApplicationUser> userManager, AppSettings appSettings, TozawangoDbContext context, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IUserTokenService userTokenService, IMediator mediator, IEncryptDecrypt encryptDecrypt) : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> userManager;
-        private readonly RoleManager<IdentityRole> roleManager;
-        private readonly IConfiguration _configuration;
-        private readonly IMediator _mediator;
-        private readonly IUserTokenService _userTokenService;
-        private readonly TozawangoDbContext _context;
-        private readonly AppSettings _appSettings;
-        private readonly IEncryptDecrypt _encryptDecrypt;
-
-        public AuthenticateController(UserManager<ApplicationUser> userManager, AppSettings appSettings, TozawangoDbContext context, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IUserTokenService userTokenService, IMediator mediator, IEncryptDecrypt encryptDecrypt)
-        {
-            this.userManager = userManager;
-            this.roleManager = roleManager;
-            _configuration = configuration;
-            _mediator = mediator;
-            _userTokenService = userTokenService;
-            _context = context;
-            _appSettings = appSettings;
-            _encryptDecrypt = encryptDecrypt;
-        }
+        private readonly UserManager<ApplicationUser> userManager = userManager;
+        private readonly RoleManager<IdentityRole> roleManager = roleManager;
+        private readonly IConfiguration _configuration = configuration;
+        private readonly IMediator _mediator = mediator;
+        private readonly IUserTokenService _userTokenService = userTokenService;
+        private readonly TozawangoDbContext _context = context;
+        private readonly AppSettings _appSettings = appSettings;
+        private readonly IEncryptDecrypt _encryptDecrypt = encryptDecrypt;
 
         [HttpGet, Route("current/{oid:Guid}")]
         public async Task<IActionResult> GetCurrentUser(Guid oid) => Ok(await _mediator.Send(new GetCurrentUserQuery(oid)));

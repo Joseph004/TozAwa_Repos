@@ -10,10 +10,9 @@ public interface IAttachmentRepository
 {
     Task<AddResponse<List<FileAttachmentDto>>> AddAttachment();
 }
-public class AttachmentRepository : IAttachmentRepository
+public class AttachmentRepository(IMediator mediator) : IAttachmentRepository
 {
-    private readonly IMediator _mediator;
-    public AttachmentRepository(IMediator mediator) => _mediator = mediator;
+    private readonly IMediator _mediator = mediator;
 
     public async Task<AddResponse<List<FileAttachmentDto>>> AddAttachment()
     {

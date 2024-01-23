@@ -2,12 +2,8 @@
 
 namespace TozawaNGO.Attachment.Models.Commands
 {
-    public class DeleteBlobCommand : IRequest
+    public class DeleteBlobCommand(Guid id) : IRequest
     {
-        public DeleteBlobCommand(Guid id)
-        {
-            Id = id;
-        }
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = id;
     }
 }

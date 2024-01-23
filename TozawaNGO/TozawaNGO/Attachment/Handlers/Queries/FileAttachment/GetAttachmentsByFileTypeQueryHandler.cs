@@ -8,20 +8,13 @@ using TozawaNGO.Services;
 
 namespace TozawaNGO.Attachment.Handlers.Queries.FileAttachment;
 
-public class GetAttachmentsByFileTypeQueryHandler : IRequestHandler<GetAttachmentsByFileTypeQuery, IEnumerable<TozawaNGO.Models.Dtos.FileAttachmentDto>>
+public class GetAttachmentsByFileTypeQueryHandler(TozawangoDbContext context,
+    IFileAttachmentConverter attachmentConverter,
+    ICurrentUserService currentUserService) : IRequestHandler<GetAttachmentsByFileTypeQuery, IEnumerable<TozawaNGO.Models.Dtos.FileAttachmentDto>>
 {
-    private readonly TozawangoDbContext _context;
-    private readonly IFileAttachmentConverter _attachmentConverter;
-    private readonly ICurrentUserService _currentUserService;
-
-    public GetAttachmentsByFileTypeQueryHandler(TozawangoDbContext context,
-        IFileAttachmentConverter attachmentConverter,
-        ICurrentUserService currentUserService)
-    {
-        _context = context;
-        _attachmentConverter = attachmentConverter;
-        _currentUserService = currentUserService;
-    }
+    private readonly TozawangoDbContext _context = context;
+    private readonly IFileAttachmentConverter _attachmentConverter = attachmentConverter;
+    private readonly ICurrentUserService _currentUserService = currentUserService;
 
     public async Task<IEnumerable<TozawaNGO.Models.Dtos.FileAttachmentDto>> Handle(GetAttachmentsByFileTypeQuery request, CancellationToken cancellationToken)
     {

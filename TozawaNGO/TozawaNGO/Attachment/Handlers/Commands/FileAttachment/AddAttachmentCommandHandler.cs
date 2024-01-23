@@ -10,25 +10,16 @@ using TozawaNGO.Services;
 
 namespace TozawaNGO.Attachment.Handlers.Commands;
 
-public class AddAttachmentCommandHandler : IRequestHandler<AddAttachmentCommand, AddResponse<IEnumerable<TozawaNGO.Models.Dtos.FileAttachmentDto>>>
+public class AddAttachmentCommandHandler(TozawangoDbContext context, IGoogleService googleService,
+    IFileAttachmentCreator fileAttachmentCreator,
+    IFileAttachmentConverter fileAttachmentConverter,
+    ILogger<AddAttachmentCommandHandler> logger) : IRequestHandler<AddAttachmentCommand, AddResponse<IEnumerable<TozawaNGO.Models.Dtos.FileAttachmentDto>>>
 {
-    private readonly TozawangoDbContext _context;
-    private readonly IFileAttachmentCreator _fileAttachmentCreator;
-    private readonly IGoogleService _googleService;
-    private readonly IFileAttachmentConverter _fileAttachmentConverter;
-    private readonly ILogger<AddAttachmentCommandHandler> _logger;
-
-    public AddAttachmentCommandHandler(TozawangoDbContext context, IGoogleService googleService,
-        IFileAttachmentCreator fileAttachmentCreator,
-        IFileAttachmentConverter fileAttachmentConverter,
-        ILogger<AddAttachmentCommandHandler> logger)
-    {
-        _context = context;
-        _googleService = googleService;
-        _fileAttachmentCreator = fileAttachmentCreator;
-        _fileAttachmentConverter = fileAttachmentConverter;
-        _logger = logger;
-    }
+    private readonly TozawangoDbContext _context = context;
+    private readonly IFileAttachmentCreator _fileAttachmentCreator = fileAttachmentCreator;
+    private readonly IGoogleService _googleService = googleService;
+    private readonly IFileAttachmentConverter _fileAttachmentConverter = fileAttachmentConverter;
+    private readonly ILogger<AddAttachmentCommandHandler> _logger = logger;
 
     public async Task<AddResponse<IEnumerable<FileAttachmentDto>>> Handle(AddAttachmentCommand request, CancellationToken cancellationToken)
     {

@@ -16,15 +16,10 @@ namespace TozawaNGO.Services
         Task<Stream> StreamFromGoogleFileByFolder(string folder, string id);
         Task<Stream> StreamFromGoogleFileByFileId(string id);
     }
-    public class GoogleService : IGoogleService
+    public class GoogleService(AppSettings appSettings, ILogger<GoogleService> logger) : IGoogleService
     {
-        private readonly ILogger<GoogleService> _logger;
-        private readonly AppSettings _appSettings;
-        public GoogleService(AppSettings appSettings, ILogger<GoogleService> logger)
-        {
-            _logger = logger;
-            _appSettings = appSettings;
-        }
+        private readonly ILogger<GoogleService> _logger = logger;
+        private readonly AppSettings _appSettings = appSettings;
 
         public async Task<DriveService> GetService()
         {

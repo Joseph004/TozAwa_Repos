@@ -2,12 +2,8 @@
 
 namespace TozawaNGO.Attachment.Models.Queries
 {
-    public class GetBlobQuery : IRequest<byte[]>
+    public class GetBlobQuery(Guid id) : IRequest<byte[]>
     {
-        public Guid Id { get; set; }
-        public GetBlobQuery(Guid id)
-        {
-            Id = id;
-        }
+        public Guid Id { get; set; } = id;
     }
 }

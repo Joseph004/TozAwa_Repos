@@ -157,7 +157,7 @@ namespace TozawaNGO.Services
 
             if (_activeLanguages == null)
             {
-                _activeLanguages = (_appSettings.Languages ?? []).ToList();
+                _activeLanguages = [.. (_appSettings.Languages ?? [])];
             }
 
             return await Task.FromResult(_activeLanguages);
@@ -182,8 +182,8 @@ namespace TozawaNGO.Services
             if (language == null)
                 return "";
 
-            return !string.IsNullOrEmpty(language.ShortName) && language.ShortName.Contains("-") ? language.ShortName.Split("-")[1].ToLower() :
-                    !string.IsNullOrEmpty(language.ShortName) && !language.ShortName.Contains("-") ? language.ShortName : "none";
+            return !string.IsNullOrEmpty(language.ShortName) && language.ShortName.Contains('-') ? language.ShortName.Split("-")[1].ToLower() :
+                    !string.IsNullOrEmpty(language.ShortName) && !language.ShortName.Contains('-') ? language.ShortName : "none";
         }
 
         public TranslationDto Translate(Guid id, string fallback = null, int? limit = null, bool? toUpper = null)

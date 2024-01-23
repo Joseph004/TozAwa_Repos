@@ -6,6 +6,7 @@ using TozawaNGO.Models.Dtos;
 using TozawaNGO.Helpers;
 using Blazored.LocalStorage;
 using Microsoft.JSInterop;
+using TozawaNGO.Services;
 
 namespace TozawaNGO.Shared
 {
@@ -17,6 +18,7 @@ namespace TozawaNGO.Shared
         public EventCallback<MudTheme> OnThemeToggled { get; set; }
         [Inject] ILocalStorageService _localStorageService { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
+        [Inject] LoadingState LoadingState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
@@ -91,6 +93,7 @@ namespace TozawaNGO.Shared
                         await _localStorageService.SetItemAsync("refreshToken", userResponse.RefreshToken);
 
                         _loginUrl = $"login{NavigateToReturnPage()}";
+                        LoadingState.SetRequestInProgress(false);
                         await JSRuntime.InvokeVoidAsync("open", Decode(_loginUrl), "_top");
                     }
                 }

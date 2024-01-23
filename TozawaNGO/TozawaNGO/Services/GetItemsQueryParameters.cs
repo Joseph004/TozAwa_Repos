@@ -6,14 +6,14 @@ using MudBlazor;
 
 namespace TozawaNGO.Services
 {
-    public class GetItemsQueryParameters
+    public class GetItemsQueryParameters(TableState state, bool includeDeleted, string searchString, string email, string pageOfEmail)
     {
-        public string Page { get; set; }
-        public string PageSize { get; set; }
-        public string IncludeDeleted { get; set; }
-        public string SearchString { get; set; }
-        public string Email { get; set; }
-        public string PageOfEmail { get; set; }
+        public string Page { get; set; } = state.Page.ToString();
+        public string PageSize { get; set; } = state.PageSize.ToString();
+        public string IncludeDeleted { get; set; } = includeDeleted.ToString();
+        public string SearchString { get; set; } = searchString;
+        public string Email { get; set; } = email;
+        public string PageOfEmail { get; set; } = pageOfEmail;
 
         public string ToQueryString(string basePath)
         {
@@ -34,16 +34,6 @@ namespace TozawaNGO.Services
             }
 
             return uri;
-        }
-
-        public GetItemsQueryParameters(TableState state, bool includeDeleted, string searchString, string email, string pageOfEmail)
-        {
-            Page = state.Page.ToString();
-            PageSize = state.PageSize.ToString();
-            IncludeDeleted = includeDeleted.ToString();
-            SearchString = searchString;
-            Email = email;
-            PageOfEmail = pageOfEmail;
         }
     }
 }

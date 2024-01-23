@@ -6,14 +6,10 @@ using TozawaNGO.Models.Enums;
 
 namespace TozawaNGO.Attachment.Converters
 {
-    public class FileAttachmentCreator : IFileAttachmentCreator
+    public class FileAttachmentCreator(TozawangoDbContext TozawangoDbContext) : IFileAttachmentCreator
     {
-        private readonly TozawangoDbContext _TozawangoDbContext;
+        private readonly TozawangoDbContext _TozawangoDbContext = TozawangoDbContext;
 
-        public FileAttachmentCreator(TozawangoDbContext TozawangoDbContext)
-        {
-            _TozawangoDbContext = TozawangoDbContext;
-        }
         public async Task<FileAttachment> Create(AddAttachmentRequest addAttachmentCommand)
         {
             await Task.FromResult(1);

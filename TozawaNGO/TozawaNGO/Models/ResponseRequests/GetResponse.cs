@@ -3,18 +3,10 @@ using TozawaNGO.Services;
 
 namespace TozawaNGO.Models.ResponseRequests;
 
-public class GetResponse<T> : IResponse
+public class GetResponse<T>(bool success, string message, HttpStatusCode? statusCode, T? entity) : IResponse
 {
-#nullable enable
-    public GetResponse(bool success, string message, HttpStatusCode? statusCode, T? entity)
-    {
-        Success = success;
-        StatusCode = statusCode;
-        Entity = entity;
-        Message = message;
-    }
-    public bool Success { get; set; }
-    public T? Entity { get; set; }
-    public string Message { get; set; }
-    public HttpStatusCode? StatusCode { get; set; }
+    public bool Success { get; set; } = success;
+    public T? Entity { get; set; } = entity;
+    public string Message { get; set; } = message;
+    public HttpStatusCode? StatusCode { get; set; } = statusCode;
 }

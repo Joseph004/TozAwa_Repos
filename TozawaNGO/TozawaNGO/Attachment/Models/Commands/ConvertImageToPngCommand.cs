@@ -3,12 +3,8 @@ using Microsoft.AspNetCore.Http;
 
 namespace TozawaNGO.Attachment.Models.Commands
 {
-    public class ConvertImageToPngCommand : IRequest< byte[]>
+    public class ConvertImageToPngCommand(IFormFile file) : IRequest< byte[]>
     {
-        public ConvertImageToPngCommand(IFormFile file)
-        {
-            File = file;
-        }
-        public IFormFile File { get; set; }
+        public IFormFile File { get; set; } = file;
     }
 }

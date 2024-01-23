@@ -15,17 +15,12 @@ namespace TozawaNGO.Auth.Controllers
     [AuthorizeUserRequirementWithNoExpireToken]
     [Produces("application/json")]
     [ApiController]
-    public class TokenController : ControllerBase
+    public class TokenController(UserManager<ApplicationUser> userManager, IMediator mediator, IUserTokenService userTokenService) : ControllerBase
     {
-        private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IUserTokenService _userTokenService;
-        private readonly IMediator _mediator;
-        public TokenController(UserManager<ApplicationUser> userManager, IMediator mediator, IUserTokenService userTokenService)
-        {
-            _userManager = userManager;
-            _userTokenService = userTokenService;
-            _mediator = mediator;
-        }
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+        private readonly IUserTokenService _userTokenService = userTokenService;
+        private readonly IMediator _mediator = mediator;
+
         [HttpPost]
         [Route("refresh")]
         public async Task<IActionResult> Refresh([FromBody] RefreshTokenDto tokenDto)

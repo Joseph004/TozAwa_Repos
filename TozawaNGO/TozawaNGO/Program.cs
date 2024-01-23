@@ -127,10 +127,8 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-builder.Services.AddAuthorization(config =>
-   {
-       config.AddPolicy("admin-member", policy => policy.RequireClaim("admin-member", "MemberIsAdmin"));
-   });
+builder.Services.AddAuthorizationBuilder()
+    .AddPolicy("admin-member", policy => policy.RequireClaim("admin-member", "MemberIsAdmin"));
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
 
 

@@ -20,6 +20,7 @@ namespace TozawaNGO.Pages
         [Inject] protected AttachmentService AttachmentService { get; set; }
         [Inject] protected FileService FileService { get; set; }
         [Inject] public ISnackbar Snackbar { get; set; }
+        [Inject] private LoadingState LoadingState { get; set; }
         private AttachmentType _attachmentType { get; set; } = AttachmentType.Intern;
         protected static Guid _areYouSureTranslation = Guid.Parse("c41187b6-6dc7-4e9a-a403-4982b34f21f8");
         protected int _thumbnailSize = 24;
@@ -28,6 +29,7 @@ namespace TozawaNGO.Pages
         private string _alphaNumericFileNameValidationMessage;
         private string _fileNameLengthValidationMessage;
         private string _fileTypeValidationMessage;
+        private string _error = "";
 
         protected void Add() => MudDialog.Close(DialogResult.Ok(Entity));
         protected void Cancel() => MudDialog.Cancel();
@@ -64,6 +66,7 @@ namespace TozawaNGO.Pages
         private async void Download(FileAttachmentDto attachment)
         {
             _onProgress = true;
+            LoadingState.SetRequestInProgress(true);
             StateHasChanged();
 
             var attachmentResponse = await AttachmentService.AttachmentDownload(attachment.Id);
@@ -76,6 +79,7 @@ namespace TozawaNGO.Pages
             {
                 Snackbar.Add(attachmentResponse.Message, Severity.Error);
             }
+            LoadingState.SetRequestInProgress(false);
             _onProgress = false;
             StateHasChanged();
         }
@@ -97,6 +101,7 @@ namespace TozawaNGO.Pages
 
             if (!result.Canceled)
             {
+                LoadingState.SetRequestInProgress(true);
                 _onProgress = true;
                 StateHasChanged();
 
@@ -116,6 +121,7 @@ namespace TozawaNGO.Pages
                 {
                     Snackbar.Add(deleteResponse.Message, Severity.Error);
                 }
+                LoadingState.SetRequestInProgress(true);
                 _onProgress = false;
                 StateHasChanged();
             }
@@ -125,6 +131,13 @@ namespace TozawaNGO.Pages
         {
             try
             {
+                _error = string.Empty;
+                if (e.FileCount > 10)
+                {
+                    _error = _translationService.Translate(SystemTextId.MaximumFilesAllowed, "You can only upload 10 files at a moment!").Text;
+                    return;
+                }
+                LoadingState.SetRequestInProgress(true);
                 _onProgress = true;
                 StateHasChanged();
                 foreach (var file in e.GetMultipleFiles())
@@ -159,11 +172,6 @@ namespace TozawaNGO.Pages
                     }
                     else
                     {
-                        foreach (var file in _files)
-                        {
-                            var buffers = new byte[file.Size];
-                            await file.OpenReadStream(maxAllowedSize: FileValidator.MaxAllowedSize).ReadAsync(buffers);
-                        }
                         await request.AddFiles(_files);
                         request.FileAttachmentType = _attachmentType;
                         request.FolderName = Entity.Email;
@@ -185,6 +193,7 @@ namespace TozawaNGO.Pages
                         }
                     }
                 }
+                LoadingState.SetRequestInProgress(false);
                 _onProgress = false;
                 StateHasChanged();
             }

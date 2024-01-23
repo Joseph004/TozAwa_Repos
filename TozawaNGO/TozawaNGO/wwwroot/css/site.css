@@ -106,27 +106,8 @@ a,
 .footer {
     display: flex;
     align-items: center;
-    justify-content: center;
-    margin-top: auto;
+    justify-content: space-around;
     padding: 15px;
-    background-color: #000;
-}
-
-.infooter {
-    display: table-cell;
-    vertical-align: middle;
-}
-
-.infooterfooter {
-    align-items: center;
-    justify-content: center;
-    vertical-align: middle;
-    display: flex;
-}
-
-.footer p {
-    color: #fff;
-    font-family: cursive;
 }
 
 /* Footer Ends */

@@ -3,37 +3,146 @@
 @inherits BaseComponent
 @implements IDisposable
 
+<style>
+    .mud-input-helper-text {
+        color: red;
+    }
+</style>
+
+
 <br />
 <br />
-<footer class="footer" id="footer">
-    <div class="infooter" style="margin-right: 15px;">
-        <MudText>Vill du ge en gåva?</MudText>
-        <MudText>Bankgiro: xxxx-yyyy</MudText>
-        <MudText>Konto: xxxx-yyyy</MudText>
-    </div>
-    <MudDivider Style="margin-right: 15px;" Vertical="true" FlexItem="true" />
-    <div class="infooter" style="margin-right: 15px;">
-        <MudText>Följ oss även på:</MudText>
-        <div class="d-flex infooterfooter">
-            <div>
-                <img class="smicon" src="/images/fcbk.png" width="50" height="50" asp-append-version="true" />
+<footer style="background-color: #000; margin-top: auto;" id="footer">
+    <div class="footer">
+        <div style="display: flex;">
+            <div style="margin-right: -5px;">
+                <MudIconButton Icon="@Icons.Material.Filled.LocationOn" Size="Size.Large" Style="@($"color:#FFA500;")">
+                </MudIconButton>
             </div>
-            <div>
-                <img class="smicon" src="/images/insta.png" width="50" height="50" asp-append-version="true" />
+            <div style="margin-left: -5px; margin-top: 5px;">
+                <SystemText Style="font-size: medium; color: white;" TextId=SystemTextId.Findus FallbackText="Find us"
+                    IsFirstLoaded="@IsFirstLoaded"></SystemText><br>
+                <MudLink Style="font-size: small; color: #757575 !important;" Href="#">Tallrisvägen 15L, 702 34 Örebro
+                </MudLink>
             </div>
-            <div>
-                <img class="smicon" src="/images/ytb.png" width="50" height="50" asp-append-version="true" />
+        </div>
+        <div style="display: flex;">
+            <div style="margin-right: -5px;">
+                <MudIconButton Icon="@Icons.Material.Filled.PhoneEnabled" Size="Size.Large"
+                    Style="@($"color:#FFA500;")">
+                </MudIconButton>
             </div>
-            <div>
-                <img class="smicon" src="/images/twt.png" width="50" height="50" asp-append-version="true" />
+            <div style="margin-left: -5px; margin-top: 5px;">
+                <SystemText Style="font-size: medium; color: white;" TextId=SystemTextId.Callus FallbackText="Call us"
+                    IsFirstLoaded="@IsFirstLoaded"></SystemText><br>
+                <MudLink Style="font-size: small; color: #757575 !important;" Href="tel:+46701573032">0046-70 157 30 32
+                </MudLink>
+            </div>
+        </div>
+        <div style="display: flex;">
+            <div style="margin-right: -5px;">
+                <MudIconButton Icon="@Icons.Material.Filled.Email" Size="Size.Large" Style="@($"color:#FFA500;")">
+                </MudIconButton>
+            </div>
+            <div style="margin-left: -5px; margin-top: 5px;">
+                <SystemText Style="font-size: medium; color: white;" TextId=SystemTextId.Mailus FallbackText="Mail us"
+                    IsFirstLoaded="@IsFirstLoaded"></SystemText><br>
+                <MudLink Style="font-size: small; color: #757575 !important;" Href="mailto:josephluhandu@yahoo.com">
+                    josephluhandu@yahoo.com</MudLink>
             </div>
         </div>
     </div>
-    <MudDivider Style="margin-right: 15px;" Vertical="true" FlexItem="true" />
-    <div class="infooter">
-        <MudText>Copyright © 2024-2025 NGO tozawarafiki, Örebro, Sweden</MudText>
-        <MudText>Tallrisvägen 15L, 702 34 Örebro, Sweden</MudText>
-        <MudText>tozawainfo@gmail.com</MudText>
-        <MudText>Tel. +46 70 6xt 1d 5y</MudText>
+    <MudDivider DividerType="DividerType.Middle" Class="my-2" />
+    <div style="display: flex; gap: 10px; margin-top: 20px">
+        <div style="flex: 1">
+            <MudButton Href="/home" Color="Color.Inherit">
+                <img src="/images/TR_Mini.png" asp-append-version="true" height="60px" width="150px" />
+            </MudButton>
+        </div>
+        <div style="flex: 1">
+            <MudText Style="color: white;"><span
+                    style='text-decoration: underline #FFA500; text-underline-offset: 10px;'>@GetFirstTextDecoration(_translationService.Translate(SystemTextId.Usefulllinks,
+                    "Usefull links").Text)</span><span>@GetLastTextDecoration(_translationService.Translate(SystemTextId.Usefulllinks,
+                    "Usefull links").Text)</span></MudText>
+        </div>
+        <div style="flex: 1">
+            <MudText Style="color: white;"><span
+                    style='text-decoration: underline #FFA500; text-underline-offset: 10px;'>@GetFirstTextDecoration(_translationService.Translate(SystemTextId.Subscribe,
+                    "Subscribe").Text)</span><span>@GetLastTextDecoration(_translationService.Translate(SystemTextId.Subscribe,
+                    "Subscribe").Text)</span>
+            </MudText>
+        </div>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <div style="flex: 1; margin-left: 20px">
+            <div style="max-height: 90px; overflow:auto;">
+                <SystemText Style="ffont-size: small; color:#757575 !important;" TextId=SystemTextId.ShotNGODescription
+                    FallbackText="This NGO is for helping children in need of developing computer skills
+                This NGO is for helping children in need of developing computer skills
+                This NGO is for helping children in need of developing computer skills" IsFirstLoaded="@IsFirstLoaded">
+                </SystemText>
+            </div>
+            <div style="margin-top: 15px; width: auto">
+                <SystemText Style="color: white; width: auto" TextId=SystemTextId.Followus FallbackText="Follow us"
+                    IsFirstLoaded="@IsFirstLoaded"></SystemText><br>
+            </div>
+            <div style="display: flex; width: auto">
+                <div>
+                    <img class="smicon" src="/images/fcbk.png" width="25" height="25" asp-append-version="true" />
+                </div>
+                <div>
+                    <img class="smicon" src="/images/insta.png" width="25" height="25" asp-append-version="true" />
+                </div>
+                <div>
+                    <img class="smicon" src="/images/ytb.png" width="25" height="25" asp-append-version="true" />
+                </div>
+                <div>
+                    <img class="smicon" src="/images/twt.png" width="25" height="25" asp-append-version="true" />
+                </div>
+            </div>
+        </div>
+        <div style="flex: 1">
+            <div style="display: flex;">
+                <div style="flex: 1;">
+                    <MudLink Style="font-size: small; color: #757575 !important;" Href="#">XXXXXX</MudLink><br>
+                    <MudLink Style="font-size: small; color: #757575 !important;" Href="#">YYYYYY</MudLink><br>
+                    <MudLink Style="font-size: small; color: #757575 !important;" Href="#">XXXXXX</MudLink><br>
+                    <MudLink Style="font-size: small; color: #757575 !important;" Href="#">YYYYYY</MudLink>
+                </div>
+                <div style="flex: 1;">
+                    <MudLink Style="font-size: small; color: #757575 !important;" Href="#">XXXXXX</MudLink><br>
+                    <MudLink Style="font-size: small; color: #757575 !important;" Href="#">YYYYYY</MudLink><br>
+                    <MudLink Style="font-size: small; color: #757575 !important;" Href="#">XXXXXX</MudLink><br>
+                    <MudLink Style="font-size: small; color: #757575 !important;" Href="#">YYYYYY</MudLink>
+                </div>
+            </div>
+        </div>
+        <div style="flex: 1; margin-right: 15px;">
+            <div style="max-height: 90px; overflow:auto;">
+                <SystemText Style="font-size: small; color:#757575 !important;" TextId=SystemTextId.SubscribeText
+                    FallbackText="Don't miss to subscribe to our feeds, kindly fill the form below"
+                    IsFirstLoaded="@IsFirstLoaded"></SystemText><br>
+            </div>
+            <MudForm Style="margin-top: 40px;" Model="@model" @ref="@form" @bind-IsValid="@_success"
+                @bind-Errors="@_errors">
+                <MudTextField HelperText="@(_errors.Length != 0 ? _errors[0] : string.Empty)"
+                    Style="background-color: white;" Immediate="true" Disabled="@DisabledSend()"
+                    @bind-Value="model.Email" Label="@_email" Variant="Variant.Filled" InputType="@InputType.Text"
+                    Adornment="Adornment.End" AdornmentIcon="@EmailInputIcon" OnAdornmentClick="SendEmailClick"
+                    AdornmentAriaLabel="Send email" AdornmentColor="Color.Warning" />
+            </MudForm>
+        </div>
+    </div>
+    <div class="footer" style="margin-top: 20px; background-color: #212121; padding: 5px;">
+        <div class="footer">
+            <MudText Style="font-size: small; color:#757575 !important;">Copyright@2024 All Right reserved</MudText>
+            <MudLink Style="color:#FFA500 !important; font-size: small; margin-left: 2px" Href="#">SWE</MudLink>
+        </div>
+        <div class="footer">
+            <MudLink Style="font-size: small; color: #757575 !important;" Href="#">Home</MudLink>
+            <MudLink Style="font-size: small; color: #757575 !important; margin-left: 10px" Href="#">Privacy</MudLink>
+            <MudLink Style="font-size: small; color: #757575 !important; margin-left: 10px" Href="#">Policy</MudLink>
+            <MudLink Style="font-size: small; color: #757575 !important; margin-left: 10px" Href="#">Contact</MudLink>
+        </div>
     </div>
 </footer>

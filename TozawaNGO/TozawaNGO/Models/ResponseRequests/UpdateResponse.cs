@@ -3,33 +3,17 @@ using TozawaNGO.Services;
 
 namespace TozawaNGO.Models.ResponseRequests;
 
-public class UpdateResponse<TType> : IResponse where TType : class
+public class UpdateResponse<TType>(bool success, string message, HttpStatusCode? statusCode, TType? entity) : IResponse where TType : class
 {
-#nullable enable
-    public UpdateResponse(bool success, string message, HttpStatusCode? statusCode, TType? entity)
-    {
-        Success = success;
-        StatusCode = statusCode;
-        Entity = entity;
-        Message = message;
-    }
-    public bool Success { get; set; }
-    public string Message { get; set; }
-    public HttpStatusCode? StatusCode { get; set; }
-    public TType? Entity { get; set; }
+    public bool Success { get; set; } = success;
+    public string Message { get; set; } = message;
+    public HttpStatusCode? StatusCode { get; set; } = statusCode;
+    public TType? Entity { get; set; } = entity;
 }
-public class UpdateResponse : IResponse
+public class UpdateResponse(bool success, string message, HttpStatusCode? statusCode) : IResponse
 {
-#nullable enable
-    public UpdateResponse(bool success, string message, HttpStatusCode? statusCode)
-    {
-        Success = success;
-        StatusCode = statusCode;
-        Message = message;
-    }
-
-    public bool Success { get; set; }
-    public HttpStatusCode? StatusCode { get; set; }
+    public bool Success { get; set; } = success;
+    public HttpStatusCode? StatusCode { get; set; } = statusCode;
     public object? Entity { get; set; } = null;
-    public string Message { get; set; }
+    public string Message { get; set; } = message;
 }

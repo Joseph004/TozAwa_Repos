@@ -6,11 +6,11 @@ using TozawaNGO.Models.ResponseRequests;
 
 namespace TozawaNGO.Services
 {
-    public class MemberService
+    public class MemberService(ITozAwaBffHttpClient client)
     {
-        private readonly ITozAwaBffHttpClient _client;
+        private readonly ITozAwaBffHttpClient _client = client;
         private const string _baseUriPath = $"member";
-        public MemberService(ITozAwaBffHttpClient client) => _client = client;
+
         public async Task<GetResponse<TableData<MemberDto>>> GetItems(TableState state, bool includeDeleted, string searchString, string pageOfEmail, string email = "")
         {
             var uri = new GetItemsQueryParameters(state, includeDeleted, searchString, email, pageOfEmail).ToQueryString(_baseUriPath);

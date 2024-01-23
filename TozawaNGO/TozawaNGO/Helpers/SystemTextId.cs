@@ -106,4 +106,14 @@ public static partial class SystemTextId
     public static Guid PleaseUseValidAllowedFiles => Guid.Parse("9ec2bab4-4b69-4c6d-aa8c-a8fbe79fe88b");
     public static Guid Register => Guid.Parse("2042a238-8375-4596-8f59-58d7fbf65d3c");
     public static Guid Files => Guid.Parse("edfda485-050c-4881-9dea-906a3aca1ff6");
+    public static Guid Findus => Guid.Parse("aabd1818-fd10-41d0-8ad5-8c0d12e205d4");
+    public static Guid Callus => Guid.Parse("a5836384-37d4-439c-a627-ee8b989722db");
+    public static Guid Mailus => Guid.Parse("08933bdd-7275-4a80-bf3c-79226cded894");
+    public static Guid ShotNGODescription => Guid.Parse("2f2544a2-82f4-456d-be26-4fd01a7a60b0");
+    public static Guid Followus => Guid.Parse("fa0fc6df-5599-47df-adc1-54d604b4080b");
+    public static Guid Usefulllinks => Guid.Parse("84d2a41e-bd0e-49ab-9ec5-245da8794e26");
+    public static Guid Subscribe => Guid.Parse("45e5f7fa-7fa5-4b5a-9504-27eabb9acded");
+    public static Guid SubscribeText => Guid.Parse("e7dc189c-2a4c-417b-b766-addc69ae7f93");
+    public static Guid NoAttachmentsExists => Guid.Parse("1f4ca531-ca3c-4a33-bb20-ff1f0d46b62a");
+    public static Guid MaximumFilesAllowed => Guid.Parse("2eac4ad7-ada7-48a0-a4ab-a985820140e4");
 }

@@ -16,12 +16,8 @@ namespace TozawaNGO.Attachment.Controllers
     [Route("api/[controller]")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
      [EnableCors("TozAwaCorsPolicyBff")]
-    public class BlobController : InitController
+    public class BlobController(IMediator mediator, TozawaNGO.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : InitController(mediator, currentUserService, userTokenService)
     {
-        public BlobController(IMediator mediator, TozawaNGO.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : base(mediator, currentUserService, userTokenService)
-        {
-        }
-
         [HttpGet, Route("{id}"), CheckRole(RoleDto.President, RoleDto.VicePresident)]
         public async Task<IActionResult> Get(Guid id) => Ok(await _mediator.Send(new GetBlobQuery(id)));
 

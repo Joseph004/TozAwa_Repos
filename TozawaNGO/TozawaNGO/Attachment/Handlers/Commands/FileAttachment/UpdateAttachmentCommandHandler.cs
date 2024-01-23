@@ -9,20 +9,13 @@ using TozawaNGO.Services;
 
 namespace TozawaNGO.Attachment.Handlers.Commands;
 
-public class UpdateAttachmentCommandHandler : IRequestHandler<UpdateAttachmentCommand, TozawaNGO.Models.Dtos.FileAttachmentDto>
+public class UpdateAttachmentCommandHandler(TozawangoDbContext context,
+    IFileAttachmentConverter fileAttachmentConverter,
+    ICurrentUserService currentUserService) : IRequestHandler<UpdateAttachmentCommand, TozawaNGO.Models.Dtos.FileAttachmentDto>
 {
-    private readonly TozawangoDbContext _context;
-    private readonly IFileAttachmentConverter _fileAttachmentConverter;
-    private readonly ICurrentUserService _currentUserService;
-
-    public UpdateAttachmentCommandHandler(TozawangoDbContext context,
-        IFileAttachmentConverter fileAttachmentConverter,
-        ICurrentUserService currentUserService)
-    {
-        _context = context;
-        _fileAttachmentConverter = fileAttachmentConverter;
-        _currentUserService = currentUserService;
-    }
+    private readonly TozawangoDbContext _context = context;
+    private readonly IFileAttachmentConverter _fileAttachmentConverter = fileAttachmentConverter;
+    private readonly ICurrentUserService _currentUserService = currentUserService;
 
     public async Task<TozawaNGO.Models.Dtos.FileAttachmentDto> Handle(UpdateAttachmentCommand request, CancellationToken cancellationToken)
     {

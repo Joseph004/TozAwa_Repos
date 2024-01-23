@@ -9,18 +9,12 @@ using System.Net;
 
 namespace TozawaNGO.Attachment.Handlers.Commands;
 
-public class DeleteAttachmentCommandHandler : IRequestHandler<DeleteAttachmentCommand, DeleteResponse>
+public class DeleteAttachmentCommandHandler(TozawangoDbContext context, IGoogleService googleService, ILogger<DeleteAttachmentCommandHandler> logger) : IRequestHandler<DeleteAttachmentCommand, DeleteResponse>
 {
-    private readonly TozawangoDbContext _context;
-    private readonly IGoogleService _googleService;
-    private readonly ILogger<DeleteAttachmentCommandHandler> _logger;
+    private readonly TozawangoDbContext _context = context;
+    private readonly IGoogleService _googleService = googleService;
+    private readonly ILogger<DeleteAttachmentCommandHandler> _logger = logger;
 
-    public DeleteAttachmentCommandHandler(TozawangoDbContext context, IGoogleService googleService, ILogger<DeleteAttachmentCommandHandler> logger)
-    {
-        _context = context;
-        _googleService = googleService;
-        _logger = logger;
-    }
     public async Task<DeleteResponse> Handle(DeleteAttachmentCommand request, CancellationToken cancellationToken)
     {
         try

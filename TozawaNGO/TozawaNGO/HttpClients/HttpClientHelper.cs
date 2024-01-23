@@ -19,39 +19,27 @@ using System.Web;
 
 namespace TozawaNGO.HttpClients
 {
-    public class HttpClientHelper
+    public class HttpClientHelper(
+       HttpClient client,
+        ITranslationService translationService,
+        AppSettings appSettings,
+        AuthenticationStateProvider authProvider,
+        ILocalStorageService localStorageService,
+        NavigationManager navigationManager,
+        AuthStateProvider authStateProvider,
+        IJSRuntime jSRuntime,
+        ILogger<HttpClientHelper> logger)
     {
-        protected readonly ILogger<HttpClientHelper> _logger;
-        private readonly ITranslationService _translationService;
-        private readonly AppSettings _appSettings;
-        private readonly AuthenticationStateProvider _authProvider;
-        private readonly ILocalStorageService _localStorageService;
-        private readonly NavigationManager _navigationManager;
-        private readonly AuthStateProvider _authStateProvider;
-        private readonly IJSRuntime _jSRuntime;
-        private readonly HttpClient _client;
+        protected readonly ILogger<HttpClientHelper> _logger = logger;
+        private readonly ITranslationService _translationService = translationService;
+        private readonly AppSettings _appSettings = appSettings;
+        private readonly AuthenticationStateProvider _authProvider = authProvider;
+        private readonly ILocalStorageService _localStorageService = localStorageService;
+        private readonly NavigationManager _navigationManager = navigationManager;
+        private readonly AuthStateProvider _authStateProvider = authStateProvider;
+        private readonly IJSRuntime _jSRuntime = jSRuntime;
+        private readonly HttpClient _client = client;
 
-        public HttpClientHelper(
-           HttpClient client,
-            ITranslationService translationService,
-            AppSettings appSettings,
-            AuthenticationStateProvider authProvider,
-            ILocalStorageService localStorageService,
-            NavigationManager navigationManager,
-            AuthStateProvider authStateProvider,
-            IJSRuntime jSRuntime,
-            ILogger<HttpClientHelper> logger)
-        {
-            _logger = logger;
-            _client = client;
-            _appSettings = appSettings;
-            _authProvider = authProvider;
-            _localStorageService = localStorageService;
-            _translationService = translationService;
-            _navigationManager = navigationManager;
-            _authStateProvider = authStateProvider;
-            _jSRuntime = jSRuntime;
-        }
         public async Task RemoveCurrentUser()
         {
             if (await _localStorageService.ContainKeyAsync("currentUser"))
