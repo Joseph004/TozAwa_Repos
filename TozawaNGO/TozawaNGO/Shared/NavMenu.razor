@@ -2,11 +2,23 @@
 @namespace TozawaNGO.Shared
 @inherits TozawaNGO.Shared.BaseComponent
 
-<MudDrawer Style="border: 0.5px outset" @bind-Open="SideBarOpen" Elevation="1">
-    <MudDrawerHeader style="background-color: white; height: 150px;">
+<style>
+    .tznavmenu {
+        max-height: 100vh;
+        height: 100vh;
+    }
+
+    .tznavmenu>div:nth-child(1) {
+        max-height: 100%;
+        height: 100%;
+    }
+</style>
+
+<MudDrawer Class="tznavmenu d-flex flex-column flex-grow-1 gap-4" Style="border: 0.5px outset" @bind-Open="SideBarOpen" Elevation="1">
+    <MudDrawerHeader style="background-color: white; max-height: 150px; height: 150px;">
         <img src="/images/TR_Max.png" asp-append-version="true" />
     </MudDrawerHeader>
-    <MudNavMenu Class="mt-5" Color="Color.Warning">
+    <MudNavMenu Class="mt-5 flex-1" Color="Color.Warning">
         <MudNavLink Style="border-bottom: 0.1px solid;" Href="/home" Match="NavLinkMatch.All"
             Icon="@Icons.Material.Filled.Home">
             <SystemText TextId=SystemTextId.Home FallbackText="Home" IsFirstLoaded="@IsFirstLoaded"></SystemText>

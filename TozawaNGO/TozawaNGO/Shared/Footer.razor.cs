@@ -1,5 +1,6 @@
 using FluentValidation;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using MudBlazor;
 using TozawaNGO.Helpers;
@@ -31,7 +32,7 @@ namespace TozawaNGO.Shared
             }
             return "";
         }
-        async void SendEmailClick()
+        public async Task SendEmailClick()
         {
             _errors = [];
             if (requestInProgress) return;
@@ -98,7 +99,13 @@ namespace TozawaNGO.Shared
             await Task.FromResult(1);
             /*  await JS.InvokeAsync<string>("FooterResized", DotNetObjectReference.Create(this)); */
         }
-
+        private async Task SendEmailByKeyBoard(KeyboardEventArgs e)
+        {
+            if (e.Code == "Enter" || e.Code == "NumpadEnter")
+            {
+                await SendEmailClick();
+            }
+        }
         protected async Task ToggleSocialIcon()
         {
             await Task.FromResult(1);

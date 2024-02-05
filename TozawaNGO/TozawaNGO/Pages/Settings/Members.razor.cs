@@ -31,7 +31,7 @@ namespace TozawaNGO.Pages
         protected PatchMemberRequest _patchMemberRequest = new();
         private string _pageOfEmail = null;
         public int ThumbnailSize = 24;
-        protected int[] _pageSizeOptions = new[] { 20, 50, 100 };
+        protected int[] _pageSizeOptions = [20, 50, 100];
 
         protected override async Task OnInitializedAsync()
         {
@@ -113,16 +113,14 @@ namespace TozawaNGO.Pages
                 /* SnackBar.Add(Translate(SystemTextId.Processing), Severity.Info); */
 
                 var modalResponse = (DeleteRequest)result.Data;
-                var patchRequest = new PatchMemberRequest();
-
-                if (modalResponse.SoftDeleted)
+                var patchRequest = new PatchMemberRequest
                 {
-                    patchRequest = new PatchMemberRequest { SoftDeleted = modalResponse.SoftDeleted };
-                }
+                    Deleted = modalResponse.SoftDeleted
+                };
 
                 if (modalResponse.HardDeleted)
                 {
-                    patchRequest = new PatchMemberRequest { HardDeleted = modalResponse.HardDeleted };
+                    patchRequest.DeleteForever = modalResponse.HardDeleted;
                 }
 
                 LoadingState.SetRequestInProgress(true);

@@ -347,4 +347,28 @@
     <value>Du kan som högst ladda upp 10 filer åt gången</value>
     <comment>.</comment>
   </data>
+  <data name="0a12f107-5899-4410-9820-c70e5c26acb7" xml:space="preserve">
+    <value>Filnamnet bör innehålla endast bokstäver och siffror</value>
+    <comment>.</comment>
+  </data>
+  <data name="09e30fc1-245a-46b6-bf2a-dafd00039e5b" xml:space="preserve">
+    <value>Filnamnet är längre, maximalt rekommanderad är 255</value>
+    <comment>.</comment>
+  </data>
+  <data name="9ec2bab4-4b69-4c6d-aa8c-a8fbe79fe88b" xml:space="preserve">
+    <value>Fil typ är inte tillåtet, bara bilder pdf word textfil och excel är tillåtna</value>
+    <comment>.</comment>
+  </data>
+  <data name="a3305de1-7c44-4c74-bc4f-5c1dc65195ce" xml:space="preserve">
+    <value>DEn tillåtna storleken är</value>
+    <comment>.</comment>
+  </data>
+    <data name="640642e8-c339-4f62-9b5c-58821061d49c" xml:space="preserve">
+    <value>Filnamn</value>
+    <comment>.</comment>
+  </data>
+  <data name="2d49ea8a-6935-42bb-b482-84c3c7ad608e" xml:space="preserve">
+    <value>existerar redan</value>
+    <comment>.</comment>
+  </data>
 </root>

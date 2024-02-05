@@ -346,4 +346,28 @@
     <value>Only 10 files can be uploaded at a moment</value>
     <comment>.</comment>
   </data>
+  <data name="0a12f107-5899-4410-9820-c70e5c26acb7" xml:space="preserve">
+    <value>The file name should be alpha numeric</value>
+    <comment>.</comment>
+  </data>
+  <data name="09e30fc1-245a-46b6-bf2a-dafd00039e5b" xml:space="preserve">
+    <value>Please the file name is too large, use max 255 characters as recommanded</value>
+    <comment>.</comment>
+  </data>
+  <data name="9ec2bab4-4b69-4c6d-aa8c-a8fbe79fe88b" xml:space="preserve">
+    <value>the file type is not valid, only images pdf word textfile and excel are allowed</value>
+    <comment>.</comment>
+  </data>
+  <data name="a3305de1-7c44-4c74-bc4f-5c1dc65195ce" xml:space="preserve">
+    <value>The Allowed maximum size is</value>
+    <comment>.</comment>
+  </data>
+  <data name="640642e8-c339-4f62-9b5c-58821061d49c" xml:space="preserve">
+    <value>Filename</value>
+    <comment>.</comment>
+  </data>
+  <data name="2d49ea8a-6935-42bb-b482-84c3c7ad608e" xml:space="preserve">
+    <value>already exists</value>
+    <comment>.</comment>
+  </data>
 </root>

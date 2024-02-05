@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
+using TozawaNGO.Attachment.Models.Dtos;
 using TozawaNGO.Helpers;
 using TozawaNGO.Models;
 using TozawaNGO.Models.Dtos;
@@ -30,40 +31,67 @@ namespace TozawaNGO.Pages
         private string _fileNameLengthValidationMessage;
         private string _fileTypeValidationMessage;
         private string _error = "";
+        private string _searchString = null;
+        private List<TozawaNGO.Models.Dtos.FileAttachmentDto> _attachments = [];
 
         protected void Add() => MudDialog.Close(DialogResult.Ok(Entity));
         protected void Cancel() => MudDialog.Cancel();
         protected override void OnInitialized()
         {
             _alphaNumericFileNameValidationMessage = _translationService.Translate(SystemTextId.PleaseUsevalidFileName, "The file name should be alpha numeric").Text;
-            _fileNameLengthValidationMessage = _translationService.Translate(SystemTextId.PleaseUseNormalFileNameLength, "Please the file name is too large, use maz 255 characters as recommanded").Text;
+            _fileNameLengthValidationMessage = _translationService.Translate(SystemTextId.PleaseUseNormalFileNameLength, "Please the file name is too large, use max 255 characters as recommanded").Text;
             _fileTypeValidationMessage = _translationService.Translate(SystemTextId.PleaseUseValidAllowedFiles, "the file type is not valid, only images pdf word textfile and excel are allowed").Text;
+
+            LoadData();
         }
         private bool IsValideFile(IBrowserFile file)
         {
             if (!FileValidator.IsValidContentType(file.ContentType))
             {
-                Snackbar.Add(_fileTypeValidationMessage, Severity.Info);
+                _error = _fileTypeValidationMessage;
                 return false;
             }
             else if (!FileValidator.IsValidName(file.Name))
             {
-                Snackbar.Add(_alphaNumericFileNameValidationMessage, Severity.Info);
+                _error = _alphaNumericFileNameValidationMessage;
                 return false;
             }
             else if (!FileValidator.IsValidLength(file.Name))
             {
-                Snackbar.Add(_fileNameLengthValidationMessage, Severity.Info);
+                _error = _fileNameLengthValidationMessage;
                 return false;
             }
 
             return true;
         }
+        private static Func<TozawaNGO.Models.Dtos.FileAttachmentDto, bool> Filtered(string searchString) => x =>
+                                                                              (!string.IsNullOrEmpty(x.Name) && x.Name.Contains(searchString, StringComparison.InvariantCultureIgnoreCase)) ||
+                                                                               (!string.IsNullOrEmpty(x.FileAttachmentType) && x.FileAttachmentType.Contains(searchString, StringComparison.InvariantCultureIgnoreCase)) ||
+                                                                               (!string.IsNullOrEmpty(x.Size.ToString()) && x.Size.ToString().Contains(searchString, StringComparison.InvariantCultureIgnoreCase));
 
-        protected string GetFileTypeIcon(FileAttachmentDto attachment) =>
+        private void LoadData()
+        {
+            if (!string.IsNullOrEmpty(_searchString))
+            {
+                _attachments = (Entity.Attachments ?? []).Where(Filtered(_searchString)).ToList();
+            }
+            else
+            {
+                _attachments = (Entity.Attachments ?? []).Select(x => (TozawaNGO.Models.Dtos.FileAttachmentDto)x.Clone()).ToList();
+            }
+            StateHasChanged();
+        }
+        protected void OnSearch(string text)
+        {
+            _searchString = text;
+
+            _attachments = Entity.Attachments.Where(Filtered(_searchString)).ToList();
+            StateHasChanged();
+        }
+        protected string GetFileTypeIcon(TozawaNGO.Models.Dtos.FileAttachmentDto attachment) =>
             attachment.MimeType.Contains("image") ? Icons.Material.Filled.Image : Icons.Material.Filled.FileCopy;
 
-        private async void Download(FileAttachmentDto attachment)
+        private async void Download(TozawaNGO.Models.Dtos.FileAttachmentDto attachment)
         {
             _onProgress = true;
             LoadingState.SetRequestInProgress(true);
@@ -87,7 +115,7 @@ namespace TozawaNGO.Pages
         {
             return Entity.Deleted || !HasPermission || _onProgress;
         }
-        private async void Delete(FileAttachmentDto attachment)
+        private async void Delete(TozawaNGO.Models.Dtos.FileAttachmentDto attachment)
         {
             var parameters = new DialogParameters
             {
@@ -109,8 +137,8 @@ namespace TozawaNGO.Pages
                 var deleteResponse = await AttachmentService.AttachmentDelete(attachment.Id);
                 if (deleteResponse.Success)
                 {
-                    Entity.Attachments.Remove(attachment);
-                    var files = new OwnerAttachments
+                    Entity.Attachments.RemoveAll(x => x.Id == attachment.Id);
+                    var files = new TozawaNGO.Models.Dtos.OwnerAttachments
                     {
                         OwnerId = Entity.Id,
                         Attachments = [attachment]
@@ -124,6 +152,7 @@ namespace TozawaNGO.Pages
                 }
                 LoadingState.SetRequestInProgress(false);
                 _onProgress = false;
+                LoadData();
                 StateHasChanged();
             }
         }
@@ -145,13 +174,15 @@ namespace TozawaNGO.Pages
                 {
                     if (!IsValideFile(file))
                     {
+                        LoadingState.SetRequestInProgress(false);
                         _onProgress = false;
                         return;
                     }
 
                     if (Entity.Attachments.Any(x => x.Name == file.Name && x.MimeType == file.ContentType))
                     {
-                        Snackbar.Add($"{Translate(SystemTextId.FileName, "Filename")} {file.Name.ToUpper()} {Translate(SystemTextId.AlreadyExists, "already exist")} : {Translate(SystemTextId.Name, "Name")}", Severity.Warning);
+                        _error = $"{Translate(SystemTextId.FileName, "Filename")} {file.Name.ToUpper()} {Translate(SystemTextId.AlreadyExists, "already exist")} : {Translate(SystemTextId.Name, "Name")}";
+                        LoadingState.SetRequestInProgress(false);
                         _onProgress = false;
                         StateHasChanged();
 
@@ -168,7 +199,7 @@ namespace TozawaNGO.Pages
 
                     if (_files.Any(x => x.Size > FileValidator.MaxAllowedSize))
                     {
-                        Snackbar.Add($"{Translate(SystemTextId.TheAllowedMaximumSizeIs, "The Allowed maximum size is")} {Math.Round(Convert.ToDouble(FileValidator.MaxAllowedSize) / 1000, 2)}KB", Severity.Warning);
+                        _error = $"{Translate(SystemTextId.TheAllowedMaximumSizeIs, "The Allowed maximum size is")} {Math.Round(Convert.ToDouble(FileValidator.MaxAllowedSize) / 1000, 2)}KB";
                         _files.Clear();
                     }
                     else
@@ -181,7 +212,7 @@ namespace TozawaNGO.Pages
                         {
                             Entity.Attachments.AddRange(attachmentsResponse.Entity ?? []);
                             _files.Clear();
-                            var files = new OwnerAttachments
+                            var files = new TozawaNGO.Models.Dtos.OwnerAttachments
                             {
                                 OwnerId = Entity.Id,
                                 Attachments = attachmentsResponse.Entity ?? []
@@ -196,6 +227,7 @@ namespace TozawaNGO.Pages
                 }
                 LoadingState.SetRequestInProgress(false);
                 _onProgress = false;
+                LoadData();
                 StateHasChanged();
             }
             catch (Exception)

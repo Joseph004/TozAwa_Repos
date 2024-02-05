@@ -355,5 +355,28 @@
     <value>Pas plus de 10 fichier au meme moment</value>
     <comment>.</comment>
   </data>
- 
+  <data name="0a12f107-5899-4410-9820-c70e5c26acb7" xml:space="preserve">
+    <value>Le nom du fichier doit contenir que des lettres et des chiffres</value>
+    <comment>.</comment>
+  </data>
+  <data name="09e30fc1-245a-46b6-bf2a-dafd00039e5b" xml:space="preserve">
+    <value>Le nom du fichier est trop grand, utilisez au maximal 255 characters</value>
+    <comment>.</comment>
+  </data>
+  <data name="9ec2bab4-4b69-4c6d-aa8c-a8fbe79fe88b" xml:space="preserve">
+    <value>Le type du fichier n'est pas authorisé, seulment les images pdf word textfile et excel sont permis</value>
+    <comment>.</comment>
+  </data>
+  <data name="a3305de1-7c44-4c74-bc4f-5c1dc65195ce" xml:space="preserve">
+    <value>La taille maximal recommandé est</value>
+    <comment>.</comment>
+  </data>
+    <data name="640642e8-c339-4f62-9b5c-58821061d49c" xml:space="preserve">
+    <value>Le fichier dont le nom</value>
+    <comment>.</comment>
+  </data>
+  <data name="2d49ea8a-6935-42bb-b482-84c3c7ad608e" xml:space="preserve">
+    <value>existe déja</value>
+    <comment>.</comment>
+  </data>
 </root>

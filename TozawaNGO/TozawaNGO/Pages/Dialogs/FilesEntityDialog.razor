@@ -19,72 +19,82 @@
         }
         @if (Entity != null && Entity.Attachments != null && Entity.Attachments.Count > 0)
         {
-            <MudPaper MaxHeight="1200px" class="overflow-scroll">
-                <MudTable T="FileAttachmentDto" Dense="true" Hover="true" Items="Entity.Attachments">
-                    <ColGroup>
-                        <col style="width: 10%;" />
-                        <col style="width: 30%;" />
-                        <col style="width: 20%;" />
-                        <col style="width: 20%;" />
-                        <col style="width: 15%;" />
-                        <col style="width: 5%;" />
-                    </ColGroup>
-                    <HeaderContent>
-                        <MudTh>
-                        </MudTh>
-                        <MudTh>
-                        </MudTh>
-                        <MudTh>
-                            <SystemText TextId="@SystemTextId.Name" FallbackText="Name" IsFirstLoaded="@IsFirstLoaded">
-                            </SystemText>
-                        </MudTh>
-                        <MudTh>
-                            <SystemText TextId="@SystemTextId.AttachmentType" FallbackText="Attachment type"
-                                IsFirstLoaded="@IsFirstLoaded"></SystemText>
-                        </MudTh>
-                        <MudTh>
-                            <SystemText TextId="@SystemTextId.Filesize" FallbackText="Filesize"
-                                IsFirstLoaded="@IsFirstLoaded">
-                            </SystemText>
-                        </MudTh>
-                        <MudTh>
-                        </MudTh>
-                    </HeaderContent>
-                    <RowTemplate>
-                        <MudTd>
-                            <MudIconButton Icon="@Icons.Material.Filled.Download" @onclick="() => Download(context)">
-                            </MudIconButton>
-                        </MudTd>
-                        <MudTd>
-                            @if (!string.IsNullOrEmpty(context.MiniatureBlobUrl))
-                            {
-                                var thumb = "data:image/png;base64," + context.MiniatureBlobUrl;
-                                <MudTooltip>
-                                    <ChildContent>
-                                        <img src="@thumb" height="@_thumbnailSize" width="@_thumbnailSize" />
-                                    </ChildContent>
-                                    <TooltipContent>
-                                        <img src="@thumb" />
-                                    </TooltipContent>
-                                </MudTooltip>
-                            }
-                            else
-                            {
-                                <MudIconButton Icon=@GetFileTypeIcon(context)></MudIconButton>
-                            }
-                        </MudTd>
-                        <MudTd>@context.Name</MudTd>
-                        <MudTd>
-                            @context.FileAttachmentType
-                        </MudTd>
-                        <MudTd>@(Math.Round(context.Size / 1000, 2))kb</MudTd>
-                        <MudTd>
-                            <MudIconButton Disabled="@(!HasPermission)" Icon="@Icons.Material.Filled.Delete"
-                                @onclick="() => Delete(context)"></MudIconButton>
-                        </MudTd>
-                    </RowTemplate>
-                </MudTable>
-            </MudPaper>
+            <MudTable Style="max-height: 350px; overflow: scroll;" T="FileAttachmentDto" Dense="true" Hover="true"
+                Items="@_attachments">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">
+                        Total: @Entity.Attachments.Count
+                    </MudText>
+                    <MudSpacer />
+                    <MudTextField T="string" DebounceInterval="500" Margin="Margin.Dense" @bind-Value="_searchString"
+                        OnDebounceIntervalElapsed="s => OnSearch(s)" Placeholder="@Translate(SystemTextId.SearchText)"
+                        Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+                        Class="mt-0">
+                    </MudTextField>
+                </ToolBarContent>
+                <ColGroup>
+                    <col style="width: 10%;" />
+                    <col style="width: 30%;" />
+                    <col style="width: 20%;" />
+                    <col style="width: 20%;" />
+                    <col style="width: 15%;" />
+                    <col style="width: 5%;" />
+                </ColGroup>
+                <HeaderContent>
+                    <MudTh>
+                    </MudTh>
+                    <MudTh>
+                    </MudTh>
+                    <MudTh>
+                        <SystemText TextId="@SystemTextId.Name" FallbackText="Name" IsFirstLoaded="@IsFirstLoaded">
+                        </SystemText>
+                    </MudTh>
+                    <MudTh>
+                        <SystemText TextId="@SystemTextId.AttachmentType" FallbackText="Attachment type"
+                            IsFirstLoaded="@IsFirstLoaded"></SystemText>
+                    </MudTh>
+                    <MudTh>
+                        <SystemText TextId="@SystemTextId.Filesize" FallbackText="Filesize" IsFirstLoaded="@IsFirstLoaded">
+                        </SystemText>
+                    </MudTh>
+                    <MudTh>
+                    </MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        <MudIconButton Disabled="@_onProgress" Icon="@Icons.Material.Filled.Download"
+                            @onclick="() => Download(context)">
+                        </MudIconButton>
+                    </MudTd>
+                    <MudTd>
+                        @if (!string.IsNullOrEmpty(context.MiniatureBlobUrl))
+                        {
+                            var thumb = "data:image/png;base64," + context.MiniatureBlobUrl;
+                            <MudTooltip>
+                                <ChildContent>
+                                    <img src="@thumb" height="@_thumbnailSize" width="@_thumbnailSize" />
+                                </ChildContent>
+                                <TooltipContent>
+                                    <img src="@thumb" />
+                                </TooltipContent>
+                            </MudTooltip>
+                        }
+                        else
+                        {
+                            <MudIconButton Icon=@GetFileTypeIcon(context)></MudIconButton>
+                        }
+                    </MudTd>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>
+                        @context.FileAttachmentType
+                    </MudTd>
+                    <MudTd>@(Math.Round(context.Size / 1000, 2))kb</MudTd>
+                    <MudTd>
+                        <MudIconButton Disabled="@DisabledUploadFiles()" Icon="@Icons.Material.Filled.Delete"
+                            @onclick="() => Delete(context)"></MudIconButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
         }
         else
         {

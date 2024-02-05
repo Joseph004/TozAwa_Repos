@@ -66,9 +66,20 @@
 @using TozawaNGO.Shared
 @inherits BasePage
 
+<style>
+.memberTable>div:nth-child(1) {
+ height: 60px;
+  max-height: 60px;
+}
+.memberTable>div:nth-child(2) {
+ height: calc(100% - 60px);
+  max-height:  calc(100% - 60px);
+}
+</style>
+
 @if(_pagedData != null) 
 {
-    <MudTable ServerData="@(new Func<TableState, Task<TableData<MemberDto>>>(ServerReload))" Dense="true" Hover="true"
+    <MudTable Class="memberTable" Style="height: calc(100% - 40px); max-height: calc(100% - 40px);" ServerData="@(new Func<TableState, Task<TableData<MemberDto>>>(ServerReload))" Dense="true" Hover="true"
         Striped="true" @ref="_table" CustomHeader="true" ReadOnly="@DisabledEditRow()" RowClassFunc="@SelectedRowClassFunc"
         OnRowClick="RowClickEvent" OnCommitEditClick="ItemHasBeenCommitted" @bind-SelectedItem="_selectedItem"
         T="MemberDto" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" CanCancelEdit="true"
@@ -198,7 +209,7 @@
                 RowsPerPageString="@(Translate(SystemTextId.RowsPerPage, "Rows per page"))" />
         </PagerContent>
     </MudTable>
-    <div @onclick:stopPropagation="true" @onclick:preventDefault="true">
+    <div style="height: 40px; max-height: 50px;" @onclick:stopPropagation="true" @onclick:preventDefault="true">
         <MudSwitch @bind-Checked="_includeDeleted" @onclick="@(() => ToggleIncludeDeleted())" Color="Color.Primary"
         Label="@(Translate(SystemTextId.ShowDeletedItems))" />
     </div>

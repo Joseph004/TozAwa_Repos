@@ -20,7 +20,7 @@ public class ActiveCultureDto
     public ActiveCultureDto(string cookieString)
     {
         var splitted = cookieString.Split("|");
-        if (splitted.Any() && splitted.Length == 4)
+        if (splitted.Length != 0 && splitted.Length == 4)
         {
             Id = Guid.Parse(splitted[0]);
             ShortName = splitted[1];

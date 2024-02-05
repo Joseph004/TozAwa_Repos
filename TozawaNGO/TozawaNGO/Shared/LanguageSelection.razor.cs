@@ -9,7 +9,7 @@ namespace TozawaNGO.Shared
     public partial class LanguageSelection : BaseComponent
     {
         [Inject] private AppSettings _appSettings { get; set; }
-        [Inject] LoadingState LoadingState { get; set; }
+        [Inject] ISnackbar Snackbar { get; set; }
         public List<ActiveLanguageDto> ActiveLanguages { get; set; }
         public ActiveLanguageDto ActiveLanguage { get; set; }
         private Dictionary<string, string> _cultures;
@@ -54,13 +54,11 @@ namespace TozawaNGO.Shared
             if (isFirstLoaded)
             {
                 _isFirstLoaded = true;
-                LoadingState.SetRequestInProgress(true);
 
                 ActiveLanguages = await _translationService.GetActiveLanguages();
                 ActiveLanguage = await _translationService.GetActiveLanguage();
 
                 Language = GetShortName(ActiveLanguage);
-                LoadingState.SetRequestInProgress(false);
             }
             StateHasChanged();
         }
@@ -69,17 +67,14 @@ namespace TozawaNGO.Shared
         {
             try
             {
-                LoadingState.SetRequestInProgress(true);
                 await _translationService.ChangeActiveLanguage(languageId);
                 ActiveLanguage = await _translationService.GetActiveLanguage();
                 Language = GetShortName(ActiveLanguage);
             }
             catch (Exception)
             {
-                LoadingState.SetRequestInProgress(false);
+                Snackbar.Add("Could not change language", Severity.Error);
             }
-
-            LoadingState.SetRequestInProgress(false);
             StateHasChanged();
         }
 

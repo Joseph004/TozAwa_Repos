@@ -4,7 +4,7 @@
 @using TozawaNGO.Helpers
 
 
-<MudAppBar Elevation="3">
+<MudAppBar Class="flex-none d-flex" Style="height: 60px; max-height: 60px;" Elevation="3">
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleSideBar" />
     @if (_showLogo)
     {
@@ -14,7 +14,7 @@
     }
     <MudSpacer />
 
-    <MudText>
+    <MudText Class="appbarTitle">
         <SystemText TextId=SystemTextId.ToZawaTitle Style="font-familly: cursive; font-size: max(1.2vw, 13px)"
             SystemTextTypo=Typo.h2 FallbackText="Svensk Förening för internationella arbete inom teknik och informatik"
             IsFirstLoaded="@IsFirstLoaded"></SystemText>
