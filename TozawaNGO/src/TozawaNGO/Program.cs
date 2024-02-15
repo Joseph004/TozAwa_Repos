@@ -45,31 +45,9 @@ IWebHostEnvironment environment = builder.Environment;
 
 var appSettings = builder.Services.ConfigureAppSettings<AppSettings>(configuration.GetSection("AppSettings"));
 
-IClusterClient orleansClient = new ClientBuilder()
-            .UseAdoNetClustering(opt =>
-            {
-                opt.ConnectionString = appSettings.ConnectionStrings.Sql;
-                opt.Invariant = "System.Data.SqlClient";
-            })
-            .Configure<ClusterOptions>(opt =>
-            {
-                opt.ClusterId = "SiloDemoCluster";
-                opt.ServiceId = "SiloDemo#2";
-            })
-            .ConfigureApplicationParts(parts =>
-                parts.AddApplicationPart(typeof(DistributedCacheGrain<>).Assembly).WithReferences())
-            .Build();
-
-await orleansClient.Connect().ConfigureAwait(false);
-
 // Add services to the container.
 builder.Services.AddRazorPages();
 
-builder.Services.AddOrleansDistributedCache(opt =>
-       {
-           opt.DefaultDelayDeactivation = TimeSpan.FromMinutes(20);
-           opt.PersistWhenSet = true;
-       });
 builder.Services.AddSession(opt =>
 {
     opt.IdleTimeout = TimeSpan.FromMinutes(20);
@@ -118,7 +96,6 @@ builder.Services.AddScoped<IFileAttachmentConverter, FileAttachmentConverter>();
 builder.Services.AddScoped<IFileAttachmentCreator, FileAttachmentCreator>();
 builder.Services.AddScoped<IGoogleService, GoogleService>();
 builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
-builder.Services.AddSingleton<IDistributedCache, OrleansCache>();
 
 builder.Services.AddMudServices(config =>
 {

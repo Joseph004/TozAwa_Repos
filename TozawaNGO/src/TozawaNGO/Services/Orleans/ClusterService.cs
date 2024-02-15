@@ -10,20 +10,9 @@ using System.Threading.Tasks;
 
 namespace TozawaNGO.Services
 {
-    public class ClusterService : IHostedService
+    public class ClusterService(ILogger<ClusterService> logger) : IHostedService
     {
-        private readonly ILogger<ClusterService> logger;
-
-        public ClusterService(ILogger<ClusterService> logger)
-        {
-            this.logger = logger;
-
-            Client = new ClientBuilder()
-                .ConfigureApplicationParts(manager => manager.AddApplicationPart(typeof(IWeatherGrain).Assembly).WithReferences())
-                .UseLocalhostClustering()
-                .AddSimpleMessageStreamProvider("SMS")
-                .Build();
-        }
+        private readonly ILogger<ClusterService> logger = logger;
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
@@ -37,7 +26,11 @@ namespace TozawaNGO.Services
 
         public Task StopAsync(CancellationToken cancellationToken) => Client.Close();
 
-        public IClusterClient Client { get; }
+        public IClusterClient Client { get; } = new ClientBuilder()
+            .ConfigureApplicationParts(manager => manager.AddApplicationPart(typeof(IWeatherGrain).Assembly).WithReferences())
+            .UseLocalhostClustering()
+            .AddSimpleMessageStreamProvider("SMS")
+            .Build();
     }
 
     public static class ClusterServiceBuilderExtensions

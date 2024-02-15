@@ -9,9 +9,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "watch",
-            "program": "${workspaceFolder}/src/Tozawa.Client.App/bin/Debug/net6.0/Tozawa.Client.App.dll",
+            "program": "${workspaceFolder}/src/TozawaNGO/bin/Debug/net8.0/TozawaNGO.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/Tozawa.Client.App",
+            "cwd": "${workspaceFolder}/src/TozawaNGO",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
@@ -30,7 +30,7 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS": "https://localhost:44326"
+                "ASPNETCORE_URLS": "https://localhost:7122"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
@@ -41,9 +41,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/Tozawa.Client.App/bin/Debug/net6.0/Tozawa.Client.App.dll",
+            "program": "${workspaceFolder}/src/TozawaNGO/bin/Debug/net6.0/TozawaNGO.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/src/Tozawa.Client.App",
+            "cwd": "${workspaceFolder}/src/TozawaNGO",
             "stopAtEntry": false,
             "internalConsoleOptions": "openOnSessionStart",
             "launchBrowser": {
@@ -62,7 +62,7 @@
             },
             "env": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS": "https://localhost:44326"
+                "ASPNETCORE_URLS": "https://localhost:7122"
             },
             "sourceFileMap": {
                 "/Views": "${workspaceFolder}/Views"
