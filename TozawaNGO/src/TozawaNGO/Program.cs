@@ -6,6 +6,7 @@ using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Grains;
 using MediatR;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -15,12 +16,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
 using MudBlazor;
 using MudBlazor.Extensions;
 using MudBlazor.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using Orleans;
+using Orleans.Configuration;
 using TozawaNGO;
 using TozawaNGO.Attachment.Converters;
 using TozawaNGO.Auth.Models.Authentication;
@@ -32,6 +36,7 @@ using TozawaNGO.Helpers;
 using TozawaNGO.Services;
 using TozawaNGO.Shared;
 using TozawaNGO.StateHandler;
+using Orleans.Hosting;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,8 +45,36 @@ IWebHostEnvironment environment = builder.Environment;
 
 var appSettings = builder.Services.ConfigureAppSettings<AppSettings>(configuration.GetSection("AppSettings"));
 
+IClusterClient orleansClient = new ClientBuilder()
+            .UseAdoNetClustering(opt =>
+            {
+                opt.ConnectionString = appSettings.ConnectionStrings.Sql;
+                opt.Invariant = "System.Data.SqlClient";
+            })
+            .Configure<ClusterOptions>(opt =>
+            {
+                opt.ClusterId = "SiloDemoCluster";
+                opt.ServiceId = "SiloDemo#2";
+            })
+            .ConfigureApplicationParts(parts =>
+                parts.AddApplicationPart(typeof(DistributedCacheGrain<>).Assembly).WithReferences())
+            .Build();
+
+await orleansClient.Connect().ConfigureAwait(false);
+
 // Add services to the container.
 builder.Services.AddRazorPages();
+
+builder.Services.AddOrleansDistributedCache(opt =>
+       {
+           opt.DefaultDelayDeactivation = TimeSpan.FromMinutes(20);
+           opt.PersistWhenSet = true;
+       });
+builder.Services.AddSession(opt =>
+{
+    opt.IdleTimeout = TimeSpan.FromMinutes(20);
+    opt.Cookie.IsEssential = true;
+});
 
 builder.Services.Configure<HubOptions>(options =>
 {
@@ -85,6 +118,7 @@ builder.Services.AddScoped<IFileAttachmentConverter, FileAttachmentConverter>();
 builder.Services.AddScoped<IFileAttachmentCreator, FileAttachmentCreator>();
 builder.Services.AddScoped<IGoogleService, GoogleService>();
 builder.Services.AddScoped<IAttachmentRepository, AttachmentRepository>();
+builder.Services.AddSingleton<IDistributedCache, OrleansCache>();
 
 builder.Services.AddMudServices(config =>
 {
@@ -187,8 +221,10 @@ builder.Services.RegisterHttpClients();
 
 builder.Services.AddScoped<AuthStateProvider>();
 
+builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddSingleton<TodoService>();
 builder.Services.AddScoped<ICookie, Cookie>();
-builder.Services.AddScoped<UserState>();
+builder.Services.AddScoped<TozawaNGO.StateHandler.UserState>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<ITranslationService, TranslationService>();
 builder.Services.AddScoped<TozawaNGO.Services.ICurrentUserService, TozawaNGO.Services.CurrentUserService>();
