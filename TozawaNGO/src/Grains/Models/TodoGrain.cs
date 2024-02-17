@@ -6,18 +6,13 @@ using System.Threading.Tasks;
 
 namespace Grains
 {
-    public class TodoGrain : Grain, ITodoGrain
+    public class TodoGrain([PersistentState("State")] IPersistentState<TodoGrain.State> state) : Grain, ITodoGrain
     {
-        private readonly IPersistentState<State> state;
+        private readonly IPersistentState<State> _state = state;
 
         private Guid GrainKey => this.GetPrimaryKey();
 
-        public TodoGrain([PersistentState("State")] IPersistentState<State> state)
-        {
-            this.state = state;
-        }
-
-        public Task<TodoItem> GetAsync() => Task.FromResult(state.State.Item);
+        public Task<TodoItem> GetAsync() => Task.FromResult(_state.State.Item);
 
         public async Task SetAsync(TodoItem item)
         {
@@ -28,15 +23,16 @@ namespace Grains
             }
 
             // save the item
-            state.State.Item = item;
-            await state.WriteStateAsync();
+            _state.State.Item = item;
+            await _state.WriteStateAsync();
 
             // register the item with its owner list
             await GrainFactory.GetGrain<ITodoManagerGrain>(item.OwnerKey)
                 .RegisterAsync(item.Key);
 
             // notify listeners - best effort only
-            GetStreamProvider("SMS").GetStream<TodoNotification>(item.OwnerKey, nameof(ITodoGrain))
+            var streamId = StreamId.Create(nameof(Grains), item.OwnerKey);
+            this.GetStreamProvider("SMS").GetStream<TodoNotification>(streamId)
                 .OnNextAsync(new TodoNotification(item.Key, item))
                 .Ignore();
         }
@@ -44,21 +40,22 @@ namespace Grains
         public async Task ClearAsync()
         {
             // fast path for already cleared state
-            if (state.State.Item == null) return;
+            if (_state.State.Item == null) return;
 
             // hold on to the keys
-            var itemKey = state.State.Item.Key;
-            var ownerKey = state.State.Item.OwnerKey;
+            var itemKey = _state.State.Item.Key;
+            var ownerKey = _state.State.Item.OwnerKey;
 
             // unregister from the registry
             await GrainFactory.GetGrain<ITodoManagerGrain>(ownerKey)
                 .UnregisterAsync(itemKey);
 
             // clear the state
-            await state.ClearStateAsync();
+            await _state.ClearStateAsync();
 
             // notify listeners - best effort only
-            GetStreamProvider("SMS").GetStream<TodoNotification>(ownerKey, nameof(ITodoGrain))
+            var streamId = StreamId.Create(nameof(Grains), ownerKey);
+            this.GetStreamProvider("SMS").GetStream<TodoNotification>(streamId)
                 .OnNextAsync(new TodoNotification(itemKey, null))
                 .Ignore();
 

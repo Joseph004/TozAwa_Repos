@@ -18,14 +18,14 @@ namespace Grains
             this.state = state;
         }
 
-        public override Task OnActivateAsync()
+        public override Task OnActivateAsync(CancellationToken cancellationToken)
         {
             if (state.State.Items == null)
             {
-                state.State.Items = new HashSet<Guid>();
+                state.State.Items = [];
             }
 
-            return base.OnActivateAsync();
+            return base.OnActivateAsync(cancellationToken);
         }
 
         public async Task RegisterAsync(Guid itemKey)

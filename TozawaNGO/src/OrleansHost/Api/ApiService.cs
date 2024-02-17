@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Orleans;
 using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.OpenApi.Models;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -23,14 +24,14 @@ namespace OrleansHost.Api
                 {
                     services.AddSingleton(factory);
 
-                    services.AddMvc()
+                    services.AddControllers()
                         .SetCompatibilityVersion(CompatibilityVersion.Latest)
                         .AddApplicationPart(typeof(WeatherController).Assembly)
                         .AddControllersAsServices();
 
                     services.AddSwaggerGen(options =>
                     {
-                        options.SwaggerDoc("v0", new Info
+                        options.SwaggerDoc("v0", new OpenApiInfo
                         {
                             Title = nameof(Grains),
                             Version = "v0"
@@ -53,13 +54,17 @@ namespace OrleansHost.Api
                 })
                 .Configure(app =>
                 {
+                    app.UseRouting();
                     app.UseCors(nameof(ApiService));
                     app.UseSwagger();
                     app.UseSwaggerUI(options =>
                     {
                         options.SwaggerEndpoint("/swagger/v0/swagger.json", nameof(Grains));
                     });
-                    app.UseMvc();
+                    app.UseEndpoints(endpoints =>
+                    {
+                        endpoints.MapControllers();
+                    });
                 })
                 .UseUrls("http://localhost:8081")
                 .Build();

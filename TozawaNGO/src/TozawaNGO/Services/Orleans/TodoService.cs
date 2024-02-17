@@ -9,16 +9,10 @@ using System.Threading.Tasks;
 
 namespace TozawaNGO.Services
 {
-    public class TodoService
+    public class TodoService(ILogger<TodoService> logger, IClusterClient client)
     {
-        private readonly ILogger<TodoService> logger;
-        private readonly IClusterClient client;
-
-        public TodoService(ILogger<TodoService> logger, IClusterClient client)
-        {
-            this.logger = logger;
-            this.client = client;
-        }
+        private readonly ILogger<TodoService> logger = logger;
+        private readonly IClusterClient client = client;
 
         public async Task<ImmutableArray<TodoItem>> GetAllAsync(Guid ownerKey)
         {

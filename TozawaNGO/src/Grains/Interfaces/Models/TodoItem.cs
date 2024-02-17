@@ -37,9 +37,9 @@ namespace Grains
         }
 
         public TodoItem WithIsDone(bool isDone) =>
-            new TodoItem(Key, Title, isDone, OwnerKey, DateTime.UtcNow);
+            new(Key, Title, isDone, OwnerKey, DateTime.UtcNow);
 
         public TodoItem WithTitle(string title) =>
-            new TodoItem(Key, title, IsDone, OwnerKey, DateTime.UtcNow);
+            new(Key, title, IsDone, OwnerKey, DateTime.UtcNow);
     }
 }

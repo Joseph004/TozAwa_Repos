@@ -67,7 +67,7 @@ else
 {
     builder.Services.AddServerSideBlazor();
 }
-
+builder.Services.AddClusterService();
 builder.Services.AddSingleton<IConfiguration>(configuration);
 
 builder.Services.AddDataProtection();

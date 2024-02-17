@@ -6,14 +6,9 @@ using System.Threading.Tasks;
 
 namespace TozawaNGO.Services
 {
-    public class WeatherForecastService
+    public class WeatherForecastService(IClusterClient client)
     {
-        private readonly IClusterClient client;
-
-        public WeatherForecastService(IClusterClient client)
-        {
-            this.client = client;
-        }
+        private readonly IClusterClient client = client;
 
         public Task<ImmutableArray<WeatherInfo>> GetForecastAsync() =>
 
