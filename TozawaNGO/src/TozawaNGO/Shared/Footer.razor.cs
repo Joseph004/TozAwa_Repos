@@ -124,7 +124,7 @@ namespace TozawaNGO.Shared
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
-            base.Dispose();
+            base.Dispose(disposed);
         }
     }
 

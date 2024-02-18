@@ -11,6 +11,10 @@ namespace TozawaNGO.Shared
         public RenderFragment ChildContent { get; set; } = null;
         [Inject] IDialogService DialogService { get; set; }
 
+        protected override void OnInitialized()
+        {
+            base.OnInitialized();
+        }
         public async Task ProcessError(Exception ex, string title, string body)
         {
             Logger.LogError("Error:ProcessError - Type: {Type} Message: {Message}",

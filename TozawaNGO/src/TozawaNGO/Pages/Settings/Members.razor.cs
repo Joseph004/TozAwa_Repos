@@ -326,7 +326,7 @@ namespace TozawaNGO.Pages
             _translationService.LanguageChanged -= LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
             AttachmentService.OnChange -= UpdateMemberAttachments;
-            base.Dispose();
+            base.Dispose(disposed);
         }
     }
 }
