@@ -321,13 +321,12 @@ namespace TozawaNGO.Pages
             return string.Empty;
         }
 
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
-        public override void Dispose()
-#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
+        protected override void Dispose(bool disposed)
         {
             _translationService.LanguageChanged -= LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
             AttachmentService.OnChange -= UpdateMemberAttachments;
+            base.Dispose();
         }
     }
 }

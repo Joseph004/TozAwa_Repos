@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans;
+using Orleans.Configuration;
 using Orleans.Hosting;
 using OrleansHost.Api;
 //using Orleans.Providers.Streams.AzureQueue;
@@ -36,13 +37,14 @@ namespace OrleansHost
                 })
                 .UseOrleans(builder =>
                 {
-                    builder.ConfigureApplicationParts(manager =>
-                    {
-                        manager.AddApplicationPart(typeof(WeatherGrain).Assembly).WithReferences();
-                    });
                     builder.UseLocalhostClustering();
+                    builder.Configure<ClusterOptions>(options =>
+                    {
+                        options.ClusterId = "dev";
+                        options.ServiceId = "OrleansBasics";
+                    });
                     builder.AddMemoryGrainStorageAsDefault();
-                    builder.AddSimpleMessageStreamProvider("SMS");
+                    builder.AddMemoryStreams("SMS");
                     builder.AddMemoryGrainStorage("PubSubStore");
                     builder.UseDashboard(options =>
                     {

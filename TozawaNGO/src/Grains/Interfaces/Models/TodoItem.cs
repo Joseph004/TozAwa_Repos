@@ -3,6 +3,7 @@ using System;
 
 namespace Grains
 {
+    [GenerateSerializer]
     [Immutable]
     public class TodoItem : IEquatable<TodoItem>
     {
@@ -20,10 +21,15 @@ namespace Grains
             Timestamp = timestamp;
         }
 
+        [Id(0)]
         public Guid Key { get; }
+        [Id(1)]
         public string Title { get; }
+        [Id(2)]
         public bool IsDone { get; }
+        [Id(3)]
         public Guid OwnerKey { get; }
+        [Id(4)]
         public DateTime Timestamp { get; }
 
         public bool Equals(TodoItem other)

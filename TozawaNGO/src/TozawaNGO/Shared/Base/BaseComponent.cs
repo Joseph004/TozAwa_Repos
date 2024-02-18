@@ -5,7 +5,7 @@ using TozawaNGO.Services;
 
 namespace TozawaNGO.Shared
 {
-    public partial class BaseComponent : ComponentBase, IDisposable
+    public partial class BaseComponent : Fluxor.Blazor.Web.Components.FluxorComponent, IDisposable
     {
         [Inject] protected ITranslationService _translationService { get; set; }
         [Inject] protected AuthStateProvider _authStateProvider { get; set; }
@@ -70,12 +70,11 @@ namespace TozawaNGO.Shared
 
             return myRole;
         }
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
-        public virtual void Dispose()
-#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
+        protected override void Dispose(bool disposed)
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
+            base.Dispose(disposed);
         }
     }
 }

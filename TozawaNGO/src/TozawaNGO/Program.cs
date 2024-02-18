@@ -37,6 +37,7 @@ using TozawaNGO.Services;
 using TozawaNGO.Shared;
 using TozawaNGO.StateHandler;
 using Orleans.Hosting;
+using Fluxor;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,7 +68,7 @@ else
 {
     builder.Services.AddServerSideBlazor();
 }
-builder.Services.AddClusterService();
+//builder.Services.AddClusterService();
 builder.Services.AddSingleton<IConfiguration>(configuration);
 
 builder.Services.AddDataProtection();
@@ -112,10 +113,23 @@ builder.Services.AddMudServices(config =>
 builder.Services.AddMudBlazorDialog();
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
-                       {
-                           options.CheckConsentNeeded = context => true;
-                           options.MinimumSameSitePolicy = SameSiteMode.None;
-                       });
+{
+    options.CheckConsentNeeded = context => true;
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+});
+
+builder.Host.UseOrleansClient(client =>
+{
+    client.UseLocalhostClustering();
+    client.AddMemoryStreams("SMS");
+    client.Configure<ClusterOptions>(options =>
+    {
+        options.ClusterId = "dev";
+        options.ServiceId = "OrleansBasics";
+    });
+});
+
+//builder.Services.AddSignalR().AddOrleans();
 
 builder.Services.AddAuthentication(options =>
 {
@@ -138,6 +152,7 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
+builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(Program).Assembly));
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("admin-member", policy => policy.RequireClaim("admin-member", "MemberIsAdmin"));
 builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();

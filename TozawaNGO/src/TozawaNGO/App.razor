@@ -2,6 +2,7 @@
 @using TozawaNGO.Shared
 @inject NavigationManager NavManager
 
+<Fluxor.Blazor.Web.StoreInitializer />
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">

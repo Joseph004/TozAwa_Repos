@@ -12,12 +12,12 @@ namespace TozawaNGO.Services
     public class TodoService(ILogger<TodoService> logger, IClusterClient client)
     {
         private readonly ILogger<TodoService> logger = logger;
-        private readonly IClusterClient client = client;
+        private readonly IClusterClient _client = client;
 
         public async Task<ImmutableArray<TodoItem>> GetAllAsync(Guid ownerKey)
         {
             // get all the todo item keys for this owner
-            var itemKeys = await client.GetGrain<ITodoManagerGrain>(ownerKey)
+            var itemKeys = await _client.GetGrain<ITodoManagerGrain>(ownerKey)
                 .GetAllAsync();
 
             // fan out to get the individual items from the cluster in parallel
@@ -27,7 +27,7 @@ namespace TozawaNGO.Services
                 // issue all individual requests at the same time
                 for (var i = 0; i < itemKeys.Length; ++i)
                 {
-                    tasks[i] = client.GetGrain<ITodoGrain>(itemKeys[i]).GetAsync();
+                    tasks[i] = _client.GetGrain<ITodoGrain>(itemKeys[i]).GetAsync();
                 }
 
                 // build the result as requests complete
@@ -40,7 +40,7 @@ namespace TozawaNGO.Services
                     // in this case we can finish the job here
                     if (item == null)
                     {
-                        await client.GetGrain<ITodoManagerGrain>(ownerKey).UnregisterAsync(itemKeys[i]);
+                        await _client.GetGrain<ITodoManagerGrain>(ownerKey).UnregisterAsync(itemKeys[i]);
                     }
 
                     result.Add(item);
@@ -54,36 +54,30 @@ namespace TozawaNGO.Services
         }
 
         public Task SetAsync(TodoItem item) =>
-            client.GetGrain<ITodoGrain>(item.Key).SetAsync(item);
+            _client.GetGrain<ITodoGrain>(item.Key).SetAsync(item);
 
         public Task DeleteAsync(Guid itemKey) =>
-            client.GetGrain<ITodoGrain>(itemKey).ClearAsync();
+            _client.GetGrain<ITodoGrain>(itemKey).ClearAsync();
 
         public Task<StreamSubscriptionHandle<TodoNotification>> SubscribeAsync(Guid ownerKey, Func<TodoNotification, Task> action) =>
-            client.GetStreamProvider("SMS")
-                .GetStream<TodoNotification>(ownerKey, nameof(ITodoGrain))
+            _client.GetStreamProvider("SMS")
+                .GetStream<TodoNotification>(ownerKey)
                 .SubscribeAsync(new TodoItemObserver(logger, action));
 
-        private class TodoItemObserver : IAsyncObserver<TodoNotification>
+        private class TodoItemObserver(ILogger<TodoService> logger, Func<TodoNotification, Task> action) : IAsyncObserver<TodoNotification>
         {
-            private readonly ILogger<TodoService> logger;
-            private readonly Func<TodoNotification, Task> action;
-
-            public TodoItemObserver(ILogger<TodoService> logger, Func<TodoNotification, Task> action)
-            {
-                this.logger = logger;
-                this.action = action;
-            }
+            private readonly ILogger<TodoService> _logger = logger;
+            private readonly Func<TodoNotification, Task> _action = action;
 
             public Task OnCompletedAsync() => Task.CompletedTask;
 
             public Task OnErrorAsync(Exception ex)
             {
-                logger.LogError(ex, ex.Message);
+                _logger.LogError(ex, ex.Message);
                 return Task.CompletedTask;
             }
 
-            public Task OnNextAsync(TodoNotification item, StreamSequenceToken token = null) => action(item);
+            public Task OnNextAsync(TodoNotification item, StreamSequenceToken token = null) => _action(item);
         }
     }
 }
