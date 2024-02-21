@@ -92,10 +92,6 @@ namespace TozawaNGO.Pages
             await TodoService.DeleteAsync(item.Key);
             ToDoState.Value.Todos.Remove(item.Key);
         }
-        /* protected override void Dispose(bool disposed)
-        {
-            base.Dispose(disposed);
-        } */
     }
 }
 
