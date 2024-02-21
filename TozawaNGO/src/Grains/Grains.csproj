@@ -22,15 +22,6 @@
     <PackageReference Include="Microsoft.Orleans.Sdk" Version="8.*" />
     <PackageReference Include="Microsoft.Orleans.Streaming" Version="8.*" />
     <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="8.*" />
-
-    <!--  <PackageReference Include="Microsoft.Orleans.CodeGenerator.MSBuild" Version="3.7.1">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="3.7.1" />
-    <PackageReference Include="System.Collections.Immutable" Version="6.0.0" />
-    <PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
-    <PackageReference Include="Microsoft.Orleans.OrleansRuntime" Version="3.7.1" /> -->
   </ItemGroup>
 
 </Project>
