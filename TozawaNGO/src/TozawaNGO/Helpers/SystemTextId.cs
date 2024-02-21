@@ -116,4 +116,5 @@ public static partial class SystemTextId
     public static Guid SubscribeText => Guid.Parse("e7dc189c-2a4c-417b-b766-addc69ae7f93");
     public static Guid NoAttachmentsExists => Guid.Parse("1f4ca531-ca3c-4a33-bb20-ff1f0d46b62a");
     public static Guid MaximumFilesAllowed => Guid.Parse("2eac4ad7-ada7-48a0-a4ab-a985820140e4");
+    public static Guid ToDoOwnerId => Guid.Parse("d4812849-17a7-46c6-84b1-030d8d9aea8d");
 }
