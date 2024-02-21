@@ -5,23 +5,23 @@ namespace TozawaNGO.State.Counter;
 
 public static class Redures
 {
-    [ReducerMethod]
-    public static CounterState ReduceIncrementCounterAction(CounterState state, IncrementCounterAction action)
+    [ReducerMethod(typeof(IncrementCounterAction))]
+    public static CounterState ReduceIncrementCounterAction(CounterState state)
     {
         return new() { ClickCount = state.ClickCount + 1 };
     }
-    [ReducerMethod]
-    public static CounterState ReduceStartCounterAction(CounterState state, StartCounterAction action)
+    [ReducerMethod(typeof(StartCounterAction))]
+    public static CounterState ReduceStartCounterAction(CounterState state)
     {
         return new() { Stop = false };
     }
-    [ReducerMethod]
-    public static CounterState ReduceStopCounterAction(CounterState state, StopCounterAction action)
+    [ReducerMethod(typeof(StopCounterAction))]
+    public static CounterState ReduceStopCounterAction(CounterState state)
     {
         return new() { Stop = true };
     }
-    [ReducerMethod]
-    public static CounterState ReduceDecrementCounterAction(CounterState state, IncrementCounterAction action)
+    [ReducerMethod(typeof(DecrementCounterAction))]
+    public static CounterState ReduceDecrementCounterAction(CounterState state)
     {
         return new() { ClickCount = state.ClickCount - 1 };
     }
