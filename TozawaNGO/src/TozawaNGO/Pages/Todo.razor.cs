@@ -7,6 +7,9 @@ using TozawaNGO.Services;
 using TozawaNGO.State.ToDo;
 using Fluxor;
 using TozawaNGO.Shared;
+using TozawaNGO.Models.Dtos;
+using TozawaNGO.State.ToDo.Actions;
+using TozawaNGO.Helpers;
 
 namespace TozawaNGO.Pages
 {
@@ -15,25 +18,25 @@ namespace TozawaNGO.Pages
         [Inject] IState<ToDoState> ToDoState { get; set; }
         [Inject] IDispatcher Dispatcher { get; set; }
         [Inject] TodoService TodoService { get; set; }
-        private Guid ownerKey = Guid.Empty;
-        private TodoKeyedCollection todos = new();
-        //private string newTodo;
-        private Orleans.Streams.StreamSubscriptionHandle<TodoNotification> subscription;
+        private string newTodo;
         protected override async Task OnInitializedAsync()
         {
-            subscription = await TodoService.SubscribeAsync(ownerKey, notification => InvokeAsync(() =>
-
-            HandleNotificationAsync(notification)));
-            foreach (var item in await TodoService.GetAllAsync(ownerKey))
-            {
-                todos.Add(item);
-            }
+            newTodo = ToDoState.Value.NewItem;
             await base.OnInitializedAsync();
+
+            Dispatcher.Dispatch(new ToDoDataAction());
+            Dispatcher.Dispatch(new TozawaNGO.State.ToDo.Actions.HandleInputTextToDoAction(newTodo));
         }
 
-        public void OnItemEnter()
+        public int TotalToDo()
         {
-            Dispatcher.Dispatch(new TozawaNGO.State.ToDo.Actions.IncrementToDoAction());
+            return ToDoState.Value.Todos.Count(todo => !todo.IsDone);
+        }
+
+        public void OnItemEnter(ChangeEventArgs args)
+        {
+            newTodo = (string)args.Value;
+            Dispatcher.Dispatch(new TozawaNGO.State.ToDo.Actions.HandleInputTextToDoAction(newTodo));
 
             StateHasChanged();
         }
@@ -41,67 +44,32 @@ namespace TozawaNGO.Pages
         {
             try
             {
-                subscription?.UnsubscribeAsync();
+                Dispatcher.Dispatch(new TozawaNGO.State.ToDo.Actions.UnSubscribeAction());
             }
             catch
             {
             }
-            base.Dispose();
+            base.Dispose(disposed);
         }
 
         private async Task AddTodoAsync()
         {
-            if (!string.IsNullOrWhiteSpace(ToDoState.Value.NewItem))
+            if (!string.IsNullOrWhiteSpace(newTodo))
             {
-                var todo = new TodoItem(Guid.NewGuid(), ToDoState.Value.NewItem, false, ownerKey);
-
-                await TodoService.SetAsync(todo);
-                if (todos.TryGetValue(todo.Key, out var current))
-                {
-                    if (todo.Timestamp > current.Timestamp)
-                    {
-                        todos[todos.IndexOf(current)] = todo;
-                    }
-                }
-                else
-                {
-                    todos.Add(todo);
-                }
-                Dispatcher.Dispatch(new TozawaNGO.State.ToDo.Actions.DecrementToDoAction());
-
+                Dispatcher.Dispatch(new TozawaNGO.State.ToDo.Actions.ToDoAddAction(newTodo));
+                Dispatcher.Dispatch(new TozawaNGO.State.ToDo.Actions.HandleInputTextToDoAction(null));
+                newTodo = ToDoState.Value.NewItem;
+                await Task.CompletedTask;
                 StateHasChanged();
             }
         }
-        private Task HandleNotificationAsync(TodoNotification notification)
-        {
-            if (notification.Item == null)
-            {
-                if (todos.Remove(notification.ItemKey))
-                {
-                    StateHasChanged();
-                }
-                return Task.CompletedTask;
-            }
-            if (todos.TryGetValue(notification.Item.Key, out var current))
-            {
-                if (notification.Item.Timestamp > current.Timestamp)
-                {
-                    todos[todos.IndexOf(current)] = notification.Item;
-                    StateHasChanged();
-                }
-                return Task.CompletedTask;
-            }
-            todos.Add(notification.Item);
-            StateHasChanged();
-            return Task.CompletedTask;
-        }
         private void TryUpdateCollection(TodoItem item)
         {
-            if (todos.TryGetValue(item.Key, out var current))
+            if (ToDoState.Value.Todos.TryGetValue(item.Key, out var current))
             {
                 if (item.Timestamp > current.Timestamp)
                 {
-                    todos[todos.IndexOf(current)] = item;
+                    ToDoState.Value.Todos[ToDoState.Value.Todos.IndexOf(current)] = item;
                 }
             }
         }
@@ -122,12 +90,12 @@ namespace TozawaNGO.Pages
         private async Task HandleDeleteTodoAsync(TodoItem item)
         {
             await TodoService.DeleteAsync(item.Key);
-            todos.Remove(item.Key);
+            ToDoState.Value.Todos.Remove(item.Key);
         }
-        private class TodoKeyedCollection : System.Collections.ObjectModel.KeyedCollection<Guid, TodoItem>
+        /* protected override void Dispose(bool disposed)
         {
-            protected override Guid GetKeyForItem(TodoItem item) => item.Key;
-        }
+            base.Dispose(disposed);
+        } */
     }
 }
 

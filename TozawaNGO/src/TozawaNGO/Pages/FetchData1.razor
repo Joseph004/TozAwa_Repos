@@ -72,4 +72,8 @@
         Dispatcher.Dispatch(new TozawaNGO.State.Counter.Actions.StopCounterAction());
         StateHasChanged();
     }
+    protected override void Dispose(bool disposed)
+    {
+        base.Dispose(disposed);
+    }
 }
