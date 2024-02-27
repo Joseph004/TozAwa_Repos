@@ -3,16 +3,21 @@ using Orleans.Runtime;
 using Grains;
 using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using Shared.SignalR;
+using Grains.Models.ToDo.Store;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Grains
 {
-    public class TodoGrain([PersistentState("State")] IPersistentState<TodoGrain.State> state) : Grain, ITodoGrain
+    public class TodoGrain([PersistentState("State")] IPersistentState<ToDoState> state, IServiceProvider provider) : Grain, ITodoGrain
     {
-        private readonly IPersistentState<State> _state = state;
+        private readonly IServiceProvider _provider = provider;
+        private readonly IPersistentState<ToDoState> _state = state;
 
         private Guid GrainKey => this.GetPrimaryKey();
 
-        public Task<TodoItem> GetAsync() => Task.FromResult(_state.State.Item);
+        public Task<TodoItem> GetAsync() => Task.FromResult(_state.State.ToDo);
 
         public async Task SetAsync(TodoItem item)
         {
@@ -23,28 +28,31 @@ namespace Grains
             }
 
             // save the item
-            _state.State.Item = item;
+            _state.State.ToDo = item;
             await _state.WriteStateAsync();
 
             // register the item with its owner list
             await GrainFactory.GetGrain<ITodoManagerGrain>(item.OwnerKey)
-                .RegisterAsync(item.Key);
+                .RegisterAsync(item.Key, item);
 
             // notify listeners - best effort only
             var streamId = StreamId.Create(nameof(Grains), item.OwnerKey);
             this.GetStreamProvider("SMS").GetStream<TodoNotification>(streamId)
                 .OnNextAsync(new TodoNotification(item.Key, item))
                 .Ignore();
+
+            await NotifyHub("ToDoAdded", item.Key);
         }
 
         public async Task ClearAsync()
         {
             // fast path for already cleared state
-            if (_state.State.Item == null) return;
+            if (_state.State.ToDo == null) return;
 
             // hold on to the keys
-            var itemKey = _state.State.Item.Key;
-            var ownerKey = _state.State.Item.OwnerKey;
+            var itemKey = _state.State.ToDo.Key;
+            var item = _state.State.ToDo;
+            var ownerKey = _state.State.ToDo.OwnerKey;
 
             // unregister from the registry
             await GrainFactory.GetGrain<ITodoManagerGrain>(ownerKey)
@@ -59,13 +67,22 @@ namespace Grains
                 .OnNextAsync(new TodoNotification(itemKey, null))
                 .Ignore();
 
+            await NotifyHub("ToDoDeleted", itemKey);
+
             // no need to stay alive anymore
             DeactivateOnIdle();
         }
 
-        public class State
+        private async Task NotifyHub(string method, Guid id)
         {
-            public TodoItem Item { get; set; }
+            var context = _provider.GetRequiredService<IHubContext<ClientHub>>();
+            await context.Clients.All.SendAsync(method, id);
+        }
+
+        private async Task NotifyHub(string method)
+        {
+            var context = _provider.GetRequiredService<IHubContext<ClientHub>>();
+            await context.Clients.All.SendAsync(method);
         }
     }
 }

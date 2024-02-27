@@ -53,6 +53,8 @@ namespace TozawaNGO.Services
             }
         }
 
+        public Task<TodoItem> GetAsync(Guid id) =>
+             _client.GetGrain<ITodoGrain>(id).GetAsync();
         public Task SetAsync(TodoItem item) =>
             _client.GetGrain<ITodoGrain>(item.Key).SetAsync(item);
 

@@ -8,7 +8,7 @@ using TozawaNGO.State.ToDo;
 using Fluxor;
 using TozawaNGO.Shared;
 using TozawaNGO.Models.Dtos;
-using TozawaNGO.State.ToDo.Actions;
+using TozawaNGO.State.ToDo.Store;
 using TozawaNGO.Helpers;
 
 namespace TozawaNGO.Pages
@@ -25,7 +25,7 @@ namespace TozawaNGO.Pages
             await base.OnInitializedAsync();
 
             Dispatcher.Dispatch(new ToDoDataAction());
-            Dispatcher.Dispatch(new TozawaNGO.State.ToDo.Actions.HandleInputTextToDoAction(newTodo));
+            Dispatcher.Dispatch(new HandleInputTextToDoAction(newTodo));
         }
 
         public int TotalToDo()
@@ -36,7 +36,7 @@ namespace TozawaNGO.Pages
         public void OnItemEnter(ChangeEventArgs args)
         {
             newTodo = (string)args.Value;
-            Dispatcher.Dispatch(new TozawaNGO.State.ToDo.Actions.HandleInputTextToDoAction(newTodo));
+            Dispatcher.Dispatch(new HandleInputTextToDoAction(newTodo));
 
             StateHasChanged();
         }
@@ -44,7 +44,7 @@ namespace TozawaNGO.Pages
         {
             try
             {
-                Dispatcher.Dispatch(new TozawaNGO.State.ToDo.Actions.UnSubscribeAction());
+                Dispatcher.Dispatch(new UnSubscribeAction());
             }
             catch
             {
@@ -56,8 +56,8 @@ namespace TozawaNGO.Pages
         {
             if (!string.IsNullOrWhiteSpace(newTodo))
             {
-                Dispatcher.Dispatch(new TozawaNGO.State.ToDo.Actions.ToDoAddAction(newTodo));
-                Dispatcher.Dispatch(new TozawaNGO.State.ToDo.Actions.HandleInputTextToDoAction(null));
+                Dispatcher.Dispatch(new ToDoAddAction(newTodo));
+                Dispatcher.Dispatch(new HandleInputTextToDoAction(null));
                 newTodo = ToDoState.Value.NewItem;
                 await Task.CompletedTask;
                 StateHasChanged();

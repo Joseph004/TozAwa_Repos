@@ -11,14 +11,9 @@ namespace OrleansHost.Api
 {
     [ApiController]
     [Route("api/todo")]
-    public class TodoController : ControllerBase
+    public class TodoController(IGrainFactory factory) : ControllerBase
     {
-        private readonly IGrainFactory factory;
-
-        public TodoController(IGrainFactory factory)
-        {
-            this.factory = factory;
-        }
+        private readonly IGrainFactory factory = factory;
 
         [HttpGet("{itemKey}")]
         public Task<TodoItem> GetAsync([Required] Guid itemKey) =>

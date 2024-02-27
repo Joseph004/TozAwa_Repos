@@ -7,9 +7,12 @@ namespace Grains
 {
     public interface ITodoManagerGrain : IGrainWithGuidKey
     {
-        Task RegisterAsync(Guid itemKey);
+        [Alias("RegisterAsync")]
+        Task RegisterAsync(Guid itemKey, TodoItem todoItem);
+        [Alias("UnregisterAsync")]
         Task UnregisterAsync(Guid itemKey);
 
+        [Alias("GetAllAsync")]
         Task<ImmutableArray<Guid>> GetAllAsync();
     }
 }

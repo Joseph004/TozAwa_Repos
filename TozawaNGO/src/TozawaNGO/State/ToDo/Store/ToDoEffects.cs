@@ -2,9 +2,8 @@ using Fluxor;
 using Grains;
 using TozawaNGO.Helpers;
 using TozawaNGO.Services;
-using TozawaNGO.State.ToDo.Actions;
 
-namespace TozawaNGO.State.ToDo;
+namespace TozawaNGO.State.ToDo.Store;
 
 public class Effects(TodoService todoService)
 {
@@ -25,6 +24,31 @@ public class Effects(TodoService todoService)
         dispatcher.Dispatch(new ToDoDataFechedAction(todos, subscription, notifications));
     }
 
+    [EffectMethod(typeof(LoadDataAction))]
+    public async Task LoadData(IDispatcher dispatcher)
+    {
+        dispatcher.Dispatch(new ToDoDataAction());
+        List<TodoNotification> notifications = [];
+        var subscription = await todoService.SubscribeAsync(SystemTextId.ToDoOwnerId, notification => Task.Run(() =>
+             HandleNotificationAsync(notifications, notification)));
+
+        var todos = new Models.Dtos.TodoKeyedCollection();
+
+        foreach (var item in await todoService.GetAllAsync(SystemTextId.ToDoOwnerId))
+        {
+            todos.Add(item);
+        }
+
+        dispatcher.Dispatch(new ToDoDataFechedAction(todos, subscription, notifications));
+    }
+    [EffectMethod]
+    public async Task OnLoadItem(LoadItemAction action, IDispatcher dispatcher)
+    {
+        dispatcher.Dispatch(new ToDoDataAction());
+        var todo = await todoService.GetAsync(action.Id);
+
+       dispatcher.Dispatch(new ToDoAddAfterAction(todo));
+    }
     [EffectMethod]
     public async Task HandleToDoAddAction(ToDoAddAction action, IDispatcher dispatcher)
     {

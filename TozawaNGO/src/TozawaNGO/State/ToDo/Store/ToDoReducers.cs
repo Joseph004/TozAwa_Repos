@@ -2,9 +2,8 @@ using Fluxor;
 using Grains;
 using TozawaNGO.Helpers;
 using TozawaNGO.State.Counter.Actions;
-using TozawaNGO.State.ToDo.Actions;
 
-namespace TozawaNGO.State.ToDo;
+namespace TozawaNGO.State.ToDo.Store;
 
 public static class Redures
 {

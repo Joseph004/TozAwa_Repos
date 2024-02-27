@@ -1,4 +1,9 @@
 {
+  "SiloSettings": {
+    "FileProcessingInterval": 1,
+    "PreserveProcessedFiles": true,
+    "PreserveErrorFiles": true
+  },
   "ConnectionStrings": {
     "DataConnectionString": "UseDevelopmentStorage=true",
     "ReduxConnectionString": "UseDevelopmentStorage=true",

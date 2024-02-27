@@ -10,5 +10,6 @@ namespace TozawaNGO.Configurations
         public JWTSettings JWTSettings { get; set; }
         public ConnectionStrings ConnectionStrings { get; set; }
         public ActiveLanguageDto[] Languages { get; set; }
+        public SiloSettings SiloSettings { get; set; }
     }
 }
