@@ -4,11 +4,8 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Orleans;
-using Swashbuckle.AspNetCore.Swagger;
 using Microsoft.OpenApi.Models;
-using System.Threading;
-using System.Threading.Tasks;
+using Shared.SignalR;
 
 namespace OrleansHost.Api
 {
@@ -24,10 +21,14 @@ namespace OrleansHost.Api
                 {
                     services.AddSingleton(factory);
 
+                    services.AddSignalR();
+
                     services.AddControllers()
                         .SetCompatibilityVersion(CompatibilityVersion.Latest)
                         .AddApplicationPart(typeof(WeatherController).Assembly)
                         .AddControllersAsServices();
+
+                    //services.AddSignalR().AddOrleans();
 
                     services.AddSwaggerGen(options =>
                     {
@@ -45,10 +46,10 @@ namespace OrleansHost.Api
                             {
                                 builder
                                     .WithOrigins(
-                                        "http://localhost:62653",
-                                        "http://localhost:62654")
+                                        "https://localhost:7122")
                                     .AllowAnyMethod()
-                                    .AllowAnyHeader();
+                                    .AllowAnyHeader()
+                                    .AllowCredentials();
                             });
                     });
                 })
@@ -64,9 +65,10 @@ namespace OrleansHost.Api
                     app.UseEndpoints(endpoints =>
                     {
                         endpoints.MapControllers();
+                        endpoints.MapHub<ClientHub>("/hubs/clienthub");
                     });
                 })
-                .UseUrls("http://localhost:8081")
+                .UseUrls("https://localhost:8081")
                 .Build();
         }
 

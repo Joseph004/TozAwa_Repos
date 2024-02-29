@@ -11,14 +11,9 @@ namespace OrleansHost.Api
     [ApiController]
     [ApiVersion("1")]
     [Route("api/[controller]")]
-    public class WeatherController : ControllerBase
+    public class WeatherController(IGrainFactory factory) : ControllerBase
     {
-        private readonly IGrainFactory factory;
-
-        public WeatherController(IGrainFactory factory)
-        {
-            this.factory = factory;
-        }
+        private readonly IGrainFactory factory = factory;
 
         [HttpGet]
         public Task<ImmutableArray<WeatherInfo>> GetAsync() =>

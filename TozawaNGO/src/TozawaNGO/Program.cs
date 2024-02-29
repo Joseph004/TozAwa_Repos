@@ -16,7 +16,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.IdentityModel.Tokens;
 using MudBlazor;
 using MudBlazor.Extensions;
@@ -35,8 +34,6 @@ using TozawaNGO.Context;
 using TozawaNGO.Helpers;
 using TozawaNGO.Services;
 using TozawaNGO.Shared;
-using TozawaNGO.StateHandler;
-using Orleans.Hosting;
 using Fluxor;
 using Shared.SignalR;
 
@@ -47,15 +44,6 @@ IWebHostEnvironment environment = builder.Environment;
 
 var appSettings = builder.Services.ConfigureAppSettings<AppSettings>(configuration.GetSection("AppSettings"));
 
-/* string largeStateStorageConnectionString = appSettings.SiloSettings.LargeStateStorageConnectionString ?? "";
-string largeStateStorageName = appSettings.SiloSettings.LargeStateStorageName ?? "";
-string stateStorageConnectionString = appSettings.SiloSettings.StateStorageConnectionString ?? "";
-string stateStorageName = appSettings.SiloSettings.StateStorageName ?? ""; */
-
-/* builder.Services.AddTransient(typeof(HubLifetimeManager<ClientHub>), typeof(DefaultHubLifetimeManager<ClientHub>));
-builder.Services.Configure<SiloSettings>(configuration.GetSection("AppSettings:SiloSettings")); */
-
-// Add services to the container.
 builder.Services.AddRazorPages();
 
 builder.Services.AddSession(opt =>
@@ -77,7 +65,7 @@ else
 {
     builder.Services.AddServerSideBlazor();
 }
-//builder.Services.AddClusterService();
+
 builder.Services.AddSingleton<IConfiguration>(configuration);
 
 builder.Services.AddDataProtection();
@@ -129,10 +117,7 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
 
 builder.Host.UseOrleansClient(client =>
 {
-    client.UseSignalR(signalRConfig =>
-    {
-        signalRConfig.UseFireAndForgetDelivery = true;
-    });
+    client.UseSignalR(configure: null);
     client.UseLocalhostClustering();
     client.AddMemoryStreams("SMS");
     client.Configure<ClusterOptions>(options =>
@@ -142,37 +127,10 @@ builder.Host.UseOrleansClient(client =>
     });
 });
 
-/* builder.Host.UseOrleans(siloBuilder =>
-{
-    siloBuilder.UseLocalhostClustering();
-    siloBuilder.AddMemoryStreams("SMS")
-    .AddMemoryGrainStorage("PubSubStore");
-    siloBuilder.AddMemoryGrainStorageAsDefault();
-    siloBuilder.ConfigureLogging(x => x.AddConsole());
-    siloBuilder.UseDashboard();
-    siloBuilder.UseInMemoryReminderService();
-    siloBuilder.Configure<ClusterOptions>(options =>
-    {
-        options.ClusterId = "dev";
-        options.ServiceId = "OrleansBasics";
-    });
-    siloBuilder.UseSignalR(signalRConfig =>
-    {
-        signalRConfig.UseFireAndForgetDelivery = true;
-
-        signalRConfig.Configure(x =>
-        {
-            x.AddMemoryGrainStorage("SignalRStorage");
-        });
-    });
-    siloBuilder.RegisterHub<ClientHub>();
-}); */
-
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
-});
-//builder.Services.AddSignalR()/* .AddOrleans() */;
+}).AddOrleans();
 
 builder.Services.AddAuthentication(options =>
 {

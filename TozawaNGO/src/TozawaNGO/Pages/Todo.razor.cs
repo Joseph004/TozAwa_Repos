@@ -1,15 +1,10 @@
-using System;
-using System.Threading.Tasks;
 using Grains;
 using Microsoft.AspNetCore.Components;
-using MudBlazor;
 using TozawaNGO.Services;
-using TozawaNGO.State.ToDo;
 using Fluxor;
 using TozawaNGO.Shared;
-using TozawaNGO.Models.Dtos;
 using TozawaNGO.State.ToDo.Store;
-using TozawaNGO.Helpers;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace TozawaNGO.Pages
 {
@@ -24,13 +19,17 @@ namespace TozawaNGO.Pages
             newTodo = ToDoState.Value.NewItem;
             await base.OnInitializedAsync();
 
+            Dispatcher.Dispatch(new StartHubConnectionAction());
             Dispatcher.Dispatch(new ToDoDataAction());
             Dispatcher.Dispatch(new HandleInputTextToDoAction(newTodo));
+
+            AddToDoDataListener();
         }
 
-        public int TotalToDo()
+        private void AddToDoDataListener()
         {
-            return ToDoState.Value.Todos.Count(todo => !todo.IsDone);
+            ToDoState.Value.HubConnection.On<Guid>("ToDoAdded", (id) =>
+            Dispatcher.Dispatch(new LoadItemAction(id)));
         }
 
         public void OnItemEnter(ChangeEventArgs args)

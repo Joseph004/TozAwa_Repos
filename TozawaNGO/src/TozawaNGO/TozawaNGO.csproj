@@ -17,6 +17,7 @@
   <ItemGroup>
     <PackageReference Include="Fluxor.Blazor.Web" Version="5.*" />
     <PackageReference Include="Microsoft.AspNet.WebApi.Client" Version="6.*" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.*" />
     <PackageReference Include="Microsoft.AspNetCore.SpaServices.Extensions" Version="3.1.32" />
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.8.0" />
@@ -61,7 +62,7 @@
 
     <PackageReference Include="Microsoft.Orleans.Client" Version="8.*" />
     <!-- <PackageReference Include="Microsoft.Orleans.Server" Version="8.*" /> -->
-    <PackageReference Include="SignalR.Orleans" Version="7.*" />
+    <!-- <PackageReference Include="SignalR.Orleans" Version="7.*" /> -->
     <PackageReference Include="OrleansDashboard" Version="7.*" />
   </ItemGroup>
 

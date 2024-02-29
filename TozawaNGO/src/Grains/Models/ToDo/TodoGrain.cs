@@ -1,18 +1,16 @@
-﻿using Orleans;
-using Orleans.Runtime;
-using Grains;
-using System;
-using System.Threading.Tasks;
+﻿using Orleans.Runtime;
 using Microsoft.AspNetCore.SignalR;
-using Shared.SignalR;
 using Grains.Models.ToDo.Store;
-using Microsoft.Extensions.DependencyInjection;
+using SignalR.Orleans.Core;
+using Shared.SignalR;
+using Microsoft.AspNetCore.SignalR.Protocol;
+using Orleans.Concurrency;
 
 namespace Grains
 {
-    public class TodoGrain([PersistentState("State")] IPersistentState<ToDoState> state, IServiceProvider provider) : Grain, ITodoGrain
+    public class TodoGrain([PersistentState("State")] IPersistentState<ToDoState> state, IHubContext<ClientHub> hubContext) : Grain, ITodoGrain
     {
-        private readonly IServiceProvider _provider = provider;
+        private IHubContext<ClientHub> _hubContext = hubContext;
         private readonly IPersistentState<ToDoState> _state = state;
 
         private Guid GrainKey => this.GetPrimaryKey();
@@ -75,14 +73,12 @@ namespace Grains
 
         private async Task NotifyHub(string method, Guid id)
         {
-            var context = _provider.GetRequiredService<IHubContext<ClientHub>>();
-            await context.Clients.All.SendAsync(method, id);
+            await _hubContext.Clients.All.SendAsync(method, id);
         }
 
         private async Task NotifyHub(string method)
         {
-            var context = _provider.GetRequiredService<IHubContext<ClientHub>>();
-            await context.Clients.All.SendAsync(method);
+            await _hubContext.Clients.All.SendAsync(method);
         }
     }
 }

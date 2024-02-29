@@ -18,10 +18,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.4" /> -->
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.*" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR.Core" Version="1.0.15" />
     <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="8.*" />
+    <PackageReference Include="SignalR.Orleans" Version="7.*" />
   </ItemGroup>
 
 </Project>

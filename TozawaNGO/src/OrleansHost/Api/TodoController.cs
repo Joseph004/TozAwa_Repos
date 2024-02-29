@@ -1,19 +1,19 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Orleans;
 using Grains;
-using System;
 using System.Buffers;
 using System.Collections.Immutable;
 using System.ComponentModel.DataAnnotations;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using Shared.SignalR;
 
 namespace OrleansHost.Api
 {
     [ApiController]
     [Route("api/todo")]
-    public class TodoController(IGrainFactory factory) : ControllerBase
+    public class TodoController(IGrainFactory factory, IHubContext<ClientHub> hub) : ControllerBase
     {
         private readonly IGrainFactory factory = factory;
+        private readonly IHubContext<ClientHub> _hub = hub;
 
         [HttpGet("{itemKey}")]
         public Task<TodoItem> GetAsync([Required] Guid itemKey) =>
@@ -25,14 +25,14 @@ namespace OrleansHost.Api
             await factory.GetGrain<ITodoGrain>(itemKey).ClearAsync();
         }
 
-        [HttpGet("list/{ownerKey}", Name = "list")]
+        [HttpGet("list/{ownerKey}")]
         public async Task<ImmutableArray<TodoItem>> ListAsync([Required] Guid ownerKey)
         {
             // get all item keys for this owner
             var keys = await factory.GetGrain<ITodoManagerGrain>(ownerKey).GetAllAsync();
 
             // fast path for empty owner
-            if (keys.Length == 0) return ImmutableArray<TodoItem>.Empty;
+            if (keys.Length == 0) return [];
 
             // fan out and get all individual items in parallel
             var tasks = ArrayPool<Task<TodoItem>>.Shared.Rent(keys.Length);
@@ -73,9 +73,10 @@ namespace OrleansHost.Api
             public Guid OwnerKey { get; set; }
         }
 
-        [HttpPost]
-        public async Task<ActionResult> PostAsync([FromBody] TodoItemModel model)
+        [HttpPost, Route("{ownerKey}")]
+        public async Task<ActionResult> PostAsync([Required] Guid ownerKey, [FromBody] TodoItemModel model)
         {
+            model.OwnerKey = ownerKey;
             if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
@@ -83,6 +84,7 @@ namespace OrleansHost.Api
 
             var item = new TodoItem(model.Key, model.Title, model.IsDone, model.OwnerKey);
             await factory.GetGrain<ITodoGrain>(item.Key).SetAsync(item);
+            await _hub.Clients.All.SendAsync("ToDoAdded", item.Key);
             return Ok();
         }
     }

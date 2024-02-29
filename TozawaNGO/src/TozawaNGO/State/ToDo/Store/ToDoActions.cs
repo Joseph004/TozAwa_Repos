@@ -1,4 +1,5 @@
 using Grains;
+using Microsoft.AspNetCore.SignalR.Client;
 using Orleans.Streams;
 using TozawaNGO.Models.Dtos;
 
@@ -15,6 +16,8 @@ public record ToDoAddAction(string newItem)
     public string NewItem { get; } = newItem;
 }
 public record ToDoAddAfterAction(TodoItem todo);
+public record StartHubConnectionAction;
+public record HubConnectionAfterAction(HubConnection hubConnection);
 public record IncrementToDoAction;
 public record DecrementToDoAction;
 public class LoadItemAction(Guid id)

@@ -6,6 +6,11 @@ using System;
 using System.Buffers;
 using System.Collections.Immutable;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.SignalR;
+using Shared.SignalR;
+using System.Net.Http.Headers;
+using System.Text;
+using Newtonsoft.Json;
 
 namespace TozawaNGO.Services
 {
@@ -55,8 +60,37 @@ namespace TozawaNGO.Services
 
         public Task<TodoItem> GetAsync(Guid id) =>
              _client.GetGrain<ITodoGrain>(id).GetAsync();
-        public Task SetAsync(TodoItem item) =>
-            _client.GetGrain<ITodoGrain>(item.Key).SetAsync(item);
+        public async Task SetAsync(TodoItem item)
+        {
+            var pairs = new List<KeyValuePair<string, string>>
+            {
+                new("OwnerKey", item.OwnerKey.ToString()),
+                new("Key", item.Key.ToString()),
+                new("Title", item.Title),
+                new("IsDome", item.IsDone.ToString())
+            };
+
+            var content = new FormUrlEncodedContent(pairs);
+
+            var client = new HttpClient { BaseAddress = new Uri($"https://localhost:8081") };
+
+            client.DefaultRequestHeaders
+                  .Accept
+                  .Add(new MediaTypeWithQualityHeaderValue("application/json"));//ACCEPT header
+
+            HttpRequestMessage request = new(HttpMethod.Post, $"/api/todo/{item.OwnerKey}")
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(item),
+                                                Encoding.UTF8,
+                                                "application/json")//CONTENT-TYPE header
+            };
+
+            await client.SendAsync(request)
+                   .ContinueWith(responseTask =>
+                   {
+                       Console.WriteLine("Response: {0}", responseTask.Result);
+                   });
+        }
 
         public Task DeleteAsync(Guid itemKey) =>
             _client.GetGrain<ITodoGrain>(itemKey).ClearAsync();
@@ -78,7 +112,6 @@ namespace TozawaNGO.Services
                 _logger.LogError(ex, ex.Message);
                 return Task.CompletedTask;
             }
-
             public Task OnNextAsync(TodoNotification item, StreamSequenceToken token = null) => _action(item);
         }
     }
