@@ -9,6 +9,7 @@ namespace TozawaNGO.State.ToDo.Store;
 public record ToDoState
 {
     public string NewItem { get; init; }
+    public double ScrollTop { get; init; }
     public bool IsLoading { get; init; }
     public bool Initialized { get; init; }
     public HubConnection HubConnection { get; init; }

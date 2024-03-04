@@ -8,16 +8,18 @@ public record HandleInputTextToDoAction(string newItem)
 {
     public string NewItem { get; } = newItem;
 }
-public record ToDoDataFechedAction(TodoKeyedCollection todos, StreamSubscriptionHandle<TodoNotification> subscription, List<TodoNotification> notifications);
+public record ToDoDataFechedAction(TodoKeyedCollection todos, StreamSubscriptionHandle<TodoNotification> subscription, List<TodoNotification> notifications, HubConnection hubConnection);
 public record ToDoDataAction;
 public record UnSubscribeAction;
 public record ToDoAddAction(string newItem)
 {
     public string NewItem { get; } = newItem;
 }
+public record ScrollTopAction(double scrollTop)
+{
+    public double ScrollTop { get; } = scrollTop;
+}
 public record ToDoAddAfterAction(TodoItem todo);
-public record StartHubConnectionAction;
-public record HubConnectionAfterAction(HubConnection hubConnection);
 public record IncrementToDoAction;
 public record DecrementToDoAction;
 public class LoadItemAction(Guid id)

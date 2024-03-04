@@ -10,33 +10,30 @@ public static class Redures
     [ReducerMethod]
     public static ToDoState ReduceHandleInputTextToDoAction(ToDoState state, HandleInputTextToDoAction action)
     {
-        return new() { IsLoading = false, Subscription = state.Subscription, Todos = state.Todos, NewItem = action.NewItem, HubConnection = state.HubConnection };
+        return new() { IsLoading = false, Subscription = state.Subscription, Todos = state.Todos, NewItem = action.NewItem, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop };
     }
     [ReducerMethod(typeof(UnSubscribeAction))]
     public static ToDoState ReduceUnSubscribeAction(ToDoState state)
     {
         state.Subscription?.UnsubscribeAsync();
         state.HubConnection.DisposeAsync();
-        return new() { IsLoading = false, Subscription = state.Subscription, Todos = state.Todos, NewItem = state.NewItem, HubConnection = state.HubConnection };
+        return new() { IsLoading = false, Subscription = state.Subscription, Todos = state.Todos, NewItem = state.NewItem, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop };
     }
 
     [ReducerMethod(typeof(ToDoDataAction))]
-    public static ToDoState ReduceFetchDataAction(ToDoState state) => new() { IsLoading = true };
-
-    [ReducerMethod(typeof(StartHubConnectionAction))]
-    public static ToDoState ReduceStartHubAction(ToDoState state) => new() { IsLoading = true };
+    public static ToDoState ReduceFetchDataAction(ToDoState state) => new() { IsLoading = true, NewItem = state.NewItem, ScrollTop = state.ScrollTop };
 
     [ReducerMethod]
     public static ToDoState ReduceDataFetchedAction(ToDoState state, ToDoDataFechedAction action)
     {
         HandleNotificationAsync(action.notifications, state);
-        return new() { IsLoading = false, Subscription = action.subscription, Todos = action.todos, NewItem = state.NewItem, HubConnection = state.HubConnection };
+        return new() { IsLoading = false, Subscription = action.subscription, Todos = action.todos, NewItem = state.NewItem, HubConnection = action.hubConnection, ScrollTop = state.ScrollTop };
     }
 
     [ReducerMethod]
-    public static ToDoState ReduceHubConnectionAfterAction(ToDoState state, HubConnectionAfterAction action)
+    public static ToDoState ReduceScrollTopAction(ToDoState state, ScrollTopAction action)
     {
-        return new() { IsLoading = state.IsLoading, Subscription = state.Subscription, Todos = state.Todos, NewItem = state.NewItem, HubConnection = action.hubConnection };
+        return new() { IsLoading = false, Subscription = state.Subscription, Todos = state.Todos, NewItem = state.NewItem, HubConnection = state.HubConnection, ScrollTop = action.scrollTop };
     }
 
     [ReducerMethod]
@@ -54,7 +51,7 @@ public static class Redures
             state.Todos.Add(action.todo);
         }
 
-        return new() { IsLoading = false, Subscription = state.Subscription, Todos = state.Todos, NewItem = null, HubConnection = state.HubConnection };
+        return new() { IsLoading = false, Subscription = state.Subscription, Todos = state.Todos, NewItem = null, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop };
     }
     private static Task HandleNotificationAsync(List<TodoNotification> notifications, ToDoState state)
     {

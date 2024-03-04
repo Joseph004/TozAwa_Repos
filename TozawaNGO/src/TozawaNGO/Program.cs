@@ -218,6 +218,7 @@ builder.Services.AddSingleton<WeatherForecastService>();
 builder.Services.AddSingleton<TodoService>();
 builder.Services.AddScoped<ICookie, Cookie>();
 builder.Services.AddScoped<TozawaNGO.StateHandler.UserState>();
+builder.Services.AddScoped<TozawaNGO.StateHandler.ScrollTopState>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<ITranslationService, TranslationService>();
 builder.Services.AddScoped<TozawaNGO.Services.ICurrentUserService, TozawaNGO.Services.CurrentUserService>();

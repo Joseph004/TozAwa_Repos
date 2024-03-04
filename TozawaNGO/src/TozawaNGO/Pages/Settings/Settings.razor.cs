@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components;
-using MudBlazor;
 using TozawaNGO.Shared;
 
 namespace TozawaNGO.Pages

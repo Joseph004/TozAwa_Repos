@@ -24,7 +24,9 @@ public class Effects(TodoService todoService)
             todos.Add(item);
         }
 
-        dispatcher.Dispatch(new ToDoDataFechedAction(todos, subscription, notifications));
+        var hubConnection = await StartHubConnection();
+        AddToDoDataListener(hubConnection, dispatcher);
+        dispatcher.Dispatch(new ToDoDataFechedAction(todos, subscription, notifications, hubConnection));
     }
 
     [EffectMethod(typeof(LoadDataAction))]
@@ -41,12 +43,11 @@ public class Effects(TodoService todoService)
         {
             todos.Add(item);
         }
-
-        dispatcher.Dispatch(new ToDoDataFechedAction(todos, subscription, notifications));
+        var hubConnection = await StartHubConnection();
+        dispatcher.Dispatch(new ToDoDataFechedAction(todos, subscription, notifications, hubConnection));
     }
 
-    [EffectMethod(typeof(StartHubConnectionAction))]
-    private async Task StartHubConnection(IDispatcher dispatcher)
+    private async Task<HubConnection> StartHubConnection()
     {
         var hubConnection = new HubConnectionBuilder()
             .WithUrl("https://localhost:8081/hubs/clienthub")
@@ -55,7 +56,13 @@ public class Effects(TodoService todoService)
         if (hubConnection.State == HubConnectionState.Connected)
             Console.WriteLine("connection started");
 
-        dispatcher.Dispatch(new HubConnectionAfterAction(hubConnection));
+        return hubConnection;
+    }
+
+    private void AddToDoDataListener(HubConnection hubConnection, IDispatcher dispatcher)
+    {
+        hubConnection.On<Guid>("ToDoAdded", (id) =>
+        dispatcher.Dispatch(new LoadItemAction(id)));
     }
 
     [EffectMethod]

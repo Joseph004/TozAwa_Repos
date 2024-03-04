@@ -1,17 +1,19 @@
-function logoutClick() {
-    document.getElementById('logoutform').click();
-}
-
-function loginClick() {
-    document.getElementById('loginform').click();
-}
-
-function FooterResized(dotnethelper) {
-    function padPageElement() {
-        document.getElementsByClassName("mainpage")[0].style.paddingBottom = footerElm.offsetHeight + "px";
+function SetScroll(value) {
+    var hasScroll = document.body.scrollHeight > document.body.clientHeight;
+    if (hasScroll && document.documentElement && document.documentElement.scrollTop) {
+        console.log(value);
+        console.log(document.documentElement.scrollTop);
+        document.documentElement.scrollTop = value;
     }
-    var footerElm = document.getElementById("footer");
-    new ResizeObserver(padPageElement).observe(footerElm);
+}
+
+function RemoveScroll() {
+    var hasScroll = document.body.scrollHeight > document.body.clientHeight;
+    if (hasScroll && document.documentElement && document.documentElement.scrollTop) {
+        console.log(value);
+        console.log(document.documentElement.scrollTop);
+        document.documentElement.scrollTop = 0;
+    }
 }
 
 function saveAsFile(filename, bytesBase64) {

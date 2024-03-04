@@ -4,7 +4,9 @@ using TozawaNGO.Services;
 using Fluxor;
 using TozawaNGO.Shared;
 using TozawaNGO.State.ToDo.Store;
-using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.JSInterop;
+using MudBlazor;
+using TozawaNGO.StateHandler;
 
 namespace TozawaNGO.Pages
 {
@@ -13,23 +15,28 @@ namespace TozawaNGO.Pages
         [Inject] IState<ToDoState> ToDoState { get; set; }
         [Inject] IDispatcher Dispatcher { get; set; }
         [Inject] TodoService TodoService { get; set; }
+        [Inject] IJSRuntime JSRuntime { get; set; }
+        [Inject] ScrollTopState ScrollTopState { get; set; }
         private string newTodo;
+
+        private void SetScroll()
+        {
+            Dispatcher.Dispatch(ScrollTopState.ScrollTop);
+        }
         protected override async Task OnInitializedAsync()
         {
+            ScrollTopState.OnChange += SetScroll;
             newTodo = ToDoState.Value.NewItem;
             await base.OnInitializedAsync();
 
-            Dispatcher.Dispatch(new StartHubConnectionAction());
             Dispatcher.Dispatch(new ToDoDataAction());
-            Dispatcher.Dispatch(new HandleInputTextToDoAction(newTodo));
-
-            AddToDoDataListener();
         }
-
-        private void AddToDoDataListener()
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            ToDoState.Value.HubConnection.On<Guid>("ToDoAdded", (id) =>
-            Dispatcher.Dispatch(new LoadItemAction(id)));
+            if (firstRender)
+            {
+            }
+            await base.OnAfterRenderAsync(firstRender);
         }
 
         public void OnItemEnter(ChangeEventArgs args)
@@ -43,6 +50,7 @@ namespace TozawaNGO.Pages
         {
             try
             {
+                ScrollTopState.OnChange -= SetScroll;
                 Dispatcher.Dispatch(new UnSubscribeAction());
             }
             catch
