@@ -9,7 +9,6 @@ namespace OrleansHost;
 
 public interface IEncryptDecrypt
 {
-    string EncryptUsingCertificate(string data);
     string DecryptUsingCertificate(string data);
 }
 public class EncryptDecrypt : IEncryptDecrypt
@@ -21,32 +20,6 @@ public class EncryptDecrypt : IEncryptDecrypt
         _hostEnvironment = environment;
         _appSettings = appSettings;
     }
-
-    public string EncryptUsingCertificate(string data)
-    {
-        try
-        {
-            byte[] byteData = Encoding.UTF8.GetBytes(data);
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Helpers/mycert.pem");
-            //Path.Combine(_hostEnvironment.WebRootPath, "Helpers/mycert.pem");
-            var collection = new X509Certificate2Collection();
-            collection.Import(path);
-            var certificate = collection[0];
-            var output = "";
-            #pragma warning disable SYSLIB0027
-            using (RSA csp = (RSA)certificate.PublicKey.Key)
-            {
-                byte[] bytesEncrypted = csp.Encrypt(byteData, RSAEncryptionPadding.OaepSHA1);
-                output = Convert.ToBase64String(bytesEncrypted);
-            }
-            return output;
-        }
-        catch (Exception)
-        {
-            return "";
-        }
-    }
-
     public string DecryptUsingCertificate(string data)
     {
         try
@@ -57,7 +30,7 @@ public class EncryptDecrypt : IEncryptDecrypt
             var Password = _appSettings.PrivateKey; //Note This Password is That Password That We Have Put On Generate Keys  
             var collection = new X509Certificate2Collection();
             collection.Import(System.IO.File.ReadAllBytes(path), Password, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
-            #pragma warning disable SYSLIB0026
+#pragma warning disable SYSLIB0026
             X509Certificate2 certificate = new();
             certificate = collection[0];
             foreach (var cert in collection)
@@ -69,7 +42,7 @@ public class EncryptDecrypt : IEncryptDecrypt
             }
             if (certificate.HasPrivateKey)
             {
-                #pragma warning disable SYSLIB0028
+#pragma warning disable SYSLIB0028
                 RSA csp = (RSA)certificate.PrivateKey;
                 var privateKey = certificate.PrivateKey as RSACryptoServiceProvider;
                 var keys = Encoding.UTF8.GetString(csp.Decrypt(byteData, RSAEncryptionPadding.OaepSHA1));
