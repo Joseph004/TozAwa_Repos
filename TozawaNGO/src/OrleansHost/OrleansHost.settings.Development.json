@@ -23,7 +23,7 @@
       "MigrationSql": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=TozawaNGODB;Integrated Security=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
     },
     "JWTSettings": {
-      "securityKey": "toz768awa67api54NGO",
+      "securityKey": "toz768awa67api54NGO67api54NGO",
       "validIssuer": "TozAwaNGOApi",
       "validAudience": "https://localhost:7122",
       "expiryInMinutes": 5

@@ -23,10 +23,10 @@
       "MigrationSql": "Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=TozawaNGODB;Integrated Security=True;ApplicationIntent=ReadWrite;MultiSubnetFailover=False"
     },
     "JWTSettings": {
-      "securityKey": "toz768awa67api54NGO",
+      "securityKey": "toz768awa67api54NGOz768awa67appi54NGOz7",
       "validIssuer": "TozAwaNGOApi",
       "validAudience": "https://localhost:7122",
-      "expiryInMinutes": 5
+      "expiryInMinutes": 60
     },
     "PrivateKey": "Congomikilinumber01",
     "GoogleDrive": {

@@ -62,4 +62,10 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Helpers\mycertprivatekey.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

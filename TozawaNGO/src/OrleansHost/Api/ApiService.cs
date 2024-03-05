@@ -46,6 +46,17 @@ namespace OrleansHost.Api
                 {
                     var appSettings = services.ConfigureAppSettings<AppSettings>(configuration.GetSection("AppSettings"));
 
+                    // For Identity  
+                    services.AddIdentity<ApplicationUser, IdentityRole>()
+                        .AddEntityFrameworkStores<TozawangoDbContext>()
+                        .AddDefaultTokenProviders();
+
+                    // For Entity Framework  
+                    services.AddDbContext<TozawangoDbContext>(options =>
+                    {
+                        options.UseSqlServer(appSettings.ConnectionStrings.Sql);
+                    });
+
                     services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
                     services.AddScoped<OrleansHost.Auth.Services.ICurrentUserService, OrleansHost.Auth.Services.CurrentUserService>();
                     services.AddScoped<ICurrentUserConverter, CurrentUserConverter>();
@@ -56,6 +67,7 @@ namespace OrleansHost.Api
                     services.AddScoped<IFileAttachmentCreator, FileAttachmentCreator>();
                     services.AddScoped<IGoogleService, GoogleService>();
                     services.AddScoped<IPasswordHashService, PasswordHashService>();
+                    services.AddScoped<IEncryptDecrypt, EncryptDecrypt>();
 
                     services.AddAuthentication(options =>
                     {
