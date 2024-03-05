@@ -24,7 +24,6 @@ namespace OrleansHost.Api
                     services.AddSignalR();
 
                     services.AddControllers()
-                        .SetCompatibilityVersion(CompatibilityVersion.Latest)
                         .AddApplicationPart(typeof(WeatherController).Assembly)
                         .AddControllersAsServices();
 

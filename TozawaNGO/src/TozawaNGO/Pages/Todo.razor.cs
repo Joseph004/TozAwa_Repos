@@ -5,36 +5,51 @@ using Fluxor;
 using TozawaNGO.Shared;
 using TozawaNGO.State.ToDo.Store;
 using Microsoft.JSInterop;
-using MudBlazor;
 using TozawaNGO.StateHandler;
 
 namespace TozawaNGO.Pages
 {
     public partial class Todo : BasePage
     {
-        [Inject] IState<ToDoState> ToDoState { get; set; }
+        [Inject] IState<TozawaNGO.State.ToDo.Store.ToDoState> ToDoState { get; set; }
         [Inject] IDispatcher Dispatcher { get; set; }
         [Inject] TodoService TodoService { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] ScrollTopState ScrollTopState { get; set; }
         private string newTodo;
+        private double scrollTop;
 
         private void SetScroll()
         {
-            Dispatcher.Dispatch(ScrollTopState.ScrollTop);
+            Dispatcher.Dispatch(new ScrollTopAction(ScrollTopState.ScrollTop));
         }
         protected override async Task OnInitializedAsync()
         {
             ScrollTopState.OnChange += SetScroll;
             newTodo = ToDoState.Value.NewItem;
+            scrollTop = ToDoState.Value.ScrollTop;
             await base.OnInitializedAsync();
 
             Dispatcher.Dispatch(new ToDoDataAction());
+        }
+        private int Count = 0;
+        private async Task SetScrollJS()
+        {
+            if (Count != 0) return;
+            if (scrollTop != 0)
+            {
+                Count++;
+                await JSRuntime.InvokeAsync<object>("SetScroll", (-1) * scrollTop);
+            }
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
+            }
+            if (!ToDoState.Value.IsLoading)
+            {
+                await Task.Delay(new TimeSpan(0, 0, 1)).ContinueWith(async o => { await SetScrollJS(); });
             }
             await base.OnAfterRenderAsync(firstRender);
         }

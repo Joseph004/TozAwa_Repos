@@ -1,18 +1,7 @@
 function SetScroll(value) {
     var hasScroll = document.body.scrollHeight > document.body.clientHeight;
-    if (hasScroll && document.documentElement && document.documentElement.scrollTop) {
-        console.log(value);
-        console.log(document.documentElement.scrollTop);
-        document.documentElement.scrollTop = value;
-    }
-}
-
-function RemoveScroll() {
-    var hasScroll = document.body.scrollHeight > document.body.clientHeight;
-    if (hasScroll && document.documentElement && document.documentElement.scrollTop) {
-        console.log(value);
-        console.log(document.documentElement.scrollTop);
-        document.documentElement.scrollTop = 0;
+    if (hasScroll) {
+        window.scrollTo(0, value);
     }
 }
 

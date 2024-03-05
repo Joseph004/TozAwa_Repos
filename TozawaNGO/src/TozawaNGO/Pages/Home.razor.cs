@@ -33,12 +33,16 @@ namespace TozawaNGO.Pages
         {
             if (firstRender)
             {
+                if (HomeState.Value.ScrollTop != 0)
+                {
+                    await JSRuntime.InvokeAsync<object>("SetScroll", (-1) * HomeState.Value.ScrollTop);
+                }
             }
             await base.OnAfterRenderAsync(firstRender);
         }
         private void SetScroll()
         {
-            Dispatcher.Dispatch(ScrollTopState.ScrollTop);
+            Dispatcher.Dispatch(new ScrollTopAction(ScrollTopState.ScrollTop));
         }
     }
 }
