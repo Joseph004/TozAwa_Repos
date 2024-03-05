@@ -1,10 +1,15 @@
-﻿using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans.Configuration;
 using OrleansHost.Api;
+using OrleansHost.Auth.Models.Authentication;
+using OrleansHost.Configurations;
+using OrleansHost.Context;
 using Shared.Settings;
 using Shared.SignalR;
 
@@ -33,6 +38,19 @@ namespace OrleansHost
                 })
                 .ConfigureServices(services =>
                 {
+                    var appSettings = services.ConfigureAppSettings<AppSettings>(configuration.GetSection("AppSettings"));
+                    // For Identity  
+                    services.AddIdentity<ApplicationUser, IdentityRole>()
+                        .AddEntityFrameworkStores<TozawangoDbContext>()
+                        .AddDefaultTokenProviders();
+
+                    // For Entity Framework  
+                    services.AddDbContext<TozawangoDbContext>(options =>
+                    {
+                        options.UseSqlServer(appSettings.ConnectionStrings.Sql);
+                    });
+
+                    services.AddScoped<OrleansHost.Auth.Services.ICurrentUserService, OrleansHost.Auth.Services.CurrentUserService>();
                     services.AddSingleton(typeof(HubLifetimeManager<>), typeof(DefaultHubLifetimeManager<>));
                     services.Configure<SiloSettings>(configuration.GetSection(nameof(SiloSettings)));
                     services.Configure<ConsoleLifetimeOptions>(options =>

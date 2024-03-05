@@ -1,10 +1,29 @@
-﻿using Microsoft.AspNetCore;
+﻿using System.Reflection;
+using System.Text;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using OrleansHost.Attachment.Converters;
+using OrleansHost.Auth.Models.Authentication;
+using OrleansHost.Auth.Models.Converters;
+using OrleansHost.Auth.Services;
+using OrleansHost.Configurations;
+using OrleansHost.Context;
+using OrleansHost.Services;
 using Shared.SignalR;
 
 namespace OrleansHost.Api
@@ -15,10 +34,69 @@ namespace OrleansHost.Api
 
         public ApiService(IGrainFactory factory)
         {
+            var configuration = new ConfigurationBuilder()
+              .AddEnvironmentVariables()
+              .AddJsonFile("OrleansHost.settings.Development.json", true)
+              .AddJsonFile("OrleansHost.settings.json", false)
+              .Build();
+
             host = WebHost
                 .CreateDefaultBuilder()
                 .ConfigureServices(services =>
                 {
+                    var appSettings = services.ConfigureAppSettings<AppSettings>(configuration.GetSection("AppSettings"));
+
+                    services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+                    services.AddScoped<OrleansHost.Auth.Services.ICurrentUserService, OrleansHost.Auth.Services.CurrentUserService>();
+                    services.AddScoped<ICurrentUserConverter, CurrentUserConverter>();
+                    services.AddScoped<OrleansHost.Auth.Services.IDataProtectionProviderService, OrleansHost.Auth.Services.DataProtectionProviderService>();
+                    services.AddScoped<IUserTokenService, UserTokenService>();
+                    services.AddScoped<ICurrentCountry, CurrentCountry>();
+                    services.AddScoped<IFileAttachmentConverter, FileAttachmentConverter>();
+                    services.AddScoped<IFileAttachmentCreator, FileAttachmentCreator>();
+                    services.AddScoped<IGoogleService, GoogleService>();
+                    services.AddScoped<IPasswordHashService, PasswordHashService>();
+
+                    services.AddAuthentication(options =>
+                    {
+                        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                        options.DefaultSignInScheme = JwtBearerDefaults.AuthenticationScheme;
+                    }).AddJwtBearer("tzuserauthentication", options =>
+                    {
+                        options.TokenValidationParameters = new TokenValidationParameters
+                        {
+                            ValidateIssuer = true,
+                            ValidateAudience = true,
+                            ValidateLifetime = true,
+                            ValidateIssuerSigningKey = true,
+
+                            ValidIssuer = appSettings.JWTSettings.ValidIssuer,
+                            ValidAudience = appSettings.JWTSettings.ValidAudience,
+                            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.JWTSettings.SecurityKey))
+                        };
+                    });
+
+                    services.AddMvcCore(options =>
+                    {
+                        options.Filters.Add(new RequireHttpsAttribute());
+                    })
+                    .AddNewtonsoftJson(options =>
+                    {
+                        options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                        options.SerializerSettings.DefaultValueHandling = DefaultValueHandling.Include;
+                        options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                        options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Serialize;
+                    });
+
+                    services.AddFluentValidationAutoValidation();
+                    services.AddValidatorsFromAssemblyContaining<Program>();
+
+                    services.AddHttpContextAccessor();
+                    services.AddScoped<HttpContextAccessor>();
+                    services.AddHttpClient();
+                    services.AddScoped<HttpClient>();
+
                     services.AddSingleton(factory);
 
                     services.AddSignalR();
@@ -26,8 +104,6 @@ namespace OrleansHost.Api
                     services.AddControllers()
                         .AddApplicationPart(typeof(WeatherController).Assembly)
                         .AddControllersAsServices();
-
-                    //services.AddSignalR().AddOrleans();
 
                     services.AddSwaggerGen(options =>
                     {
@@ -54,8 +130,14 @@ namespace OrleansHost.Api
                 })
                 .Configure(app =>
                 {
+                    app.UseForwardedHeaders();
                     app.UseRouting();
                     app.UseCors(nameof(ApiService));
+                    app.UseHttpsRedirection();
+
+                    app.UseStaticFiles();
+                    app.UseAuthentication();
+                    app.UseAuthorization();
                     app.UseSwagger();
                     app.UseSwaggerUI(options =>
                     {
