@@ -1,17 +1,17 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
-using OrleansHost.Auth.Controllers;
-using OrleansHost.Auth.Services;
+using Grains.Auth.Controllers;
+using Grains.Auth.Services;
 using OrleansHost.Attachment.Models.Commands;
-using OrleansHost.Models.Enums;
+using Grains.Models.Enums;
 using OrleansHost.Attachment.Models.Queries;
 
 namespace OrleansHost.Attachment.Controllers;
 
 [Produces("application/json")]
 [Route("api/[controller]")]
-public class FileAttachmentController(IMediator mediator, OrleansHost.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : InitController(mediator, currentUserService, userTokenService)
+public class FileAttachmentController(IMediator mediator, Grains.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : InitController(mediator, currentUserService, userTokenService)
 {
     [HttpPost, Route("{id}")]
     public async Task<IActionResult> AddAttachment(Guid id, [FromBody] AddAttachmentCommand request)

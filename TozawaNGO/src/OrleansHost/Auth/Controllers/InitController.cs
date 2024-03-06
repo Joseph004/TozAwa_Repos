@@ -4,11 +4,11 @@ using System.Net;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using OrleansHost.Auth.Models.Dtos;
-using OrleansHost.Auth.Services;
+using Grains.Auth.Models.Dtos;
+using Grains.Auth.Services;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
     public abstract class InitController(IMediator mediator, ICurrentUserService currentUserService, IUserTokenService userTokenService) : Controller
     {

@@ -3,7 +3,7 @@
 using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
     public class PatchMemberCommand : IRequest<Models.Dtos.Backend.MemberDto>
     {

@@ -1,21 +1,21 @@
 
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using OrleansHost.Context;
-using OrleansHost.Auth.Models.Authentication;
-using OrleansHost.Auth.Models.Converters;
-using OrleansHost.Auth.Models.Dtos.Backend;
+using Grains.Context;
+using Grains.Auth.Models.Authentication;
+using Grains.Auth.Models.Converters;
+using Grains.Auth.Models.Dtos.Backend;
 using OrleansHost.Attachment.Models.Queries;
-using OrleansHost.Services;
+using Grains.Services;
 
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
-    public class GetMembersQueryHandler(TozawangoDbContext context, IMediator mediator, IGoogleService googleService, OrleansHost.Auth.Services.ICurrentUserService currentUserService) : IRequestHandler<GetMembersQuery, TableDataDto<Models.Dtos.Backend.MemberDto>>
+    public class GetMembersQueryHandler(TozawangoDbContext context, IMediator mediator, IGoogleService googleService, Grains.Auth.Services.ICurrentUserService currentUserService) : IRequestHandler<GetMembersQuery, TableDataDto<Models.Dtos.Backend.MemberDto>>
     {
         private readonly TozawangoDbContext _context = context;
         public readonly IMediator _mediator = mediator;
         private readonly IGoogleService _googleService = googleService;
-        private readonly OrleansHost.Auth.Services.ICurrentUserService _currentUserService = currentUserService;
+        private readonly Grains.Auth.Services.ICurrentUserService _currentUserService = currentUserService;
 
         public async Task<TableDataDto<Models.Dtos.Backend.MemberDto>> Handle(GetMembersQuery request, CancellationToken cancellationToken)
         {

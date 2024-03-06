@@ -12,24 +12,24 @@ namespace OrleansHost.Api
     [Route("api/todo")]
     public class TodoController(IGrainFactory factory, IHubContext<ClientHub> hub) : ControllerBase
     {
-        private readonly IGrainFactory factory = factory;
+        private readonly IGrainFactory _factory = factory;
         private readonly IHubContext<ClientHub> _hub = hub;
 
         [HttpGet("{itemKey}")]
         public Task<TodoItem> GetAsync([Required] Guid itemKey) =>
-            factory.GetGrain<ITodoGrain>(itemKey).GetAsync();
+            _factory.GetGrain<ITodoGrain>(itemKey).GetAsync();
 
         [HttpDelete("{itemKey}")]
         public async Task DeleteAsync([Required] Guid itemKey)
         {
-            await factory.GetGrain<ITodoGrain>(itemKey).ClearAsync();
+            await _factory.GetGrain<ITodoGrain>(itemKey).ClearAsync();
         }
 
         [HttpGet("list/{ownerKey}")]
         public async Task<ImmutableArray<TodoItem>> ListAsync([Required] Guid ownerKey)
         {
             // get all item keys for this owner
-            var keys = await factory.GetGrain<ITodoManagerGrain>(ownerKey).GetAllAsync();
+            var keys = await _factory.GetGrain<ITodoManagerGrain>(ownerKey).GetAllAsync();
 
             // fast path for empty owner
             if (keys.Length == 0) return [];
@@ -41,7 +41,7 @@ namespace OrleansHost.Api
                 // issue all requests at the same time
                 for (var i = 0; i < keys.Length; ++i)
                 {
-                    tasks[i] = factory.GetGrain<ITodoGrain>(keys[i]).GetAsync();
+                    tasks[i] = _factory.GetGrain<ITodoGrain>(keys[i]).GetAsync();
                 }
 
                 // compose the result as requests complete
@@ -83,7 +83,7 @@ namespace OrleansHost.Api
             }
 
             var item = new TodoItem(model.Key, model.Title, model.IsDone, model.OwnerKey);
-            await factory.GetGrain<ITodoGrain>(item.Key).SetAsync(item);
+            await _factory.GetGrain<ITodoGrain>(item.Key).SetAsync(item);
             await _hub.Clients.All.SendAsync("ToDoAdded", item.Key);
             return Ok();
         }

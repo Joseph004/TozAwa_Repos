@@ -1,8 +1,8 @@
 using MediatR;
-using OrleansHost.Context;
-using OrleansHost.Auth.Models.Converters;
-using OrleansHost.Auth.Models.Authentication;
-using OrleansHost.Auth.Models.Dtos.Backend;
+using Grains.Context;
+using Grains.Auth.Models.Converters;
+using Grains.Auth.Models.Authentication;
+using Grains.Auth.Models.Dtos.Backend;
 
 namespace OrleansHost.Auth.Models.Commands
 {

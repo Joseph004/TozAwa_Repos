@@ -1,10 +1,10 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OrleansHost.Attachment.Models.Queries;
-using OrleansHost.Context;
-using OrleansHost.Services;
-using OrleansHost.Models.ResponseRequests;
-using OrleansHost.Helpers;
+using Grains.Context;
+using Grains.Services;
+using Grains.Models.ResponseRequests;
+using Grains.Helpers;
 using System.Net;
 using Microsoft.Extensions.Logging;
 

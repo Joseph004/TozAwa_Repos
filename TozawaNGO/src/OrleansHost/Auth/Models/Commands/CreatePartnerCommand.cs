@@ -1,6 +1,6 @@
 using FluentValidation;
 using MediatR;
-using OrleansHost.Auth.Models.Dtos.Backend;
+using Grains.Auth.Models.Dtos.Backend;
 
 namespace OrleansHost.Auth.Models.Commands
 {

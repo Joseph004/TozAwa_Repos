@@ -4,11 +4,11 @@ using MediatR;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using OrleansHost.Auth.Models.Dtos;
-using OrleansHost.Auth.Services;
-using OrleansHost.Helpers;
+using Grains.Auth.Models.Dtos;
+using Grains.Auth.Services;
+using Grains.Helpers;
 
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
     [AuthorizeUserRequirement]
     [Produces("application/json")]

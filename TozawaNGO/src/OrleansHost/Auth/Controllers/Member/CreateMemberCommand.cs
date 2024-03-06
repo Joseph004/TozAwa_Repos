@@ -3,7 +3,7 @@
 
 using MediatR;
 
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
     public class CreateMemberCommand : IRequest<Models.Dtos.Backend.MemberDto>
     {

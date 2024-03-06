@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
-using OrleansHost.Models.Dtos;
+using Grains.Models.Dtos;
 
 namespace OrleansHost.Attachment.Models.Queries
 {

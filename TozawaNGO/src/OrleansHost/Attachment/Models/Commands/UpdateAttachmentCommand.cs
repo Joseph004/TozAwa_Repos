@@ -1,11 +1,11 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Http;
-using OrleansHost.Attachment.Models.Dtos;
-using OrleansHost.Models.Enums;
+using Grains.Attachment.Models.Dtos;
+using Grains.Models.Enums;
 
 namespace OrleansHost.Attachment.Models.Commands
 {
-    public class UpdateAttachmentCommand : IRequest<OrleansHost.Models.Dtos.FileAttachmentDto>
+    public class UpdateAttachmentCommand : IRequest<Grains.Models.Dtos.FileAttachmentDto>
     {
         public Guid Id { get; set; }
         public IFormFile File { get; set; }

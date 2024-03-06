@@ -1,7 +1,6 @@
-using System;
 using FluentValidation;
 using MediatR;
-using OrleansHost.Auth.Models.Dtos;
+using Grains.Auth.Models.Dtos;
 
 namespace OrleansHost.Auth.Models.Queries
 {

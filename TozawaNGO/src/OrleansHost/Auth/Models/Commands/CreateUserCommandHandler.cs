@@ -1,10 +1,10 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
-using OrleansHost.Context;
-using OrleansHost.Auth.Models.Converters;
-using OrleansHost.Auth.Models.Authentication;
-using OrleansHost.Auth.Models.Dtos.Backend;
-using OrleansHost.Services;
+using Grains.Context;
+using Grains.Auth.Models.Converters;
+using Grains.Auth.Models.Authentication;
+using Grains.Auth.Models.Dtos.Backend;
+using Grains.Services;
 
 namespace OrleansHost.Auth.Models.Commands
 {

@@ -1,22 +1,22 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OrleansHost.Attachment.Converters;
-using OrleansHost.Attachment.Models;
+using Grains.Attachment.Models;
 using OrleansHost.Attachment.Models.Commands;
-using OrleansHost.Auth.Services;
-using OrleansHost.Context;
+using Grains.Auth.Services;
+using Grains.Context;
 
 namespace OrleansHost.Attachment.Handlers.Commands;
 
 public class UpdateAttachmentCommandHandler(TozawangoDbContext context,
     IFileAttachmentConverter fileAttachmentConverter,
-    ICurrentUserService currentUserService) : IRequestHandler<UpdateAttachmentCommand, OrleansHost.Models.Dtos.FileAttachmentDto>
+    ICurrentUserService currentUserService) : IRequestHandler<UpdateAttachmentCommand, Grains.Models.Dtos.FileAttachmentDto>
 {
     private readonly TozawangoDbContext _context = context;
     private readonly IFileAttachmentConverter _fileAttachmentConverter = fileAttachmentConverter;
     private readonly ICurrentUserService _currentUserService = currentUserService;
 
-    public async Task<OrleansHost.Models.Dtos.FileAttachmentDto> Handle(UpdateAttachmentCommand request, CancellationToken cancellationToken)
+    public async Task<Grains.Models.Dtos.FileAttachmentDto> Handle(UpdateAttachmentCommand request, CancellationToken cancellationToken)
     {
         var attachment = await _context.FileAttachments
             .Include(x => x.Owners)

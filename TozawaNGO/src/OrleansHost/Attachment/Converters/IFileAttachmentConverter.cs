@@ -1,5 +1,5 @@
-﻿using OrleansHost.Attachment.Models;
-using OrleansHost.Models.Dtos;
+﻿using Grains.Attachment.Models;
+using Grains.Models.Dtos;
 
 namespace OrleansHost.Attachment.Converters
 {

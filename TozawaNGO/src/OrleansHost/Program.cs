@@ -7,9 +7,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Orleans.Configuration;
 using OrleansHost.Api;
-using OrleansHost.Auth.Models.Authentication;
-using OrleansHost.Configurations;
-using OrleansHost.Context;
+using Grains.Auth.Models.Authentication;
+using Grains.Configurations;
+using Grains.Context;
 using Shared.Settings;
 using Shared.SignalR;
 
@@ -50,7 +50,7 @@ namespace OrleansHost
                         options.UseSqlServer(appSettings.ConnectionStrings.Sql);
                     });
 
-                    services.AddScoped<OrleansHost.Auth.Services.ICurrentUserService, OrleansHost.Auth.Services.CurrentUserService>();
+                    services.AddScoped<Grains.Auth.Services.ICurrentUserService, Grains.Auth.Services.CurrentUserService>();
                     services.AddSingleton(typeof(HubLifetimeManager<>), typeof(DefaultHubLifetimeManager<>));
                     services.Configure<SiloSettings>(configuration.GetSection(nameof(SiloSettings)));
                     services.Configure<ConsoleLifetimeOptions>(options =>

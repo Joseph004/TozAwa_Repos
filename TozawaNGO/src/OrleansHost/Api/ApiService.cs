@@ -18,13 +18,14 @@ using Microsoft.OpenApi.Models;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using OrleansHost.Attachment.Converters;
-using OrleansHost.Auth.Models.Authentication;
-using OrleansHost.Auth.Models.Converters;
-using OrleansHost.Auth.Services;
-using OrleansHost.Configurations;
-using OrleansHost.Context;
-using OrleansHost.Services;
+using Grains.Auth.Models.Authentication;
+using Grains.Auth.Models.Converters;
+using Grains.Auth.Services;
+using Grains.Configurations;
+using Grains.Context;
+using Grains.Services;
 using Shared.SignalR;
+using Grains.Helpers;
 
 namespace OrleansHost.Api
 {
@@ -58,9 +59,9 @@ namespace OrleansHost.Api
                     });
 
                     services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
-                    services.AddScoped<OrleansHost.Auth.Services.ICurrentUserService, OrleansHost.Auth.Services.CurrentUserService>();
+                    services.AddScoped<Grains.Auth.Services.ICurrentUserService, Grains.Auth.Services.CurrentUserService>();
                     services.AddScoped<ICurrentUserConverter, CurrentUserConverter>();
-                    services.AddScoped<OrleansHost.Auth.Services.IDataProtectionProviderService, OrleansHost.Auth.Services.DataProtectionProviderService>();
+                    services.AddScoped<Grains.Auth.Services.IDataProtectionProviderService, Grains.Auth.Services.DataProtectionProviderService>();
                     services.AddScoped<IUserTokenService, UserTokenService>();
                     services.AddScoped<ICurrentCountry, CurrentCountry>();
                     services.AddScoped<IFileAttachmentConverter, FileAttachmentConverter>();

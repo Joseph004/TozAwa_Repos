@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
     [Route("[controller]/[action]")]
     public class CultureController : Controller

@@ -2,12 +2,12 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using OrleansHost.Context;
-using OrleansHost.Auth.Models.Authentication;
-using OrleansHost.Auth.Models.Converters;
+using Grains.Context;
+using Grains.Auth.Models.Authentication;
+using Grains.Auth.Models.Converters;
 using Microsoft.Extensions.Logging;
 
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
     public class CreateMemberCommandHandler(TozawangoDbContext context, ILookupNormalizer normalizer, ILogger<CreateMemberCommandHandler> logger) : IRequestHandler<CreateMemberCommand, Models.Dtos.Backend.MemberDto>
     {

@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.JsonPatch;
 using System.ComponentModel;
 
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
     public static class JsonPatchDocumentExtensions
     {

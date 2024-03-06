@@ -1,13 +1,13 @@
 ﻿using FluentValidation;
 using MediatR;
-using OrleansHost.Helpers;
-using OrleansHost.Models.Dtos;
-using OrleansHost.Models.Enums;
-using OrleansHost.Models.ResponseRequests;
+using Grains.Helpers;
+using Grains.Models.Dtos;
+using Grains.Models.Enums;
+using Grains.Models.ResponseRequests;
 
 namespace OrleansHost.Attachment.Models.Commands
 {
-    public class AddAttachmentCommand : IRequest<AddResponse<IEnumerable<OrleansHost.Models.Dtos.FileAttachmentDto>>>
+    public class AddAttachmentCommand : IRequest<AddResponse<IEnumerable<Grains.Models.Dtos.FileAttachmentDto>>>
     {
         public Guid Id { get; set; }
         public string FolderName { get; set; }

@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using OrleansHost.Attachment.Models.Dtos;
+using Grains.Attachment.Models.Dtos;
 
 namespace OrleansHost.Attachment.Models.Queries
 {

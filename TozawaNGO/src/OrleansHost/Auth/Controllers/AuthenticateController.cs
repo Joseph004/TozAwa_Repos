@@ -5,22 +5,23 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using OrleansHost.Auth.Controllers.Login;
-using OrleansHost.Auth.Models;
-using OrleansHost.Auth.Models.Authentication;
-using OrleansHost.Auth.Models.Dtos;
-using OrleansHost.Auth.Models.FormModels;
+using Grains.Auth.Controllers.Login;
+using Grains.Auth.Models;
+using Grains.Auth.Models.Authentication;
+using Grains.Auth.Models.Dtos;
+using Grains.Auth.Models.FormModels;
 using OrleansHost.Auth.Models.Queries;
-using OrleansHost.Auth.Services;
-using OrleansHost.Models.ResponseRequests;
+using Grains.Auth.Services;
+using Grains.Models.ResponseRequests;
 using System.Net;
-using OrleansHost.Context;
+using Grains.Context;
 using Microsoft.EntityFrameworkCore;
-using OrleansHost.Configurations;
+using Grains.Configurations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
+using Grains.Helpers;
 
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
     [Route("api/[controller]")]
     [Produces("application/json")]

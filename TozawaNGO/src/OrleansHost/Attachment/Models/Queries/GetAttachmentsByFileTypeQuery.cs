@@ -1,11 +1,11 @@
 using MediatR;
 using FluentValidation;
-using OrleansHost.Attachment.Models.Dtos;
-using OrleansHost.Models.Enums;
+using Grains.Attachment.Models.Dtos;
+using Grains.Models.Enums;
 
 namespace OrleansHost.Attachment.Models.Queries
 {
-    public class GetAttachmentsByFileTypeQuery : IRequest<IEnumerable<OrleansHost.Models.Dtos.FileAttachmentDto>>
+    public class GetAttachmentsByFileTypeQuery : IRequest<IEnumerable<Grains.Models.Dtos.FileAttachmentDto>>
     {
         public Guid OwnerId { get; set; }
         public AttachmentType AttachementType { get; set; }

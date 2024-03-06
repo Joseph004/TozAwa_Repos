@@ -1,11 +1,11 @@
 using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using OrleansHost.Context;
-using OrleansHost.Auth.Models.Converters;
-using OrleansHost.Auth.Models.Dtos;
-using OrleansHost.Auth.Services;
-using OrleansHost.Auth.Models.Authentication;
+using Grains.Context;
+using Grains.Auth.Models.Converters;
+using Grains.Auth.Models.Dtos;
+using Grains.Auth.Services;
+using Grains.Auth.Models.Authentication;
 
 namespace OrleansHost.Auth.Models.Queries
 {

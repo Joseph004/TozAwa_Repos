@@ -2,13 +2,13 @@
 
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using OrleansHost.Context;
-using OrleansHost.Extension;
-using OrleansHost.Auth.Models.Converters;
-using OrleansHost.Auth.Services;
+using Grains.Context;
+using Grains.Extension;
+using Grains.Auth.Models.Converters;
+using Grains.Auth.Services;
 using Microsoft.Extensions.Logging;
 
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
     public class PatchMemberCommandHandler(TozawangoDbContext context, ICurrentUserService currentUserService, ILogger<PatchMemberCommandHandler> logger) : IRequestHandler<PatchMemberCommand, Models.Dtos.Backend.MemberDto>
     {

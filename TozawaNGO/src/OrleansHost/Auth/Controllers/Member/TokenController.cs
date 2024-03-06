@@ -2,13 +2,13 @@ using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
-using OrleansHost.Auth.Models.Authentication;
-using OrleansHost.Auth.Models.Dtos;
+using Grains.Auth.Models.Authentication;
+using Grains.Auth.Models.Dtos;
 using OrleansHost.Auth.Models.Queries;
-using OrleansHost.Auth.Services;
-using OrleansHost.Helpers;
+using Grains.Auth.Services;
+using Grains.Helpers;
 
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
     [Route("api/[controller]")]
     [AuthorizeUserRequirementWithNoExpireToken]

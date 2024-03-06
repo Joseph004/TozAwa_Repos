@@ -1,4 +1,4 @@
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
     public class TableDataDto<T>
     {

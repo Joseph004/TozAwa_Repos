@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Primitives;
 
-namespace OrleansHost.Auth.Controllers
+namespace Grains.Auth.Controllers
 {
     public class BaseQuery
     {

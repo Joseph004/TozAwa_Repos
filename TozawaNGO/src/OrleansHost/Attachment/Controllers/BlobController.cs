@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using OrleansHost.Attachment.Models.Commands;
 using OrleansHost.Attachment.Models.Queries;
-using OrleansHost.Auth.Controllers;
-using OrleansHost.Auth.Models.Dtos;
-using OrleansHost.Auth.Services;
-using OrleansHost.Services;
+using Grains.Auth.Controllers;
+using Grains.Auth.Models.Dtos;
+using Grains.Auth.Services;
+using Grains.Services;
 
 namespace OrleansHost.Attachment.Controllers
 {
@@ -17,7 +17,7 @@ namespace OrleansHost.Attachment.Controllers
     [Route("api/[controller]")]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
      [EnableCors("TozAwaCorsPolicyBff")]
-    public class BlobController(IMediator mediator, OrleansHost.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : InitController(mediator, currentUserService, userTokenService)
+    public class BlobController(IMediator mediator, Grains.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : InitController(mediator, currentUserService, userTokenService)
     {
         [HttpGet, Route("{id}"), CheckRole(RoleDto.President, RoleDto.VicePresident)]
         public async Task<IActionResult> Get(Guid id) => Ok(await _mediator.Send(new GetBlobQuery(id)));

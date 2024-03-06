@@ -1,9 +1,9 @@
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authentication;
-using OrleansHost.Auth.Models.Dtos;
+using Grains.Auth.Models.Dtos;
 
-namespace OrleansHost.Auth.Controllers.Login
+namespace Grains.Auth.Controllers.Login
 {
     public class LoginCommand : IRequest<LoginResponseDto>
     {

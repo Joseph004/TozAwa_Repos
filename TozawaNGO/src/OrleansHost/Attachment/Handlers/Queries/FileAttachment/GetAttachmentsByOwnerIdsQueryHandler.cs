@@ -1,9 +1,9 @@
 ﻿using MediatR;
 using Microsoft.EntityFrameworkCore;
 using OrleansHost.Attachment.Converters;
-using OrleansHost.Attachment.Models.Dtos;
+using Grains.Attachment.Models.Dtos;
 using OrleansHost.Attachment.Models.Queries;
-using OrleansHost.Context;
+using Grains.Context;
 
 namespace OrleansHost.Attachment.Handlers.Queries.FileAttachment;
 
