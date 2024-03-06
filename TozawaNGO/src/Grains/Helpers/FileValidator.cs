@@ -1,5 +1,5 @@
 using System.Text.RegularExpressions;
-using Grains.Attachment.Models.Commands;
+using Grains.Attachment.Models.Requests;
 using Grains.Models.Dtos;
 
 namespace Grains.Helpers;

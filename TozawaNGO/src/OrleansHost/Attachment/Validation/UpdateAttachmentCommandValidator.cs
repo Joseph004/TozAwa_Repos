@@ -1,9 +1,8 @@
 ﻿using FluentValidation;
-using Grains.Attachment.Models.Commands;
+using OrleansHost.Attachment.Models.Commands;
 
-namespace Grains.Attachment.Models.Validation
+namespace OrleansHost.Attachment.Models.Validation
 {
-    
     public class UpdateAttachmentCommandValidator : AbstractValidator<UpdateAttachmentCommand>
     {
         public UpdateAttachmentCommandValidator()

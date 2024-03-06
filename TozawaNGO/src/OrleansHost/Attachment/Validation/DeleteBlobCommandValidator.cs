@@ -1,7 +1,8 @@
 ﻿using FluentValidation;
+using OrleansHost.Attachment.Models.Commands;
 
 
-namespace Grains.Attachment.Models.Validation
+namespace OrleansHost.Attachment.Models.Validation
 {
     
     public class DeleteBlobCommandValidator : AbstractValidator<DeleteBlobCommand>

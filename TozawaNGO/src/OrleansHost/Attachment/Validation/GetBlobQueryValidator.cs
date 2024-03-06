@@ -1,7 +1,8 @@
 ﻿using FluentValidation;
+using OrleansHost.Attachment.Models.Queries;
 
 
-namespace Grains.Attachment.Models.Validation
+namespace OrleansHost.Attachment.Models.Validation
 {
     
     public class GetBlobQueryValidator : AbstractValidator<GetBlobQuery>
