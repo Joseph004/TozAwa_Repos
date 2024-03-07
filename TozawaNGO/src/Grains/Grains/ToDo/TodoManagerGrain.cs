@@ -1,10 +1,7 @@
-﻿using Grains.Models.ToDo.Store;
-using Orleans;
+﻿using Grains.Helpers;
+using Grains.Models.ToDo.Store;
 using Orleans.Runtime;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Threading.Tasks;
 
 namespace Grains
 {
@@ -16,15 +13,9 @@ namespace Grains
 
         public override Task OnActivateAsync(CancellationToken cancellationToken)
         {
-            var items = new List<TodoItem>();
             if (_state.State.Items == null)
             {
                 _state.State.Items = [];
-            }
-
-            foreach (var item in items)
-            {
-                _state.State.Items.Add(item.Key);
             }
 
             return base.OnActivateAsync(cancellationToken);

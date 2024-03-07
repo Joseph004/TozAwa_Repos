@@ -1,10 +1,8 @@
 ﻿using Orleans.Runtime;
 using Microsoft.AspNetCore.SignalR;
 using Grains.Models.ToDo.Store;
-using SignalR.Orleans.Core;
 using Shared.SignalR;
-using Microsoft.AspNetCore.SignalR.Protocol;
-using Orleans.Concurrency;
+using Grains.Helpers;
 
 namespace Grains
 {
@@ -15,9 +13,22 @@ namespace Grains
 
         private Guid GrainKey => this.GetPrimaryKey();
 
-        public Task<TodoItem> GetAsync() => Task.FromResult(_state.State.ToDo);
+        public override Task OnActivateAsync(CancellationToken cancellationToken)
+        {
+            var items = new List<TodoItem>{
+                new(Guid.NewGuid(), "Test one", false, SystemTextId.ToDoOwnerId),
+                new(Guid.NewGuid(), "Test two", false, SystemTextId.ToDoOwnerId),
+                new(Guid.NewGuid(), "Test three", false, SystemTextId.ToDoOwnerId)
+            };
 
-        public async Task SetAsync(TodoItem item)
+            foreach (var item in items)
+            {
+                SetItemAsync(item).Wait(cancellationToken);
+            }
+
+            return base.OnActivateAsync(cancellationToken);
+        }
+        public async Task SetItemAsync(TodoItem item)
         {
             // ensure the key is consistent
             if (item.Key != GrainKey)
@@ -38,7 +49,12 @@ namespace Grains
             this.GetStreamProvider("SMS").GetStream<TodoNotification>(streamId)
                 .OnNextAsync(new TodoNotification(item.Key, item))
                 .Ignore();
+        }
+        public Task<TodoItem> GetAsync() => Task.FromResult(_state.State.ToDo);
 
+        public async Task SetAsync(TodoItem item)
+        {
+            await SetItemAsync(item);
             await NotifyHub("ToDoAdded", item.Key);
         }
 

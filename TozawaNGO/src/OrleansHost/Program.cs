@@ -47,7 +47,7 @@ namespace OrleansHost
                     // For Entity Framework  
                     services.AddDbContext<TozawangoDbContext>(options =>
                     {
-                        options.UseSqlServer(appSettings.ConnectionStrings.Sql);
+                        options.UseSqlServer(appSettings.ConnectionStrings.Sql, b => b.MigrationsAssembly("OrleansHost"));
                     });
 
                     services.AddScoped<Grains.Auth.Services.ICurrentUserService, Grains.Auth.Services.CurrentUserService>();

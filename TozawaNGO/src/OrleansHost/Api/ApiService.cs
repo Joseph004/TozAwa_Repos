@@ -55,7 +55,7 @@ namespace OrleansHost.Api
                     // For Entity Framework  
                     services.AddDbContext<TozawangoDbContext>(options =>
                     {
-                        options.UseSqlServer(appSettings.ConnectionStrings.Sql);
+                        options.UseSqlServer(appSettings.ConnectionStrings.Sql, b => b.MigrationsAssembly("OrleansHost"));
                     });
 
                     services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
