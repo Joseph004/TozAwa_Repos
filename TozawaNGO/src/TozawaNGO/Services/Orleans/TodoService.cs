@@ -67,7 +67,7 @@ namespace TozawaNGO.Services
                 new("OwnerKey", item.OwnerKey.ToString()),
                 new("Key", item.Key.ToString()),
                 new("Title", item.Title),
-                new("IsDome", item.IsDone.ToString())
+                new("IsDone", item.IsDone.ToString())
             };
 
             var content = new FormUrlEncodedContent(pairs);

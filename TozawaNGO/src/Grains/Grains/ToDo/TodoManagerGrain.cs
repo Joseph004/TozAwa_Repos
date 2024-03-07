@@ -1,5 +1,4 @@
-﻿using Grains.Helpers;
-using Grains.Models.ToDo.Store;
+﻿using Grains.Models.ToDo.Store;
 using Orleans.Runtime;
 using System.Collections.Immutable;
 
@@ -11,16 +10,16 @@ namespace Grains
 
         private Guid GrainKey => this.GetPrimaryKey();
 
-        public override Task OnActivateAsync(CancellationToken cancellationToken)
+        public override async Task OnActivateAsync(CancellationToken cancellationToken)
         {
             if (_state.State.Items == null)
             {
                 _state.State.Items = [];
             }
 
-            return base.OnActivateAsync(cancellationToken);
+            await Task.CompletedTask;
         }
-
+        
         public async Task RegisterAsync(Guid itemKey, TodoItem todoItem)
         {
             _state.State.Items.Add(itemKey);

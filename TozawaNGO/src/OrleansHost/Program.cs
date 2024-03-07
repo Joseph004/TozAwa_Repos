@@ -12,6 +12,7 @@ using Grains.Configurations;
 using Grains.Context;
 using Shared.Settings;
 using Shared.SignalR;
+using OrleansHost.Service;
 
 namespace OrleansHost
 {
@@ -79,6 +80,10 @@ namespace OrleansHost
                     builder.UseDashboard(options =>
                     {
                         options.HideTrace = true;
+                    });
+                    builder.ConfigureServices(services =>
+                    {
+                        services.AddHostedService<StartupService>();
                     });
                 })
                 .RunConsoleAsync();
