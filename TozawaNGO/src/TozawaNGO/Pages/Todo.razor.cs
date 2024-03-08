@@ -14,10 +14,12 @@ namespace TozawaNGO.Pages
         [Inject] IState<TozawaNGO.State.ToDo.Store.ToDoState> ToDoState { get; set; }
         [Inject] IDispatcher Dispatcher { get; set; }
         [Inject] TodoService TodoService { get; set; }
+        [Inject] LoadingState LoadingState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] ScrollTopState ScrollTopState { get; set; }
         private string newTodo;
         private double scrollTop;
+        private bool firstLoaded;
 
         private void SetScroll()
         {
@@ -25,6 +27,7 @@ namespace TozawaNGO.Pages
         }
         protected override async Task OnInitializedAsync()
         {
+            LoadingState.SetRequestInProgress(true);
             ScrollTopState.OnChange += SetScroll;
             newTodo = ToDoState.Value.NewItem;
             scrollTop = ToDoState.Value.ScrollTop;
@@ -46,9 +49,13 @@ namespace TozawaNGO.Pages
         {
             if (firstRender)
             {
+                firstLoaded = true;
+                LoadingState.SetRequestInProgress(true);
             }
-            if (!ToDoState.Value.IsLoading)
+            if (!ToDoState.Value.IsLoading && firstLoaded)
             {
+                firstLoaded = false;
+                LoadingState.SetRequestInProgress(false);
                 await Task.Delay(new TimeSpan(0, 0, 1)).ContinueWith(async o => { await SetScrollJS(); });
             }
             await base.OnAfterRenderAsync(firstRender);

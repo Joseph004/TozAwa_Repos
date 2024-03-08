@@ -1,9 +1,7 @@
 using Fluxor;
 using Grains;
-using Microsoft.AspNetCore.SignalR;
 using TozawaNGO.Helpers;
 using TozawaNGO.Services;
-using Shared.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace TozawaNGO.State.ToDo.Store;
@@ -18,8 +16,9 @@ public class Effects(TodoService todoService)
              HandleNotificationAsync(notifications, notification)));
 
         var todos = new Models.Dtos.TodoKeyedCollection();
+        var data = await todoService.GetAllAsync(SystemTextId.ToDoOwnerId);
 
-        foreach (var item in await todoService.GetAllAsync(SystemTextId.ToDoOwnerId))
+        foreach (var item in data)
         {
             todos.Add(item);
         }
@@ -29,29 +28,15 @@ public class Effects(TodoService todoService)
         dispatcher.Dispatch(new ToDoDataFechedAction(todos, subscription, notifications, hubConnection));
     }
 
-    [EffectMethod(typeof(LoadDataAction))]
-    public async Task LoadData(IDispatcher dispatcher)
-    {
-        dispatcher.Dispatch(new ToDoDataAction());
-        List<TodoNotification> notifications = [];
-        var subscription = await todoService.SubscribeAsync(SystemTextId.ToDoOwnerId, notification => Task.Run(() =>
-             HandleNotificationAsync(notifications, notification)));
-
-        var todos = new Models.Dtos.TodoKeyedCollection();
-
-        foreach (var item in await todoService.GetAllAsync(SystemTextId.ToDoOwnerId))
-        {
-            todos.Add(item);
-        }
-        var hubConnection = await StartHubConnection();
-        dispatcher.Dispatch(new ToDoDataFechedAction(todos, subscription, notifications, hubConnection));
-    }
-
     private async Task<HubConnection> StartHubConnection()
     {
         var hubConnection = new HubConnectionBuilder()
             .WithUrl("https://localhost:8081/hubs/clienthub")
             .Build();
+
+        if (hubConnection.State == HubConnectionState.Connected)
+            await hubConnection.StopAsync();
+
         await hubConnection.StartAsync();
         if (hubConnection.State == HubConnectionState.Connected)
             Console.WriteLine("connection started");
@@ -68,11 +53,11 @@ public class Effects(TodoService todoService)
     [EffectMethod]
     public async Task OnLoadItem(LoadItemAction action, IDispatcher dispatcher)
     {
-        dispatcher.Dispatch(new ToDoDataAction());
         var todo = await todoService.GetAsync(action.Id);
 
         dispatcher.Dispatch(new ToDoAddAfterAction(todo));
     }
+
     [EffectMethod]
     public async Task HandleToDoAddAction(ToDoAddAction action, IDispatcher dispatcher)
     {

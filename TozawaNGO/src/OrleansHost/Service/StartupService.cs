@@ -21,7 +21,7 @@ public class StartupService(IServiceProvider services) : IHostedService
 
         foreach (var item in items)
         {
-            await factory.GetGrain<ITodoGrain>(item.Key).SetAsync(item);
+            await factory.GetGrain<ITodoGrain>(item.Key).ActivateAsync(item);
         }
 
         await Task.CompletedTask;

@@ -13,6 +13,7 @@ using Grains.Context;
 using Shared.Settings;
 using Shared.SignalR;
 using OrleansHost.Service;
+using Orleans.Serialization;
 
 namespace OrleansHost
 {
@@ -83,6 +84,7 @@ namespace OrleansHost
                     });
                     builder.ConfigureServices(services =>
                     {
+                        services.Configure<ExceptionSerializationOptions>(options => options.SupportedNamespacePrefixes.Add("Google"));
                         services.AddHostedService<StartupService>();
                     });
                 })

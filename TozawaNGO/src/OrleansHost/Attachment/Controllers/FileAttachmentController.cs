@@ -6,18 +6,34 @@ using Grains.Auth.Services;
 using OrleansHost.Attachment.Models.Commands;
 using Grains.Models.Enums;
 using OrleansHost.Attachment.Models.Queries;
+using Microsoft.AspNetCore.SignalR;
+using Shared.SignalR;
+using Grains;
 
 namespace OrleansHost.Attachment.Controllers;
 
 [Produces("application/json")]
 [Route("api/[controller]")]
-public class FileAttachmentController(IMediator mediator, Grains.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : InitController(mediator, currentUserService, userTokenService)
+public class FileAttachmentController(IMediator mediator, Grains.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService, IGrainFactory factory, IHubContext<ClientHub> hub) : InitController(mediator, currentUserService, userTokenService)
 {
+    private readonly IGrainFactory _factory = factory;
+    private readonly IHubContext<ClientHub> _hub = hub;
+
     [HttpPost, Route("{id}")]
     public async Task<IActionResult> AddAttachment(Guid id, [FromBody] AddAttachmentCommand request)
     {
         request.Id = id;
-        return Ok(await _mediator.Send(request));
+        var response = await _mediator.Send(request);
+        if (response.Success)
+        {
+            foreach (var entity in response.Entity)
+            {
+                var item = new AttachmentItem(entity);
+                await _factory.GetGrain<IAttachmentGrain>(item.Id).SetAsync(item);
+                await _hub.Clients.All.SendAsync("AttachmentAdded", item.Id);
+            }
+        }
+        return Ok(response);
     }
 
     [HttpGet, Route("owner/{ownerId}")]

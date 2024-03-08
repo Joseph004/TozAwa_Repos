@@ -1,22 +1,35 @@
 ﻿using Orleans.Runtime;
-using Microsoft.AspNetCore.SignalR;
 using Grains.Models.ToDo.Store;
-using Shared.SignalR;
 
 namespace Grains
 {
-    public class TodoGrain([PersistentState("State")] IPersistentState<ToDoState> state, IHubContext<ClientHub> hubContext) : Grain, ITodoGrain
+    public class TodoGrain([PersistentState("State")] IPersistentState<ToDoState> state) : Grain, ITodoGrain
     {
-        private IHubContext<ClientHub> _hubContext = hubContext;
         private readonly IPersistentState<ToDoState> _state = state;
 
         private Guid GrainKey => this.GetPrimaryKey();
 
         public Task<TodoItem> GetAsync() => Task.FromResult(_state.State.ToDo);
 
+        public async Task ActivateAsync(TodoItem item)
+        {
+            // ensure the key is consistent
+            if (item.Key != GrainKey)
+            {
+                throw new InvalidOperationException();
+            }
+
+            // save the item
+            _state.State.ToDo = item;
+            await _state.WriteStateAsync();
+
+            // register the item with its owner list
+            await GrainFactory.GetGrain<ITodoManagerGrain>(item.OwnerKey)
+                .RegisterAsync(item.Key, item);
+        }
         public async Task SetAsync(TodoItem item)
         {
-             // ensure the key is consistent
+            // ensure the key is consistent
             if (item.Key != GrainKey)
             {
                 throw new InvalidOperationException();
@@ -35,8 +48,6 @@ namespace Grains
             this.GetStreamProvider("SMS").GetStream<TodoNotification>(streamId)
                 .OnNextAsync(new TodoNotification(item.Key, item))
                 .Ignore();
-
-            await NotifyHub("ToDoAdded", item.Key);
         }
 
         public async Task ClearAsync()
@@ -62,20 +73,8 @@ namespace Grains
                 .OnNextAsync(new TodoNotification(itemKey, null))
                 .Ignore();
 
-            await NotifyHub("ToDoDeleted", itemKey);
-
             // no need to stay alive anymore
             DeactivateOnIdle();
-        }
-
-        private async Task NotifyHub(string method, Guid id)
-        {
-            await _hubContext.Clients.All.SendAsync(method, id);
-        }
-
-        private async Task NotifyHub(string method)
-        {
-            await _hubContext.Clients.All.SendAsync(method);
         }
     }
 }
