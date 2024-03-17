@@ -15,7 +15,6 @@ using Grains.Auth.Services;
 using Grains.Models.ResponseRequests;
 using System.Net;
 using Grains.Context;
-using Microsoft.EntityFrameworkCore;
 using Grains.Configurations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
@@ -27,8 +26,9 @@ namespace Grains.Auth.Controllers
     [Produces("application/json")]
 
     [ApiController]
-    public class AuthenticateController(UserManager<ApplicationUser> userManager, AppSettings appSettings, TozawangoDbContext context, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IUserTokenService userTokenService, IMediator mediator, IEncryptDecrypt encryptDecrypt) : ControllerBase
+    public class AuthenticateController(UserManager<ApplicationUser> userManager, IGrainFactory factory, AppSettings appSettings, TozawangoDbContext context, RoleManager<IdentityRole> roleManager, IConfiguration configuration, IUserTokenService userTokenService, IMediator mediator, IEncryptDecrypt encryptDecrypt) : ControllerBase
     {
+        private readonly IGrainFactory _factory = factory;
         private readonly UserManager<ApplicationUser> userManager = userManager;
         private readonly RoleManager<IdentityRole> roleManager = roleManager;
         private readonly IConfiguration _configuration = configuration;
@@ -73,9 +73,7 @@ namespace Grains.Auth.Controllers
                 return Ok(response);
             }
 
-            //var user = await userManager.FindByEmailAsync(command.Email);
-            var user = await _context.TzUsers.FirstOrDefaultAsync(x => x.Email == command.Email);
-            //await userManager.AddPasswordAsync(user, "Zairenumber01?");
+            var user = await _mediator.Send(new GetApplicationUserQuery(command.Email));
 
             if (user == null)
             {

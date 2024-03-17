@@ -15,6 +15,7 @@ namespace TozawaNGO.Models.FormModels
         public List<AttachmentUploadDto> Files { get; set; } = [];
         public AttachmentType? FileAttachmentType { get; set; }
         public string FolderName { get; set; }
+        public string Source { get; set; }
 
         public AttachmentUploadRequest()
         {

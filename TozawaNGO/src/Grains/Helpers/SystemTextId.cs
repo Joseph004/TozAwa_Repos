@@ -117,4 +117,7 @@ public static partial class SystemTextId
     public static Guid NoAttachmentsExists => Guid.Parse("1f4ca531-ca3c-4a33-bb20-ff1f0d46b62a");
     public static Guid MaximumFilesAllowed => Guid.Parse("2eac4ad7-ada7-48a0-a4ab-a985820140e4");
     public static Guid ToDoOwnerId => Guid.Parse("d4812849-17a7-46c6-84b1-030d8d9aea8d");
+    public static Guid TranslationOwnerId => Guid.Parse("d5852b85-0666-4e46-a5aa-539159484ffb");
+    public static Guid MemberOwnerId => Guid.Parse("e8a6e03d-3620-46d6-9192-d7e3594c9f19");
+    public static Guid AttachmentOwnerId => Guid.Parse("368607f5-07d4-49c2-8014-415729f1fb01");
 }

@@ -11,7 +11,6 @@ namespace TozawaNGO.Pages
 {
     public partial class Members : BasePage
     {
-        [Inject] protected ObjectTextService objectTextService { get; set; }
         [Inject] protected MemberService memberService { get; set; }
         [Inject] IDialogService DialogService { get; set; }
         [Inject] private ISnackbar SnackBar { get; set; }
@@ -145,7 +144,8 @@ namespace TozawaNGO.Pages
             var parameters = new DialogParameters
             {
                 ["Entity"] = item,
-                ["HasPermission"] = HasAtLeastOneRole(RoleDto.President.ToString())
+                ["HasPermission"] = HasAtLeastOneRole(RoleDto.President.ToString()),
+                ["Source"] = nameof(MemberDto)
             };
             var userName = item.Admin ? item.UserName : item.Email;
             DialogService.Show<FilesEntityDialog>($"{userName}", parameters, options);

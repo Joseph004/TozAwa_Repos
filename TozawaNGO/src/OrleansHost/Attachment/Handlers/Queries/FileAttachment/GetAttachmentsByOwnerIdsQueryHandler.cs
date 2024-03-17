@@ -1,34 +1,53 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using OrleansHost.Attachment.Converters;
 using Grains.Attachment.Models.Dtos;
 using OrleansHost.Attachment.Models.Queries;
-using Grains.Context;
 
 namespace OrleansHost.Attachment.Handlers.Queries.FileAttachment;
 
-public class GetAttachmentsByOwnerIdsQueryHandler(TozawangoDbContext context,
-    IFileAttachmentConverter fileAttachmentConverter) : IRequestHandler<GetAttachmentsByOwnerIdsQuery, List<OwnerAttachments>>
+public class GetAttachmentsByOwnerIdsQueryHandler(IMediator mediator) : IRequestHandler<GetAttachmentsByOwnerIdsQuery, List<OwnerAttachments>>
 {
-    private readonly TozawangoDbContext _context = context;
-    private readonly IFileAttachmentConverter _fileAttachmentConverter = fileAttachmentConverter;
-
+    private readonly IMediator _mediator = mediator;
     public async Task<List<OwnerAttachments>> Handle(GetAttachmentsByOwnerIdsQuery request, CancellationToken cancellationToken)
     {
-        var ownerFileAttachments = await _context.OwnerFileAttachments
-                .Include(x => x.FileAttachment).ThenInclude(x => x.Owners)
-                .Include(x => x.FileAttachment)
-                .Where(x => request.OwnerIds.Contains(x.OwnerId))
-                .ToListAsync(cancellationToken: cancellationToken);
+        var result = new List<OwnerAttachments>();
 
-        var groupedOwnerFileAttachments = ownerFileAttachments.GroupBy(ofa => ofa.OwnerId);
+        foreach (var item in request.OwnerIds)
+        {
+            var response = (await _mediator.Send(new GetAttachmentsQuery { OwnerId = item }, cancellationToken)).ToList();
+
+            result.Add(new OwnerAttachments
+            {
+                OwnerId = item,
+                Attachments = response.Select(x => new Grains.Models.Dtos.FileAttachmentDto
+                {
+                    Id = x.Id,
+                    CreatedDate = x.CreatedDate,
+                    ModifiedDate = x.ModifiedDate,
+                    ModifiedBy = x.ModifiedBy,
+                    CreatedBy = x.CreatedBy,
+                    OwnerIds = x.OwnerIds,
+                    BlobId = x.BlobId,
+                    MiniatureId = x.MiniatureId,
+                    Name = x.Name,
+                    Extension = x.Extension,
+                    MimeType = x.MimeType,
+                    Size = x.Size,
+                    MetaData = x.MetaData,
+                    Thumbnail = x.Thumbnail,
+                    MiniatureBlobUrl = x.MiniatureBlobUrl,
+                    FileAttachmentType = x.FileAttachmentType
+                }).ToList()
+            });
+        }
+
+        var groupedOwnerFileAttachments = result.GroupBy(ofa => ofa.OwnerId);
 
         return groupedOwnerFileAttachments
             .Select(x =>
                 new OwnerAttachments
                 {
                     OwnerId = x.Key,
-                    Attachments = x.Select(y => _fileAttachmentConverter.Convert(y.FileAttachment)).ToList()
+                    Attachments = x.SelectMany(y => y.Attachments).ToList()
                 }).ToList();
     }
 }

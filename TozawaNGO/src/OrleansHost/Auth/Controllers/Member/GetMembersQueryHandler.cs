@@ -1,62 +1,116 @@
 
 using MediatR;
-using Microsoft.EntityFrameworkCore;
-using Grains.Context;
 using Grains.Auth.Models.Authentication;
 using Grains.Auth.Models.Converters;
 using Grains.Auth.Models.Dtos.Backend;
 using OrleansHost.Attachment.Models.Queries;
-using Grains.Services;
+using Grains.Helpers;
+using System.Buffers;
+using System.Collections.Immutable;
 
 namespace Grains.Auth.Controllers
 {
-    public class GetMembersQueryHandler(TozawangoDbContext context, IMediator mediator, IGoogleService googleService, Grains.Auth.Services.ICurrentUserService currentUserService) : IRequestHandler<GetMembersQuery, TableDataDto<Models.Dtos.Backend.MemberDto>>
+    public class GetMembersQueryHandler(IMediator mediator, IGrainFactory factory, Grains.Auth.Services.ICurrentUserService currentUserService) : IRequestHandler<GetMembersQuery, TableDataDto<Models.Dtos.Backend.MemberDto>>
     {
-        private readonly TozawangoDbContext _context = context;
+        private readonly IGrainFactory _factory = factory;
         public readonly IMediator _mediator = mediator;
-        private readonly IGoogleService _googleService = googleService;
         private readonly Grains.Auth.Services.ICurrentUserService _currentUserService = currentUserService;
 
         public async Task<TableDataDto<Models.Dtos.Backend.MemberDto>> Handle(GetMembersQuery request, CancellationToken cancellationToken)
         {
-            IQueryable<ApplicationUser> members = _context.TzUsers
-                .Include(x => x.Partner);
+            var members = new List<ApplicationUser>();
 
-            var result = await members
-                .AsNoTracking()
-                .ToListAsync(cancellationToken);
+            // get all item keys for this owner
+            var keys = await _factory.GetGrain<IMemberManagerGrain>(SystemTextId.MemberOwnerId).GetAllAsync();
 
-            var converted = MemberConverter.Convert(result.Where(x => request.IncludeDeleted || !x.Deleted));
+            // fast path for empty owner
+            if (keys.Length == 0) return new TableDataDto<MemberDto> { Items = [], TotalItems = 0, ItemPage = 0 };
 
-            if (!string.IsNullOrEmpty(request.PageOfEmail))
+            // fan out and get all individual items in parallel
+            var tasks = ArrayPool<Task<MemberItem>>.Shared.Rent(keys.Length);
+            try
             {
-                var itemWithEmail = converted.FirstOrDefault(x => x.Email == request.PageOfEmail);
-                if (itemWithEmail != null)
+                // issue all requests at the same time
+                for (var i = 0; i < keys.Length; ++i)
                 {
-                    var itemIndex = converted.IndexOf(itemWithEmail);
-                    var itemPage = (int)Math.Floor((double)itemIndex / request.PageSize);
-                    var pagedItems = converted.Skip(itemPage * request.PageSize).Take(request.PageSize);
-                    await SetTranslation(pagedItems);
-                    await GetAttachments(pagedItems);
-                    return new TableDataDto<MemberDto> { Items = pagedItems, TotalItems = converted.Count, ItemPage = itemPage };
+                    tasks[i] = _factory.GetGrain<IMemberGrain>(keys[i]).GetAsync();
                 }
-            }
 
-            if (!string.IsNullOrEmpty(request.Email))
-            {
-                converted = converted.Where(x => x.Email.Equals(request.Code, StringComparison.InvariantCultureIgnoreCase)).ToList();
-                await SetTranslation(converted);
-                await GetAttachments(converted);
-                return new TableDataDto<MemberDto> { Items = converted, TotalItems = converted.Count };
+                // compose the result as requests complete
+                var result = ImmutableArray.CreateBuilder<MemberItem>(tasks.Length);
+                for (var i = 0; i < keys.Length; ++i)
+                {
+                    result.Add(await tasks[i]);
+                }
+
+                foreach (var memberItem in result)
+                {
+                    members.Add(new ApplicationUser
+                    {
+                        UserId = memberItem.UserId,
+                        PartnerId = memberItem.PartnerId,
+                        Email = memberItem.Email,
+                        Description = memberItem.Description,
+                        DescriptionTextId = memberItem.DescriptionTextId,
+                        FirstName = memberItem.FirstName,
+                        LastName = memberItem.LastName,
+                        LastLoginCountry = memberItem.LastLoginCountry,
+                        LastLoginCity = memberItem.LastLoginCity,
+                        LastLoginState = memberItem.LastLoginState,
+                        LastLoginIPAdress = memberItem.LastLoginIPAdress,
+                        Adress = memberItem.Adress,
+                        UserPasswordHash = memberItem.UserPasswordHash,
+                        Roles = memberItem.Roles,
+                        LastAttemptLogin = memberItem.LastAttemptLogin,
+                        RefreshToken = memberItem.RefreshToken,
+                        RefreshTokenExpiryTime = memberItem.RefreshTokenExpiryTime,
+                        UserCountry = memberItem.UserCountry,
+                        Deleted = memberItem.Deleted,
+                        AdminMember = memberItem.AdminMember,
+                        LastLogin = memberItem.LastLogin,
+                        CreatedBy = memberItem.CreatedBy,
+                        CreateDate = memberItem.CreateDate,
+                        ModifiedBy = memberItem.ModifiedBy,
+                        ModifiedDate = memberItem.ModifiedDate,
+                        StationIds = memberItem.StationIds
+                    });
+                }
+                var converted = MemberConverter.Convert(members.Where(x => request.IncludeDeleted || !x.Deleted));
+
+                if (!string.IsNullOrEmpty(request.PageOfEmail))
+                {
+                    var itemWithEmail = converted.FirstOrDefault(x => x.Email == request.PageOfEmail);
+                    if (itemWithEmail != null)
+                    {
+                        var itemIndex = converted.IndexOf(itemWithEmail);
+                        var itemPage = (int)Math.Floor((double)itemIndex / request.PageSize);
+                        var pagedItems = converted.Skip(itemPage * request.PageSize).Take(request.PageSize);
+                        await SetTranslation(pagedItems);
+                        await GetAttachments(pagedItems);
+                        return new TableDataDto<MemberDto> { Items = pagedItems, TotalItems = converted.Count, ItemPage = itemPage };
+                    }
+                }
+
+                if (!string.IsNullOrEmpty(request.Email))
+                {
+                    converted = converted.Where(x => x.Email.Equals(request.Code, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                    await SetTranslation(converted);
+                    await GetAttachments(converted);
+                    return new TableDataDto<MemberDto> { Items = converted, TotalItems = converted.Count };
+                }
+                if (!string.IsNullOrEmpty(request.SearchString))
+                {
+                    converted = converted.Where(Filtered(request.SearchString)).ToList();
+                }
+                var paged = converted.Skip(request.Page * request.PageSize).Take(request.PageSize);
+                await SetTranslation(paged);
+                await GetAttachments(paged);
+                return new TableDataDto<MemberDto> { Items = paged, TotalItems = converted.Count };
             }
-            if (!string.IsNullOrEmpty(request.SearchString))
+            finally
             {
-                converted = converted.Where(Filtered(request.SearchString)).ToList();
+                ArrayPool<Task<MemberItem>>.Shared.Return(tasks);
             }
-            var paged = converted.Skip(request.Page * request.PageSize).Take(request.PageSize);
-            await SetTranslation(paged);
-            await GetAttachments(paged);
-            return new TableDataDto<MemberDto> { Items = paged, TotalItems = converted.Count };
         }
         private static Func<MemberDto, bool> Filtered(string searchString) => x => x.Email.Contains(searchString, StringComparison.InvariantCultureIgnoreCase) ||
                                                                               (!string.IsNullOrEmpty(x.FirstName) && x.FirstName.Contains(searchString, StringComparison.InvariantCultureIgnoreCase)) ||
@@ -69,12 +123,23 @@ namespace Grains.Auth.Controllers
             {
                 if (member.DescriptionTextId != Guid.Empty)
                 {
-                    var translation = await _context.Translations.FirstOrDefaultAsync(x => x.TextId == member.DescriptionTextId);
+                    var translationItem = await _factory.GetGrain<ITranslationGrain>(member.DescriptionTextId).GetAsync();
+                    var translation = new Translation
+                    {
+                        Id = translationItem.Id,
+                        TextId = translationItem.TextId,
+                        LanguageText = translationItem.LanguageText,
+                        CreateDate = translationItem.CreatedDate,
+                        CreatedBy = translationItem.CreatedBy,
+                        ModifiedBy = translationItem.ModifiedBy,
+                        ModifiedDate = translationItem.ModifiedDate
+                    };
+
                     if (translation != null)
                     {
-                        if (translation.LanguageText.ContainsKey(_currentUserService.LanguageId))
+                        if (translation.LanguageText.TryGetValue(_currentUserService.LanguageId, out string value))
                         {
-                            member.Description = translation.LanguageText[_currentUserService.LanguageId];
+                            member.Description = value;
                         }
                         else
                         {
@@ -98,29 +163,9 @@ namespace Grains.Auth.Controllers
                 {
                     var member = members.First(x => x.Id == ownerAttachment.OwnerId);
                     member.Attachments.AddRange(ownerAttachment.Attachments);
-
-                    var image = member.Attachments.FirstOrDefault(x => !string.IsNullOrEmpty(x.MiniatureId));
-
-                    if (image != null && !string.IsNullOrEmpty(image.MiniatureId))
+                    if (member.Attachments != null && member.Attachments.Any(x => !string.IsNullOrEmpty(x.MiniatureId) && !string.IsNullOrEmpty(x.Thumbnail)))
                     {
-                        var stream = await _googleService.StreamFromGoogleFileByFolder(member.Email, image.MiniatureId);
-                        var bytes = FileUtil.ReadAllBytesFromStream(stream);
-                        if (bytes != null)
-                        {
-                            member.Thumbnail = Convert.ToBase64String(bytes);
-                        }
-                    }
-                    foreach (var attachment in ownerAttachment.Attachments)
-                    {
-                        if (!string.IsNullOrEmpty(attachment.MiniatureId))
-                        {
-                            var stream = await _googleService.StreamFromGoogleFileByFolder(member.Email, attachment.MiniatureId);
-                            var bytes = FileUtil.ReadAllBytesFromStream(stream);
-                            if (bytes != null)
-                            {
-                                attachment.MiniatureBlobUrl = Convert.ToBase64String(bytes);
-                            }
-                        }
+                        member.Thumbnail = member.Attachments.First(x => !string.IsNullOrEmpty(x.MiniatureId) && !string.IsNullOrEmpty(x.Thumbnail)).Thumbnail;
                     }
                 }
             }

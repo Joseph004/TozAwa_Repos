@@ -11,6 +11,7 @@ namespace OrleansHost.Attachment.Models.Commands
     {
         public Guid Id { get; set; }
         public string FolderName { get; set; }
+        public string Source { get; set; }
         public AttachmentType FileAttachmentType { get; set; }
         public List<AttachmentUploadDto> Files { get; set; } = [];
     }
@@ -21,6 +22,7 @@ namespace OrleansHost.Attachment.Models.Commands
         {
             RuleFor(x => x.Files).NotEmpty().Must(a => a.All(y => FileValidator.IsValideFile(y)));
             RuleFor(x => x.FolderName).NotEmpty().Must(x => FileValidator.IsValidLength(x));
+            RuleFor(x => x.Source).NotNull().NotEmpty();
         }
     }
 

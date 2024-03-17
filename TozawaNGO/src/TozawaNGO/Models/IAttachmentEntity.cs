@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using TozawaNGO.Models.Dtos;
 
 namespace TozawaNGO.Models

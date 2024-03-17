@@ -15,6 +15,7 @@ namespace TozawaNGO.Pages
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public IAttachmentEntity Entity { get; set; }
+        [Parameter] public string Source { get; set; }
         [Parameter] public bool HasPermission { get; set; }
         [Inject] protected IDialogService DialogService { get; set; }
         [Inject] protected AttachmentService AttachmentService { get; set; }
@@ -133,7 +134,7 @@ namespace TozawaNGO.Pages
                 _onProgress = true;
                 StateHasChanged();
 
-                var deleteResponse = await AttachmentService.AttachmentDelete(attachment.Id);
+                var deleteResponse = await AttachmentService.AttachmentDelete(attachment.Id, Source);
                 if (deleteResponse.Success)
                 {
                     Entity.Attachments.RemoveAll(x => x.Id == attachment.Id);
@@ -206,6 +207,7 @@ namespace TozawaNGO.Pages
                         await request.AddFiles(_files);
                         request.FileAttachmentType = _attachmentType;
                         request.FolderName = Entity.Email;
+                        request.Source = Source;
                         var attachmentsResponse = await AttachmentService.AttachmentUpload(Entity.Id, request);
                         if (attachmentsResponse.Success)
                         {

@@ -7,11 +7,17 @@ using Grains.Models.ResponseRequests;
 using Grains.Helpers;
 using System.Net;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.SignalR;
+using Shared.SignalR;
+using Grains;
 
 namespace OrleansHost.Attachment.Handlers.Commands;
 
-public class DeleteAttachmentCommandHandler(TozawangoDbContext context, IGoogleService googleService, ILogger<DeleteAttachmentCommandHandler> logger) : IRequestHandler<DeleteAttachmentCommand, DeleteResponse>
+public class DeleteAttachmentCommandHandler(TozawangoDbContext context, IGoogleService googleService, IGrainFactory factory,
+    IHubContext<ClientHub> hub, ILogger<DeleteAttachmentCommandHandler> logger) : IRequestHandler<DeleteAttachmentCommand, DeleteResponse>
 {
+    private readonly IGrainFactory _factory = factory;
+    private readonly IHubContext<ClientHub> _hub = hub;
     private readonly TozawangoDbContext _context = context;
     private readonly IGoogleService _googleService = googleService;
     private readonly ILogger<DeleteAttachmentCommandHandler> _logger = logger;
@@ -27,7 +33,7 @@ public class DeleteAttachmentCommandHandler(TozawangoDbContext context, IGoogleS
             {
                 return new DeleteResponse(false, UpdateMessages.Error, HttpStatusCode.InternalServerError);
             }
-
+            var fileId = attachment.Id;
             await _googleService.DeleteFile(attachment.BlobId);
             if (!string.IsNullOrEmpty(attachment.MiniatureId))
             {
@@ -38,6 +44,10 @@ public class DeleteAttachmentCommandHandler(TozawangoDbContext context, IGoogleS
             _context.OwnerFileAttachments.RemoveRange(ownerAttachment);
             _context.FileAttachments.Remove(attachment);
             await _context.SaveChangesAsync(cancellationToken);
+
+            await _factory.GetGrain<IAttachmentGrain>(fileId).ClearAsync();
+            await _hub.Clients.All.SendAsync("AttachmentDeleted", fileId, request.Source);
+
             return new DeleteResponse(true, UpdateMessages.EntityDeletedSuccess, HttpStatusCode.OK);
         }
         catch (Exception ex)

@@ -1,40 +1,70 @@
 ﻿using MediatR;
-using Microsoft.EntityFrameworkCore;
-using OrleansHost.Attachment.Converters;
-using Grains.Attachment.Models;
-using Grains.Attachment.Models.Dtos;
 using OrleansHost.Attachment.Models.Queries;
-using Grains.Auth.Services;
-using Grains.Context;
-using Grains.Models.Enums;
-using Grains.Services;
+using System.Collections.Immutable;
+using Grains;
+using System.Buffers;
+using Grains.Helpers;
 
 namespace OrleansHost.Attachment.Handlers.Queries.FileAttachment;
 
-public class GetAttachmentsQueryHandler(TozawangoDbContext context,
-    IFileAttachmentConverter attachmentConverter,
-    ICurrentUserService currentUserService) : IRequestHandler<GetAttachmentsQuery, IEnumerable<Grains.Models.Dtos.FileAttachmentDto>>
+public class GetAttachmentsQueryHandler(
+    IGrainFactory factory) : IRequestHandler<GetAttachmentsQuery, List<Grains.Models.Dtos.FileAttachmentDto>>
 {
-    private readonly TozawangoDbContext _context = context;
-    private readonly IFileAttachmentConverter _attachmentConverter = attachmentConverter;
-    private readonly ICurrentUserService _currentUserService = currentUserService;
+    private readonly IGrainFactory _factory = factory;
 
-    public async Task<IEnumerable<Grains.Models.Dtos.FileAttachmentDto>> Handle(GetAttachmentsQuery request, CancellationToken cancellationToken)
+    public async Task<List<Grains.Models.Dtos.FileAttachmentDto>> Handle(GetAttachmentsQuery request, CancellationToken cancellationToken)
     {
-        IQueryable<OwnerFileAttachment> query = _context.OwnerFileAttachments
-            .Include(x => x.FileAttachment).ThenInclude(x => x.Owners)
-            .Include(x => x.FileAttachment)
-            .Where(x => x.OwnerId == request.OwnerId);
+        // get all item keys for this owner
+        var keys = await _factory.GetGrain<IAttachmentManagerGrain>(SystemTextId.AttachmentOwnerId).GetAllAsync();
 
-        query = query.Where(x => x.FileAttachment.FileAttachmentType != AttachmentType.Intern);
+        // fast path for empty owner
+        if (keys.Length == 0) return [];
 
-        if (request.FileAttachmentType != null)
+        // fan out and get all individual items in parallel
+        var tasks = ArrayPool<Task<AttachmentItem>>.Shared.Rent(keys.Length);
+        try
         {
-            query = query.Where(x => x.FileAttachment.FileAttachmentType == request.FileAttachmentType);
+            // issue all requests at the same time
+            for (var i = 0; i < keys.Length; ++i)
+            {
+                tasks[i] = _factory.GetGrain<IAttachmentGrain>(keys[i]).GetAsync();
+            }
+
+            // compose the result as requests complete
+            var result = ImmutableArray.CreateBuilder<AttachmentItem>(tasks.Length);
+            for (var i = 0; i < keys.Length; ++i)
+            {
+                result.Add(await tasks[i]);
+            }
+
+            var response = new List<Grains.Models.Dtos.FileAttachmentDto>();
+            foreach (var item in result)
+            {
+                response.Add(new Grains.Models.Dtos.FileAttachmentDto
+                {
+                    Id = item.Id,
+                    CreatedDate = item.CreatedDate,
+                    ModifiedDate = item.ModifiedDate,
+                    ModifiedBy = item.ModifiedBy,
+                    CreatedBy = item.CreatedBy,
+                    OwnerIds = item.OwnerIds,
+                    BlobId = item.BlobId,
+                    MiniatureId = item.MiniatureId,
+                    Name = item.Name,
+                    Extension = item.Extension,
+                    MimeType = item.MimeType,
+                    Size = item.Size,
+                    MetaData = item.MetaData,
+                    Thumbnail = item.Thumbnail,
+                    MiniatureBlobUrl = item.MiniatureBlobUrl,
+                    FileAttachmentType = item.AttachmentType
+                });
+            }
+            return (response ?? []).Where(x => x.OwnerIds.First() == request.OwnerId).ToList();
         }
-
-        var fileAttachments = query.ToList().Select(x => x.FileAttachment).ToList();
-
-        return await Task.FromResult(fileAttachments.Select(_attachmentConverter.Convert));
+        finally
+        {
+            ArrayPool<Task<AttachmentItem>>.Shared.Return(tasks);
+        }
     }
 }

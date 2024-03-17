@@ -7,7 +7,7 @@
         public TranslationItem(
                Guid id, Guid textId, Dictionary<Guid, string> languageText, Guid ownerId,
                   string createdBy, DateTime createdDate, string modifiedBy,
-                  DateTime modifiedDate)
+                  DateTime? modifiedDate)
             : this(id, textId, languageText, ownerId, createdBy, createdDate,
                    modifiedBy, modifiedDate, DateTime.UtcNow)
         {
@@ -15,7 +15,7 @@
 
         protected TranslationItem(
                   Guid id, Guid textId, Dictionary<Guid, string> languageText, Guid ownerId,
-                  string createdBy, DateTime createdDate, string modifiedBy, DateTime modifiedDate, DateTime timeStamp)
+                  string createdBy, DateTime createdDate, string modifiedBy, DateTime? modifiedDate, DateTime timeStamp)
         {
             Id = id;
             TextId = textId;
@@ -29,9 +29,9 @@
         }
 
         [Id(0)]
-        public Guid Id { get; }
-        [Id(1)]
         public Guid TextId { get; }
+        [Id(1)]
+        public Guid Id { get; }
         [Id(2)]
         public Dictionary<Guid, string> LanguageText { get; }
         [Id(3)]

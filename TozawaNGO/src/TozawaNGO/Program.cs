@@ -160,7 +160,6 @@ builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddScoped<ITranslationService, TranslationService>();
 builder.Services.AddScoped<TozawaNGO.Services.ICurrentUserService, TozawaNGO.Services.CurrentUserService>();
 builder.Services.AddScoped<ISnackBarService, SnackBarService>();
-builder.Services.AddScoped<ObjectTextService>();
 builder.Services.AddScoped<MemberService>();
 builder.Services.AddScoped<AttachmentService>();
 builder.Services.AddScoped<BlazorServerAuthStateCache>();

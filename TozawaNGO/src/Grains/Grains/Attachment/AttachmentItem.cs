@@ -1,4 +1,4 @@
-﻿using Grains.Attachment.Models.Dtos;
+﻿using Grains.Helpers;
 using Grains.Models.Enums;
 
 namespace Grains
@@ -7,27 +7,88 @@ namespace Grains
     [Immutable]
     public class AttachmentItem : IEquatable<AttachmentItem>
     {
-        public AttachmentItem(FileAttachmentDto item)
-            : this(item, DateTime.UtcNow)
+        public AttachmentItem(
+        Guid id,
+        DateTime createdDate,
+         DateTime? modifiedDate,
+       string modifiedBy,
+       string createdBy,
+        Guid ownerId,
+        string blobId,
+        string miniatureId,
+       string name,
+       string extension,
+         string mimeType,
+      double size,
+       string attachmentType,
+        AttachmentType fileAttachmentType,
+        string metaData,
+        List<Guid> ownerIds,
+        string thumbnail,
+        string miniatureBlobUrl
+        )
+            : this(
+             id,
+        createdDate,
+         modifiedDate,
+       modifiedBy,
+       createdBy,
+        ownerId,
+        blobId,
+        miniatureId,
+      name,
+       extension,
+         mimeType,
+      size,
+       attachmentType,
+        fileAttachmentType,
+        metaData,
+        ownerIds,
+        thumbnail,
+        miniatureBlobUrl,
+        DateTime.UtcNow)
         {
         }
 
-        protected AttachmentItem(FileAttachmentDto item, DateTime timestamp)
+        protected AttachmentItem(
+            Guid id,
+        DateTime createdDate,
+         DateTime? modifiedDate,
+       string modifiedBy,
+       string createdBy,
+        Guid ownerId,
+        string blobId,
+        string miniatureId,
+       string name,
+       string extension,
+         string mimeType,
+      double size,
+       string attachmentType,
+        AttachmentType fileAttachmentType,
+        string metaData,
+        List<Guid> ownerIds,
+        string thumbnail,
+        string miniatureBlobUrl,
+         DateTime timestamp)
         {
-            Id = item.Id;
-            CreatedDate = item.CreatedDate;
-            ModifiedDate = item.ModifiedDate;
-            ModifiedBy = item.ModifiedBy;
-            CreatedBy = item.CreatedBy;
-            OwnerId = item.OwnerIds.First();
-            BlobId = item.BlobId;
-            MiniatureId = item.MiniatureId;
-            Name = item.Name;
-            Extension = item.Extension;
-            MimeType = item.MimeType;
-            Size = item.Size;
-            AttachmentType = item.FileAttachmentType;
-            MetaData = item.MetaData;
+            Id = id;
+            CreatedDate = createdDate;
+            ModifiedDate = modifiedDate;
+            ModifiedBy = modifiedBy;
+            CreatedBy = createdBy;
+            OwnerId = SystemTextId.AttachmentOwnerId;
+            BlobId = blobId;
+            MiniatureId = miniatureId;
+            Name = name;
+            Extension = extension;
+            MimeType = mimeType;
+            Size = size;
+            AttachmentType = attachmentType;
+            FileAttachmentType = fileAttachmentType;
+            MetaData = metaData;
+            OwnerIds = ownerIds;
+            Thumbnail = thumbnail;
+            MiniatureBlobUrl = miniatureBlobUrl;
             Timestamp = timestamp;
         }
 
@@ -62,6 +123,12 @@ namespace Grains
         [Id(14)]
         public string MetaData { get; }
         [Id(15)]
+        public List<Guid> OwnerIds { get; }
+        [Id(16)]
+        public string Thumbnail { get; }
+        [Id(17)]
+        public string MiniatureBlobUrl { get; }
+        [Id(18)]
         public DateTime Timestamp { get; }
 
         public bool Equals(AttachmentItem item)
@@ -83,6 +150,8 @@ namespace Grains
            && AttachmentType == item.AttachmentType
            && FileAttachmentType == item.FileAttachmentType
            && MetaData == item.MetaData
+           && Thumbnail == item.Thumbnail
+           && MiniatureBlobUrl == item.MiniatureBlobUrl
            && Timestamp == item.Timestamp;
         }
     }

@@ -26,6 +26,7 @@ using Grains.Context;
 using Grains.Services;
 using Shared.SignalR;
 using Grains.Helpers;
+using OrleansHost.Helpers;
 
 namespace OrleansHost.Api
 {
@@ -151,6 +152,7 @@ namespace OrleansHost.Api
                     app.UseStaticFiles();
                     app.UseAuthentication();
                     app.UseAuthorization();
+                    app.UseMiddleware<ErrorWrappingMiddleware>();
                     app.UseSwagger();
                     app.UseSwaggerUI(options =>
                     {

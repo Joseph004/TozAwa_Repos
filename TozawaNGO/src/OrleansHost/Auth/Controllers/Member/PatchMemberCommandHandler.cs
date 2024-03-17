@@ -3,15 +3,20 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Grains.Context;
-using Grains.Extension;
 using Grains.Auth.Models.Converters;
 using Grains.Auth.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.SignalR;
+using Shared.SignalR;
+using Grains.Helpers;
 
 namespace Grains.Auth.Controllers
 {
-    public class PatchMemberCommandHandler(TozawangoDbContext context, ICurrentUserService currentUserService, ILogger<PatchMemberCommandHandler> logger) : IRequestHandler<PatchMemberCommand, Models.Dtos.Backend.MemberDto>
+    public class PatchMemberCommandHandler(TozawangoDbContext context, ICurrentUserService currentUserService
+    , IGrainFactory factory, IHubContext<ClientHub> hub, ILogger<PatchMemberCommandHandler> logger) : IRequestHandler<PatchMemberCommand, Models.Dtos.Backend.MemberDto>
     {
+        private readonly IGrainFactory _factory = factory;
+        private readonly IHubContext<ClientHub> _hub = hub;
         private readonly TozawangoDbContext _context = context;
         private readonly ILogger<PatchMemberCommandHandler> _logger = logger;
         private readonly ICurrentUserService _currentUserService = currentUserService;
@@ -29,13 +34,19 @@ namespace Grains.Auth.Controllers
 
             if (request.PatchModel.GetPatchValue<bool>("DeleteForever"))
             {
+                var translationId = member.DescriptionTextId;
+                var memberId = member.UserId;
                 _context.TzUsers.Remove(member);
                 _context.SaveChanges();
+
+                await _factory.GetGrain<ITranslationGrain>(translationId).ClearAsync();
+                await _hub.Clients.All.SendAsync("MemberDeleted", memberId, "Member");
                 return MemberConverter.Convert(member, true);
             }
 
             if (request.PatchModel.GetPatchValue<string>("Description") != null)
             {
+                var translation = new Models.Authentication.Translation();
                 if (member.Description != request.PatchModel.GetPatchValue<string>("Description"))
                 {
                     member.Description = request.PatchModel.GetPatchValue<string>("Description");
@@ -43,16 +54,17 @@ namespace Grains.Auth.Controllers
                     {
                         var id = Guid.NewGuid();
                         member.DescriptionTextId = id;
-                        _context.Translations.Add(new Models.Authentication.Translation
+                        translation = new Models.Authentication.Translation
                         {
                             Id = Guid.NewGuid(),
                             TextId = id,
                             LanguageText = new Dictionary<Guid, string> { { _currentUserService.LanguageId, request.PatchModel.GetPatchValue<string>("Description") } }
-                        });
+                        };
+                        _context.Translations.Add(translation);
                     }
                     else
                     {
-                        var translation = await _context.Translations.FirstOrDefaultAsync(x => x.TextId == member.DescriptionTextId, cancellationToken: cancellationToken);
+                        translation = await _context.Translations.FirstOrDefaultAsync(x => x.TextId == member.DescriptionTextId, cancellationToken: cancellationToken);
                         if (translation != null)
                         {
                             translation.LanguageText[_currentUserService.LanguageId] = request.PatchModel.GetPatchValue<string>("Description");
@@ -61,13 +73,17 @@ namespace Grains.Auth.Controllers
                         else
                         {
                             var id = member.DescriptionTextId;
-                            _context.Translations.Add(new Models.Authentication.Translation
+                            translation = new Models.Authentication.Translation
                             {
                                 Id = Guid.NewGuid(),
                                 TextId = id,
                                 LanguageText = new Dictionary<Guid, string> { { _currentUserService.LanguageId, request.PatchModel.GetPatchValue<string>("Description") } }
-                            });
+                            };
+                            _context.Translations.Add(translation);
                         }
+                        var itemTranslation = new TranslationItem(translation.Id, translation.TextId, translation.LanguageText, SystemTextId.TranslationOwnerId,
+                        translation.CreatedBy, translation.CreateDate, translation.ModifiedBy, translation.ModifiedDate ?? new DateTime());
+                        await _factory.GetGrain<ITranslationGrain>(itemTranslation.Id).SetAsync(itemTranslation);
                     }
                 }
             }
@@ -75,6 +91,39 @@ namespace Grains.Auth.Controllers
             request.PatchModel.ApplyTo(member);
 
             _context.SaveChanges();
+
+            var item = new MemberItem(
+                member.UserId,
+      member.PartnerId,
+      member.Description,
+     member.DescriptionTextId,
+      member.FirstName,
+      member.LastName,
+      member.LastLoginCountry,
+      member.LastLoginCity,
+      member.LastLoginState,
+      member.LastLoginIPAdress,
+      member.Adress,
+      member.UserPasswordHash,
+      member.Roles,
+      member.LastAttemptLogin,
+      member.RefreshToken,
+      member.RefreshTokenExpiryTime,
+      member.UserCountry,
+      member.Deleted,
+      member.AdminMember,
+      member.LastLogin,
+      member.CreatedBy,
+      member.CreateDate,
+      member.ModifiedBy,
+      member.ModifiedDate,
+      member.StationIds,
+      member.Email,
+      member.PasswordHash,
+      SystemTextId.MemberOwnerId
+            );
+            await _factory.GetGrain<IMemberGrain>(member.UserId).SetAsync(item);
+            await _hub.Clients.All.SendAsync("MemberUpdated", member.UserId, "Member");
 
             return MemberConverter.Convert(member);
         }

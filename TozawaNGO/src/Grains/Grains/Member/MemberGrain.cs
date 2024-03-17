@@ -1,7 +1,5 @@
 ﻿using Orleans.Runtime;
-using Microsoft.AspNetCore.SignalR;
 using Grains.Models.Member.Store;
-using Shared.SignalR;
 
 namespace Grains
 {

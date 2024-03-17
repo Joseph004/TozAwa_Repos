@@ -14,7 +14,7 @@ namespace Grains
         public async Task ActivateAsync(TranslationItem item)
         {
             // ensure the key is consistent
-            if (item.Id != GrainKey)
+            if (item.TextId != GrainKey)
             {
                 throw new InvalidOperationException();
             }
@@ -26,7 +26,7 @@ namespace Grains
         public async Task SetAsync(TranslationItem item)
         {
             // ensure the key is consistent
-            if (item.Id != GrainKey)
+            if (item.TextId != GrainKey)
             {
                 throw new InvalidOperationException();
             }
@@ -38,7 +38,7 @@ namespace Grains
             // notify listeners - best effort only
             var streamId = StreamId.Create(nameof(Grains), item.OwnerId);
             this.GetStreamProvider("SMS").GetStream<TranslationNotification>(streamId)
-                .OnNextAsync(new TranslationNotification(item.Id, item))
+                .OnNextAsync(new TranslationNotification(item.TextId, item))
                 .Ignore();
         }
 
@@ -48,7 +48,7 @@ namespace Grains
             if (_state.State.Translation == null) return;
 
             // hold on to the keys
-            var itemKey = _state.State.Translation.Id;
+            var itemKey = _state.State.Translation.TextId;
             var item = _state.State.Translation;
             var ownerKey = _state.State.Translation.OwnerId;
 

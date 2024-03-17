@@ -70,7 +70,6 @@ namespace Grains.Auth.Controllers
             if (!currentUserService.IsAuthorizedFor(Roles))
             {
                 context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-                throw new AccessViolationException("Forbidden");
             }
         }
         public void SetUser(ActionExecutingContext context)

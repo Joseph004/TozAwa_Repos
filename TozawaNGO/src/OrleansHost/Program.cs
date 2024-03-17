@@ -14,6 +14,9 @@ using Shared.Settings;
 using Shared.SignalR;
 using OrleansHost.Service;
 using Orleans.Serialization;
+using Grains.Services;
+using Orleans.Hosting;
+using Orleans;
 
 namespace OrleansHost
 {
@@ -52,6 +55,7 @@ namespace OrleansHost
                         options.UseSqlServer(appSettings.ConnectionStrings.Sql, b => b.MigrationsAssembly("OrleansHost"));
                     });
 
+                    services.AddScoped<IGoogleService, GoogleService>();
                     services.AddScoped<Grains.Auth.Services.ICurrentUserService, Grains.Auth.Services.CurrentUserService>();
                     services.AddSingleton(typeof(HubLifetimeManager<>), typeof(DefaultHubLifetimeManager<>));
                     services.Configure<SiloSettings>(configuration.GetSection(nameof(SiloSettings)));
@@ -81,6 +85,19 @@ namespace OrleansHost
                     builder.UseDashboard(options =>
                     {
                         options.HideTrace = true;
+                    });
+                    builder.AddIncomingGrainCallFilter(async context =>
+                    {
+                        try
+                        {
+                            await context.Invoke();
+                        }
+                        catch
+                        {
+                            // reload the grain when something went wrong
+                            (context.Grain as IGrainBase).DeactivateOnIdle();
+                            throw;
+                        }
                     });
                     builder.ConfigureServices(services =>
                     {
