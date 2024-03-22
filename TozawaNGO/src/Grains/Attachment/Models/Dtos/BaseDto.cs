@@ -10,5 +10,6 @@ namespace Grains.Attachment.Models.Dtos
         public DateTime? ModifiedDate { get; }
         public string ModifiedBy { get; }
         public string CreatedBy { get; }
+        public DateTime Timestamp { get; set; }
     }
 }

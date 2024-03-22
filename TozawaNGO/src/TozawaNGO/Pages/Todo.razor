@@ -3,7 +3,7 @@
 @inherits BasePage
 @implements IDisposable
 
-@if (@ToDoState.Value.IsLoading)
+@if (@ToDoState.Value.IsLoading || ToDoState.Value.Todos.Count == 0)
 {
 }
 else

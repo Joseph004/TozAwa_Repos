@@ -20,8 +20,8 @@ public static class Redures
         return new() { IsLoading = false, Subscription = state.Subscription, Todos = state.Todos, NewItem = state.NewItem, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop };
     }
 
-    [ReducerMethod(typeof(ToDoDataAction))]
-    public static ToDoState ReduceFetchDataAction(ToDoState state) => new() { IsLoading = true, NewItem = state.NewItem, ScrollTop = state.ScrollTop };
+    [ReducerMethod]
+    public static ToDoState ReduceFetchDataAction(ToDoState state, ToDoDataAction action) => new() { IsLoading = true, NewItem = state.NewItem, ScrollTop = action.scrollTop };
 
     [ReducerMethod]
     public static ToDoState ReduceDataFetchedAction(ToDoState state, ToDoDataFechedAction action)

@@ -18,22 +18,25 @@ namespace TozawaNGO.Pages
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] ScrollTopState ScrollTopState { get; set; }
         private string newTodo;
-        private double scrollTop;
         private bool firstLoaded;
+        private double scrollTop;
 
         private void SetScroll()
         {
-            Dispatcher.Dispatch(new ScrollTopAction(ScrollTopState.ScrollTop));
+            Dispatcher.Dispatch(new ScrollTopAction(ScrollTopState.ScrollTop[ScrollTopState.Source]));
         }
         protected override async Task OnInitializedAsync()
         {
+            ScrollTopState.SetSource("todoPage");
             LoadingState.SetRequestInProgress(true);
             ScrollTopState.OnChange += SetScroll;
             newTodo = ToDoState.Value.NewItem;
-            scrollTop = ToDoState.Value.ScrollTop;
+            ScrollTopState.ScrollTop.TryGetValue(ScrollTopState.Source, out double scroll);
+            scrollTop = scroll;
+
             await base.OnInitializedAsync();
 
-            Dispatcher.Dispatch(new ToDoDataAction());
+            Dispatcher.Dispatch(new ToDoDataAction(ScrollTopState.ScrollTop.TryGetValue(ScrollTopState.Source, out double value) ? value : 0));
         }
         private int Count = 0;
         private async Task SetScrollJS()
@@ -52,11 +55,11 @@ namespace TozawaNGO.Pages
                 firstLoaded = true;
                 LoadingState.SetRequestInProgress(true);
             }
-            if (!ToDoState.Value.IsLoading && firstLoaded)
+            if (!ToDoState.Value.IsLoading && ToDoState.Value.Todos.Count > 0 && firstLoaded)
             {
                 firstLoaded = false;
                 LoadingState.SetRequestInProgress(false);
-                await Task.Delay(new TimeSpan(0, 0, 1)).ContinueWith(async o => { await SetScrollJS(); });
+                await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.5))).ContinueWith(async o => { await SetScrollJS(); });
             }
             await base.OnAfterRenderAsync(firstRender);
         }

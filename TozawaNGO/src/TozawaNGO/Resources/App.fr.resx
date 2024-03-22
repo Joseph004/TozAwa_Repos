@@ -379,4 +379,24 @@
     <value>existe déja</value>
     <comment>.</comment>
   </data>
+  <data name="2f2cad45-d815-41a1-b29d-121d3bd813a1" xml:space="preserve">
+    <value>Sauvgarder</value>
+    <comment>.</comment>
+  </data>
+  <data name="ba415f27-755f-4293-ab4e-71af9fb48983" xml:space="preserve">
+    <value>Prenon requis</value>
+    <comment>.</comment>
+  </data>
+  <data name="1bb7f155-e280-4f99-bb8f-047e451a3409" xml:space="preserve">
+    <value>Nom requis</value>
+    <comment>.</comment>
+  </data>
+  <data name="07b78220-ec36-4215-bb32-e2b1b4a0b580" xml:space="preserve">
+    <value>Description requis</value>
+    <comment>.</comment>
+  </data>
+  <data name="78e6d2df-ee8d-485f-a7a0-182a33c45988" xml:space="preserve">
+    <value>L'adresse mail requis</value>
+    <comment>.</comment>
+  </data>
 </root>

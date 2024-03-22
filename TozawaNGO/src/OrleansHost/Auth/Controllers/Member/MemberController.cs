@@ -18,6 +18,9 @@ namespace Grains.Auth.Controllers
         [HttpGet, Route(""), CheckRole(RoleDto.President, RoleDto.VicePresident)]
         public async Task<IActionResult> Get() => Ok(await _mediator.Send(new GetMembersQuery(Request.QueryString.HasValue ? QueryHelpers.ParseQuery(Request.QueryString.Value) : null)));
 
+        [HttpGet, Route("{id}"), CheckRole(RoleDto.President, RoleDto.VicePresident)]
+        public async Task<IActionResult> Get(Guid id) => Ok(await _mediator.Send(new GetMemberQuery { Id = id }));
+
         [HttpPatch, Route("{id}"), CheckRole(RoleDto.President, RoleDto.VicePresident)]
         public async Task<IActionResult> PatchMember(Guid id, [FromBody] JsonPatchDocument patchModel) => Ok(await _mediator.Send(new PatchMemberCommand
         {

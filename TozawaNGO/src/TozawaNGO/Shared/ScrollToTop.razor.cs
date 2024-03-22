@@ -16,7 +16,7 @@ namespace TozawaNGO.Shared
         private void OnScroll(ScrollEventArgs e)
         {
             ScrollTop = e.FirstChildBoundingClientRect.Top;
-            ScrollTopState.SetScrollTop(ScrollTop);
+            ScrollTopState.SetScrollTop(ScrollTop, ScrollTopState.Source);
         }
     }
 }

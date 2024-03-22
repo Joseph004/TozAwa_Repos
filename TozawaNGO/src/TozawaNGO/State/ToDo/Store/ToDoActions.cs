@@ -9,7 +9,7 @@ public record HandleInputTextToDoAction(string newItem)
     public string NewItem { get; } = newItem;
 }
 public record ToDoDataFechedAction(TodoKeyedCollection todos, StreamSubscriptionHandle<TodoNotification> subscription, List<TodoNotification> notifications, HubConnection hubConnection);
-public record ToDoDataAction;
+public record ToDoDataAction(double scrollTop);
 public record UnSubscribeAction;
 public record ToDoAddAction(string newItem)
 {

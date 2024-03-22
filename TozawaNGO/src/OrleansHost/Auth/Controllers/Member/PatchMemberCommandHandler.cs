@@ -9,13 +9,17 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR;
 using Shared.SignalR;
 using Grains.Helpers;
+using OrleansHost.Attachment.Models.Queries;
+using Grains.Auth.Models.Dtos.Backend;
+using Grains.Auth.Models.Authentication;
 
 namespace Grains.Auth.Controllers
 {
-    public class PatchMemberCommandHandler(TozawangoDbContext context, ICurrentUserService currentUserService
+    public class PatchMemberCommandHandler(TozawangoDbContext context, ICurrentUserService currentUserService, IMediator mediator
     , IGrainFactory factory, IHubContext<ClientHub> hub, ILogger<PatchMemberCommandHandler> logger) : IRequestHandler<PatchMemberCommand, Models.Dtos.Backend.MemberDto>
     {
         private readonly IGrainFactory _factory = factory;
+        public readonly IMediator _mediator = mediator;
         private readonly IHubContext<ClientHub> _hub = hub;
         private readonly TozawangoDbContext _context = context;
         private readonly ILogger<PatchMemberCommandHandler> _logger = logger;
@@ -83,7 +87,7 @@ namespace Grains.Auth.Controllers
                         }
                         var itemTranslation = new TranslationItem(translation.Id, translation.TextId, translation.LanguageText, SystemTextId.TranslationOwnerId,
                         translation.CreatedBy, translation.CreateDate, translation.ModifiedBy, translation.ModifiedDate ?? new DateTime());
-                        await _factory.GetGrain<ITranslationGrain>(itemTranslation.Id).SetAsync(itemTranslation);
+                        await _factory.GetGrain<ITranslationGrain>(itemTranslation.TextId).SetAsync(itemTranslation);
                     }
                 }
             }
@@ -123,9 +127,63 @@ namespace Grains.Auth.Controllers
       SystemTextId.MemberOwnerId
             );
             await _factory.GetGrain<IMemberGrain>(member.UserId).SetAsync(item);
-            await _hub.Clients.All.SendAsync("MemberUpdated", member.UserId, "Member");
+            await _hub.Clients.All.SendAsync("MemberUpdated", member.UserId);
 
-            return MemberConverter.Convert(member);
+            var memberDto = MemberConverter.Convert(member);
+            await SetTranslation(memberDto);
+            await GetAttachments(memberDto);
+
+            return memberDto;
+        }
+
+        private async Task SetTranslation(MemberDto member)
+        {
+            if (member.DescriptionTextId != Guid.Empty)
+            {
+                var translationItem = await _factory.GetGrain<ITranslationGrain>(member.DescriptionTextId).GetAsync();
+                var translation = new Translation
+                {
+                    Id = translationItem.Id,
+                    TextId = translationItem.TextId,
+                    LanguageText = translationItem.LanguageText,
+                    CreateDate = translationItem.CreatedDate,
+                    CreatedBy = translationItem.CreatedBy,
+                    ModifiedBy = translationItem.ModifiedBy,
+                    ModifiedDate = translationItem.ModifiedDate
+                };
+
+                if (translation != null)
+                {
+                    if (translation.LanguageText.TryGetValue(_currentUserService.LanguageId, out string value))
+                    {
+                        member.Description = value;
+                    }
+                    else
+                    {
+                        member.Description = "";
+                    }
+                }
+            }
+        }
+
+        private async Task GetAttachments(MemberDto member)
+        {
+            var request = new GetAttachmentsByOwnerIdsQuery
+            {
+                OwnerIds = [member.Id]
+            };
+            var ownerAttachments = await _mediator.Send(request);
+            if (ownerAttachments != null)
+            {
+                foreach (var ownerAttachment in ownerAttachments)
+                {
+                    member.Attachments.AddRange(ownerAttachment.Attachments);
+                    if (member.Attachments != null && member.Attachments.Any(x => !string.IsNullOrEmpty(x.MiniatureId) && !string.IsNullOrEmpty(x.Thumbnail)))
+                    {
+                        member.Thumbnail = member.Attachments.First(x => !string.IsNullOrEmpty(x.MiniatureId) && !string.IsNullOrEmpty(x.Thumbnail)).Thumbnail;
+                    }
+                }
+            }
         }
     }
 }

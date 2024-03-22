@@ -26,13 +26,19 @@ namespace TozawaNGO.Shared
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
             base.OnInitialized();
         }
-        private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
+        private async void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
-        private void _translationService_LanguageChanged(object sender, EventArgs e)
+        private async void _translationService_LanguageChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            await InvokeAsync(() =>
+             {
+                 StateHasChanged();
+             });
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {

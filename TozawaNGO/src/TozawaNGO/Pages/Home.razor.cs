@@ -26,6 +26,7 @@ namespace TozawaNGO.Pages
         }
         protected override async Task OnInitializedAsync()
         {
+            ScrollTopState.SetSource("homePage");
             ScrollTopState.OnChange += SetScroll;
             await base.OnInitializedAsync();
         }
@@ -42,7 +43,7 @@ namespace TozawaNGO.Pages
         }
         private void SetScroll()
         {
-            Dispatcher.Dispatch(new ScrollTopAction(ScrollTopState.ScrollTop));
+            Dispatcher.Dispatch(new ScrollTopAction(ScrollTopState.ScrollTop[ScrollTopState.Source]));
         }
     }
 }

@@ -18,8 +18,6 @@ namespace Grains.Auth.Controllers
 
         public async Task<TableDataDto<Models.Dtos.Backend.MemberDto>> Handle(GetMembersQuery request, CancellationToken cancellationToken)
         {
-            var members = new List<ApplicationUser>();
-
             // get all item keys for this owner
             var keys = await _factory.GetGrain<IMemberManagerGrain>(SystemTextId.MemberOwnerId).GetAllAsync();
 
@@ -42,10 +40,11 @@ namespace Grains.Auth.Controllers
                 {
                     result.Add(await tasks[i]);
                 }
-
+                List<MemberDto> converted = [];
                 foreach (var memberItem in result)
                 {
-                    members.Add(new ApplicationUser
+                    if (!request.IncludeDeleted && memberItem.Deleted) continue;
+                    var member = MemberConverter.Convert(new ApplicationUser
                     {
                         UserId = memberItem.UserId,
                         PartnerId = memberItem.PartnerId,
@@ -74,8 +73,10 @@ namespace Grains.Auth.Controllers
                         ModifiedDate = memberItem.ModifiedDate,
                         StationIds = memberItem.StationIds
                     });
+                    member.Timestamp = memberItem.Timestamp;
+
+                    converted.Add(member);
                 }
-                var converted = MemberConverter.Convert(members.Where(x => request.IncludeDeleted || !x.Deleted));
 
                 if (!string.IsNullOrEmpty(request.PageOfEmail))
                 {
@@ -93,9 +94,7 @@ namespace Grains.Auth.Controllers
 
                 if (!string.IsNullOrEmpty(request.Email))
                 {
-                    converted = converted.Where(x => x.Email.Equals(request.Code, StringComparison.InvariantCultureIgnoreCase)).ToList();
-                    await SetTranslation(converted);
-                    await GetAttachments(converted);
+                    converted = converted.Where(x => x.Email.Equals(request.Email, StringComparison.InvariantCultureIgnoreCase)).ToList();
                     return new TableDataDto<MemberDto> { Items = converted, TotalItems = converted.Count };
                 }
                 if (!string.IsNullOrEmpty(request.SearchString))

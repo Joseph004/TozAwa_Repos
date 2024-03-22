@@ -60,13 +60,15 @@ namespace TozawaNGO.Shared
             LoadingState.OnChange += DisabledPage;
             await base.OnInitializedAsync();
         }
-        private void DisabledPage()
+        private async void DisabledPage()
         {
             _disabledPage = LoadingState.RequestInProgress;
 
             _disableAttrString = _disabledPage ? "disabledPage" : "";
-
-            StateHasChanged();
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {

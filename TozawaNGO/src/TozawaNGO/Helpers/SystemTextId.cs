@@ -52,6 +52,7 @@ public static partial class SystemTextId
     public static Guid RowsPerPage => Guid.Parse("79396871-e984-4746-953a-4dd28cd8c445");
     public static Guid ShowDeletedItems => Guid.Parse("10cba804-b8b6-49e2-b3b6-b96fdea1035f");
     public static Guid Add => Guid.Parse("ffeee73c-ca11-4b14-bc87-f991da14edeb");
+    public static Guid Update => Guid.Parse("2f2cad45-d815-41a1-b29d-121d3bd813a1");
     public static Guid FirstName => Guid.Parse("eaaadc84-0de1-4a6d-ba48-c394b5e484bf");
     public static Guid LastName => Guid.Parse("84e48e74-3760-4f08-8c75-e98bb728b9ee");
     public static Guid Description => Guid.Parse("2f21ae24-6168-4047-8ab2-db1849b3868e");
@@ -117,4 +118,7 @@ public static partial class SystemTextId
     public static Guid NoAttachmentsExists => Guid.Parse("1f4ca531-ca3c-4a33-bb20-ff1f0d46b62a");
     public static Guid MaximumFilesAllowed => Guid.Parse("2eac4ad7-ada7-48a0-a4ab-a985820140e4");
     public static Guid ToDoOwnerId => Guid.Parse("d4812849-17a7-46c6-84b1-030d8d9aea8d");
+    public static Guid TranslationOwnerId => Guid.Parse("d5852b85-0666-4e46-a5aa-539159484ffb");
+    public static Guid MemberOwnerId => Guid.Parse("e8a6e03d-3620-46d6-9192-d7e3594c9f19");
+    public static Guid AttachmentOwnerId => Guid.Parse("368607f5-07d4-49c2-8014-415729f1fb01");
 }

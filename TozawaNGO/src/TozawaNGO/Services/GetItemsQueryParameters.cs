@@ -6,10 +6,10 @@ using MudBlazor;
 
 namespace TozawaNGO.Services
 {
-    public class GetItemsQueryParameters(TableState state, bool includeDeleted, string searchString, string email, string pageOfEmail)
+    public class GetItemsQueryParameters(string page, string pageSize, bool includeDeleted, string searchString, string email, string pageOfEmail)
     {
-        public string Page { get; set; } = state.Page.ToString();
-        public string PageSize { get; set; } = state.PageSize.ToString();
+        public string Page { get; set; } = page;
+        public string PageSize { get; set; } = pageSize;
         public string IncludeDeleted { get; set; } = includeDeleted.ToString();
         public string SearchString { get; set; } = searchString;
         public string Email { get; set; } = email;

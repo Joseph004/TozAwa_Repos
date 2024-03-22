@@ -1,4 +1,6 @@
+using Fluxor;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using MudBlazor;
 using TozawaNGO.Helpers;
 using TozawaNGO.Models.Dtos;
@@ -6,87 +8,108 @@ using TozawaNGO.Models.FormModels;
 using TozawaNGO.Models.ResponseRequests;
 using TozawaNGO.Services;
 using TozawaNGO.Shared;
+using TozawaNGO.State.Member.Store;
+using TozawaNGO.StateHandler;
 
 namespace TozawaNGO.Pages
 {
     public partial class Members : BasePage
     {
-        [Inject] protected MemberService memberService { get; set; }
         [Inject] IDialogService DialogService { get; set; }
         [Inject] private ISnackbar SnackBar { get; set; }
         [Inject] private AttachmentService AttachmentService { get; set; }
         [Inject] private ISnackBarService snackBarService { get; set; }
         [Inject] private LoadingState LoadingState { get; set; }
-        protected IEnumerable<MemberDto> _pagedData = null;
+        [Inject] IState<TozawaNGO.State.Member.Store.MemberState> MemberState { get; set; }
+        [Inject] IDispatcher Dispatcher { get; set; }
+        [Inject] IJSRuntime JSRuntime { get; set; }
+        [Inject] ScrollTopState ScrollTopState { get; set; }
+        protected IEnumerable<MemberDto> _pagedData = [];
         private MudTable<MemberDto> _table;
         private MemberDto _addedItem;
         protected bool _includeDeleted;
 
         protected int _totalItems;
         protected string _searchString = null;
-        private MemberDto _backupItem;
-        protected MemberDto _selectedItem = null;
-        protected MemberDto _previousSelectedItem = new();
+        protected string _page = "0";
+        protected string _pageSize = "20";
+        private MemberDto _selectedItem;
         protected PatchMemberRequest _patchMemberRequest = new();
         private string _pageOfEmail = null;
         public int ThumbnailSize = 24;
         protected int[] _pageSizeOptions = [20, 50, 100];
+        private bool firstLoaded;
+        private double scrollTop;
 
         protected override async Task OnInitializedAsync()
         {
+            ScrollTopState.SetSource("memberPage");
             _translationService.LanguageChanged += LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
             AttachmentService.OnChange += UpdateMemberAttachments;
+            ScrollTopState.OnChange += SetScroll;
+            LoadingState.SetRequestInProgress(true);
+
+            ScrollTopState.ScrollTop.TryGetValue(ScrollTopState.Source, out double scroll);
+            scrollTop = scroll;
 
             await base.OnInitializedAsync();
+            Dispatcher.Dispatch(new MemberDataAction(_page, _pageSize, _searchString, MemberState.Value.IncludeDeleted, MemberState.Value.PageOfEmail, MemberState.Value.Email, ScrollTopState.ScrollTop.TryGetValue(ScrollTopState.Source, out double value) ? value : 0, LoadingState, JSRuntime));
         }
-        protected override Task OnAfterRenderAsync(bool firstRender)
+
+        private void SetLoading()
+        {
+            LoadingState.SetRequestInProgress(true);
+        }
+        private int Count = 0;
+        private async Task SetScrollJS()
+        {
+            if (Count != 0) return;
+            if (scrollTop != 0)
+            {
+                Count++;
+                _selectedItem = MemberState.Value.Members.First();
+                await JSRuntime.InvokeAsync<object>("SetScroll", (-1) * scrollTop);
+            }
+        }
+        protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                IsFirstLoaded = true;
-                _pagedData = [];
+                firstLoaded = true;
+                LoadingState.SetRequestInProgress(true);
             }
-            return base.OnAfterRenderAsync(firstRender);
+            if (!MemberState.Value.IsLoading && MemberState.Value.Members.Count > 0 && firstLoaded)
+            {
+                firstLoaded = false;
+                LoadingState.SetRequestInProgress(false);
+                await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.5))).ContinueWith(async o => { await SetScrollJS(); });
+            }
+            await base.OnAfterRenderAsync(firstRender);
+        }
+        private void ReloadData()
+        {
+            SetLoading();
+            ScrollTopState.ScrollTop.TryGetValue(ScrollTopState.Source, out double scroll);
+            scrollTop = scroll;
+            Dispatcher.Dispatch(new MemberDataAction(_page, _pageSize, _searchString, MemberState.Value.IncludeDeleted, MemberState.Value.PageOfEmail, MemberState.Value.Email, scrollTop, LoadingState, JSRuntime));
         }
         private bool DisabledEditRow()
         {
             var entity = _selectedItem ?? new MemberDto();
             return entity.Deleted;
         }
-        private async void UpdateMemberAttachments()
+        private void UpdateMemberAttachments()
         {
-            if (_table != null)
-            {
-                await _table.ReloadServerData();
-            }
-            StateHasChanged();
+            ReloadData();
         }
-        private async void LanguageChanged(object sender, EventArgs e)
+        private void LanguageChanged(object sender, EventArgs e)
         {
-            if (_table != null)
-            {
-                await _table.ReloadServerData();
-            }
-            StateHasChanged();
+            ReloadData();
         }
-        private async void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
+        private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
-            if (_table != null)
-            {
-                await _table.ReloadServerData();
-            }
-            StateHasChanged();
-        }
-        private void BackupItem(object element)
-        {
-            _backupItem = new()
-            {
-                FirstName = ((MemberDto)element).FirstName,
-                LastName = ((MemberDto)element).LastName,
-                Email = ((MemberDto)element).Email,
-                Description = ((MemberDto)element).Description,
-            };
+            ReloadData();
         }
         protected async Task ToggleDeleted(MemberDto item, bool hardDelete = false)
         {
@@ -109,8 +132,6 @@ namespace TozawaNGO.Pages
 
             if (!result.Canceled)
             {
-                /* SnackBar.Add(Translate(SystemTextId.Processing), Severity.Info); */
-
                 var modalResponse = (DeleteRequest)result.Data;
                 var patchRequest = new PatchMemberRequest
                 {
@@ -124,12 +145,7 @@ namespace TozawaNGO.Pages
 
                 LoadingState.SetRequestInProgress(true);
                 StateHasChanged();
-                var updateResponse = await memberService.PatchMember(item.Id, patchRequest);
-
-                _pageOfEmail = null;
-                snackBarService.Add(updateResponse);
-
-                await _table.ReloadServerData();
+                Dispatcher.Dispatch(new MemberPatchAction(item.Id, patchRequest, item));
             }
         }
         protected async Task ToggleFiles(MemberDto item)
@@ -153,85 +169,8 @@ namespace TozawaNGO.Pages
         protected async Task ToggleIncludeDeleted()
         {
             _includeDeleted = !_includeDeleted;
-            await _table.ReloadServerData();
-        }
-        private void ResetItemToOriginalValues(object element)
-        {
-            ((MemberDto)element).FirstName = _backupItem.FirstName;
-            ((MemberDto)element).Description = _backupItem.Description;
-            ((MemberDto)element).LastName = _backupItem.LastName;
-            ((MemberDto)element).Email = _backupItem.Email;
-        }
-
-        private bool AnyTextIsUpdated()
-        {
-            var response = false;
-            if (!_backupItem.Description.Equals(_selectedItem.Description))
-            {
-                _patchMemberRequest.Description = _selectedItem.Description;
-                response = true;
-            }
-            return response;
-        }
-        private bool AnyPropertyIsUpdated()
-        {
-            var response = false;
-            if (!_backupItem.FirstName.Equals(_selectedItem.FirstName))
-            {
-                _patchMemberRequest.FirstName = _selectedItem.FirstName;
-                response = true;
-            }
-            if (!_backupItem.LastName.Equals(_selectedItem.LastName))
-            {
-                _patchMemberRequest.LastName = _selectedItem.LastName;
-                response = true;
-            }
-            if (!_backupItem.Email.Equals(_selectedItem.Email))
-            {
-                _patchMemberRequest.Email = _selectedItem.Email;
-                response = true;
-            }
-            return response;
-        }
-        protected async Task<TableData<MemberDto>> ServerReload(TableState state)
-        {
-            LoadingState.SetRequestInProgress(true);
-
-            var data = await memberService.GetItems(state, _includeDeleted, _searchString, _pageOfEmail);
-            var entity = data.Entity ?? new TableData<MemberDto>();
-            _pageOfEmail = null;
-
-            var items = entity.Items ?? [];
-
-            if (items.Any())
-            {
-                if (_addedItem != null)
-                {
-                    if (items.Any(x => x.Id == _addedItem.Id))
-                    {
-                        _selectedItem = items.SingleOrDefault(x => x.Id == _addedItem.Id);
-                        _addedItem = null;
-                    }
-                }
-                else
-                {
-                    if (_selectedItem != null && !items.Any(x => x.Id == _selectedItem.Id))
-                    {
-                        _selectedItem = items.FirstOrDefault();
-                        _previousSelectedItem = _selectedItem;
-                    }
-                }
-            }
-            else
-            {
-                _selectedItem = null;
-                _previousSelectedItem = new();
-            }
-            entity.Items = items;
-            _pagedData = entity.Items;
-            LoadingState.SetRequestInProgress(false);
-            StateHasChanged();
-            return entity;
+            ReloadData();
+            await Task.CompletedTask;
         }
         public string GetDescription(MemberDto context)
         {
@@ -249,15 +188,11 @@ namespace TozawaNGO.Pages
         protected void OnSearch(string text)
         {
             _searchString = text;
-            _table.ReloadServerData();
+            ReloadData();
         }
         protected void RowClickEvent(TableRowClickEventArgs<MemberDto> tableRowClickEventArgs)
         {
-            if (_previousSelectedItem != null && _previousSelectedItem.Id != tableRowClickEventArgs.Item.Id)
-            {
-                _previousSelectedItem = tableRowClickEventArgs.Item;
-                _addedItem = null;
-            }
+            Dispatcher.Dispatch(new MemberSelectedAction(tableRowClickEventArgs.Item));
         }
         private async Task OpenDialog()
         {
@@ -280,33 +215,33 @@ namespace TozawaNGO.Pages
                     _searchString = null;
                     _pageOfEmail = data.Entity.Email;
                     _addedItem = data.Entity;
-                    await _table.ReloadServerData();
+                    ReloadData();
                 }
             }
         }
-        private async Task ItemHasBeenCommitted()
+        private async Task ToggleEdit(MemberDto member)
         {
-            var item = _selectedItem;
-            if (!item.Deleted)
+            var options = new DialogOptions
             {
-                if (AnyPropertyIsUpdated() || AnyTextIsUpdated())
-                {
-                    LoadingState.SetRequestInProgress(true);
-                    var updateResponse = await memberService.PatchMember(_selectedItem.Id, _patchMemberRequest);
-                    snackBarService.Add(updateResponse);
-
-                    if (!updateResponse.Success)
-                    {
-                        _patchMemberRequest = new();
-                        _selectedItem.FirstName = _backupItem.FirstName;
-                        _selectedItem.LastName = _backupItem.LastName;
-                        _selectedItem.Email = _backupItem.Email;
-                        return;
-                    }
-                }
-                _patchMemberRequest = new();
-                await _table.ReloadServerData();
-            }
+                DisableBackdropClick = true,
+                MaxWidth = MaxWidth.Medium,
+                CloseButton = false
+            };
+            var data = new MemberDto
+            {
+                Id = member.Id,
+                Deleted = member.Deleted,
+                FirstName = member.FirstName,
+                LastName = member.LastName,
+                Email = member.Email,
+                Description = member.Description,
+            };
+            var parameters = new DialogParameters
+            {
+                ["Member"] = data
+            };
+            var dialog = DialogService.Show<EditMembersDialog>($"Edit", parameters, options);
+            var result = await dialog.Result;
         }
         protected string SelectedRowClassFunc(MemberDto element, int rowNumber)
         {
@@ -314,18 +249,25 @@ namespace TozawaNGO.Pages
             {
                 return "selected";
             }
-            if (_addedItem != null && _addedItem.Id == element.Id)
-            {
-                return "created";
-            }
             return string.Empty;
         }
-
+        private void SetScroll()
+        {
+            Dispatcher.Dispatch(new ScrollTopAction(ScrollTopState.ScrollTop[ScrollTopState.Source]));
+        }
         protected override void Dispose(bool disposed)
         {
-            _translationService.LanguageChanged -= LanguageChanged;
-            _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
-            AttachmentService.OnChange -= UpdateMemberAttachments;
+            try
+            {
+                _translationService.LanguageChanged -= LanguageChanged;
+                _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
+                AttachmentService.OnChange -= UpdateMemberAttachments;
+                ScrollTopState.OnChange -= SetScroll;
+                Dispatcher.Dispatch(new UnSubscribeAction());
+            }
+            catch
+            {
+            }
             base.Dispose(disposed);
         }
     }

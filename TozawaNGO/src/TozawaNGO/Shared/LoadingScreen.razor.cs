@@ -21,11 +21,14 @@ namespace TozawaNGO.Shared
             await base.OnInitializedAsync();
         }
 
-        private void CloseLoading()
+        private async void CloseLoading()
         {
             _RequestInProgress = LoadingState.RequestInProgress;
 
-            StateHasChanged();
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
 #pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
         public void Dispose()

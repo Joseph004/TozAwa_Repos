@@ -10,7 +10,7 @@ namespace TozawaNGO.Services
 {
     public class TodoService(ILogger<TodoService> logger, IClusterClient client)
     {
-        private readonly ILogger<TodoService> logger = logger;
+        private readonly ILogger<TodoService> _logger = logger;
         private readonly IClusterClient _client = client;
 
         public async Task<ImmutableArray<TodoItem>> GetAllAsync(Guid ownerKey)
@@ -92,7 +92,7 @@ namespace TozawaNGO.Services
         public Task<StreamSubscriptionHandle<TodoNotification>> SubscribeAsync(Guid ownerKey, Func<TodoNotification, Task> action) =>
             _client.GetStreamProvider("SMS")
                 .GetStream<TodoNotification>(ownerKey)
-                .SubscribeAsync(new TodoItemObserver(logger, action));
+                .SubscribeAsync(new TodoItemObserver(_logger, action));
 
         private class TodoItemObserver(ILogger<TodoService> logger, Func<TodoNotification, Task> action) : IAsyncObserver<TodoNotification>
         {

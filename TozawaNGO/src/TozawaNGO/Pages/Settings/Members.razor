@@ -58,6 +58,15 @@
     .mud-table-row.selected .mud-button-root.mud-icon-button.mud-error-text .mud-icon-root.mud-svg-icon {
         fill: var(--mud-palette-error-darken);
     }
+
+    .memberTable>div:nth-child(1) {
+       height: 60px;
+       max-height: 60px;
+   }
+   .memberTable>div:nth-child(2) {
+       height: calc(100% - 60px);
+       max-height:  calc(100% - 60px);
+   }
 </style>
 
 @namespace TozawaNGO.Pages
@@ -66,24 +75,15 @@
 @using TozawaNGO.Shared
 @inherits BasePage
 
-<style>
-.memberTable>div:nth-child(1) {
- height: 60px;
-  max-height: 60px;
-}
-.memberTable>div:nth-child(2) {
- height: calc(100% - 60px);
-  max-height:  calc(100% - 60px);
-}
-</style>
-
-@if(_pagedData != null) 
+@if (MemberState.Value.IsLoading || MemberState.Value.Members.Count == 0)
 {
-    <MudTable Class="memberTable" Style="height: calc(100% - 40px); max-height: calc(100% - 40px);" ServerData="@(new Func<TableState, Task<TableData<MemberDto>>>(ServerReload))" Dense="true" Hover="true"
-        Striped="true" @ref="_table" CustomHeader="true" ReadOnly="@DisabledEditRow()" RowClassFunc="@SelectedRowClassFunc"
-        OnRowClick="RowClickEvent" OnCommitEditClick="ItemHasBeenCommitted" @bind-SelectedItem="_selectedItem"
-        T="MemberDto" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues" CanCancelEdit="true"
-        RowsPerPage="20">
+ SetLoading();
+}
+else
+{
+    <MudTable Class="memberTable" Style="height: calc(100% - 40px); max-height: calc(100% - 40px);" Items="@MemberState.Value.Members" Dense="true" Hover="true"
+        Striped="true" @ref="_table" CustomHeader="true" RowClassFunc="@SelectedRowClassFunc" T="MemberDto" RowsPerPage="20"
+        OnRowClick="RowClickEvent" @bind-SelectedItem="_selectedItem" RowClass="cursor-pointer">
         <ToolBarContent>
             <MudText Typo="Typo.h6">
                 <SystemText TextId=SystemTextId.Members FallbackText="Members" IsFirstLoaded="@IsFirstLoaded"/>
@@ -108,11 +108,12 @@
             </MudAvatar>
         </ToolBarContent>
         <ColGroup>
-            <col style="width: 14%;" />
-            <col style="width: 14%;" />
-            <col style="width: 18%;" />
-            <col style="width: 39%;" />
+            <col style="width: 15%;" />
+            <col style="width: 15%;" />
+            <col style="width: 20%;" />
+            <col style="width: 30%;" />
             <col style="width: 10%;" />
+            <col style="width: 5%;" />
             <col style="width: 5%;" />
         </ColGroup>
         <HeaderContent>
@@ -131,6 +132,7 @@
                 </MudTh>
                 <MudTh></MudTh>
                 <MudTh></MudTh>
+                <MudTh></MudTh>
             </MudTHeadRow>
         </HeaderContent>
         <RowTemplate>
@@ -144,7 +146,8 @@
                     @if (!string.IsNullOrEmpty(context.Thumbnail))
                     {
                         var thumb = "data:image/png;base64," + context.Thumbnail;
-                        <MudTooltip>
+                        <MudBadge Content="@context.Attachments.Count()" Overlap="true" Color="Color.Primary">
+                            <MudTooltip>
                             <ChildContent>
                                 <img src="@thumb" height="@ThumbnailSize" width="@ThumbnailSize" />
                             </ChildContent>
@@ -152,13 +155,16 @@
                                 <img src="@thumb" />
                             </TooltipContent>
                         </MudTooltip>
+                        </MudBadge>
                     }
                     else {
-                        <MudIcon Icon="@Icons.Material.Filled.Image" Color="Color.Default" style="height:24px;width:24px" />                        
-                    }
                         <MudBadge Content="@context.Attachments.Count()" Overlap="true" Color="Color.Primary">
-                            <MudIcon Icon="@Icons.Material.Filled.Folder" Size="Size.Large" Color="Color.Default"/>
-                        </MudBadge>
+                            <MudIcon Icon="@Icons.Material.Filled.Folder" Style="height:24px;width:24px)" Color="Color.Default"/>
+                        </MudBadge>                     
+                    }
+            </MudTd>
+            <MudTd DataLabel="Edit">
+                <MudIconButton Disabled="@DisabledEditRow()" Icon="@(Icons.Material.Filled.Edit)" @onclick="@(e => ToggleEdit(context))" Color=@(Color.Default)></MudIconButton>
             </MudTd>
             <MudTd DataLabel="Deleted">
                 <div class="d-flex align-center">
@@ -179,21 +185,6 @@
                 </div>
             </MudTd>
         </RowTemplate>
-        <RowEditingTemplate>
-            <MudTd DataLabel="FirstName">
-                <MudTextField Immediate="true" Margin="Margin.Dense" @bind-Value="@context.FirstName" Required />
-            </MudTd>
-            <MudTd DataLabel="LastName">
-                <MudTextField Immediate="true" Margin="Margin.Dense" @bind-Value="@context.LastName" Required />
-            </MudTd>
-            <MudTd DataLabel="Email">
-                <MudTextField Immediate="true" Margin="Margin.Dense" @bind-Value="@context.Email" Required />
-            </MudTd>
-            <MudTd DataLabel="Description">
-                <MudTextField Immediate="true" Margin="Margin.Dense" @bind-Value="@context.Description" Lines="5" />
-            </MudTd>
-        </RowEditingTemplate>
-
         <NoRecordsContent>
             <MudText>
                 <SystemText TextId=SystemTextId.NoMachingRecords FallbackText="No matching records found" IsFirstLoaded="@IsFirstLoaded"/>
@@ -205,7 +196,7 @@
             </MudText>
         </LoadingContent>
         <PagerContent>
-            <MudTablePager Class="pa-4" PageSizeOptions="_pageSizeOptions"
+            <MudTablePager Class="pa-4" PageSizeOptions="@_pageSizeOptions"
                 RowsPerPageString="@(Translate(SystemTextId.RowsPerPage, "Rows per page"))" />
         </PagerContent>
     </MudTable>
@@ -214,3 +205,4 @@
         Label="@(Translate(SystemTextId.ShowDeletedItems))" />
     </div>
 }
+

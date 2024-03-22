@@ -1,5 +1,4 @@
-﻿using Orleans.Concurrency;
-using System;
+﻿using Grains.Auth.Models.Dtos.Backend;
 
 namespace Grains
 {
