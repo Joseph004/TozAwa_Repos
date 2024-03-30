@@ -68,7 +68,7 @@ public class AddAttachmentCommandHandler(TozawangoDbContext context, IGoogleServ
                 var attachment = await _fileAttachmentCreator.Create(command);
 
                 _context.FileAttachments.Add(attachment);
-                await _context.SaveChangesAsync();
+                _context.SaveChanges();
 
                 if (attachment == null)
                 {
@@ -107,8 +107,8 @@ public class AddAttachmentCommandHandler(TozawangoDbContext context, IGoogleServ
                converted.MiniatureBlobUrl
                 );
                 await _factory.GetGrain<IAttachmentGrain>(item.Id).SetAsync(item);
-                await _hub.Clients.All.SendAsync("AttachmentAdded", item.Id, request.Source);
             }
+            await _hub.Clients.All.SendAsync("AttachmentAdded", string.Join(",", attachments.Select(x => x.Id)), request.Id, request.Source, cancellationToken: cancellationToken);
             return new AddResponse<IEnumerable<FileAttachmentDto>>(true, UpdateMessages.EntityCreatedSuccess, HttpStatusCode.OK, attachments);
         }
         catch (Exception ex)

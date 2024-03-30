@@ -56,10 +56,10 @@ public class FileAttachmentController(IMediator mediator, Grains.Auth.Services.I
         return Ok(await _mediator.Send(request));
     }
 
-    [HttpDelete, Route("{id}/{source}")]
-    public async Task<IActionResult> DeleteAttachment(Guid id, string source)
+    [HttpDelete, Route("{id}/{ownerId}/{source}")]
+    public async Task<IActionResult> DeleteAttachment(Guid id, Guid ownerId, string source)
     {
-        await _mediator.Send(new DeleteAttachmentCommand { Id = id, Source = source });
+        await _mediator.Send(new DeleteAttachmentCommand { Id = id, OwnerId = ownerId, Source = source });
         return NoContent();
     }
 

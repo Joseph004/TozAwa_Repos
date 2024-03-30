@@ -5,6 +5,38 @@ function SetScroll(value) {
     }
 }
 
+function checkOverflow(className, dotNetObject) {
+    if (className == undefined || className == "") {
+        return false;
+    }
+    var mudTextField = document.getElementsByClassName(className)[0];
+    var firstChild = mudTextField.children[0];
+    var firstChildOfFirstChild = firstChild.children[0];
+    var inputElement = firstChildOfFirstChild.children[0];
+    var result = false;
+    if (inputElement.offsetWidth < inputElement.scrollWidth) {
+        result = true;
+    }
+
+    new ResizeObserver(changes => {
+        addDescIcon(className, dotNetObject);
+    }).observe(inputElement)
+
+    return result;
+}
+function addDescIcon(className, dotNetObject) {
+    var mudTextField = document.getElementsByClassName(className)[0];
+    var firstChild = mudTextField.children[0];
+    var firstChildOfFirstChild = firstChild.children[0];
+    if (firstChildOfFirstChild != undefined && firstChildOfFirstChild.children != undefined) {
+        var inputElement = firstChildOfFirstChild.children[0];
+        if (inputElement.offsetWidth < inputElement.scrollWidth) {
+            dotNetObject.invokeMethodAsync('AddDescIcon', className, false);
+        } else {
+            dotNetObject.invokeMethodAsync('AddDescIcon', className, true);
+        }
+    }
+}
 function saveAsFile(filename, bytesBase64) {
     if (navigator.msSaveBlob) {
         //Download document in Edge browser

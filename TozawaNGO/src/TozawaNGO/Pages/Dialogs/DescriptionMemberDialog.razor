@@ -1,0 +1,18 @@
+@namespace TozawaNGO.Pages
+@using TozawaNGO.Helpers
+@using TozawaNGO.Shared
+@inherits BaseDialog
+
+<MudDialog>
+    <DialogContent>
+        <div style="overflow: auto; max-height: 800px;">
+            <MudTextField Margin="Margin.Dense" T="string" Text="@Entity.Description"
+                Label="@(Translate(SystemTextId.Description))" Lines="5" Disabled />
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">
+            <SystemText TextId=SystemTextId.Close FallbackText="Close" IsFirstLoaded="@IsFirstLoaded" />
+        </MudButton>
+    </DialogActions>
+</MudDialog>

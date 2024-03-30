@@ -30,7 +30,7 @@ namespace TozawaNGO.Pages
             var request = new DeleteRequest
             {
                 SoftDeleted = softDeleted,
-                HardDeleted = hardDelete
+                HardDeleted = hardDeleted
             };
             MudDialog.Close(DialogResult.Ok(request));
         }

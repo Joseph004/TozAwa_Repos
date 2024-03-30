@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using TozawaNGO.Helpers;
 using TozawaNGO.Models.Dtos;
@@ -39,8 +40,52 @@ namespace TozawaNGO.Pages
                 });
             }
         }
+        private async Task<IEnumerable<string>> ValidateFstName(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return await Task.FromResult<IEnumerable<string>>([Translate(SystemTextId.FirstNameIsRequired)]);
+            }
 
+            if (text.Length < 3)
+            {
+                return await Task.FromResult<IEnumerable<string>>(["Name too short!"]);
+            }
 
+            return [];
+        }
+        private async Task<IEnumerable<string>> ValidateLastName(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return await Task.FromResult<IEnumerable<string>>([Translate(SystemTextId.LastNameIsRequired)]);
+            }
+
+            if (text.Length < 3)
+            {
+                return await Task.FromResult<IEnumerable<string>>(["Name too short!"]);
+            }
+
+            return [];
+        }
+        private async Task<IEnumerable<string>> ValidateDescName(string text)
+        {
+            if (string.IsNullOrEmpty(text))
+            {
+                return await Task.FromResult<IEnumerable<string>>([Translate(SystemTextId.DescriptionIsRequired)]);
+            }
+
+            if (text.Length < 3)
+            {
+                return await Task.FromResult<IEnumerable<string>>(["Description too short!"]);
+            }
+
+            return [];
+        }
+        private AddMemberRequestFluentValidator EmailValidator()
+        {
+            return new AddMemberRequestFluentValidator(_translationService);
+        }
         private async Task<IEnumerable<string>> EmailExists(string email)
         {
             if (string.IsNullOrEmpty(email))
@@ -53,7 +98,23 @@ namespace TozawaNGO.Pages
             {
                 return [Translate(SystemTextId.EmailAlreadyExists)];
             }
+            var validator = await EmailValidator().ValidateAsync(_addFormModel);
+
+            if (!validator.IsValid)
+            {
+                return [validator.Errors.First().ErrorMessage];
+            }
             return [];
+        }
+        private void AddItemByKeyBoard(KeyboardEventArgs e)
+        {
+            if (e.Code == "Enter" || e.Code == "NumpadEnter")
+            {
+                if (!DisabledAddButton())
+                {
+                    AddItem();
+                }
+            }
         }
         private bool DisabledAddButton()
         {
@@ -64,26 +125,15 @@ namespace TozawaNGO.Pages
             var fieldRuleText = Translate(SystemTextId.Required);
             return $"{fieldName} [{language.LongName} ({fieldRuleText})]";
         }
-        private async Task AddItem()
+        private void AddItem()
         {
+            if (DisabledAddButton()) return;
             LoadingState.SetRequestInProgress(true);
             _onProgress = true;
 
             var model = _addForm.Model as AddMemberRequest;
-            var added = await memberService.AddMember(model);
 
-            if (added.Success)
-            {
-                MudDialog.Close(DialogResult.Ok(added));
-            }
-            else
-            {
-                _errors = _errors.Append(await _translationService.GetHttpStatusText(added.StatusCode)).ToArray();
-                snackBarService.Add(added);
-                LoadingState.SetRequestInProgress(false);
-                _onProgress = false;
-                StateHasChanged();
-            }
+            MudDialog.Close(DialogResult.Ok(model));
         }
 
     }

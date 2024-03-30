@@ -17,6 +17,7 @@ using Orleans.Serialization;
 using Grains.Services;
 using Orleans.Hosting;
 using Orleans;
+using OrleansHost.Validation;
 
 namespace OrleansHost
 {
@@ -55,6 +56,7 @@ namespace OrleansHost
                         options.UseSqlServer(appSettings.ConnectionStrings.Sql, b => b.MigrationsAssembly("OrleansHost"));
                     });
 
+                    services.RegisterValidationService();
                     services.AddScoped<IGoogleService, GoogleService>();
                     services.AddScoped<Grains.Auth.Services.ICurrentUserService, Grains.Auth.Services.CurrentUserService>();
                     services.AddSingleton(typeof(HubLifetimeManager<>), typeof(DefaultHubLifetimeManager<>));

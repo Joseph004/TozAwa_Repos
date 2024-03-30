@@ -29,6 +29,7 @@ public record MemberSelectedAction(MemberDto selectedItem)
     public MemberDto SelectedItem { get; } = selectedItem;
 }
 public record MemberPatchAfterAction(MemberDto member);
+public record MemberDeletedForeverAction(Guid id);
 public record UnSubscribeAction;
 public record MemberAddAction(
 string email,
@@ -49,10 +50,18 @@ public record ScrollTopAction(double scrollTop)
     public double ScrollTop { get; } = scrollTop;
 }
 public record MemberAddAfterAction(MemberDto member);
-public class LoadItemAction(Guid id, bool isUpdated)
+public class LoadItemAction(Guid id, bool isUpdated, bool isDeletedForever = false)
 {
     public Guid Id { get; } = id;
     public bool IsUpdated { get; } = isUpdated;
+    public bool IsDeletedForever { get; } = isDeletedForever;
+}
+public class AttachmentHandleAction(string ids, Guid ownerId, string source, bool isDeleted = false)
+{
+    public List<Guid> Ids { get; } = ids.Split(',').Select(x => Guid.Parse(x)).ToList();
+    public Guid OwnerId { get; } = ownerId;
+    public string Source { get; } = source;
+    public bool IsDeleted { get; } = isDeleted;
 }
 public class RemoveItemAction(Guid id)
 {

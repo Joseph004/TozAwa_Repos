@@ -58,7 +58,7 @@ namespace Grains.Auth.Controllers
             if (member.DescriptionTextId != Guid.Empty)
             {
                 var translationItem = await _factory.GetGrain<ITranslationGrain>(member.DescriptionTextId).GetAsync();
-                var translation = new Translation
+                var translation = translationItem != null ? new Translation
                 {
                     Id = translationItem.Id,
                     TextId = translationItem.TextId,
@@ -67,9 +67,9 @@ namespace Grains.Auth.Controllers
                     CreatedBy = translationItem.CreatedBy,
                     ModifiedBy = translationItem.ModifiedBy,
                     ModifiedDate = translationItem.ModifiedDate
-                };
+                } : new Translation();
 
-                if (translation != null)
+                if (translation != null && translation.Id != Guid.Empty)
                 {
                     if (translation.LanguageText.TryGetValue(_currentUserService.LanguageId, out string value))
                     {

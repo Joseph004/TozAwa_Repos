@@ -60,7 +60,11 @@ public class GetAttachmentsQueryHandler(
                     FileAttachmentType = item.AttachmentType
                 });
             }
-            return (response ?? []).Where(x => x.OwnerIds.First() == request.OwnerId).ToList();
+            if (response == null || response.Count == 0)
+            {
+                return [];
+            }
+            return response.Where(x => x.OwnerIds.Count > 0 && x.OwnerIds.First() == request.OwnerId).ToList();
         }
         finally
         {

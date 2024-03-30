@@ -26,6 +26,7 @@ public record MemberState
     public Orleans.Streams.StreamSubscriptionHandle<MemberNotification> Subscription { get; init; }
     public LoadingState LoadingState { get; init; }
     public IJSRuntime JSRuntime { get; init; }
-    public MemberDto SelectedItem { get; set; }
-    public MudTable<MemberDto> Table { get; set; }
+    public MemberDto SelectedItem { get; init; }
+    public Dictionary<Guid, string> DescriptionIcon { get; init; } = [];
+    public Dictionary<Guid, MudTextField<string>> MudTextField { get; init; } = [];
 }

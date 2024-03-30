@@ -43,10 +43,10 @@ public class DeleteAttachmentCommandHandler(TozawangoDbContext context, IGoogleS
             var ownerAttachment = await _context.OwnerFileAttachments.Where(x => x.FileAttachment.Id == attachment.Id).ToListAsync(cancellationToken: cancellationToken);
             _context.OwnerFileAttachments.RemoveRange(ownerAttachment);
             _context.FileAttachments.Remove(attachment);
-            await _context.SaveChangesAsync(cancellationToken);
+            _context.SaveChanges();
 
             await _factory.GetGrain<IAttachmentGrain>(fileId).ClearAsync();
-            await _hub.Clients.All.SendAsync("AttachmentDeleted", fileId, request.Source);
+            await _hub.Clients.All.SendAsync("AttachmentDeleted", fileId.ToString(), request.OwnerId, request.Source, cancellationToken: cancellationToken);
 
             return new DeleteResponse(true, UpdateMessages.EntityDeletedSuccess, HttpStatusCode.OK);
         }

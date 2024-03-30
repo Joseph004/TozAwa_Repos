@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using FluentValidation;
 using Fluxor;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
 using TozawaNGO.Helpers;
 using TozawaNGO.Models.Dtos;
@@ -31,11 +33,6 @@ namespace TozawaNGO.Pages
 
         private async Task RestoreText(string type)
         {
-            _editForm.ResetValidation();
-            await InvokeAsync(() =>
-           {
-               StateHasChanged();
-           });
             if (type == nameof(MemberDto.FirstName))
             {
                 Member.FirstName = _backupItem.FirstName;
@@ -56,8 +53,13 @@ namespace TozawaNGO.Pages
                 Member.Description = _backupItem.Description;
                 RestoreInputIcon[nameof(MemberDto.Description)] = "";
             }
-            StateHasChanged();
-            await _editForm.Validate();
+            await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.6))).ContinueWith(async o =>
+            {
+                await InvokeAsync(async () =>
+            {
+                await _editForm.Validate();
+            });
+            });
         }
         private async Task HandleTextField(string type)
         {
@@ -110,6 +112,10 @@ namespace TozawaNGO.Pages
                 }
             }
             await _editForm.Validate();
+        }
+        private MemberDtoFluentValidator EmailValidator()
+        {
+            return new MemberDtoFluentValidator(_translationService);
         }
         void Cancel()
         {
@@ -201,10 +207,11 @@ namespace TozawaNGO.Pages
             {
                 return [Translate(SystemTextId.EmailAlreadyExists)];
             }
-            var validEmail = new EmailAddressAttribute();
-            if (!validEmail.IsValid(email))
+            var validator = await EmailValidator().ValidateAsync(Member);
+
+            if (!validator.IsValid)
             {
-                return [Translate(SystemTextId.Avalidemailisrequired)];
+                return [validator.Errors.First().ErrorMessage];
             }
 
             return [];
@@ -248,6 +255,16 @@ namespace TozawaNGO.Pages
             }
             return response;
         }
+        private void SaveItemByKeyBoard(KeyboardEventArgs e)
+        {
+            if (e.Code == "Enter" || e.Code == "NumpadEnter")
+            {
+                if (!DisabledAddButton())
+                {
+                    SaveItem();
+                }
+            }
+        }
         private void SaveItem()
         {
             if (!_success) return;
@@ -265,6 +282,27 @@ namespace TozawaNGO.Pages
                 _patchMemberRequest = new();
                 MudDialog.Close(DialogResult.Ok(true));
             }
+        }
+    }
+
+    public class MemberDtoFluentValidator : AbstractValidator<MemberDto>
+    {
+        public MemberDtoFluentValidator(ITranslationService translationService)
+        {
+            RuleFor(x => x.Email)
+            .Cascade(CascadeMode.Continue)
+            .NotNull()
+            .EmailAddress()
+            .WithMessage(translationService.Translate(SystemTextId.Avalidemailisrequired, "A valid email is required").Text)
+            .Matches(@"^\w+([-+.']\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$")
+            .WithMessage(translationService.Translate(SystemTextId.Avalidemailisrequired, "A valid email is required").Text)
+            .MustAsync(async (value, cancellationToken) => await IsUniqueAsync(value));
+        }
+        private async Task<bool> IsUniqueAsync(string email)
+        {
+            // Simulates a long running http call
+            await Task.Delay(1);
+            return email.ToLower() != "test@test.com";
         }
     }
 }

@@ -32,6 +32,8 @@ public class Effects(MemberService memberService)
         var hubConnection = await StartHubConnection();
         AddMemberDataListener(hubConnection, dispatcher);
         UpdateMemberDataListener(hubConnection, dispatcher);
+        AddAttachmentDataListener(hubConnection, dispatcher);
+        DeletedAttachmentDataListener(hubConnection, dispatcher);
         dispatcher.Dispatch(new MemberDataFechedAction(members, subscription, notifications, entity.TotalItems, hubConnection));
         await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.5))).ContinueWith(async o =>
         {
@@ -51,10 +53,10 @@ public class Effects(MemberService memberService)
         var updateResponse = await memberService.PatchMember(action.Id, action.Request);
         if (updateResponse.Success)
         {
-         /// Handle feedback message
+            /// Handle feedback message
         }
     }
-    private async Task<HubConnection> StartHubConnection()
+    private static async Task<HubConnection> StartHubConnection()
     {
         var hubConnection = new HubConnectionBuilder()
             .WithUrl("https://localhost:8081/hubs/clienthub")
@@ -70,32 +72,63 @@ public class Effects(MemberService memberService)
         return hubConnection;
     }
 
-    private void AddMemberDataListener(HubConnection hubConnection, IDispatcher dispatcher)
+    private static void AddMemberDataListener(HubConnection hubConnection, IDispatcher dispatcher)
     {
         hubConnection.On<Guid>("MemberAdded", (id) =>
         dispatcher.Dispatch(new LoadItemAction(id, false)));
     }
-    private void UpdateMemberDataListener(HubConnection hubConnection, IDispatcher dispatcher)
+    private static void AddAttachmentDataListener(HubConnection hubConnection, IDispatcher dispatcher)
     {
-        hubConnection.On<Guid>("MemberUpdated", (id) =>
-        dispatcher.Dispatch(new LoadItemAction(id, true)));
+        hubConnection.On<string, Guid, string>("AttachmentAdded", (ids, ownerId, source) =>
+        dispatcher.Dispatch(new AttachmentHandleAction(ids, ownerId, source)));
+    }
+    private static void DeletedAttachmentDataListener(HubConnection hubConnection, IDispatcher dispatcher)
+    {
+        hubConnection.On<string, Guid, string>("AttachmentDeleted", (ids, ownerId, source) =>
+        dispatcher.Dispatch(new AttachmentHandleAction(ids, ownerId, source, true)));
+    }
+    private static void UpdateMemberDataListener(HubConnection hubConnection, IDispatcher dispatcher)
+    {
+        hubConnection.On<Guid, bool>("MemberUpdated", (id, isDeletedForever) =>
+        dispatcher.Dispatch(new LoadItemAction(id, true, isDeletedForever)));
     }
 
     [EffectMethod]
     public async Task OnLoadItem(LoadItemAction action, IDispatcher dispatcher)
     {
-        var memberResponse = await memberService.GetItem(action.Id);
-
-        if (!memberResponse.Success)
+        if (action.IsDeletedForever)
         {
-        }
-        if (action.IsUpdated)
-        {
-            dispatcher.Dispatch(new MemberPatchAfterAction(memberResponse.Entity ?? new MemberDto()));
+            dispatcher.Dispatch(new MemberDeletedForeverAction(action.Id));
         }
         else
         {
-            dispatcher.Dispatch(new MemberAddAfterAction(memberResponse.Entity ?? new MemberDto()));
+            var memberResponse = await memberService.GetItem(action.Id);
+
+            if (!memberResponse.Success)
+            {
+            }
+            if (action.IsUpdated)
+            {
+                dispatcher.Dispatch(new MemberPatchAfterAction(memberResponse.Entity ?? new MemberDto()));
+            }
+            else
+            {
+                dispatcher.Dispatch(new MemberAddAfterAction(memberResponse.Entity ?? new MemberDto()));
+            }
+        }
+    }
+
+    [EffectMethod]
+    public async Task OnAttachmentHandled(AttachmentHandleAction action, IDispatcher dispatcher)
+    {
+        if (!string.IsNullOrEmpty(action.Source) && action.Source == nameof(MemberDto))
+        {
+            var memberResponse = await memberService.GetItem(action.OwnerId);
+            if (!memberResponse.Success)
+            {
+                return;
+            }
+            dispatcher.Dispatch(new MemberPatchAfterAction(memberResponse.Entity ?? new MemberDto()));
         }
     }
 
@@ -117,7 +150,7 @@ public class Effects(MemberService memberService)
         dispatcher.Dispatch(new MemberAddAfterAction(memberResponse.Entity ?? new MemberDto()));
     }
 
-    private Task HandleNotificationAsync(List<MemberNotification> notifications, MemberNotification notification)
+    private static Task HandleNotificationAsync(List<MemberNotification> notifications, MemberNotification notification)
     {
         if (!notifications.Any(x => x.ItemKey == notification.ItemKey))
         {

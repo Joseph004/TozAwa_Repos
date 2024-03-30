@@ -27,6 +27,7 @@ using Grains.Services;
 using Shared.SignalR;
 using Grains.Helpers;
 using OrleansHost.Helpers;
+using OrleansHost.Validation;
 
 namespace OrleansHost.Api
 {
@@ -60,6 +61,7 @@ namespace OrleansHost.Api
                     });
 
                     services.AddMediatR(config => config.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
+                    services.RegisterValidationService();
                     services.AddScoped<Grains.Auth.Services.ICurrentUserService, Grains.Auth.Services.CurrentUserService>();
                     services.AddScoped<ICurrentUserConverter, CurrentUserConverter>();
                     services.AddScoped<Grains.Auth.Services.IDataProtectionProviderService, Grains.Auth.Services.DataProtectionProviderService>();

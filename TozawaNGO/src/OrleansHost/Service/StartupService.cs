@@ -101,7 +101,7 @@ public class StartupService(IServiceProvider services) : IHostedService
             var thumbnail = string.Empty;
             var miniatureBlobUrl = string.Empty;
 
-            if (!string.IsNullOrEmpty(item.MiniatureId))
+            if (!string.IsNullOrEmpty(item.MiniatureId) && item.Owners.Count > 0)
             {
                 var stream = await googleService.StreamFromGoogleFileByFolder(item.Owners.Select(x => x.OwnerId).First().ToString(), item.MiniatureId);
                 var bytes = FileUtil.ReadAllBytesFromStream(stream);

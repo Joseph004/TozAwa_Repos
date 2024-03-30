@@ -67,6 +67,12 @@
        height: calc(100% - 60px);
        max-height:  calc(100% - 60px);
    }
+   .memberDescription>div>div input {
+    overflow:hidden;
+    display:inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+   }
 </style>
 
 @namespace TozawaNGO.Pages
@@ -108,16 +114,18 @@ else
             </MudAvatar>
         </ToolBarContent>
         <ColGroup>
+            <col style="width: 2%;" />
             <col style="width: 15%;" />
             <col style="width: 15%;" />
             <col style="width: 20%;" />
             <col style="width: 30%;" />
             <col style="width: 10%;" />
-            <col style="width: 5%;" />
-            <col style="width: 5%;" />
+            <col style="width: 4%;" />
+            <col style="width: 4%;" />
         </ColGroup>
         <HeaderContent>
             <MudTHeadRow Class="header-centered">
+                <MudTh></MudTh>
                 <MudTh>
                     <SystemText TextId=SystemTextId.FirstName FallbackText="First name" IsFirstLoaded="@IsFirstLoaded"/>
                 </MudTh>
@@ -136,18 +144,22 @@ else
             </MudTHeadRow>
         </HeaderContent>
         <RowTemplate>
+            <MudTd>@(MemberState.Value.Members.IndexOf(context) + 1)</MudTd>
             <MudTd DataLabel="FirstName">@context.FirstName</MudTd>
             <MudTd DataLabel="LastName">@context.LastName</MudTd>
             <MudTd DataLabel="Email">@context.Email </MudTd>
             <MudTd DataLabel="Description">
-                <MudTextField T="string" ReadOnly HelperText="@GetHelpText(context.Description)" Text="@GetDescription(context)"></MudTextField>
+                <MudTextField Class="@GetTextFieldClassNames(context)" @ref="MemberState.Value.MudTextField[context.Id]" 
+                 T="string" ReadOnly HelperText="@GetHelpText(context.Description)"
+                 Text="@GetDescription(context)" Adornment="Adornment.End" AdornmentIcon="@(DescriptionIcon.ContainsKey(context.Id) ? DescriptionIcon[context.Id] : "")"
+                 OnAdornmentClick="@(() => ShowLongText(context))" />
             </MudTd>
-                <MudTd DataLabel="Files" onclick="event.stopPropagation()" @onmousedown="() => ToggleFiles(context)">
-                    @if (!string.IsNullOrEmpty(context.Thumbnail))
-                    {
-                        var thumb = "data:image/png;base64," + context.Thumbnail;
-                        <MudBadge Content="@context.Attachments.Count()" Overlap="true" Color="Color.Primary">
-                            <MudTooltip>
+            <MudTd DataLabel="Files" onclick="event.stopPropagation()" @onmousedown="() => ToggleFiles(context)">
+                @if (!string.IsNullOrEmpty(context.Thumbnail))
+                {
+                    var thumb = "data:image/png;base64," + context.Thumbnail;
+                    <MudBadge Content="@context.Attachments.Count()" Overlap="true" Color="Color.Primary">
+                        <MudTooltip>
                             <ChildContent>
                                 <img src="@thumb" height="@ThumbnailSize" width="@ThumbnailSize" />
                             </ChildContent>
@@ -155,16 +167,18 @@ else
                                 <img src="@thumb" />
                             </TooltipContent>
                         </MudTooltip>
-                        </MudBadge>
-                    }
-                    else {
-                        <MudBadge Content="@context.Attachments.Count()" Overlap="true" Color="Color.Primary">
-                            <MudIcon Icon="@Icons.Material.Filled.Folder" Style="height:24px;width:24px)" Color="Color.Default"/>
-                        </MudBadge>                     
-                    }
+                    </MudBadge>
+                }
+                else {
+                    <MudBadge Content="@context.Attachments.Count()" Overlap="true" Color="Color.Primary">
+                        <MudIcon Icon="@Icons.Material.Filled.Folder" Style="height:24px;width:24px)" Color="Color.Default"/>
+                    </MudBadge>                     
+                }
             </MudTd>
             <MudTd DataLabel="Edit">
-                <MudIconButton Disabled="@DisabledEditRow()" Icon="@(Icons.Material.Filled.Edit)" @onclick="@(e => ToggleEdit(context))" Color=@(Color.Default)></MudIconButton>
+                <div @onclick:stopPropagation="true" @onclick:preventDefault="true">
+                    <MudIconButton Disabled="@DisabledEditRow()" Icon="@(Icons.Material.Filled.Edit)" @onclick="@(e => ToggleEdit(context))" Color=@(Color.Default)></MudIconButton>
+                </div>
             </MudTd>
             <MudTd DataLabel="Deleted">
                 <div class="d-flex align-center">
@@ -201,7 +215,7 @@ else
         </PagerContent>
     </MudTable>
     <div style="height: 40px; max-height: 50px;" @onclick:stopPropagation="true" @onclick:preventDefault="true">
-        <MudSwitch @bind-Checked="_includeDeleted" @onclick="@(() => ToggleIncludeDeleted())" Color="Color.Primary"
+        <MudSwitch T="@bool" @bind-value="_includeDeleted" @onclick="@(() => ToggleIncludeDeleted())" Color="Color.Primary"
         Label="@(Translate(SystemTextId.ShowDeletedItems))" />
     </div>
 }

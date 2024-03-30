@@ -9,10 +9,11 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR;
 using Shared.SignalR;
 using Grains.Helpers;
+using Grains.Auth.Services;
 
 namespace Grains.Auth.Controllers
 {
-    public class CreateMemberCommandHandler(TozawangoDbContext context, ILookupNormalizer normalizer,
+    public class CreateMemberCommandHandler(TozawangoDbContext context, ICurrentUserService currentUserService, ILookupNormalizer normalizer,
     IGrainFactory factory, IHubContext<ClientHub> hub, ILogger<CreateMemberCommandHandler> logger) : IRequestHandler<CreateMemberCommand, Models.Dtos.Backend.MemberDto>
     {
         private readonly IGrainFactory _factory = factory;
@@ -20,6 +21,7 @@ namespace Grains.Auth.Controllers
         private readonly TozawangoDbContext _context = context;
         private readonly ILogger<CreateMemberCommandHandler> _logger = logger;
         private readonly ILookupNormalizer _normalizer = normalizer;
+        private readonly ICurrentUserService _currentUserService = currentUserService;
 
         public async Task<Models.Dtos.Backend.MemberDto> Handle(CreateMemberCommand request, CancellationToken cancellationToken)
         {
@@ -49,6 +51,25 @@ namespace Grains.Auth.Controllers
             newuser.SecurityStamp = Guid.NewGuid().ToString();
             newuser.NormalizedUserName = _normalizer.NormalizeName(newuser.Email);
             _context.TzUsers.Add(newuser);
+
+            var translation = new Models.Authentication.Translation();
+            if (!string.IsNullOrEmpty(request.Description))
+            {
+                AddTranslation(request.Description, _currentUserService.LanguageId, newuser, translation);
+            }
+
+            foreach (var desc in request.DescriptionTranslations)
+            {
+                AddTranslation(desc.Text, desc.LanguageId, newuser, translation);
+            }
+            if (translation.Id != Guid.Empty)
+            {
+                _context.Translations.Add(translation);
+                var itemTranslation = new TranslationItem(translation.Id, translation.TextId, translation.LanguageText, SystemTextId.TranslationOwnerId,
+                 translation.CreatedBy, translation.CreateDate, translation.ModifiedBy, translation.ModifiedDate ?? new DateTime());
+                await _factory.GetGrain<ITranslationGrain>(itemTranslation.TextId).SetAsync(itemTranslation);
+            }
+
             _context.SaveChanges();
 
             var item = new MemberItem(
@@ -82,9 +103,47 @@ namespace Grains.Auth.Controllers
       SystemTextId.MemberOwnerId
             );
             await _factory.GetGrain<IMemberGrain>(newuser.UserId).SetAsync(item);
-            await _hub.Clients.All.SendAsync("MemberAdded", newuser.UserId, "Member");
+            await _hub.Clients.All.SendAsync("MemberAdded", newuser.UserId, cancellationToken: cancellationToken);
 
             return MemberConverter.Convert(newuser);
+        }
+
+        private static void AddTranslation(string text, Guid languageId, ApplicationUser newuser, Models.Authentication.Translation translation)
+        {
+            if (text != null)
+            {
+                newuser.Description = text;
+                if (newuser.DescriptionTextId == Guid.Empty)
+                {
+                    var id = Guid.NewGuid();
+                    newuser.DescriptionTextId = id;
+                    translation.Id = Guid.NewGuid();
+                    translation.TextId = id;
+                    translation.LanguageText = new Dictionary<Guid, string> { { languageId, text } };
+                }
+                else
+                {
+                    if (translation != null)
+                    {
+                        if (translation.LanguageText == null)
+                        {
+                            translation.LanguageText = new Dictionary<Guid, string> { { languageId, text } };
+                        }
+                        else
+                        {
+                            translation.LanguageText[languageId] = text;
+                        }
+                    }
+                    else
+                    {
+                        var id = newuser.DescriptionTextId;
+
+                        translation.Id = Guid.NewGuid();
+                        translation.TextId = id;
+                        translation.LanguageText = new Dictionary<Guid, string> { { languageId, text } };
+                    }
+                }
+            }
         }
     }
 }

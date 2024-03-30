@@ -134,7 +134,7 @@ namespace TozawaNGO.Pages
                 _onProgress = true;
                 StateHasChanged();
 
-                var deleteResponse = await AttachmentService.AttachmentDelete(attachment.Id, Source);
+                var deleteResponse = await AttachmentService.AttachmentDelete(attachment.Id, Entity.Id, Source);
                 if (deleteResponse.Success)
                 {
                     Entity.Attachments.RemoveAll(x => x.Id == attachment.Id);
