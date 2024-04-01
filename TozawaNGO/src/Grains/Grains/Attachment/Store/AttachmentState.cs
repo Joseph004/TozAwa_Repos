@@ -4,7 +4,7 @@ namespace Grains.Models.Attachment.Store
     [GenerateSerializer]
     public class AttachmentStates
     {
-        public HashSet<Guid> Items { get; set; }
+        public HashSet<string> Items { get; set; }
     }
 
     [GenerateSerializer]

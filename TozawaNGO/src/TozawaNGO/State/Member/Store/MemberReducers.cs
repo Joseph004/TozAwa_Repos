@@ -39,6 +39,66 @@ public static class Redures
     }
 
     [ReducerMethod]
+    public static MemberState ReduceHandleAttachments(MemberState state, HandleAttachments action)
+    {
+        if (state.Members.TryGetValue(action.ownerId, out var current))
+        {
+            foreach (var item in action.AttachmentDtos)
+            {
+                if (!action.isDeleted)
+                {
+                    if (!state.Members[state.Members.IndexOf(current)].Attachments.Any(x => x.Id == item.Id))
+                    {
+                        state.Members[state.Members.IndexOf(current)].Attachments.Add(item);
+                        if (string.IsNullOrEmpty(state.Members[state.Members.IndexOf(current)].Thumbnail))
+                        {
+                            state.Members[state.Members.IndexOf(current)].Thumbnail = item.Thumbnail;
+                        }
+                    }
+                }
+                else
+                {
+                    if (state.Members[state.Members.IndexOf(current)].Attachments.Any(x => x.Id == item.Id))
+                    {
+                        state.Members[state.Members.IndexOf(current)].Attachments.RemoveAll(x => x.Id == item.Id);
+                        if (string.IsNullOrEmpty(state.Members[state.Members.IndexOf(current)].Thumbnail))
+                        {
+                            var thb = state.Members[state.Members.IndexOf(current)].Attachments.FirstOrDefault(x => !string.IsNullOrEmpty(x.Thumbnail));
+                            if (thb != null)
+                            {
+                                state.Members[state.Members.IndexOf(current)].Thumbnail = thb.Thumbnail;
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        state.LoadingState.SetRequestInProgress(false);
+        return new()
+        {
+            IsLoading = false,
+            Subscription = state.Subscription,
+            TotalItems = state.TotalItems,
+            SearchString = state.SearchString,
+            Members = state.Members,
+            Page = state.Page,
+            PageSize = state.PageSize,
+            IncludeDeleted = state.IncludeDeleted,
+            PageOfEmail = state.PageOfEmail,
+            Email = state.Email,
+            HubConnection = state.HubConnection,
+            ScrollTop = state.ScrollTop,
+            LoadingState = state.LoadingState,
+            JSRuntime = state.JSRuntime,
+            SelectedItem = state.SelectedItem,
+            DescriptionIcon = state.DescriptionIcon,
+            MudTextField = state.MudTextField
+        };
+    }
+
+    [ReducerMethod]
     public static MemberState ReduceMemberPatchAction(MemberState state, MemberPatchAfterAction action)
     {
         if (state.Members.TryGetValue(action.member.Id, out var current))

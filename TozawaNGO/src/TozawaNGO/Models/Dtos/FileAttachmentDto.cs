@@ -14,6 +14,7 @@ namespace TozawaNGO.Models.Dtos
         public string BlobUrl { get; set; } = "";
         public string ImageClass { get; set; } = "";
         public string MiniatureBlobUrl { get; set; } = "";
+        public string Thumbnail { get; set; } = "";
     }
 }
 

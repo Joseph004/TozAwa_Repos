@@ -9,11 +9,14 @@ namespace Grains
     public interface IAttachmentManagerGrain : IGrainWithGuidKey
     {
         [Alias("RegisterAsync")]
-        Task RegisterAsync(Guid itemKey, AttachmentItem attachment);
+        Task RegisterAsync(Guid itemKey, Guid ownerKey);
         [Alias("UnregisterAsync")]
-        Task UnregisterAsync(Guid itemKey);
+        Task UnregisterAsync(Guid itemKey, Guid ownerKey);
 
         [Alias("GetAllAsync")]
         Task<ImmutableArray<Guid>> GetAllAsync();
+
+        [Alias("GetAllByOwnerIdAsync")]
+        Task<ImmutableArray<Guid>> GetAllByOwnerIdAsync(Guid ownerId);
     }
 }

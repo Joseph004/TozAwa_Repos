@@ -14,6 +14,7 @@ namespace TozawaNGO.HttpClients
     {
         Task<GetResponse<T>> SendGet<T>(string url, Dictionary<string, string> queryParameters = null) where T : class;
         Task<AddResponse<T>> SendPost<T>(string url, object value) where T : class;
+        Task<AddResponse<T>> SendPost02<T>(string url, object value) where T : class;
         Task<AddResponse> SendNoEntityPost<T>(string url, object value) where T : class;
         Task<UpdateResponse> SendNoEntityPut<T>(string url, object value) where T : class;
         Task<UpdateResponse<T>> SendPut<T>(string url, object value) where T : class;

@@ -6,10 +6,11 @@ using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 using TozawaNGO.Models.Dtos;
 using TozawaNGO.Models.FormModels;
+using TozawaNGO.Models.Requests;
 
 namespace TozawaNGO.State.Member.Store;
 
-public class Effects(MemberService memberService)
+public class Effects(MemberService memberService, AttachmentService attachmentService)
 {
     [EffectMethod]
     public async Task HandleMemberDataAction(MemberDataAction action, IDispatcher dispatcher)
@@ -123,12 +124,25 @@ public class Effects(MemberService memberService)
     {
         if (!string.IsNullOrEmpty(action.Source) && action.Source == nameof(MemberDto))
         {
-            var memberResponse = await memberService.GetItem(action.OwnerId);
-            if (!memberResponse.Success)
+            var attachments = new List<FileAttachmentDto>();
+            if (action.IsDeleted)
             {
-                return;
+                attachments = action.Ids.Select(x => new FileAttachmentDto
+                {
+                    Id = x
+                }).ToList();
             }
-            dispatcher.Dispatch(new MemberPatchAfterAction(memberResponse.Entity ?? new MemberDto()));
+            else
+            {
+                var attachResponse = await attachmentService.GetAttachments(new GetAttachments { AttachmentIds = action.Ids });
+                if (!attachResponse.Success)
+                {
+                    return;
+                }
+                attachments = attachResponse.Entity ?? [];
+            }
+
+            dispatcher.Dispatch(new HandleAttachments(attachments, action.OwnerId, action.IsDeleted));
         }
     }
 

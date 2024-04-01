@@ -112,7 +112,6 @@ namespace TozawaNGO.HttpClients
                 _logger.LogError(ex, "HttpClient exception occured");
                 return new GetResponse<T>(false, "", null, null);
             }
-
         }
 
         public async Task<AddResponse<T>> SendPost<T>(string url, object value) where T : class
@@ -123,6 +122,27 @@ namespace TozawaNGO.HttpClients
 
                 var postContent = postResponse.IsSuccessStatusCode ? await postResponse.Content.ReadAsJsonAsync<AddResponse<T>>() :
                      new AddResponse<T>(postResponse.IsSuccessStatusCode, await _translationService.GetHttpStatusText(postResponse.StatusCode), postResponse.StatusCode, null);
+
+                if (!postResponse.IsSuccessStatusCode)
+                {
+                    _logger.LogError("Failed to add {name}. Status Code {StatusCode} Error message {ResponseContent}", nameof(T), postResponse.StatusCode, postResponse.Content);
+                }
+
+                return postContent;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "HttpClient exception occured");
+                return new AddResponse<T>(false, "HttpClient exception occured", null, null);
+            }
+        }
+        public async Task<AddResponse<T>> SendPost02<T>(string url, object value) where T : class
+        {
+            try
+            {
+                var postResponse = await Send(PostRequest(url, value));
+
+                var postContent = new AddResponse<T>(postResponse.IsSuccessStatusCode, await _translationService.GetHttpStatusText(postResponse.StatusCode), postResponse.StatusCode, postResponse.IsSuccessStatusCode ? await postResponse.Content.ReadAsJsonAsync<T>() : null);
 
                 if (!postResponse.IsSuccessStatusCode)
                 {

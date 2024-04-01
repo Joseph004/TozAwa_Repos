@@ -13,35 +13,33 @@
     <DialogContent>
         <ErrorBoundary>
             <ChildContent>
-                <MudCard>
-                    <MudForm Model="@model" @ref="@form" @bind-IsValid="@_success" @bind-Errors="@_errors"
-                        ValidationDelay="0">
-                        <MudCardContent>
-                            @if (_errors.Any() && model.LoginAsRoot && _currentErrorView == model.LoginAsRoot)
+                <MudForm Model="@model" @ref="@form" @bind-IsValid="@_success" @bind-Errors="@_errors"
+                    ValidationDelay="0">
+                    <MudCardContent>
+                        @if (_errors.Any() && model.LoginAsRoot && _currentErrorView == model.LoginAsRoot)
+                        {
+                            @foreach (var item in _errors)
                             {
-                                @foreach (var item in _errors)
-                                {
-                                    <MudText Color=Color.Error>
-                                        @item
-                                    </MudText>
-                                }
+                                <MudText Color=Color.Error>
+                                    @item
+                                </MudText>
                             }
-                            <MudTextField Class="tz_admin tz_loginAsAdmin" Disabled="@_processing"
-                                Validation="LoginValidator().ValidateValue" Required="true"
-                                RequiredError="@Translate(SystemTextId.EmailIsRequired, "Email is required")"
-                                @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Email"
-                                For="@(() => model.Email)" Immediate="true" Label=@(Translate(SystemTextId.Email,
-                                "Email")) />
+                        }
+                        <MudTextField Class="tz_admin tz_loginAsAdmin" Disabled="@_processing"
+                            Validation="LoginValidator().ValidateValue" Required="true"
+                            RequiredError="@Translate(SystemTextId.EmailIsRequired, "Email is required")"
+                            @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Email"
+                            For="@(() => model.Email)" Immediate="true" Label=@(Translate(SystemTextId.Email,
+                            "Email")) />
 
-                            <MudTextField Disabled="@_processing" Class="tz_password"
-                                Validation="LoginValidator().ValidateValue" Required="true"
-                                RequiredError="@Translate(SystemTextId.YourPasswordCannotBeEmpty, "Password is required")"
-                                @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Password"
-                                For="@(() => model.Password)" Immediate="true" Label=@(Translate(SystemTextId.Password,
-                                "Password")) InputType="InputType.Password" />
-                        </MudCardContent>
-                    </MudForm>
-                </MudCard>
+                        <MudTextField Disabled="@_processing" Class="tz_password"
+                            Validation="LoginValidator().ValidateValue" Required="true"
+                            RequiredError="@Translate(SystemTextId.YourPasswordCannotBeEmpty, "Password is required")"
+                            @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Password"
+                            For="@(() => model.Password)" Immediate="true" Label=@(Translate(SystemTextId.Password,
+                            "Password")) InputType="InputType.Password" />
+                    </MudCardContent>
+                </MudForm>
             </ChildContent>
             <ErrorContent>
                 Sorry, I can't show because of an internal error.

@@ -22,6 +22,9 @@ public class FileAttachmentController(IMediator mediator, Grains.Auth.Services.I
         return Ok(response);
     }
 
+    [HttpPost, Route("")]
+    public async Task<IActionResult> GetAttachments([FromBody] GetAttachmentsQuery request) => Ok(await _mediator.Send(request));
+
     [HttpGet, Route("owner/{ownerId}")]
     public async Task<IActionResult> GetAttachments(Guid ownerId) => Ok(await _mediator.Send(new GetAttachmentsQuery { OwnerId = ownerId }));
 

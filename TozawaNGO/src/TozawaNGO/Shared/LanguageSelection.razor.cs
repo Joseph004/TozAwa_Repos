@@ -15,20 +15,10 @@ namespace TozawaNGO.Shared
         private Dictionary<string, string> _cultures;
         private string _dropArrowPosition = Icons.Material.Filled.KeyboardArrowDown;
         MudMenu _mudMenuRef = new();
-        EventCallback<bool> _onMenuChange;
         private bool _isFirstLoaded { get; set; } = false;
-        public EventCallback<bool> OnMenuChange
-        {
-            get => _onMenuChange;
-            set
-            {
-                _onMenuChange = value;
-                MudMenuRefchanged();
-            }
-        }
 
         public string Language = "";
-        public void MudMenuRefchanged()
+        private void IsOpen()
         {
             if (_mudMenuRef.IsOpen)
             {
@@ -40,10 +30,9 @@ namespace TozawaNGO.Shared
             }
             StateHasChanged();
         }
+
         protected override void OnInitialized()
         {
-            OnMenuChange.InvokeAsync(_mudMenuRef.IsOpen);
-
             _cultures = _appSettings.Languages.ToDictionary(x => x.Culture, x => x.LongName);
 
             base.OnInitialized();

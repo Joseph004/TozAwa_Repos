@@ -56,8 +56,13 @@ namespace TozawaNGO.Pages
             Dispatcher.Dispatch(new MemberDataAction(_page, _pageSize, _searchString, MemberState.Value.IncludeDeleted, MemberState.Value.PageOfEmail, MemberState.Value.Email, ScrollTopState.ScrollTop.TryGetValue(ScrollTopState.Source, out double value) ? value : 0, LoadingState, JSRuntime));
             await base.OnInitializedAsync();
         }
+        private string GetDescColor(MemberDto member)
+        {
+            return string.IsNullOrEmpty(member.Description) ? $"color: #c4c4c4;" : "";
+        }
         private async Task ShowLongText(MemberDto member)
         {
+            if (string.IsNullOrEmpty(member.Description)) return;
             var options = new DialogOptions
             {
                 DisableBackdropClick = true,
@@ -86,7 +91,7 @@ namespace TozawaNGO.Pages
                 await JSRuntime.InvokeAsync<object>("SetScroll", (-1) * scrollTop);
             }
         }
-        private async Task SetDescriptionIcon()
+        /* private async Task SetDescriptionIcon()
         {
             foreach (var textField in MemberState.Value.MudTextField)
             {
@@ -99,7 +104,7 @@ namespace TozawaNGO.Pages
                 }
             }
             StateHasChanged();
-        }
+        } 
         [JSInvokable("AddDescIcon")]
         public void SetDescriptionIcon(string id, bool isRemoved = false)
         {
@@ -122,7 +127,7 @@ namespace TozawaNGO.Pages
                     StateHasChanged();
                 }
             }
-        }
+        }*/
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
@@ -132,7 +137,7 @@ namespace TozawaNGO.Pages
             }
             if (!MemberState.Value.IsLoading && MemberState.Value.Members.Count > 0 && firstLoaded)
             {
-                await SetDescriptionIcon();
+                //await SetDescriptionIcon();
                 firstLoaded = false;
                 LoadingState.SetRequestInProgress(false);
                 await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.5))).ContinueWith(async o => { await SetScrollJS(); });

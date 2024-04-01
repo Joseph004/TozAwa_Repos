@@ -21,9 +21,12 @@ namespace Grains
             _state.State.Attachment = item;
             await _state.WriteStateAsync();
 
-            // register the item with its owner list
-            await GrainFactory.GetGrain<IAttachmentManagerGrain>(item.OwnerId)
-                .RegisterAsync(item.Id, item);
+            if (item.OwnerIds.Count > 0)
+            {
+                // register the item with its owner list
+                await GrainFactory.GetGrain<IAttachmentManagerGrain>(item.OwnerId)
+                    .RegisterAsync(item.Id, item.OwnerIds.First());
+            }
         }
         public async Task SetAsync(AttachmentItem item)
         {
@@ -37,9 +40,12 @@ namespace Grains
             _state.State.Attachment = item;
             await _state.WriteStateAsync();
 
-            // register the item with its owner list
-            await GrainFactory.GetGrain<IAttachmentManagerGrain>(item.OwnerId)
-                .RegisterAsync(item.Id, item);
+            if (item.OwnerIds.Count > 0)
+            {
+                // register the item with its owner list
+                await GrainFactory.GetGrain<IAttachmentManagerGrain>(item.OwnerId)
+                    .RegisterAsync(item.Id, item.OwnerIds.First());
+            }
 
             // notify listeners - best effort only
             var streamId = StreamId.Create(nameof(Grains), item.OwnerId);
@@ -55,12 +61,13 @@ namespace Grains
 
             // hold on to the keys
             var itemKey = _state.State.Attachment.Id;
+            var ownerAttachKey = _state.State.Attachment.OwnerIds.First();
             var item = _state.State.Attachment;
             var ownerKey = _state.State.Attachment.OwnerId;
 
             // unregister from the registry
             await GrainFactory.GetGrain<IAttachmentManagerGrain>(ownerKey)
-                .UnregisterAsync(itemKey);
+                .UnregisterAsync(itemKey, ownerAttachKey);
 
             // clear the state
             await _state.ClearStateAsync();
