@@ -1,0 +1,126 @@
+@namespace TozawaNGO.Pages
+@using TozawaNGO.Helpers
+@using TozawaNGO.Shared
+@using TozawaNGO.Models.Dtos
+@using TozawaNGO.Models.Enums
+@inherits BaseDialog
+
+<style>
+    .mud-tooltip-root {
+        margin-right: 5px;
+    }
+</style>
+
+<MudDialog>
+    <DialogContent>
+        @if (!string.IsNullOrEmpty(_error))
+        {
+            <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true" Class="my-2">@_error</MudAlert>
+        }
+        @if (Entity != null && Entity.Attachments != null && Entity.Attachments.Count > 0)
+        {
+            <MudTable Style="max-height: 350px; overflow: scroll;" T="FileAttachmentDto" Dense="true" Hover="true"
+                Items="@_attachments">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6">
+                        Total: @Entity.Attachments.Count
+                    </MudText>
+                    <MudSpacer />
+                    <MudTextField T="string" DebounceInterval="500" Margin="Margin.Dense" @bind-Value="_searchString"
+                        OnDebounceIntervalElapsed="s => OnSearch(s)" Placeholder="@Translate(SystemTextId.SearchText)"
+                        Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+                        Class="mt-0">
+                    </MudTextField>
+                </ToolBarContent>
+                <ColGroup>
+                    <col style="width: 10%;" />
+                    <col style="width: 30%;" />
+                    <col style="width: 20%;" />
+                    <col style="width: 20%;" />
+                    <col style="width: 15%;" />
+                    <col style="width: 5%;" />
+                </ColGroup>
+                <HeaderContent>
+                    <MudTh>
+                    </MudTh>
+                    <MudTh>
+                    </MudTh>
+                    <MudTh>
+                        <SystemText TextId="@SystemTextId.Name" FallbackText="Name" IsFirstLoaded="@IsFirstLoaded">
+                        </SystemText>
+                    </MudTh>
+                    <MudTh>
+                        <SystemText TextId="@SystemTextId.AttachmentType" FallbackText="Attachment type"
+                            IsFirstLoaded="@IsFirstLoaded"></SystemText>
+                    </MudTh>
+                    <MudTh>
+                        <SystemText TextId="@SystemTextId.Filesize" FallbackText="Filesize" IsFirstLoaded="@IsFirstLoaded">
+                        </SystemText>
+                    </MudTh>
+                    <MudTh>
+                    </MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        <MudIconButton Disabled="@_onProgress" Icon="@Icons.Material.Filled.Download"
+                            @onclick="() => Download(context)">
+                        </MudIconButton>
+                    </MudTd>
+                    <MudTd>
+                        @if (!string.IsNullOrEmpty(context.MiniatureBlobUrl))
+                        {
+                            var thumb = "data:image/png;base64," + context.MiniatureBlobUrl;
+                            <MudTooltip>
+                                <ChildContent>
+                                    <img src="@thumb" height="@_thumbnailSize" width="@_thumbnailSize" />
+                                </ChildContent>
+                                <TooltipContent>
+                                    <img src="@thumb" />
+                                </TooltipContent>
+                            </MudTooltip>
+                        }
+                        else
+                        {
+                            <MudIconButton Icon=@GetFileTypeIcon(context)></MudIconButton>
+                        }
+                    </MudTd>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd>
+                        @context.FileAttachmentType
+                    </MudTd>
+                    <MudTd>@(Math.Round(context.Size / 1000, 2))kb</MudTd>
+                    <MudTd>
+                        <MudIconButton Disabled="@DisabledUploadFiles()" Icon="@Icons.Material.Filled.Delete"
+                            @onclick="() => Delete(context)"></MudIconButton>
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+        else
+        {
+            <SystemText TextId="@SystemTextId.NoAttachmentsExists" FallbackText="Entity contains no attachments"
+                IsFirstLoaded="@IsFirstLoaded"></SystemText>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Disabled="@_onProgress" Color="Color.Primary" OnClick="Add" Variant="Variant.Filled">
+            <SystemText TextId="@SystemTextId.Close" FallbackText="Close" IsFirstLoaded="@IsFirstLoaded"></SystemText>
+        </MudButton>
+        <MudSpacer />
+        <MudSelect Disabled="@_onProgress" Style="@($"position: {"relative"}; bottom: {"11px"}")"
+            @bind-Value="_attachmentType" AnchorOrigin="Origin.BottomCenter" Placeholder="Select an attachment type">
+            @foreach (AttachmentType item in Enum.GetValues(typeof(AttachmentType)))
+            {
+                <MudSelectItem Value="@item">@item</MudSelectItem>
+            }
+        </MudSelect>
+        <InputFile id="fileInput" accept="@FileValidator._validContentTypes" OnChange="UploadFiles" hidden multiple />
+        <MudButton Disabled="@DisabledUploadFiles()" HtmlTag="label" Variant="Variant.Filled" Color="Color.Primary"
+            StartIcon="@Icons.Material.Filled.CloudUpload" for="fileInput">
+            <MudText>
+                <SystemText TextId="@SystemTextId.FileUpload" FallbackText="Upload files"
+                    IsFirstLoaded="@IsFirstLoaded"></SystemText>
+            </MudText>
+        </MudButton>
+    </DialogActions>
+</MudDialog>

@@ -1,0 +1,37 @@
+﻿@inherits BaseComponentLayout
+@implements IDisposable
+@namespace TozawaNGO.Shared
+@using TozawaNGO.Helpers
+
+<MudThemeProvider Theme="_currentTheme" />
+<MudSnackbarProvider />
+
+<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" CloseButton="true" DisableBackdropClick="false"
+    NoHeader="false" Position="DialogPosition.TopCenter" />
+
+<MudLayout Style="max-height: 100vh; height: 100vh;" @onkeypress="RefreshTimer"
+    Class="@($"d-flex flex-column flex-grow-1 gap-4 {_disableAttrString}")" @onmousemove="RefreshTimer">
+    <AppBar OnSidebarToggled="ToggleSidebar" OnThemeToggled="ToggleTheme" />
+
+    <NavMenu SideBarOpen="_sidebarOpen" />
+    <LoadingScreen>
+        <MudMainContent Class="pt-16 px-16 flex-1 d-flex">
+            <MudContainer Style="display: flex !important; flex-direction: column;" Class="mt-3 d-flex">
+                <ErrorBoundary @ref="_errorBoundary">
+                    <ChildContent>
+                        @Body
+                    </ChildContent>
+                    <ErrorContent Context="ex">
+                        <MudPaper Class="pa-4" Style="@($"background: var(--mud-palette-error);")">
+                            <MudText>
+                                @OnError(@ex);
+                            </MudText>
+                        </MudPaper>
+                    </ErrorContent>
+                </ErrorBoundary>
+                <Footer></Footer>
+            </MudContainer>
+        </MudMainContent>
+        <ScrollToTop></ScrollToTop>
+    </LoadingScreen>
+</MudLayout>

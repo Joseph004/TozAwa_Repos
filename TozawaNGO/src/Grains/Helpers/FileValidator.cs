@@ -1,12 +1,12 @@
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Components.Forms;
-using Tozawa.Bff.Portal.Models.Dtos;
+using Grains.Attachment.Models.Requests;
+using Grains.Models.Dtos;
 
-namespace TozAwa.Bff.Portal.Helper;
+namespace Grains.Helpers;
 
 public static class FileValidator
 {
-    private static readonly string _pattern = @"^[a-zA-zŽžÀ-ÿZ0-9-_]*[.]{0,1}[a-zA-zŽžÀ-ÿZ0-9-_]*$";
+    private static readonly string _pattern = @"^[a-zA-zŽžÀ-ÿZ0-9-_ ]*[.]{0,1}[a-zA-zŽžÀ-ÿZ0-9-_ ]*$";
     private static readonly int FileNameLength = 255;
     private static readonly string _png = "image/png";
     private static readonly string _jpg = "image/jpeg";
@@ -23,17 +23,22 @@ public static class FileValidator
 
     public static bool IsExcel(string conentType) => !string.IsNullOrEmpty(conentType) && _excel.Split(",").Contains(conentType);
     public static bool IsXml(string conentType) => !string.IsNullOrEmpty(conentType) && _xml.Split(",").Contains(conentType);
-
+    private static bool IsValidContent(byte[] bytes) => bytes != null && bytes.Length <= MaxAllowedSize;
     public static bool IsValidName(string fileName)
         => !string.IsNullOrEmpty(fileName) && IsValidFileName(fileName);
 
     public static bool IsValidLength(string fileName) => fileName.Length <= FileNameLength;
 
-    private static bool IsValidFileName(string name) => !string.IsNullOrEmpty(name) && Regex.IsMatch(name, _pattern);
-    private static bool IsValidContent(byte[] bytes) => bytes != null && bytes.Length <= MaxAllowedSize;
-    public static bool IsValideFile(IBrowserFile file)
+    private static bool IsValidFileName(string name)
     {
-        if (!IsValidContentType(file.ContentType))
+        return Regex.IsMatch(name, _pattern);
+    }
+
+    private static bool IsValidSize(double? size) => size != null && size <= MaxAllowedSize;
+
+    public static bool IsValideFile(AddAttachmentRequest file)
+    {
+        if (!IsValidContentType(file.MimeType))
         {
             return false;
         }
@@ -42,6 +47,10 @@ public static class FileValidator
             return false;
         }
         else if (!IsValidLength(file.Name))
+        {
+            return false;
+        }
+        else if (!IsValidSize(file.Size))
         {
             return false;
         }

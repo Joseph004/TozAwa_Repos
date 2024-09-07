@@ -1,0 +1,42 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <LangVersion>12</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <AssemblyName>Grains</AssemblyName>
+    <RootNamespace>Grains</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.*" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="8.*" />
+    <PackageReference Include="Microsoft.Orleans.Reminders" Version="8.*" />
+    <PackageReference Include="Microsoft.Orleans.Sdk" Version="8.*" />
+    <PackageReference Include="Microsoft.Orleans.Streaming" Version="8.*" />
+    <PackageReference Include="Microsoft.Orleans.Core.Abstractions" Version="8.*" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.*" />
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.*" />
+    <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.*" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Helpers\mycertprivatekey.pfx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+</Project>

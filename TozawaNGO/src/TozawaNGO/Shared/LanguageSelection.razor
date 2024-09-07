@@ -1,0 +1,20 @@
+@inherits BaseComponent
+@namespace TozawaNGO.Shared
+@implements IDisposable
+
+@if (_isFirstLoaded)
+{
+    <MudMenu @ref="_mudMenuRef" AnchorOrigin="@Origin.BottomCenter" Label="@GetTitle(ActiveLanguage)"
+        TransformOrigin="@Origin.TopCenter" Class="mr-5 mb-1" MaxHeight="500" StartIcon="@Icons.Material.Filled.Translate"
+        IconColor="Color.Inherit" IsOpenChanged="@(() => IsOpen())" EndIcon="@_dropArrowPosition" Color="Color.Inherit" Dense="true">
+        @foreach (var language in ActiveLanguages)
+        {
+            <MudMenuItem OnClick="() => ChangeActiveLanguage(language.Id)">
+                <MudText>
+                    <i class="flag-icon flag-icon-@GetShortName(language)"></i>
+                    @GetTitle(language)
+                </MudText>
+            </MudMenuItem>
+        }
+    </MudMenu>
+}

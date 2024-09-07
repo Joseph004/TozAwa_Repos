@@ -1,0 +1,79 @@
+﻿@page "/fetchdata1"
+@inherits BasePage
+@using TozawaNGO.State.Counter
+@using Fluxor
+@inject IState<CounterState> CounterState
+@inject IDispatcher Dispatcher
+
+<style>
+    button {
+        border: 1px solid #0066cc;
+        background-color: #0099cc;
+        color: #ffffff;
+        padding: 5px 10px;
+    }
+
+    button:hover {
+        border: 1px solid #0099cc;
+        background-color: #00aacc;
+        color: #ffffff;
+        padding: 5px 10px;
+    }
+
+    button:disabled,
+    button[disabled] {
+        border: 1px solid #999999;
+        background-color: #cccccc;
+        color: #666666;
+        pointer-events: none;
+    }
+</style>
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @CounterState.Value.ClickCount</p>
+
+<button disabled="@CounterState.Value.Stop" style="width: 70px; margin-top: 15px;" class="btn btn-primary"
+    @onclick="IncrementCount">Increment</button>
+<button disabled="@CounterState.Value.Stop" style="width: 70px; margin-top: 10px;" class="btn btn-primary"
+    @onclick="DecrementCount">Decrement</button>
+<button disabled="@(!CounterState.Value.Stop)" style="width: 70px; margin-top: 10px;" class="btn btn-primary"
+    @onclick="StartCount">Star</button>
+<button disabled="@CounterState.Value.Stop" style="width: 70px; margin-top: 10px;" class="btn btn-primary"
+    @onclick="StopCount">Stop</button>
+
+@code {
+    //private int currentCount = 0;
+    //private bool stop = false;
+    protected override async Task OnInitializedAsync()
+    {
+        await base.OnInitializedAsync();
+    }
+
+    private void IncrementCount()
+    {
+        if (CounterState.Value.Stop) return;
+        Dispatcher.Dispatch(new TozawaNGO.State.Counter.Actions.IncrementCounterAction());
+    }
+    private void DecrementCount()
+    {
+        if (CounterState.Value.Stop) return;
+        Dispatcher.Dispatch(new TozawaNGO.State.Counter.Actions.DecrementCounterAction());
+    }
+    private void StartCount()
+    {
+        Dispatcher.Dispatch(new TozawaNGO.State.Counter.Actions.StartCounterAction());
+        StateHasChanged();
+    }
+    private void StopCount()
+    {
+        Dispatcher.Dispatch(new TozawaNGO.State.Counter.Actions.StopCounterAction());
+        StateHasChanged();
+    }
+    protected override void Dispose(bool disposed)
+    {
+        base.Dispose(disposed);
+    }
+}

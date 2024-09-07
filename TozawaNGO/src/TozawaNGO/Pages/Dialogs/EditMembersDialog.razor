@@ -1,0 +1,57 @@
+@namespace TozawaNGO.Pages
+@using TozawaNGO.Helpers
+@using TozawaNGO.Shared
+@using TozawaNGO.Models.Dtos
+@inherits BaseDialog
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_editForm" @bind-IsValid="@_success" @bind-Errors="@_errors" Model="@Member">
+            <div style="overflow: auto; max-height: 800px;" class="d-flex flex-column flex-grow-1 gap-4">
+                <MudTextField Style="width: 98%;" Immediate="true" Margin="Margin.Dense" T="string"
+                    @onkeydown="@((KeyboardEventArgs e)=> SaveItemByKeyBoard(e))" @bind-Value="Member.FirstName"
+                    Label="@(Translate(SystemTextId.FirstName))" Adornment="Adornment.End"
+                    AdornmentIcon="@(RestoreInputIcon[nameof(MemberDto.FirstName)])"
+                    OnAdornmentClick="@(() => RestoreText(nameof(MemberDto.FirstName)))" DebounceInterval="100"
+                    OnDebounceIntervalElapsed="@(() => HandleTextField(nameof(MemberDto.FirstName)))"
+                    Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateFstName))" Required="true"
+                    RequiredError="@(Translate(SystemTextId.FirstNameIsRequired))" />
+                <MudTextField Style="width: 98%;" Immediate="true" Margin="Margin.Dense" T="string"
+                    @bind-Value="Member.LastName" Adornment="Adornment.End"
+                    @onkeydown="@((KeyboardEventArgs e)=> SaveItemByKeyBoard(e))"
+                    AdornmentIcon="@(RestoreInputIcon[nameof(MemberDto.LastName)])"
+                    Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateLastName))"
+                    OnAdornmentClick="@(() => RestoreText(nameof(MemberDto.LastName)))" DebounceInterval="100"
+                    OnDebounceIntervalElapsed="@(() => HandleTextField(nameof(MemberDto.LastName)))"
+                    Label="@(Translate(SystemTextId.LastName))" Required="true"
+                    RequiredError="@(Translate(SystemTextId.LastNameIsRequired))" />
+                <MudTextField Style="width: 98%;" Immediate="true" Margin="Margin.Dense" T="string"
+                    @bind-Value="Member.Email" Label="@(Translate(SystemTextId.Email))" Required="true"
+                    DebounceInterval="100" OnDebounceIntervalElapsed="@(() => HandleTextField(nameof(MemberDto.Email)))"
+                    Adornment="Adornment.End" AdornmentIcon="@(RestoreInputIcon[nameof(MemberDto.Email)])"
+                    OnAdornmentClick="@(() => RestoreText(nameof(MemberDto.Email)))"
+                    @onkeydown="@((KeyboardEventArgs e)=> SaveItemByKeyBoard(e))"
+                    RequiredError="@(Translate(SystemTextId.EmailIsRequired))"
+                    Validation="@(new Func<string, Task<IEnumerable<string>>>(EmailExists))" />
+                <MudTextField Style="width: 98%;" Immediate="true" Margin="Margin.Dense" T="string" Lines="5"
+                    @bind-Value="Member.Description" Label="@(Translate(SystemTextId.Description))"
+                    DebounceInterval="100" Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateDescName))"
+                    OnDebounceIntervalElapsed="@(() => HandleTextField(nameof(MemberDto.Description)))"
+                    Adornment="Adornment.End" AdornmentIcon="@(RestoreInputIcon[nameof(MemberDto.Description)])"
+                    OnAdornmentClick="@(() => RestoreText(nameof(MemberDto.Description)))"
+                    Required="@_descriptionIsRequired"
+                    RequiredError="@(Translate(SystemTextId.DescriptionIsRequired))" />
+            </div>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">
+            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" IsFirstLoaded="@IsFirstLoaded" />
+        </MudButton>
+        <MudButton Color="Color.Primary" OnClick="SaveItem" Disabled="@DisabledAddButton()">
+            <MudText>
+                <SystemText TextId=SystemTextId.Update FallbackText="Edit" IsFirstLoaded="@IsFirstLoaded" />
+            </MudText>
+        </MudButton>
+    </DialogActions>
+</MudDialog>

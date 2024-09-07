@@ -1,0 +1,30 @@
+﻿@page "/todo"
+@namespace TozawaNGO.Pages
+@inherits BasePage
+@implements IDisposable
+
+@if (@ToDoState.Value.IsLoading || ToDoState.Value.Todos.Count == 0)
+{
+}
+else
+{
+    <h1>Todo (@ToDoState.Value.Todos.Count(todo => !todo.IsDone))</h1>
+
+    @foreach (var todo in ToDoState.Value.Todos)
+
+    {
+        <div class="input-groupmb-3">
+            <div class="input-group-prepend">
+                <div class="input-group-text">
+                    <input type="checkbox" checked="@todo.IsDone" @onchange="@(args => HandleTodoDoneAsync(args,todo))" />
+                </div>
+                <button class="btnbtn-outline-secondary" type="button" @onclick="@(args => HandleDeleteTodoAsync(todo))">
+                    <span class="oioi-trash" aria-hidden="true"></span>
+                </button>
+            </div>
+            <input class="form-control" value="@todo.Title" @onchange="@(args => HandleTodoTitleChangeAsync(args,todo))" />
+        </div>
+    }
+    <input placeholder="Somethingtodo" value="@newTodo" @oninput="@(args => OnItemEnter(args))" />
+    <button @onclick="@(args=>AddTodoAsync())">AddTodo</button>
+}

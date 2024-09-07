@@ -1,0 +1,31 @@
+﻿@using TozawaNGO.Shared
+@inject NavigationManager NavManager
+
+<Fluxor.Blazor.Web.StoreInitializer />
+<CascadingAuthenticationState>
+    <Router AppAssembly="@typeof(App).Assembly">
+        <Found Context="routeData">
+            <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)">
+                <NotAuthorized>
+                    <p>You need to login to view this content</p>
+                </NotAuthorized>
+                <Authorizing>
+                    <h1>Authorization in progress</h1>
+                    <p>Only visible while authorization is in progress.</p>
+                </Authorizing>
+            </AuthorizeRouteView>
+            <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        </Found>
+        <NotFound>
+            <PageTitle>Not found</PageTitle>
+            <PageNotFound></PageNotFound>
+        </NotFound>
+    </Router>
+</CascadingAuthenticationState>
+
+@code {
+    protected override Task OnInitializedAsync()
+    {
+        return Task.CompletedTask;
+    }
+}
