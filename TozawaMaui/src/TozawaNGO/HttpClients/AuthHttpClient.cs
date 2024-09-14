@@ -1,23 +1,18 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using Blazored.LocalStorage;
 using Blazored.SessionStorage;
+using Grains.Models.ResponseRequests;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Web.Virtualization;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using TozawaNGO.Configurations;
-using TozawaNGO.Extensions;
-using TozawaNGO.Helpers;
-using TozawaNGO.Models.Dtos;
-using TozawaNGO.Models.ResponseRequests;
-using TozawaNGO.Services;
-using TozawaNGO;
+using ShareRazorClassLibrary.Configurations;
+using ShareRazorClassLibrary.Extensions;
+using ShareRazorClassLibrary.Helpers;
+using ShareRazorClassLibrary.Models.Dtos;
 
-namespace TozawaNGO.HttpClients
+namespace Tozawa.HttpClients
 {
     public interface IAuthHttpClient
     {

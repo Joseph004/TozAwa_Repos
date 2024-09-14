@@ -1,7 +1,5 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using Blazored.LocalStorage;
-using Blazored.SessionStorage;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Components.Authorization;
@@ -15,12 +13,15 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Orleans.Configuration;
 using TozawaNGO;
-using TozawaNGO.Configurations;
-using TozawaNGO.Helpers;
 using TozawaNGO.Services;
 using TozawaNGO.Shared;
 using Fluxor;
 using Shared.SignalR;
+using Blazored.LocalStorage;
+using Blazored.SessionStorage;
+using ShareRazorClassLibrary.Configurations;
+using ShareRazorClassLibrary.Helpers;
+using ShareRazorClassLibrary.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -98,7 +99,7 @@ builder.Services.AddSignalR(options =>
 builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(Program).Assembly));
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("admin-member", policy => policy.RequireClaim("admin-member", "MemberIsAdmin"));
-builder.Services.AddScoped<AuthenticationStateProvider, AuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, ShareRazorClassLibrary.Helpers.AuthStateProvider>();
 
 
 builder.Services.AddMvcCore(options =>
@@ -157,8 +158,11 @@ builder.Services.AddScoped<ICookie, Cookie>();
 builder.Services.AddScoped<TozawaNGO.StateHandler.UserState>();
 builder.Services.AddScoped<TozawaNGO.StateHandler.ScrollTopState>();
 builder.Services.AddScoped<AuthenticationService>();
+builder.Services.AddAuthorizationCore();
+//builder.Services.AddScoped<AuthenticationStateProvider>();
+//.Services.AddScoped<ILocalStorageService>();
 builder.Services.AddScoped<ITranslationService, TranslationService>();
-builder.Services.AddScoped<TozawaNGO.Services.ICurrentUserService, TozawaNGO.Services.CurrentUserService>();
+builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<ISnackBarService, SnackBarService>();
 builder.Services.AddScoped<MemberService>();
 builder.Services.AddScoped<AttachmentService>();

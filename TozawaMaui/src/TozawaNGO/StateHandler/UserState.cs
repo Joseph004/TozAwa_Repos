@@ -1,5 +1,5 @@
 using System;
-using TozawaNGO.Models.Dtos;
+using ShareRazorClassLibrary.Models.Dtos;
 
 namespace TozawaNGO.StateHandler
 {

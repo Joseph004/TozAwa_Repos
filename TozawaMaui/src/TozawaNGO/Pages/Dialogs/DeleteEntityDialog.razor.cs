@@ -1,10 +1,7 @@
-using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using MudBlazor;
-using TozawaNGO.Models.Dtos;
-using TozawaNGO.Models.FormModels;
+using ShareRazorClassLibrary.Models.Dtos;
 using TozawaNGO.Shared;
 
 namespace TozawaNGO.Pages
@@ -27,7 +24,7 @@ namespace TozawaNGO.Pages
         }
         private void Confirm(bool softDeleted = false, bool hardDeleted = false)
         {
-            var request = new DeleteRequest
+            var request = new ShareRazorClassLibrary.Models.FormModels.DeleteRequest
             {
                 SoftDeleted = softDeleted,
                 HardDeleted = hardDeleted

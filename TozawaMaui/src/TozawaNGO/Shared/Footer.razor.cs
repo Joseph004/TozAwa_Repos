@@ -3,8 +3,8 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using MudBlazor;
-using TozawaNGO.Helpers;
-using TozawaNGO.Services;
+using ShareRazorClassLibrary.Helpers;
+using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared
 {

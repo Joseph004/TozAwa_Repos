@@ -3,16 +3,16 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.JSInterop;
 using MudBlazor;
-using TozawaNGO.Services;
 using System.Timers;
 using Timer = System.Timers.Timer;
 using Blazored.LocalStorage;
-using TozawaNGO.Helpers;
-using TozawaNGO.Configurations;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.AspNetCore.Components.Web;
+using ShareRazorClassLibrary.Services;
+using ShareRazorClassLibrary.Configurations;
+using ShareRazorClassLibrary.Helpers;
 
 namespace TozawaNGO.Shared
 {

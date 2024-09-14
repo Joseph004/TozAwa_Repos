@@ -1,14 +1,14 @@
-using TozawaNGO.Configurations;
-using TozawaNGO.Services;
 using System.Net;
-using TozawaNGO.Models.ResponseRequests;
 using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using TozawaNGO.Helpers;
+using ShareRazorClassLibrary.Models.ResponseRequests;
+using ShareRazorClassLibrary.Configurations;
+using ShareRazorClassLibrary.Services;
+using ShareRazorClassLibrary.Helpers;
 
-namespace TozawaNGO.HttpClients
+namespace Tozawa.HttpClients
 {
     public interface ITozAwaBffHttpClient
     {
@@ -26,7 +26,7 @@ namespace TozawaNGO.HttpClients
     public class TozAwaBffHttpClient : HttpClientHelper, ITozAwaBffHttpClient
     {
         public TozAwaBffHttpClient(HttpClient client, AppSettings appSettings, AuthenticationStateProvider authProvider, ILocalStorageService localStorageService,
-            NavigationManager navigationManager, ILogger<TozAwaBffHttpClient> logger, ITranslationService translationService, IJSRuntime jSRuntime, AuthStateProvider authStateProvider) : base(client, translationService, appSettings, authProvider, localStorageService, navigationManager, authStateProvider, jSRuntime, logger)
+            NavigationManager navigationManager, ILogger<TozAwaBffHttpClient> logger, ITranslationService translationService, IServiceProvider sp, IJSRuntime jSRuntime, AuthStateProvider authStateProvider) : base(client, translationService, appSettings, authProvider, localStorageService, navigationManager, jSRuntime, sp, logger)
         {
             client.BaseAddress = new Uri(appSettings.TozAwaNGOApiSettings.ApiUrl);
             client.DefaultRequestHeaders.Add("Accept", "application/json");

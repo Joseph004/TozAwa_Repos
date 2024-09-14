@@ -40,6 +40,14 @@ var partner = new Partner()
             user2.EmailConfirmed = true;
             user2.SecurityStamp = Guid.NewGuid().ToString();
             user2.NormalizedUserName = _normalizer.NormalizeName("arobas004");
-
             await userManager.CreateAsync(user1, pswd);
             await userManager.CreateAsync(user2, "Zairenumber01!");
+
+// Reset password without requiring current password
+
+ await userManager.RemovePasswordAsync(user);
+ await userManager.AddPasswordAsync(user, "newpassword");
+
+// Reset password with current password
+
+ await userManager.ChangePasswordAsync(user, "currentpassword", "newpassord!");

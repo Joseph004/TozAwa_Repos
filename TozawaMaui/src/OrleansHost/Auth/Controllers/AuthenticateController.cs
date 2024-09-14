@@ -96,7 +96,7 @@ namespace Grains.Auth.Controllers
                 response.Entity.ErrorMessageGuid = Helpers.SystemTextId.Unauthorized;
                 return Ok(response);
             }
-
+            
             var validPassword = await userManager.CheckPasswordAsync(user, command.Password);
             if (!validPassword)
             {
