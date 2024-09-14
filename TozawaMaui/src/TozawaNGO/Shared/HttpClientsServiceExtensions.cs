@@ -1,7 +1,4 @@
-using Microsoft.Extensions.DependencyInjection;
-using TozawaNGO.HttpClients;
-using System.Net.Http.Headers;
-using TozawaNGO.Helpers;
+using Tozawa.HttpClients;
 
 namespace TozawaNGO.Shared;
 

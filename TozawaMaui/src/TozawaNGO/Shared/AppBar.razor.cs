@@ -2,11 +2,11 @@ using System.Web;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using MudBlazor;
-using TozawaNGO.Models.Dtos;
-using TozawaNGO.Helpers;
 using Blazored.LocalStorage;
 using Microsoft.JSInterop;
-using TozawaNGO.Services;
+using ShareRazorClassLibrary.Helpers;
+using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared
 {

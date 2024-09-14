@@ -1,8 +1,9 @@
 using Fluxor;
 using Grains;
-using TozawaNGO.Helpers;
 using TozawaNGO.Services;
 using Microsoft.AspNetCore.SignalR.Client;
+using TozawaNGO.Models;
+using ShareRazorClassLibrary.Helpers;
 
 namespace TozawaNGO.State.ToDo.Store;
 
@@ -15,7 +16,7 @@ public class Effects(TodoService todoService)
         var subscription = await todoService.SubscribeAsync(SystemTextId.ToDoOwnerId, notification => Task.Run(() =>
              HandleNotificationAsync(notifications, notification)));
 
-        var todos = new Models.Dtos.TodoKeyedCollection();
+        var todos = new TodoKeyedCollection();
         var data = await todoService.GetAllAsync(SystemTextId.ToDoOwnerId);
 
         foreach (var item in data)

@@ -3,8 +3,9 @@ using Grains;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using MudBlazor;
-using TozawaNGO.Models.Dtos;
-using TozawaNGO.Services;
+using TozawaNGO.Models;
+using ShareRazorClassLibrary.Services;
+using ShareRazorClassLibrary.Models.Dtos;
 
 namespace TozawaNGO.State.Member.Store;
 

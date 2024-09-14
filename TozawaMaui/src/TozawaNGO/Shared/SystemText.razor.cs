@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using TozawaNGO.Models.Dtos;
-using TozawaNGO.Services;
+using ShareRazorClassLibrary.Models.Dtos;
+
 
 namespace TozawaNGO.Shared;
 

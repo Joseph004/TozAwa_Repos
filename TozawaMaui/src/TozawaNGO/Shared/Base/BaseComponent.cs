@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Components;
-using TozawaNGO.Helpers;
-using TozawaNGO.Models.Dtos;
-using TozawaNGO.Services;
-
+using ShareRazorClassLibrary.Helpers;
+using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Services;
 namespace TozawaNGO.Shared
 {
     public partial class BaseComponent : Fluxor.Blazor.Web.Components.FluxorComponent, IDisposable

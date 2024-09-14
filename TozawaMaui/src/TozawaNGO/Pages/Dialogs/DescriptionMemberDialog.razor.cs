@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using TozawaNGO.Models;
+using ShareRazorClassLibrary.Models;
 using TozawaNGO.Shared;
 
 namespace TozawaNGO.Pages

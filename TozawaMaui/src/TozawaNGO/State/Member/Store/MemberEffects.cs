@@ -1,12 +1,13 @@
 using Fluxor;
 using Grains;
-using TozawaNGO.Helpers;
 using TozawaNGO.Services;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
-using TozawaNGO.Models.Dtos;
-using TozawaNGO.Models.FormModels;
-using TozawaNGO.Models.Requests;
+using ShareRazorClassLibrary.Services;
+using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Models.Requests;
+using ShareRazorClassLibrary.Models.FormModels;
+using Grains.Helpers;
 
 namespace TozawaNGO.State.Member.Store;
 
@@ -19,7 +20,7 @@ public class Effects(MemberService memberService, AttachmentService attachmentSe
         var subscription = await memberService.SubscribeAsync(SystemTextId.MemberOwnerId, notification => Task.Run(() =>
              HandleNotificationAsync(notifications, notification)));
 
-        var members = new Models.Dtos.MemberKeyedCollection();
+        var members = new Models.MemberKeyedCollection();
         var data = await memberService.GetItems(action.page, action.pageSize, action.includeDeleted, action.searchString, action.pageOfEmail, action.email);
 
         var entity = data.Entity ?? new TableData<MemberDto>();
@@ -149,7 +150,7 @@ public class Effects(MemberService memberService, AttachmentService attachmentSe
     [EffectMethod]
     public async Task HandleMemberAddAction(MemberAddAction action, IDispatcher dispatcher)
     {
-        var request = new AddMemberRequest
+        var request = new ShareRazorClassLibrary.Models.FormModels.AddMemberRequest
         {
             Email = "",
             FirstName = "",

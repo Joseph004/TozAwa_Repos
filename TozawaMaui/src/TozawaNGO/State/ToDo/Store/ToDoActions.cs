@@ -1,7 +1,7 @@
 using Grains;
 using Microsoft.AspNetCore.SignalR.Client;
 using Orleans.Streams;
-using TozawaNGO.Models.Dtos;
+using TozawaNGO.Models;
 
 namespace TozawaNGO.State.ToDo.Store;
 public record HandleInputTextToDoAction(string newItem)

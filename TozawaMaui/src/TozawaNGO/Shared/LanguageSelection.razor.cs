@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using TozawaNGO.Configurations;
-using TozawaNGO.Models.Dtos;
-using TozawaNGO.Services;
+using ShareRazorClassLibrary.Configurations;
+using ShareRazorClassLibrary.Models.Dtos;
 
 namespace TozawaNGO.Shared
 {
@@ -10,7 +9,7 @@ namespace TozawaNGO.Shared
     {
         [Inject] private AppSettings _appSettings { get; set; }
         [Inject] ISnackbar Snackbar { get; set; }
-        public List<ActiveLanguageDto> ActiveLanguages { get; set; }
+        public List<ShareRazorClassLibrary.Models.Dtos.ActiveLanguageDto> ActiveLanguages { get; set; }
         public ActiveLanguageDto ActiveLanguage { get; set; }
         private Dictionary<string, string> _cultures;
         private string _dropArrowPosition = Icons.Material.Filled.KeyboardArrowDown;

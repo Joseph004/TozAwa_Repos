@@ -5,7 +5,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.JsonPatch.Operations;
 
-namespace TozawaNGO.HttpClients;
+namespace Tozawa.HttpClients;
 
 public abstract class PatchBase
 {

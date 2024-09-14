@@ -1,6 +1,7 @@
 using Fluxor;
 using Grains;
 using MudBlazor;
+using ShareRazorClassLibrary.Models.Dtos;
 
 namespace TozawaNGO.State.Member.Store;
 
@@ -208,9 +209,9 @@ public static class Redures
         }
         return Task.CompletedTask;
     }
-    private static TozawaNGO.Models.Dtos.MemberDto GetMember(MemberItem memberItem)
+    private static MemberDto GetMember(MemberItem memberItem)
     {
-        return new TozawaNGO.Models.Dtos.MemberDto
+        return new MemberDto
         {
             Id = memberItem.UserId,
             PartnerId = memberItem.PartnerId,

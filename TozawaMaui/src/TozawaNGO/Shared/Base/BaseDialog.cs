@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Components;
-using TozawaNGO.Models.Dtos;
+using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Services;
 using TozawaNGO.Services;
 
 namespace TozawaNGO.Shared

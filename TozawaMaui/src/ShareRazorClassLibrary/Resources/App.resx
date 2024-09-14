@@ -1,0 +1,393 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!--
+    Microsoft ResX Schema
+
+    Version 2.0
+
+    The primary goals of this format is to allow a simple XML format
+    that is mostly human readable. The generation and parsing of the
+    various data types are done through the TypeConverter classes
+    associated with the data types.
+
+    Example:
+
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+
+    There are any number of "resheader" rows that contain simple
+    name/value pairs.
+
+    Each data row contains a name, and value. The row also contains a
+    type or mimetype. Type corresponds to a .NET class that support
+    text/value conversion through the TypeConverter architecture.
+    Classes that don't support this are serialized and stored with the
+    mimetype set.
+
+    The mimetype is used for serialized objects, and tells the
+    ResXResourceReader how to depersist the object. This is currently not
+    extensible. For a given mimetype the value must be set accordingly:
+
+    Note - application/x-microsoft.net.object.binary.base64 is the format
+    that the ResXResourceWriter will generate, however the reader can
+    read any of the formats listed below.
+
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace"/>
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string"/>
+              <xsd:attribute name="type" type="xsd:string"/>
+              <xsd:attribute name="mimetype" type="xsd:string"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string"/>
+              <xsd:attribute name="name" type="xsd:string"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1"/>
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3"/>
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4"/>
+              <xsd:attribute ref="xml:space"/>
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1"/>
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required"/>
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="195E79A9-F767-4246-8D30-BB8A834B07C0" xml:space="preserve">
+    <value>Login</value>
+    <comment/>
+  </data>
+  <data name="6d10c11a-9e10-4ea2-ab28-b4c9280b5b62" xml:space="preserve">
+    <value>Swedish Association for International Work in Technology and Informatics</value>
+    <comment/>
+  </data>
+  <data name="778aaa56-c345-4336-93ea-1d866d243a49" xml:space="preserve">
+    <value>Home</value>
+    <comment/>
+  </data>
+  <data name="d9cbe699-7270-4b9d-ac74-377f82cbc85c" xml:space="preserve">
+    <value>Cancel</value>
+    <comment>.</comment>
+  </data>
+  <data name="e840168a-123d-441d-855c-69ae27d18078" xml:space="preserve">
+    <value>Processing...</value>
+    <comment>.</comment>
+  </data>
+  <data name="cd04b055-c8c3-46c1-aa5d-d962a30f15f1" xml:space="preserve">
+    <value>Email</value>
+    <comment>.</comment>
+  </data>
+  <data name="693242ad-7369-4f5d-ad44-881240770d31" xml:space="preserve">
+    <value>Password</value>
+    <comment>.</comment>
+  </data>
+  <data name="d3903b12-c2ff-4dac-9547-851d37f855bc" xml:space="preserve">
+    <value>A valid email is required</value>
+    <comment>.</comment>
+  </data>
+  <data name="a43816d6-0f37-4b29-8271-5ca720b094d5" xml:space="preserve">
+    <value>Your password cannot be empty</value>
+    <comment>.</comment>
+  </data>
+  <data name="ad71d9fe-67aa-4b8a-8661-1c603e4ec35a" xml:space="preserve">
+    <value>Settings</value>
+    <comment>.</comment>
+  </data>
+  <data name="db52be9f-8189-42c2-8dd3-1609caa03173" xml:space="preserve">
+    <value>Members</value>
+    <comment>.</comment>
+  </data>
+  <data name="eaaadc84-0de1-4a6d-ba48-c394b5e484bf" xml:space="preserve">
+    <value>First name</value>
+    <comment>.</comment>
+  </data>
+  <data name="84e48e74-3760-4f08-8c75-e98bb728b9ee" xml:space="preserve">
+    <value>Last name</value>
+    <comment>.</comment>
+  </data>
+  <data name="2f21ae24-6168-4047-8ab2-db1849b3868e" xml:space="preserve">
+    <value>Description</value>
+    <comment>.</comment>
+  </data>
+  <data name="db338fe8-8657-492b-9e82-6b44b0bc1252" xml:space="preserve">
+    <value>Are you sure</value>
+    <comment>.</comment>
+  </data>
+  <data name="28dab09a-c496-40e3-9854-79d7ea96557b" xml:space="preserve">
+    <value>the email exists already.</value>
+    <comment>.</comment>
+  </data>
+  <data name="e2d165ce-741d-4388-a7fa-0e104dc94504" xml:space="preserve">
+    <value>Remove</value>
+    <comment>.</comment>
+  </data>
+  <data name="c14a265b-0c57-4594-b464-6d22bab412f7" xml:space="preserve">
+    <value>Restore</value>
+    <comment>.</comment>
+  </data>
+  <data name="b752a56a-f067-4937-ae38-ac8d496d6413" xml:space="preserve">
+    <value>Search</value>
+    <comment>.</comment>
+  </data>
+  <data name="c43eaa7e-3016-420f-8c6a-70c26d82a223" xml:space="preserve">
+    <value>Member</value>
+    <comment>.</comment>
+  </data>
+  <data name="7f1a951d-82e3-4bda-aa5b-011f0552cd22" xml:space="preserve">
+    <value>Stay loged in</value>
+    <comment>.</comment>
+  </data>
+  <data name="bf4c3434-3575-460a-86e2-b757cbdbec07" xml:space="preserve">
+    <value>definitly</value>
+    <comment>.</comment>
+  </data>
+  <data name="6acec748-2d76-4491-8b77-fd9f990d158a" xml:space="preserve">
+    <value>temporarly</value>
+    <comment>.</comment>
+  </data>
+  <data name="f562400a-d318-4ee3-bf9f-8e8879214b6b" xml:space="preserve">
+    <value>Name</value>
+    <comment>.</comment>
+  </data>
+  <data name="723f9da4-2551-4120-871a-1fc96554a3d7" xml:space="preserve">
+    <value>Partners</value>
+    <comment>.</comment>
+  </data>
+  <data name="3cf9101d-15bb-4481-9094-8009b7c92dff" xml:space="preserve">
+    <value>Partner</value>
+    <comment>.</comment>
+  </data>
+  <data name="2042a238-8375-4596-8f59-58d7fbf65d3c" xml:space="preserve">
+    <value>Become a member</value>
+    <comment>.</comment>
+  </data>
+  <data name="ffeee73c-ca11-4b14-bc87-f991da14edeb" xml:space="preserve">
+    <value>Add</value>
+    <comment>.</comment>
+  </data>
+  <data name="51353e2a-00db-4b36-be2a-edb59634bbb8" xml:space="preserve">
+    <value>No maching records</value>
+    <comment>.</comment>
+  </data>
+  <data name="753c584a-789b-409d-8e9e-89ccac2f0e7d" xml:space="preserve">
+    <value>Loading...</value>
+    <comment>.</comment>
+  </data>
+  <data name="10cba804-b8b6-49e2-b3b6-b96fdea1035f" xml:space="preserve">
+    <value>Show deleted items</value>
+    <comment>.</comment>
+  </data>
+  <data name="79396871-e984-4746-953a-4dd28cd8c445" xml:space="preserve">
+    <value>Rows per page</value>
+    <comment>.</comment>
+  </data>
+  <data name="7c06ef7d-12f5-4875-8335-fdfd41c55b36" xml:space="preserve">
+    <value>Hello</value>
+    <comment>.</comment>
+  </data>
+  <data name="d2ff9654-fd31-4cbf-8c52-6ae071d38371" xml:space="preserve">
+    <value>Logout</value>
+    <comment>.</comment>
+  </data>
+  <data name="536bac48-29c2-4d97-a20d-9e5c85b94933" xml:space="preserve">
+    <value>Sorry, there's nothing at this address.</value>
+    <comment>.</comment>
+  </data>
+  <data name="65ff3356-f87b-43e9-8228-7d757f5bcea9" xml:space="preserve">
+    <value>Attachment type</value>
+    <comment>.</comment>
+  </data>
+  <data name="7d1747ad-b243-40ec-a1ee-43cab5af5012" xml:space="preserve">
+    <value>File size</value>
+    <comment>.</comment>
+  </data>
+  <data name="36824adb-80d4-480c-b8fb-474e445673cb" xml:space="preserve">
+    <value>Close</value>
+    <comment>.</comment>
+  </data>
+  <data name="fde8cfd5-5670-44c4-a5b9-0469b00e0b31" xml:space="preserve">
+    <value>Upload files</value>
+    <comment>.</comment>
+  </data>
+  <data name="6c12b3d5-3661-42ff-b97a-74e0a5b2102e" xml:space="preserve">
+    <value>You are about to ge logged ou</value>
+    <comment>.</comment>
+  </data>
+  <data name="a7cdd2fe-1371-4b44-a996-96e647b834ef" xml:space="preserve">
+    <value>Required</value>
+    <comment>.</comment>
+  </data>
+  <data name="feeca1b6-3aee-4e53-8079-59f0baeb3e9c" xml:space="preserve">
+    <value>The description is missing</value>
+    <comment>.</comment>
+  </data>
+  <data name="edfda485-050c-4881-9dea-906a3aca1ff6" xml:space="preserve">
+    <value>Files</value>
+    <comment>.</comment>
+  </data>
+  <data name="06e63f65-c762-4650-ba32-b177aa26459f" xml:space="preserve">
+    <value>Success</value>
+    <comment>.</comment>
+  </data>
+  <data name="edd0ed36-48a1-40d5-b15c-4f72ecd03085" xml:space="preserve">
+    <value>Forbidden</value>
+    <comment>.</comment>
+  </data>
+  <data name="1c670beb-c72a-41a3-bd15-8d0dae88c0a1" xml:space="preserve">
+    <value>Unauthorized</value>
+    <comment>.</comment>
+  </data>
+  <data name="ae2a4ae2-0b77-4038-80f1-8e6811ef184a" xml:space="preserve">
+    <value>Not found</value>
+    <comment>.</comment>
+  </data>
+  <data name="aabd1818-fd10-41d0-8ad5-8c0d12e205d4" xml:space="preserve">
+    <value>Find us</value>
+    <comment>.</comment>
+  </data>
+  <data name="a5836384-37d4-439c-a627-ee8b989722db" xml:space="preserve">
+    <value>Call us</value>
+    <comment>.</comment>
+  </data>
+  <data name="08933bdd-7275-4a80-bf3c-79226cded894" xml:space="preserve">
+    <value>Mail us</value>
+    <comment>.</comment>
+  </data>
+  <data name="2f2544a2-82f4-456d-be26-4fd01a7a60b0" xml:space="preserve">
+    <value>This NGO is for helping children in need of developing computer skills This NGO is for helping children in need of developing computer skills This NGO is for helping children in need of developing computer skills
+	</value>
+    <comment>.</comment>
+  </data>
+  <data name="fa0fc6df-5599-47df-adc1-54d604b4080b" xml:space="preserve">
+    <value>Follow us</value>
+    <comment>.</comment>
+  </data>
+  <data name="84d2a41e-bd0e-49ab-9ec5-245da8794e26" xml:space="preserve">
+    <value>Usefull links</value>
+    <comment>.</comment>
+  </data>
+  <data name="45e5f7fa-7fa5-4b5a-9504-27eabb9acded" xml:space="preserve">
+    <value>Subscribe</value>
+    <comment>.</comment>
+  </data>
+  <data name="e7dc189c-2a4c-417b-b766-addc69ae7f93" xml:space="preserve">
+    <value>Don't miss to subscribe to our feeds, kindly fill the form below</value>
+    <comment>.</comment>
+  </data>
+  <data name="1f4ca531-ca3c-4a33-bb20-ff1f0d46b62a" xml:space="preserve">
+    <value>The entity contains no files</value>
+    <comment>.</comment>
+  </data>
+  <data name="2eac4ad7-ada7-48a0-a4ab-a985820140e4" xml:space="preserve">
+    <value>Only 10 files can be uploaded at a moment</value>
+    <comment>.</comment>
+  </data>
+  <data name="0a12f107-5899-4410-9820-c70e5c26acb7" xml:space="preserve">
+    <value>The file name should be alpha numeric</value>
+    <comment>.</comment>
+  </data>
+  <data name="09e30fc1-245a-46b6-bf2a-dafd00039e5b" xml:space="preserve">
+    <value>Please the file name is too large, use max 255 characters as recommanded</value>
+    <comment>.</comment>
+  </data>
+  <data name="9ec2bab4-4b69-4c6d-aa8c-a8fbe79fe88b" xml:space="preserve">
+    <value>the file type is not valid, only images pdf word textfile and excel are allowed</value>
+    <comment>.</comment>
+  </data>
+  <data name="a3305de1-7c44-4c74-bc4f-5c1dc65195ce" xml:space="preserve">
+    <value>The Allowed maximum size is</value>
+    <comment>.</comment>
+  </data>
+  <data name="640642e8-c339-4f62-9b5c-58821061d49c" xml:space="preserve">
+    <value>Filename</value>
+    <comment>.</comment>
+  </data>
+  <data name="2d49ea8a-6935-42bb-b482-84c3c7ad608e" xml:space="preserve">
+    <value>already exists</value>
+    <comment>.</comment>
+  </data>
+  <data name="2f2cad45-d815-41a1-b29d-121d3bd813a1" xml:space="preserve">
+    <value>Update</value>
+    <comment>.</comment>
+  </data>
+  <data name="ba415f27-755f-4293-ab4e-71af9fb48983" xml:space="preserve">
+    <value>First name is required</value>
+    <comment>.</comment>
+  </data>
+  <data name="1bb7f155-e280-4f99-bb8f-047e451a3409" xml:space="preserve">
+    <value>Last name is required</value>
+    <comment>.</comment>
+  </data>
+  <data name="07b78220-ec36-4215-bb32-e2b1b4a0b580" xml:space="preserve">
+    <value>Description is required</value>
+    <comment>.</comment>
+  </data>
+  <data name="78e6d2df-ee8d-485f-a7a0-182a33c45988" xml:space="preserve">
+    <value>Email is required</value>
+    <comment>.</comment>
+  </data>
+</root>

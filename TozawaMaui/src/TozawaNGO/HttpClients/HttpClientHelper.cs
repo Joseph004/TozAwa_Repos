@@ -6,39 +6,59 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
-using TozawaNGO.Configurations;
-using TozawaNGO.Extensions;
-using TozawaNGO.Helpers;
-using TozawaNGO.Models.Dtos;
-using TozawaNGO.Models.ResponseRequests;
-using TozawaNGO.Services;
 using Microsoft.JSInterop;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Web;
+using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyInjection;
+using ShareRazorClassLibrary.Services;
+using ShareRazorClassLibrary.Configurations;
+using ShareRazorClassLibrary.Helpers;
+using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Models.ResponseRequests;
+using ShareRazorClassLibrary.Extensions;
 
-namespace TozawaNGO.HttpClients
+namespace Tozawa.HttpClients
 {
-    public class HttpClientHelper(
-       HttpClient client,
+    public class HttpClientHelper
+    {
+        public HttpClientHelper(HttpClient client,
         ITranslationService translationService,
         AppSettings appSettings,
         AuthenticationStateProvider authProvider,
         ILocalStorageService localStorageService,
         NavigationManager navigationManager,
-        AuthStateProvider authStateProvider,
         IJSRuntime jSRuntime,
+        IServiceProvider sp,
         ILogger<HttpClientHelper> logger)
-    {
-        protected readonly ILogger<HttpClientHelper> _logger = logger;
-        private readonly ITranslationService _translationService = translationService;
-        private readonly AppSettings _appSettings = appSettings;
-        private readonly AuthenticationStateProvider _authProvider = authProvider;
-        private readonly ILocalStorageService _localStorageService = localStorageService;
-        private readonly NavigationManager _navigationManager = navigationManager;
-        private readonly AuthStateProvider _authStateProvider = authStateProvider;
-        private readonly IJSRuntime _jSRuntime = jSRuntime;
-        private readonly HttpClient _client = client;
+        {
+            _sp = sp;
+            using (var scope = _sp.CreateScope())
+            {
+                _authStateProvider = scope.ServiceProvider.GetRequiredService<AuthStateProvider>();
+                _logger = logger;
+                _translationService = translationService;
+                _appSettings = appSettings;
+                _authProvider = authProvider;
+                _localStorageService = localStorageService;
+                _navigationManager = navigationManager;
+                _jSRuntime = jSRuntime;
+                _client = client;
+            }
+
+        }
+        private readonly IServiceProvider _sp;
+        protected readonly ILogger<HttpClientHelper> _logger;
+        private readonly ITranslationService _translationService;
+        private readonly AppSettings _appSettings;
+        private readonly AuthenticationStateProvider _authProvider;
+        private readonly ILocalStorageService _localStorageService;
+        private readonly NavigationManager _navigationManager;
+        private readonly AuthStateProvider _authStateProvider;
+        private readonly IJSRuntime _jSRuntime;
+        private readonly HttpClient _client;
 
         public async Task RemoveCurrentUser()
         {

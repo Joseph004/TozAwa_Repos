@@ -1,12 +1,12 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
-using TozawaNGO.Helpers;
-using TozawaNGO.Models;
-using TozawaNGO.Models.Dtos;
-using TozawaNGO.Models.Enums;
-using TozawaNGO.Models.FormModels;
-using TozawaNGO.Services;
+using ShareRazorClassLibrary.Helpers;
+using ShareRazorClassLibrary.Models;
+using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Models.Enums;
+using ShareRazorClassLibrary.Models.FormModels;
+using ShareRazorClassLibrary.Services;
 using TozawaNGO.Shared;
 
 namespace TozawaNGO.Pages
@@ -32,7 +32,7 @@ namespace TozawaNGO.Pages
         private string _fileTypeValidationMessage;
         private string _error = "";
         private string _searchString = null;
-        private List<TozawaNGO.Models.Dtos.FileAttachmentDto> _attachments = [];
+        private List<FileAttachmentDto> _attachments = [];
 
         protected void Add() => MudDialog.Close(DialogResult.Ok(Entity));
         protected void Cancel() => MudDialog.Cancel();
@@ -64,7 +64,7 @@ namespace TozawaNGO.Pages
 
             return true;
         }
-        private static Func<TozawaNGO.Models.Dtos.FileAttachmentDto, bool> Filtered(string searchString) => x =>
+        private static Func<FileAttachmentDto, bool> Filtered(string searchString) => x =>
                                                                               (!string.IsNullOrEmpty(x.Name) && x.Name.Contains(searchString, StringComparison.InvariantCultureIgnoreCase)) ||
                                                                                (!string.IsNullOrEmpty(x.FileAttachmentType) && x.FileAttachmentType.Contains(searchString, StringComparison.InvariantCultureIgnoreCase)) ||
                                                                                (!string.IsNullOrEmpty(x.Size.ToString()) && x.Size.ToString().Contains(searchString, StringComparison.InvariantCultureIgnoreCase));
@@ -77,7 +77,7 @@ namespace TozawaNGO.Pages
             }
             else
             {
-                _attachments = (Entity.Attachments ?? []).Select(x => (TozawaNGO.Models.Dtos.FileAttachmentDto)x.Clone()).ToList();
+                _attachments = (Entity.Attachments ?? []).Select(x => (FileAttachmentDto)x.Clone()).ToList();
             }
             StateHasChanged();
         }
@@ -88,10 +88,10 @@ namespace TozawaNGO.Pages
             _attachments = Entity.Attachments.Where(Filtered(_searchString)).ToList();
             StateHasChanged();
         }
-        protected string GetFileTypeIcon(TozawaNGO.Models.Dtos.FileAttachmentDto attachment) =>
+        protected string GetFileTypeIcon(FileAttachmentDto attachment) =>
             attachment.MimeType.Contains("image") ? Icons.Material.Filled.Image : Icons.Material.Filled.FileCopy;
 
-        private async void Download(TozawaNGO.Models.Dtos.FileAttachmentDto attachment)
+        private async void Download(FileAttachmentDto attachment)
         {
             _onProgress = true;
             LoadingState.SetRequestInProgress(true);
@@ -115,7 +115,7 @@ namespace TozawaNGO.Pages
         {
             return Entity.Deleted || !HasPermission || _onProgress;
         }
-        private async void Delete(TozawaNGO.Models.Dtos.FileAttachmentDto attachment)
+        private async void Delete(FileAttachmentDto attachment)
         {
             var parameters = new DialogParameters
             {
@@ -138,7 +138,7 @@ namespace TozawaNGO.Pages
                 if (deleteResponse.Success)
                 {
                     Entity.Attachments.RemoveAll(x => x.Id == attachment.Id);
-                    var files = new TozawaNGO.Models.Dtos.OwnerAttachments
+                    var files = new OwnerAttachments
                     {
                         OwnerId = Entity.Id,
                         Attachments = [attachment]
@@ -213,7 +213,7 @@ namespace TozawaNGO.Pages
                         {
                             Entity.Attachments.AddRange(attachmentsResponse.Entity ?? []);
                             _files.Clear();
-                            var files = new TozawaNGO.Models.Dtos.OwnerAttachments
+                            var files = new OwnerAttachments
                             {
                                 OwnerId = Entity.Id,
                                 Attachments = attachmentsResponse.Entity ?? []

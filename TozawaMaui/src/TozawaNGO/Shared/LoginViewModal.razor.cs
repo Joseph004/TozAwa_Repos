@@ -2,10 +2,10 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using MudBlazor;
-using TozawaNGO.Helpers;
-using TozawaNGO.Models.Dtos;
-using TozawaNGO.Models.FormModels;
-using TozawaNGO.Services;
+using ShareRazorClassLibrary.Helpers;
+using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Models.FormModels;
+using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared
 {
