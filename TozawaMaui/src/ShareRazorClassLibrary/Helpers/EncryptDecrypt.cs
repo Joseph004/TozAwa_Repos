@@ -1,4 +1,3 @@
-using System.Reflection;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -26,13 +25,14 @@ public class EncryptDecrypt : IEncryptDecrypt
         try
         {
             byte[] byteData = Encoding.UTF8.GetBytes(data);
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Helpers/mycert.pem");
-            //Path.Combine(_hostEnvironment.WebRootPath, "Helpers/mycert.pem");
+            string solutiondir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
+            var assembly = solutiondir + "\\src\\" + "ShareRazorClassLibrary";
+            string path = Path.Combine(assembly, @"Helpers/mycert.pem");
             var collection = new X509Certificate2Collection();
             collection.Import(path);
             var certificate = collection[0];
             var output = "";
-            #pragma warning disable SYSLIB0027
+#pragma warning disable SYSLIB0027
             using (RSA csp = (RSA)certificate.PublicKey.Key)
             {
                 byte[] bytesEncrypted = csp.Encrypt(byteData, RSAEncryptionPadding.OaepSHA1);

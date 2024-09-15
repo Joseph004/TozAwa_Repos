@@ -16,7 +16,7 @@ public class AuthStateProvider(ISessionStorageService sessionStorageService, ILo
 {
     private readonly ISessionStorageService _sessionStorageService = sessionStorageService;
     private readonly ILocalStorageService _localStorage = localStorage;
-    private readonly AuthenticationState _anonymous = new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
+    private readonly AuthenticationState _anonymous = new(new ClaimsPrincipal(new ClaimsIdentity()));
     private readonly AppSettings _appSettings = appSettings;
 
     public event EventHandler<EventArgs> UserAuthenticationChanged;

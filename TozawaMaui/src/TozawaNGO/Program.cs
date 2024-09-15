@@ -159,8 +159,6 @@ builder.Services.AddScoped<TozawaNGO.StateHandler.UserState>();
 builder.Services.AddScoped<TozawaNGO.StateHandler.ScrollTopState>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddAuthorizationCore();
-//builder.Services.AddScoped<AuthenticationStateProvider>();
-//.Services.AddScoped<ILocalStorageService>();
 builder.Services.AddScoped<ITranslationService, TranslationService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<ISnackBarService, SnackBarService>();

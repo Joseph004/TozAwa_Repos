@@ -18,7 +18,6 @@ using Microsoft.IdentityModel.Tokens;
 using System.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 
 namespace ShareRazorClassLibrary.HttpClients
 {
@@ -31,25 +30,20 @@ namespace ShareRazorClassLibrary.HttpClients
         ILocalStorageService localStorageService,
         NavigationManager navigationManager,
         IJSRuntime jSRuntime,
-        IServiceProvider sp,
+        AuthStateProvider authStateProvider,
         ILogger<HttpClientHelper> logger)
         {
-            _sp = sp;
-            using (var scope = _sp.CreateScope())
-            {
-                _authStateProvider = scope.ServiceProvider.GetRequiredService<AuthStateProvider>();
-                _logger = logger;
-                _translationService = translationService;
-                _appSettings = appSettings;
-                _authProvider = authProvider;
-                _localStorageService = localStorageService;
-                _navigationManager = navigationManager;
-                _jSRuntime = jSRuntime;
-                _client = client;
-            }
+            _authStateProvider = authStateProvider;
+            _logger = logger;
+            _translationService = translationService;
+            _appSettings = appSettings;
+            _authProvider = authProvider;
+            _localStorageService = localStorageService;
+            _navigationManager = navigationManager;
+            _jSRuntime = jSRuntime;
+            _client = client;
 
         }
-        private readonly IServiceProvider _sp;
         protected readonly ILogger<HttpClientHelper> _logger;
         private readonly ITranslationService _translationService;
         private readonly AppSettings _appSettings;
