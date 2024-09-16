@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using Microsoft.AspNetCore.Hosting;
 using ShareRazorClassLibrary.Configurations;
 
 namespace TozawaNGO;
@@ -12,11 +11,9 @@ public interface IEncryptDecrypt
 }
 public class EncryptDecrypt : IEncryptDecrypt
 {
-    private static IWebHostEnvironment _hostEnvironment;
     private readonly AppSettings _appSettings;
-    public EncryptDecrypt(IWebHostEnvironment environment, AppSettings appSettings)
+    public EncryptDecrypt(AppSettings appSettings)
     {
-        _hostEnvironment = environment;
         _appSettings = appSettings;
     }
 

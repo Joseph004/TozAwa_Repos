@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Http;
 using Microsoft.JSInterop;
 
-namespace ShareRazorClassLibrary.Services;
+namespace TozawaNGO.Services;
 
 public static class FileUtil
 {

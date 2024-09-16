@@ -1,6 +1,6 @@
 using Microsoft.JSInterop;
 
-namespace ShareRazorClassLibrary.Services;
+namespace TozawaNGO.Services;
 
 public class FileService(IJSRuntime jsRuntime)
 {

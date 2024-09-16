@@ -22,6 +22,6 @@
 
         var internetType = Connectivity.Current.ConnectionProfiles.FirstOrDefault();
 
-        await Application.Current.MainPage.DisplayAlert("Internet", $"Status: {hasInternet} of type {internetType}", "OK");
+        await Application.Current.MainPage?.DisplayAlert("Internet", $"Status: {hasInternet} of type {internetType}", "OK");
     }
 }

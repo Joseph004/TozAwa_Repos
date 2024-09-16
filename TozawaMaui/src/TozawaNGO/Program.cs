@@ -28,6 +28,13 @@ var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration; // allows both to access and to set up the config
 IWebHostEnvironment environment = builder.Environment;
 
+// Load appsettings.json
+var config = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", false)
+    .AddJsonFile("appsettings.Development.json", true)
+    .Build();
+
+configuration.AddConfiguration(config);
 var appSettings = builder.Services.ConfigureAppSettings<AppSettings>(configuration.GetSection("AppSettings"));
 
 builder.Services.AddRazorPages();
@@ -152,7 +159,7 @@ builder.Services.RegisterHttpClients();
 
 builder.Services.AddScoped<AuthStateProvider>();
 
-builder.Services.AddSingleton<WeatherForecastService>();
+builder.Services.AddScoped<WeatherForecastService>();
 builder.Services.AddSingleton<TodoService>();
 builder.Services.AddScoped<ICookie, Cookie>();
 builder.Services.AddScoped<TozawaNGO.StateHandler.UserState>();

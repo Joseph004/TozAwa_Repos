@@ -48,7 +48,7 @@ namespace ShareRazorClassLibrary.Services
 
                 _translationLoaded = true;
 
-                LanguageChanged(this, new EventArgs());
+                LanguageChanged?.Invoke(this, new EventArgs());
             }
         }
         private async IAsyncEnumerable<LocalizedString> GetAllLocalizedStrings()
@@ -174,7 +174,7 @@ namespace ShareRazorClassLibrary.Services
                 _activeLanguage = null;
                 await LoadTranslations();
 
-                LanguageChanged(this, new EventArgs());
+                LanguageChanged?.Invoke(this, new EventArgs());
             }
         }
 
