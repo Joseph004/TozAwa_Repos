@@ -1,0 +1,25 @@
+﻿@inherits LayoutComponentBase
+@namespace TozawaMauiHybrid.Components.Layout
+
+<MudThemeProvider Theme="_currentTheme" />
+<MudSnackbarProvider />
+
+<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" CloseButton="true" DisableBackdropClick="false"
+    NoHeader="false" Position="DialogPosition.TopCenter" />
+
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>

@@ -1,6 +1,6 @@
 
 
-namespace ShareRazorClassLibrary.Models.Dtos
+namespace TozawaMauiHybrid.Models.Dtos
 {
     public class WeatherDto
     {

@@ -13,7 +13,7 @@ namespace OrleansHost.Api
         private readonly IGrainFactory factory = factory;
 
         [HttpGet]
-        public Task<ImmutableArray<WeatherInfo>> GetAsync() =>
-            factory.GetGrain<IWeatherGrain>(Guid.Empty).GetForecastAsync();
+        public async Task<IActionResult> GetAsync()
+        => Ok(await factory.GetGrain<IWeatherGrain>(Guid.Empty).GetForecastAsync());
     }
 }

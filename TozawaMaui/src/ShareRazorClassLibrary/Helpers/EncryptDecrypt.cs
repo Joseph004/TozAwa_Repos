@@ -9,14 +9,8 @@ public interface IEncryptDecrypt
 {
     string EncryptUsingCertificate(string data);
 }
-public class EncryptDecrypt : IEncryptDecrypt
+public class EncryptDecrypt() : IEncryptDecrypt
 {
-    private readonly AppSettings _appSettings;
-    public EncryptDecrypt(AppSettings appSettings)
-    {
-        _appSettings = appSettings;
-    }
-
     public string EncryptUsingCertificate(string data)
     {
         try

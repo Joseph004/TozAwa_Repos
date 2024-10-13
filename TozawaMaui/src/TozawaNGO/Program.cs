@@ -124,8 +124,6 @@ builder.Services.AddMvcCore(options =>
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
 
-builder.Services.AddMudServices();
-
 // ******
 // BLAZOR COOKIE Auth Code (begin)
 // From: https://github.com/aspnet/Blazor/issues/1554

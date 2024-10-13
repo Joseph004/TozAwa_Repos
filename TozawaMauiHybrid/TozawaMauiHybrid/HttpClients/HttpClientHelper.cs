@@ -1,17 +1,16 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
-using ShareRazorClassLibrary.Configurations;
-using ShareRazorClassLibrary.Extensions;
-using ShareRazorClassLibrary.Helpers;
-using ShareRazorClassLibrary.Models.Dtos;
-using ShareRazorClassLibrary.Models.ResponseRequests;
-using ShareRazorClassLibrary.Services;
+using TozawaMauiHybrid.Configurations;
+using TozawaMauiHybrid.Extensions;
+using TozawaMauiHybrid.Helpers;
+using TozawaMauiHybrid.Models.Dtos;
+using TozawaMauiHybrid.Models.ResponseRequests;
+using TozawaMauiHybrid.Services;
 using Microsoft.JSInterop;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
@@ -19,13 +18,13 @@ using System.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 
-namespace ShareRazorClassLibrary.HttpClients
+namespace TozawaMauiHybrid.HttpClients
 {
     public class HttpClientHelper(HttpClient client,
     ITranslationService translationService,
     AppSettings appSettings,
     AuthenticationStateProvider authProvider,
-    ILocalStorageService localStorageService,
+    PreferencesStoreClone storage,
     NavigationManager navigationManager,
     IJSRuntime jSRuntime,
     AuthStateProvider authStateProvider,
@@ -35,21 +34,26 @@ namespace ShareRazorClassLibrary.HttpClients
         private readonly ITranslationService _translationService = translationService;
         private readonly AppSettings _appSettings = appSettings;
         private readonly AuthenticationStateProvider _authProvider = authProvider;
-        private readonly ILocalStorageService _localStorageService = localStorageService;
+        private readonly PreferencesStoreClone _storage = storage;
         private readonly NavigationManager _navigationManager = navigationManager;
         private readonly AuthStateProvider _authStateProvider = authStateProvider;
         private readonly IJSRuntime _jSRuntime = jSRuntime;
         private readonly HttpClient _client = client;
 
-        public async Task RemoveCurrentUser()
+        public void RemoveCurrentUser()
         {
-            if (await _localStorageService.ContainKeyAsync("currentUser"))
+            if (_storage.Exists("currentUser"))
             {
-                await _localStorageService.RemoveItemAsync("currentUser");
+                _storage.Delete("currentUser");
             }
         }
         private async Task<AddResponse<LoginResponseDto>> PostRefresh(string url, RefreshTokenDto value)
         {
+            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+            {
+                await Application.Current.MainPage.DisplayAlert("Alert", "No internet access.", "Ok");
+                return new AddResponse<LoginResponseDto>(false, StatusTexts.GetHttpStatusText(HttpStatusCode.InternalServerError), HttpStatusCode.InternalServerError, null);
+            }
             var request = PostRequest(url, value);
 
             if (!string.IsNullOrEmpty(value.Token))
@@ -67,10 +71,10 @@ namespace ShareRazorClassLibrary.HttpClients
 
             var result = postContent.Entity ?? new LoginResponseDto();
 
-            await _localStorageService.SetItemAsync("authToken", result.Token);
-            await _localStorageService.SetItemAsync("refreshToken", result.RefreshToken);
+            _storage.Set("authToken", result.Token);
+            _storage.Set("refreshToken", result.RefreshToken);
 
-            ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication();
+            await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication();
 
             return postContent;
         }
@@ -349,8 +353,8 @@ namespace ShareRazorClassLibrary.HttpClients
         }
         private async Task<string> TryRefreshToken()
         {
-            var token = await _localStorageService.GetItemAsync<string>("authToken");
-            var refreshToken = await _localStorageService.GetItemAsync<string>("refreshToken");
+            var token = _storage.Get<string>("authToken");
+            var refreshToken = _storage.Get<string>("refreshToken");
 
             var request = new RefreshTokenDto()
             {
@@ -403,6 +407,11 @@ namespace ShareRazorClassLibrary.HttpClients
 
         protected async Task<HttpResponseMessage> Send(HttpRequestMessage request)
         {
+            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
+            {
+                await Application.Current.MainPage.DisplayAlert("Alert", "No internet access.", "Ok");
+                return new();
+            }
             var activeLanguage = await _translationService.GetActiveLanguage();
 
             var token = await TryRefreshToken();
@@ -431,8 +440,8 @@ namespace ShareRazorClassLibrary.HttpClients
         }
         private async Task Logout()
         {
-            await _localStorageService.RemoveItemAsync("authToken");
-            await _localStorageService.RemoveItemAsync("refreshToken");
+            _storage.Delete("authToken");
+            _storage.Delete("refreshToken");
 
             ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
 
