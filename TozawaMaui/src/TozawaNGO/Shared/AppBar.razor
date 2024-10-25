@@ -8,7 +8,7 @@
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleSideBar" />
     @if (_showLogo)
     {
-        <MudButton Href="/home" Color="Color.Inherit">
+        <MudButton Href="/" Color="Color.Inherit">
             <img src="/images/TR_Mini.png" asp-append-version="true" height="60px" width="150px" />
         </MudButton>
     }
@@ -17,7 +17,7 @@
     <MudText Class="appbarTitle">
         <SystemText TextId=SystemTextId.ToZawaTitle Style="font-familly: cursive; font-size: max(1.2vw, 13px)"
             SystemTextTypo=Typo.h2 FallbackText="Svensk Förening för internationella arbete inom teknik och informatik"
-            IsFirstLoaded="@IsFirstLoaded"></SystemText>
+            ></SystemText>
     </MudText>
 
     <MudSpacer />
@@ -35,7 +35,7 @@
                             <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Person" Size="Size.Small"
                                 Color="Color.Warning">
                             </MudIcon>
-                            <SystemText TextId=SystemTextId.Hello FallbackText="Hello" IsFirstLoaded="@IsFirstLoaded">
+                            <SystemText TextId=SystemTextId.Hello FallbackText="Hello" >
                             </SystemText>
                             <b>@context.User.Identity.Name!</b>
                         </MudText>
@@ -47,7 +47,7 @@
                                 <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Logout" Size="Size.Small">
                                 </MudIcon>
                                 <SystemText TextId=SystemTextId.Logout FallbackText="Logout"
-                                    IsFirstLoaded="@IsFirstLoaded"></SystemText>
+                                    ></SystemText>
                             </MudText>
                         </MudButton>
                     </MudMenuItem>
@@ -63,12 +63,4 @@
             </MudIconButton>
         </NotAuthorized>
     </AuthorizeView>
-    @if (_isLightMode)
-    {
-        <MudIconButton Icon="@Icons.Material.Filled.Brightness4" Color="Color.Inherit" OnClick="ToggleTheme" />
-    }
-    else
-    {
-        <MudIconButton Icon="@Icons.Material.Filled.Brightness5" Color="Color.Inherit" OnClick="ToggleTheme" />
-    }
 </MudAppBar>

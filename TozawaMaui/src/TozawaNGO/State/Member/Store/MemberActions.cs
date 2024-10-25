@@ -1,7 +1,5 @@
-using Grains;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
-using Orleans.Streams;
 using TozawaNGO.Models;
 using ShareRazorClassLibrary.Models.FormModels;
 using ShareRazorClassLibrary.Models.Dtos;
@@ -16,7 +14,7 @@ public record HandleIncludeDeletedMemberAction(string includeDeleted)
 {
     public string IncludeDeleted { get; } = includeDeleted;
 }
-public record MemberDataFechedAction(MemberKeyedCollection members, StreamSubscriptionHandle<MemberNotification> subscription, List<MemberNotification> notifications, int totalItems, HubConnection hubConnection);
+public record MemberDataFechedAction(MemberKeyedCollection members, int totalItems, HubConnection hubConnection);
 public record MemberDataAction(string page, string pageSize, string searchString, bool includeDeleted, string pageOfEmail, string email, double scrollTop, LoadingState loadingState, IJSRuntime jSRuntime);
 public record MemberPatchAction(Guid id, PatchMemberRequest request, MemberDto backItem)
 {

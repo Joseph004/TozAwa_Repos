@@ -48,12 +48,12 @@
     </DialogContent>
     <DialogActions>
         <MudButton Disabled="@_processing" Variant="Variant.Filled" OnClick="Cancel">
-            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" IsFirstLoaded="@IsFirstLoaded"></SystemText>
+            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" ></SystemText>
         </MudButton>
         <MudButton Disabled="@DisabledLoginButton()" OnClick="@((MouseEventArgs e)=>LoginByClick(@loginButton, e))"
             Color="Color.Primary" Variant="Variant.Filled" Class="ml-auto" Target="_top">
             <MudText>
-                <SystemText TextId=SystemTextId.Login FallbackText="Login" IsFirstLoaded="@IsFirstLoaded"></SystemText>
+                <SystemText TextId=SystemTextId.Login FallbackText="Login" ></SystemText>
             </MudText>
         </MudButton>
     </DialogActions>

@@ -25,7 +25,6 @@ namespace TozawaMauiHybrid.HttpClients
     AppSettings appSettings,
     AuthenticationStateProvider authProvider,
     PreferencesStoreClone storage,
-    NavigationManager navigationManager,
     IJSRuntime jSRuntime,
     AuthStateProvider authStateProvider,
     ILogger<HttpClientHelper> logger)
@@ -35,7 +34,7 @@ namespace TozawaMauiHybrid.HttpClients
         private readonly AppSettings _appSettings = appSettings;
         private readonly AuthenticationStateProvider _authProvider = authProvider;
         private readonly PreferencesStoreClone _storage = storage;
-        private readonly NavigationManager _navigationManager = navigationManager;
+       // private readonly NavigationManager _navigationManager = navigationManager;
         private readonly AuthStateProvider _authStateProvider = authStateProvider;
         private readonly IJSRuntime _jSRuntime = jSRuntime;
         private readonly HttpClient _client = client;
@@ -44,7 +43,7 @@ namespace TozawaMauiHybrid.HttpClients
         {
             if (_storage.Exists("currentUser"))
             {
-                _storage.Delete("currentUser");
+                _storage.Delete("currentUNavigationManagerser");
             }
         }
         private async Task<AddResponse<LoginResponseDto>> PostRefresh(string url, RefreshTokenDto value)
@@ -425,6 +424,7 @@ namespace TozawaMauiHybrid.HttpClients
             request.Headers.Add("tzuserauthentication", token);
 
             request.Headers.Add("toza-active-language", activeLanguage.Id.ToString());
+            
             var response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -454,7 +454,7 @@ namespace TozawaMauiHybrid.HttpClients
         }
         private string NavigateToReturnPage()
         {
-            var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
+            var currentPath = ""; //_navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
 
             if (string.IsNullOrEmpty(currentPath))
             {

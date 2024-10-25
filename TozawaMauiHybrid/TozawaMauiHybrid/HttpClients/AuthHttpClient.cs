@@ -25,10 +25,10 @@ namespace TozawaMauiHybrid.HttpClients
         private readonly ILogger<AuthHttpClient> _logger;
         private readonly AuthenticationStateProvider _authProvider;
         private readonly PreferencesStoreClone _storage;
-        private readonly NavigationManager _navigationManager;
+        //private readonly NavigationManager _navigationManager;
         private readonly HttpClient _client;
 
-        public AuthHttpClient(HttpClient client, AppSettings appSettings, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authProvider, PreferencesStoreClone storage, NavigationManager navigationManager,
+        public AuthHttpClient(HttpClient client, AppSettings appSettings, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authProvider, PreferencesStoreClone storage,
            AuthenticationStateProvider authState)
         {
             _client = client;
@@ -37,11 +37,10 @@ namespace TozawaMauiHybrid.HttpClients
             _storage = storage;
             _authProvider = authProvider;
 
-            client.BaseAddress = new Uri(appSettings.TozAwaNGOApiSettings.ApiUrl);
-            client.DefaultRequestHeaders.Add("Accept", "application/json");
-
-            _navigationManager = navigationManager;
+            //_navigationManager = navigationManager;
+#if !DEBUG
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+#endif
         }
         private async Task<string> TryRefreshToken()
         {
@@ -91,15 +90,15 @@ namespace TozawaMauiHybrid.HttpClients
         }
         private void NavigateToReturnPage()
         {
-            var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
+            var currentPath = ""; //_navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
 
             if (string.IsNullOrEmpty(currentPath))
             {
-                _navigationManager.NavigateTo("/home");
+                //_navigationManager.NavigateTo("/home");
             }
             else
             {
-                _navigationManager.NavigateTo($"/{currentPath}");
+                //_navigationManager.NavigateTo($"/{currentPath}");
             }
         }
         public virtual async Task<HttpResponseMessage> Send(HttpRequestMessage request)

@@ -19,9 +19,11 @@ namespace TozawaNGO.Shared
     public partial class MainLayout : BaseComponentLayout
     {
         [Inject] IJSRuntime JSRuntime { get; set; }
+        [Inject] ILogger<MainLayout> _logger { get; set; }
         [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] ICurrentUserService CurrentUserService { get; set; }
         [Inject] AppSettings _appSettings { get; set; }
+        [Inject] FirsloadState FirsloadState { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
         [Inject] ILocalStorageService _localStorageService { get; set; }
@@ -32,9 +34,7 @@ namespace TozawaNGO.Shared
         private bool _disabledPage = false;
         private string _disableAttrString = "";
         private ErrorBoundary _errorBoundary;
-
         private bool _sidebarOpen = true;
-        private void ToggleTheme(MudTheme changedTheme) => _currentTheme = changedTheme;
         private void ToggleSidebar()
         {
             _sidebarOpen = !_sidebarOpen;
@@ -57,8 +57,13 @@ namespace TozawaNGO.Shared
         };
         protected async override Task OnInitializedAsync()
         {
+            FirsloadState.OnChange += ReloadPage;
             LoadingState.OnChange += DisabledPage;
             await base.OnInitializedAsync();
+        }
+        public void ReloadPage()
+        {
+            StateHasChanged();
         }
         private async void DisabledPage()
         {
@@ -74,6 +79,7 @@ namespace TozawaNGO.Shared
         {
             if (firstRender)
             {
+                FirsloadState.SetFirsLoad(true);
                 _timer = new Timer(_timerInterval);
                 _timer.Elapsed += LogoutTimeout;
                 _timer.AutoReset = false;
@@ -97,8 +103,14 @@ namespace TozawaNGO.Shared
                 if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken) && !ValidateCurrentToken(token))
                 {
                     var exp = auth.User.Claims.First(x => x.Type == "logoutexpat").Value;
+                    var year = Convert.ToInt32(exp.Split("/")[2].Split(":")[0].Split(" ")[0]);
+                    var month = Convert.ToInt32(exp.Split("/")[1]);
+                    var day = Convert.ToInt32(exp.Split("/")[0]);
+                    var hour = Convert.ToInt32(exp.Split("/")[2].Split(":")[0].Split(" ")[1]);
+                    var minute = Convert.ToInt32(exp.Split("/")[2].Split(":")[1]);
+                    var seconde = Convert.ToInt32(exp.Split("/")[2].Split(":")[2]);
                     var currentDate = DateTime.UtcNow;
-                    var expDate = DateTime.Parse(exp);
+                    var expDate = new DateTime(year, month, day, hour, minute, seconde);
 
                     if (currentDate > expDate)
                     {
@@ -125,8 +137,9 @@ namespace TozawaNGO.Shared
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey))
                 }, out SecurityToken validatedToken);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Could not logout user");
                 return false;
             }
             return true;
@@ -140,20 +153,23 @@ namespace TozawaNGO.Shared
         {
             InvokeAsync(async () =>
               {
-                  var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-                  if (context.User.Identity.IsAuthenticated)
+                  if (FirsloadState.IsFirstLoaded)
                   {
-                      var parameters = new DialogParameters
+                      var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                      if (context.User.Identity.IsAuthenticated)
                       {
-                          ["Title"] = "Logout"
-                      };
-                      DialogOptions options = new() { DisableBackdropClick = true, Position = DialogPosition.TopCenter };
-                      var dialog = DialogService.Show<ExpireModal>("Logout", parameters, options);
-                      var result = await dialog.Result;
+                          var parameters = new DialogParameters
+                          {
+                              ["Title"] = "Logout"
+                          };
+                          DialogOptions options = new() { DisableBackdropClick = true, Position = DialogPosition.TopCenter };
+                          var dialog = DialogService.Show<ExpireModal>("Logout", parameters, options);
+                          var result = await dialog.Result;
 
-                      if (!result.Canceled)
-                      {
-                          await Logout();
+                          if (!result.Canceled)
+                          {
+                              await Logout();
+                          }
                       }
                   }
               });
@@ -174,7 +190,7 @@ namespace TozawaNGO.Shared
 
             if (string.IsNullOrEmpty(currentPath))
             {
-                return "/home";
+                return "/homePage";
             }
             else
             {
@@ -189,6 +205,7 @@ namespace TozawaNGO.Shared
         public override void Dispose()
 #pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
+            FirsloadState.OnChange -= ReloadPage;
             LoadingState.OnChange -= DisabledPage;
             if (_timer != null)
             {

@@ -25,13 +25,11 @@ namespace TozawaMauiHybrid.HttpClients
 
     public class TozAwaBffHttpClient : HttpClientHelper, ITozAwaBffHttpClient
     {
-        public TozAwaBffHttpClient(HttpClient client, AppSettings appSettings, AuthenticationStateProvider authProvider, PreferencesStoreClone storage,
-            NavigationManager navigationManager, ILogger<TozAwaBffHttpClient> logger, ITranslationService translationService, IJSRuntime jSRuntime, AuthStateProvider authStateProvider) : base(client, translationService, appSettings, authProvider, storage, navigationManager, jSRuntime, authStateProvider, logger)
+        public TozAwaBffHttpClient(HttpClient client, AppSettings appSettings, AuthenticationStateProvider authProvider, PreferencesStoreClone storage, ILogger<TozAwaBffHttpClient> logger, ITranslationService translationService, IJSRuntime jSRuntime, AuthStateProvider authStateProvider) : base(client, translationService, appSettings, authProvider, storage, jSRuntime, authStateProvider, logger)
         {
-            client.BaseAddress = new Uri(appSettings.TozAwaNGOApiSettings.ApiUrl);
-            client.DefaultRequestHeaders.Add("Accept", "application/json");
-
-            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+#if !DEBUG
+           ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
+#endif
         }
     }
 }

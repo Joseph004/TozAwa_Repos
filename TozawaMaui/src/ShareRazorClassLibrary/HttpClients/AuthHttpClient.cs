@@ -96,7 +96,7 @@ namespace ShareRazorClassLibrary.HttpClients
 
             if (string.IsNullOrEmpty(currentPath))
             {
-                _navigationManager.NavigateTo("/home");
+                _navigationManager.NavigateTo("/homePage");
             }
             else
             {

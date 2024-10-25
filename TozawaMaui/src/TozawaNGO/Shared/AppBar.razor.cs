@@ -14,25 +14,27 @@ namespace TozawaNGO.Shared
     {
         [Parameter]
         public EventCallback OnSidebarToggled { get; set; }
-        [Parameter]
-        public EventCallback<MudTheme> OnThemeToggled { get; set; }
         [Inject] ILocalStorageService _localStorageService { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
+        [Inject] FirsloadState FirsloadState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
-        private MudTheme _currentTheme = new();
         public string _loginUrl { get; set; } = $"";
-        private bool _isLightMode = true;
         private bool _showLogo = false;
 
         protected async override Task OnInitializedAsync()
         {
+            FirsloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
             await base.OnInitializedAsync();
+        }
+        private void FirsLoadChanged()
+        {
+            StateHasChanged();
         }
         private async void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
@@ -47,18 +49,6 @@ namespace TozawaNGO.Shared
         {
             _showLogo = !_showLogo;
             await OnSidebarToggled.InvokeAsync();
-        }
-        private async Task ToggleTheme()
-        {
-            _isLightMode = !_isLightMode;
-            _currentTheme = !_isLightMode ? GenerateDarkTheme() : new MudTheme
-            {
-                Palette = new PaletteLight()
-                {
-                    AppbarBackground = "#000000"
-                }
-            };
-            await OnThemeToggled.InvokeAsync(_currentTheme);
         }
         private static string Decode(string param)
         {
@@ -105,7 +95,7 @@ namespace TozawaNGO.Shared
 
             if (string.IsNullOrEmpty(currentPath))
             {
-                return "/home";
+                return "/homePage";
             }
             else
             {
@@ -153,18 +143,17 @@ namespace TozawaNGO.Shared
                 var auth = await _authStateProvider.GetAuthenticationStateAsync();
                 if (auth.User.Identity.IsAuthenticated)
                 {
-                    IsFirstLoaded = true;
                     ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication();
 
                     _currentUser = await _currentUserService.GetCurrentUser();
                     StateHasChanged();
                 }
-
-                await base.OnAfterRenderAsync(firstRender);
             }
+            await base.OnAfterRenderAsync(firstRender);
         }
         protected override void Dispose(bool disposed)
         {
+            FirsloadState.OnChange -= FirsLoadChanged;
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
             base.Dispose(disposed);

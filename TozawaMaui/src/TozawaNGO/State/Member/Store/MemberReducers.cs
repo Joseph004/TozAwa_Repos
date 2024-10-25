@@ -1,5 +1,4 @@
 using Fluxor;
-using Grains;
 using MudBlazor;
 using ShareRazorClassLibrary.Models.Dtos;
 
@@ -10,14 +9,7 @@ public static class Redures
     [ReducerMethod]
     public static MemberState ReduceHandleSearchStringMemberAction(MemberState state, HandleSearchStringMemberAction action)
     {
-        return new() { IsLoading = false, Subscription = state.Subscription, TotalItems = state.TotalItems, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, Members = state.Members, SearchString = action.searchString, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
-    }
-    [ReducerMethod(typeof(UnSubscribeAction))]
-    public static MemberState ReduceUnSubscribeAction(MemberState state)
-    {
-        state.Subscription?.UnsubscribeAsync();
-        state.HubConnection.DisposeAsync();
-        return new() { IsLoading = false, Subscription = state.Subscription, TotalItems = state.TotalItems, Members = state.Members, SearchString = state.SearchString, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
+        return new() { IsLoading = false, TotalItems = state.TotalItems, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, Members = state.Members, SearchString = action.searchString, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
     }
 
     [ReducerMethod]
@@ -26,7 +18,6 @@ public static class Redures
     [ReducerMethod]
     public static MemberState ReduceDataFetchedAction(MemberState state, MemberDataFechedAction action)
     {
-        HandleNotificationAsync(action.notifications, state);
         foreach (var member in action.members)
         {
             if (!state.DescriptionIcon.ContainsKey(member.Id))
@@ -36,7 +27,7 @@ public static class Redures
             }
         }
         state.LoadingState.SetRequestInProgress(false);
-        return new() { IsLoading = false, Subscription = action.subscription, TotalItems = action.totalItems, SearchString = state.SearchString, Members = action.members, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = action.hubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
+        return new() { IsLoading = false, TotalItems = action.totalItems, SearchString = state.SearchString, Members = action.members, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = action.hubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
     }
 
     [ReducerMethod]
@@ -80,7 +71,6 @@ public static class Redures
         return new()
         {
             IsLoading = false,
-            Subscription = state.Subscription,
             TotalItems = state.TotalItems,
             SearchString = state.SearchString,
             Members = state.Members,
@@ -134,7 +124,7 @@ public static class Redures
         }
 
         state.LoadingState.SetRequestInProgress(false);
-        return new() { IsLoading = false, Subscription = state.Subscription, TotalItems = state.TotalItems, SearchString = state.SearchString, Members = state.Members, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
+        return new() { IsLoading = false, TotalItems = state.TotalItems, SearchString = state.SearchString, Members = state.Members, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
     }
 
     [ReducerMethod]
@@ -149,19 +139,19 @@ public static class Redures
         }
 
         state.LoadingState.SetRequestInProgress(false);
-        return new() { IsLoading = false, Subscription = state.Subscription, TotalItems = state.TotalItems, SearchString = state.SearchString, Members = state.Members, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
+        return new() { IsLoading = false, TotalItems = state.TotalItems, SearchString = state.SearchString, Members = state.Members, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
     }
 
     [ReducerMethod]
     public static MemberState ReduceMemberSelectedAction(MemberState state, MemberSelectedAction action)
     {
-        return new() { IsLoading = false, Subscription = state.Subscription, TotalItems = state.TotalItems, SearchString = state.SearchString, Members = state.Members, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = action.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
+        return new() { IsLoading = false, TotalItems = state.TotalItems, SearchString = state.SearchString, Members = state.Members, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = action.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
     }
 
     [ReducerMethod]
     public static MemberState ReduceScrollTopAction(MemberState state, ScrollTopAction action)
     {
-        return new() { IsLoading = false, SearchString = state.SearchString, TotalItems = state.TotalItems, Subscription = state.Subscription, Members = state.Members, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = state.HubConnection, ScrollTop = action.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
+        return new() { IsLoading = false, SearchString = state.SearchString, TotalItems = state.TotalItems, Members = state.Members, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = state.HubConnection, ScrollTop = action.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
     }
 
     [ReducerMethod]
@@ -184,44 +174,6 @@ public static class Redures
             state.MudTextField.Add(action.member.Id, new MudTextField<string>());
         }
         state.LoadingState.SetRequestInProgress(false);
-        return new() { IsLoading = false, Subscription = state.Subscription, TotalItems = state.TotalItems, SearchString = null, Members = state.Members, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
-    }
-    private static Task HandleNotificationAsync(List<MemberNotification> notifications, MemberState state)
-    {
-        foreach (var notification in notifications)
-        {
-            if (notification.Item == null)
-            {
-                if (state.Members.Remove(notification.ItemKey))
-                {
-                }
-                return Task.CompletedTask;
-            }
-            if (state.Members.TryGetValue(notification.Item.UserId, out var current))
-            {
-                if (notification.Item.Timestamp > current.Timestamp)
-                {
-                    state.Members[state.Members.IndexOf(current)] = GetMember(notification.Item);
-                }
-                return Task.CompletedTask;
-            }
-            state.Members.Add(GetMember(notification.Item));
-        }
-        return Task.CompletedTask;
-    }
-    private static MemberDto GetMember(MemberItem memberItem)
-    {
-        return new MemberDto
-        {
-            Id = memberItem.UserId,
-            PartnerId = memberItem.PartnerId,
-            Email = memberItem.Email,
-            Description = memberItem.Description,
-            DescriptionTextId = memberItem.DescriptionTextId,
-            FirstName = memberItem.FirstName,
-            LastName = memberItem.LastName,
-            Deleted = memberItem.Deleted,
-            Admin = memberItem.AdminMember
-        };
+        return new() { IsLoading = false, TotalItems = state.TotalItems, SearchString = null, Members = state.Members, Page = state.Page, PageSize = state.PageSize, IncludeDeleted = state.IncludeDeleted, PageOfEmail = state.PageOfEmail, Email = state.Email, HubConnection = state.HubConnection, ScrollTop = state.ScrollTop, LoadingState = state.LoadingState, JSRuntime = state.JSRuntime, SelectedItem = state.SelectedItem, DescriptionIcon = state.DescriptionIcon, MudTextField = state.MudTextField };
     }
 }

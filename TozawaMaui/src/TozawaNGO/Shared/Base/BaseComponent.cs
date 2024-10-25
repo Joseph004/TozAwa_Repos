@@ -8,7 +8,6 @@ namespace TozawaNGO.Shared
     {
         [Inject] protected ITranslationService _translationService { get; set; }
         [Inject] protected AuthStateProvider _authStateProvider { get; set; }
-        public bool IsFirstLoaded { get; set; }
         [Inject] public ICurrentUserService _currentUserService { get; set; }
 
         public CurrentUserDto _currentUser { get; set; } = new();
@@ -19,7 +18,6 @@ namespace TozawaNGO.Shared
         }
         protected override void OnInitialized()
         {
-            IsFirstLoaded = false;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
             base.OnInitialized();
@@ -36,7 +34,6 @@ namespace TozawaNGO.Shared
         {
             if (firstRender)
             {
-                IsFirstLoaded = true;
                 _currentUser = await _currentUserService.GetCurrentUser();
             }
             await base.OnAfterRenderAsync(firstRender);

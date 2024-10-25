@@ -1,8 +1,8 @@
 ﻿@page "/counter"
 @using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Services
 
 <h1>Counter</h1>
-
 <p role="status">Current count: @currentCount</p>
 
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
@@ -15,6 +15,20 @@
     private int currentCount = 0;
     private int storeCount = 0;
 
+    [Inject] ScrollTopState ScrollTopState { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        ScrollTopState.SetSource("Counter");
+        ScrollTopState.OnChange += SetScroll;
+        await base.OnInitializedAsync();
+    }
+    protected virtual void Dispose()
+    {
+        ScrollTopState.OnChange -= SetScroll;
+    }
+    private void SetScroll()
+    {
+    }
     private void IncrementCount()
     {
         currentCount++;

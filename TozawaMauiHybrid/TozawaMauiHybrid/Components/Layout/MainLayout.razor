@@ -1,25 +1,34 @@
-﻿@inherits LayoutComponentBase
+﻿@inherits TozawaMauiHybrid.Component.BaseComponentLayout
 @namespace TozawaMauiHybrid.Components.Layout
 
 <MudThemeProvider Theme="_currentTheme" />
-<MudSnackbarProvider />
 
 <MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" CloseButton="true" DisableBackdropClick="false"
     NoHeader="false" Position="DialogPosition.TopCenter" />
 
+<MudLayout Style="max-height: 100vh; height: 100vh;" @onkeypress="RefreshTimer"
+    Class="@($"d-flex flex-column flex-grow-1 gap-4 {_disableAttrString}")" @onmousemove="RefreshTimer">
+    @* <AppBar OnSidebarToggled="ToggleSidebar" /> *@
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    <NavMenu SideBarOpen="_sidebarOpen" />
+    <LoadingScreen>
+        <MudMainContent Class="pt-16 px-16 flex-1 d-flex">
+            <MudContainer Style="display: flex !important; flex-direction: column;" Class="mt-3 d-flex">
+                <ErrorBoundary @ref="_errorBoundary">
+                    <ChildContent>
+                        @Body
+                    </ChildContent>
+                    <ErrorContent Context="ex">
+                        <MudPaper Class="pa-4" Style="@($"background: var(--mud-palette-error);")">
+                            <MudText>
+                                @OnError(@ex);
+                            </MudText>
+                        </MudPaper>
+                    </ErrorContent>
+                </ErrorBoundary>
+                <Footer></Footer>
+            </MudContainer>
+        </MudMainContent>
+        <ScrollToTop></ScrollToTop>
+    </LoadingScreen>
+</MudLayout>

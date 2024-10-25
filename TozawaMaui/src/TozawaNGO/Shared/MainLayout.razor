@@ -10,7 +10,7 @@
 
 <MudLayout Style="max-height: 100vh; height: 100vh;" @onkeypress="RefreshTimer"
     Class="@($"d-flex flex-column flex-grow-1 gap-4 {_disableAttrString}")" @onmousemove="RefreshTimer">
-    <AppBar OnSidebarToggled="ToggleSidebar" OnThemeToggled="ToggleTheme" />
+    <AppBar OnSidebarToggled="ToggleSidebar" />
 
     <NavMenu SideBarOpen="_sidebarOpen" />
     <LoadingScreen>

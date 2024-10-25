@@ -59,11 +59,11 @@
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">
-            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" IsFirstLoaded="@IsFirstLoaded" />
+            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel"  />
         </MudButton>
         <MudButton Color="Color.Primary" OnClick="AddItem" Disabled="@DisabledAddButton()">
             <MudText>
-                <SystemText TextId=SystemTextId.Add FallbackText="Add" IsFirstLoaded="@IsFirstLoaded" />
+                <SystemText TextId=SystemTextId.Add FallbackText="Add"  />
             </MudText>
         </MudButton>
     </DialogActions>

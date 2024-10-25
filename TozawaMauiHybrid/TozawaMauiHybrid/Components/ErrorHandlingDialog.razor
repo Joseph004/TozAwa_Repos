@@ -1,0 +1,19 @@
+@namespace TozawaMauiHybrid.Component
+@inherits BaseDialog
+
+<MudDialog Class="@MudDialog.Id.ToString()">
+    <TitleContent>
+        <MudText Typo="Typo.h6">
+            <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Error" Class="mr-3 mb-n1" />
+            <span>@title</span>
+        </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText>@body</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@(e => Confirm())">
+            OK
+        </MudButton>
+    </DialogActions>
+</MudDialog>

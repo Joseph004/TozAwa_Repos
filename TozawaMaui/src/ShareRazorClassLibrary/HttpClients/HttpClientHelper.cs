@@ -358,7 +358,7 @@ namespace ShareRazorClassLibrary.HttpClients
                 RefreshToken = refreshToken
             };
 
-            if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken) && !ValidateCurrentToken(token))
+            if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken) && !_authStateProvider.ValidateCurrentToken(token))
             {
                 var response = await PostRefresh("token/refresh/", request);
                 if (response.Success)
@@ -376,31 +376,6 @@ namespace ShareRazorClassLibrary.HttpClients
             }
             return string.Empty;
         }
-        private bool ValidateCurrentToken(string token)
-        {
-            var myIssuer = _appSettings.JWTSettings.ValidIssuer;
-            var myAudience = _appSettings.JWTSettings.ValidAudience;
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            try
-            {
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidIssuer = myIssuer,
-                    ValidAudience = myAudience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey))
-                }, out SecurityToken validatedToken);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-            return true;
-        }
-
         protected async Task<HttpResponseMessage> Send(HttpRequestMessage request)
         {
             var activeLanguage = await _translationService.GetActiveLanguage();
@@ -449,7 +424,7 @@ namespace ShareRazorClassLibrary.HttpClients
 
             if (string.IsNullOrEmpty(currentPath))
             {
-                return "/home";
+                return "/homePage";
             }
             else
             {

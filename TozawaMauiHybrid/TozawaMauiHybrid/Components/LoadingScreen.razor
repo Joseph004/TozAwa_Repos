@@ -1,0 +1,48 @@
+@implements IDisposable
+@namespace TozawaMauiHybrid.Component
+@using TozawaMauiHybrid.Services
+
+
+@if (isLoaded)
+{
+    @ChildContent
+    @if (_RequestInProgress)
+    {
+        <div class="ta-loading loading loaderDiv" style="width: 250px;">
+            <div class="row loaderDiv">
+                <div class="col-md-12">
+                    <div class="d-flex align-center">
+                        <MudProgressCircular Style="@($"color: {"#ff5e14"};")" Size="Size.Medium" Indeterminate="true" />
+                        <h3>
+                            <img src="/images/Tozawa-Text-Picture-No-Background-White.png" height="50px" width="150px"
+                                alt="loading tozawa image" />
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <div class="ta-loading loading" style="width: 250px;">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex align-center">
+                    <div class="mud-progress-circular mud-default-text mud-progress-medium mud-progress-indeterminate"
+                        role="progressbar" aria-valuenow="0">
+                        <svg class="circular" viewBox="22 22 44 44">
+                            <circle class="mud-progress-circular-circle mud-progress-indeterminatev2" cx="44" cy="44" r="20"
+                                fill="none" stroke-width="3" stroke-miterlimit="10">
+                            </circle>
+                        </svg>
+                    </div>
+                    <h3>
+                        <img src="/images/Tozawa-Text-Picture-No-Background-White.png" height="50px" width="150px"
+                            alt="loading tozawa image" />
+                    </h3>
+                </div>
+            </div>
+        </div>
+    </div>
+}

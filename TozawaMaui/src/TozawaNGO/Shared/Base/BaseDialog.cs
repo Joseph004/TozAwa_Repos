@@ -9,7 +9,6 @@ namespace TozawaNGO.Shared
     {
         [Inject] protected ITranslationService _translationService { get; set; }
         [Inject] private ICurrentUserService _currentUserService { get; set; }
-        public bool IsFirstLoaded { get; set; }
 
         public CurrentUserDto _currentUser { get; set; } = new();
 
@@ -20,7 +19,6 @@ namespace TozawaNGO.Shared
 
         protected override void OnInitialized()
         {
-            IsFirstLoaded = true;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             base.OnInitialized();
         }
@@ -37,7 +35,6 @@ namespace TozawaNGO.Shared
         }
         protected override async Task OnInitializedAsync()
         {
-            IsFirstLoaded = true;
             await base.OnInitializedAsync();
         }
 

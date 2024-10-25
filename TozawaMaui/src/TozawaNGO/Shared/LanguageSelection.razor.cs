@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using ShareRazorClassLibrary.Configurations;
 using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared
 {
@@ -12,9 +13,9 @@ namespace TozawaNGO.Shared
         public List<ShareRazorClassLibrary.Models.Dtos.ActiveLanguageDto> ActiveLanguages { get; set; }
         public ActiveLanguageDto ActiveLanguage { get; set; }
         private Dictionary<string, string> _cultures;
+        [Inject] FirsloadState FirsloadState { get; set; }
         private string _dropArrowPosition = Icons.Material.Filled.KeyboardArrowDown;
         MudMenu _mudMenuRef = new();
-        private bool _isFirstLoaded { get; set; } = false;
 
         public string Language = "";
         private void IsOpen()
@@ -32,17 +33,25 @@ namespace TozawaNGO.Shared
 
         protected override void OnInitialized()
         {
+            FirsloadState.OnChange += FirsLoadChanged;
             _cultures = _appSettings.Languages.ToDictionary(x => x.Culture, x => x.LongName);
 
             base.OnInitialized();
         }
+        protected override void Dispose(bool disposed)
+        {
+            FirsloadState.OnChange -= FirsLoadChanged;
+            base.Dispose(disposed);
+        }
 
+        private void FirsLoadChanged()
+        {
+            StateHasChanged();
+        }
         protected override async Task OnAfterRenderAsync(bool isFirstLoaded)
         {
             if (isFirstLoaded)
             {
-                _isFirstLoaded = true;
-
                 ActiveLanguages = await _translationService.GetActiveLanguages();
                 ActiveLanguage = await _translationService.GetActiveLanguage();
 

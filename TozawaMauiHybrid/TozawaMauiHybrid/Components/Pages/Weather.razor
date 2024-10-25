@@ -10,25 +10,25 @@
 
 @if (forecasts == null)
 {
-    <p><em>Loading...</em></p>
+            <p><em>Loading...</em></p>
 }
 else
 {
-    <MudTable Items="@forecasts" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading"
-        LoadingProgressColor="Color.Info">
-        <HeaderContent>
-            <MudTh>Date</MudTh>
-            <MudTh>Temp. (C)</MudTh>
-            <MudTh>Temp. (F)</MudTh>
-            <MudTh>Summary</MudTh>
-        </HeaderContent>
-        <RowTemplate>
-            <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
-            <MudTd DataLabel="Temp. (C)">@context.TemperatureC</MudTd>
-            <MudTd DataLabel="Temp. (F)">@context.TemperatureF</MudTd>
-            <MudTd DataLabel="Summary">@context.Summary</MudTd>
-        </RowTemplate>
-    </MudTable>
+            <MudTable Items="@forecasts" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading"
+                LoadingProgressColor="Color.Info">
+                <HeaderContent>
+                    <MudTh>Date</MudTh>
+                    <MudTh>Temp. (C)</MudTh>
+                    <MudTh>Temp. (F)</MudTh>
+                    <MudTh>Summary</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+                    <MudTd DataLabel="Temp. (C)">@context.TemperatureC</MudTd>
+                    <MudTd DataLabel="Temp. (F)">@context.TemperatureF</MudTd>
+                    <MudTd DataLabel="Summary">@context.Summary</MudTd>
+                </RowTemplate>
+            </MudTable>
 }
 
 @code {
@@ -36,8 +36,18 @@ else
     private PreferencesStoreClone Storage { get; set; }
     IEnumerable<WeatherDto> forecasts;
     private bool _loading;
+    [Inject] ScrollTopState ScrollTopState { get; set; }
+    protected virtual void Dispose()
+    {
+        ScrollTopState.OnChange -= SetScroll;
+    }
+    private void SetScroll()
+    {
+    }
     protected override async Task OnInitializedAsync()
     {
+        ScrollTopState.SetSource("Weather");
+        ScrollTopState.OnChange += SetScroll;
         var getResponse = await ForecastService.GetItems();
         forecasts = getResponse.Entity ?? [];
         await base.OnInitializedAsync();

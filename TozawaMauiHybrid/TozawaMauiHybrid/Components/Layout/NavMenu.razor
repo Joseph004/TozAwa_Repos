@@ -1,27 +1,74 @@
-﻿<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">TozawaMauiHybrid</a>
-    </div>
+﻿@namespace TozawaMauiHybrid.Components.Layout
+@using TozawaMauiHybrid.Helpers
+@inherits TozawaMauiHybrid.Component.BaseComponent
+
+<style>
+    .tznavmenu {
+        max-height: 100vh;
+        height: 100vh;
+    }
+
+    .tznavmenu>div:nth-child(1) {
+        max-height: 100%;
+        height: 100%;
+    }
+</style>
+
+<MudDrawer Class="tznavmenu d-flex flex-column flex-grow-1 gap-4" Style="border: 0.5px outset" @bind-Open="SideBarOpen"
+    Elevation="1">
+    <MudDrawerHeader style="background-color: white; max-height: 150px; height: 150px;">
+        <img src="/images/TR_Max.png" asp-append-version="true" />
+    </MudDrawerHeader>
+    <MudNavMenu Class="mt-5 flex-1" Color="Color.Warning">
+        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/" Icon="@Icons.Material.Filled.Home">
+            <SystemText TextId=SystemTextId.Home FallbackText="Home"></SystemText>
+        </MudNavLink>
+        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/counter" Icon="@Icons.Material.Filled.Storage">
+            Counter</MudNavLink>
+        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/weather" Icon="@Icons.Material.Filled.Storage">
+            Weather</MudNavLink>
+        <MudNavGroup Style="border-bottom: 0.1px solid;" Title="Expanding"
+            Icon="@Icons.Material.Filled.DashboardCustomize" Expanded="false">
+            <MudNavLink Href="#" Icon="@Icons.Material.Filled.Camera">Photos</MudNavLink>
+            <MudNavLink Href="#" Icon="@Icons.Material.Filled.Celebration">Party</MudNavLink>
+        </MudNavGroup>
+        @if (_currentUser != null && _currentUser.Admin)
+        {
+            <MudNavLink Style="border-bottom: 0.1px solid;" Href="settings" Icon="@Icons.Material.Filled.Settings">
+                <SystemText TextId=SystemTextId.Setting FallbackText="Setting" ></SystemText>
+            </MudNavLink>
+        }
+    </MudNavMenu>
+</MudDrawer>
+
+
+
+
+@* <div class="top-row ps-3 navbar navbar-dark">
+<div class="container-fluid">
+<a class="navbar-brand" href="">TozawaMauiHybrid</a>
+</div>
 </div>
 
 <input type="checkbox" title="Navigation menu" class="navbar-toggler" />
 
 <div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="counter">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="weather">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
-            </NavLink>
-        </div>
-    </nav>
+<nav class="flex-column">
+<div class="nav-item px-3">
+<NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+<span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+</NavLink>
 </div>
+<div class="nav-item px-3">
+<NavLink class="nav-link" href="counter">
+<span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+</NavLink>
+</div>
+<div class="nav-item px-3">
+<NavLink class="nav-link" href="weather">
+<span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+</NavLink>
+</div>
+</nav>
+</div>
+*@

@@ -20,16 +20,13 @@
         <img src="/images/TR_Max.png" asp-append-version="true" />
     </MudDrawerHeader>
     <MudNavMenu Class="mt-5 flex-1" Color="Color.Warning">
-        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/home" Match="NavLinkMatch.All"
-            Icon="@Icons.Material.Filled.Home">
-            <SystemText TextId=SystemTextId.Home FallbackText="Home" IsFirstLoaded="@IsFirstLoaded"></SystemText>
+        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/" Icon="@Icons.Material.Filled.Home">
+            <SystemText TextId=SystemTextId.Home FallbackText="Home" ></SystemText>
         </MudNavLink>
         <MudNavLink Style="border-bottom: 0.1px solid;" Href="/fetchdata1" Icon="@Icons.Material.Filled.Storage">
             Counter</MudNavLink>
         <MudNavLink Style="border-bottom: 0.1px solid;" Href="/fetchdata" Icon="@Icons.Material.Filled.Storage">
             Fetch data</MudNavLink>
-        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/todo" Icon="@Icons.Material.Filled.Storage">
-            To do</MudNavLink>
         <MudNavGroup Style="border-bottom: 0.1px solid;" Title="Expanding"
             Icon="@Icons.Material.Filled.DashboardCustomize" Expanded="false">
             <MudNavLink Href="#" Icon="@Icons.Material.Filled.Camera">Photos</MudNavLink>
@@ -38,7 +35,7 @@
         @if (_currentUser != null && _currentUser.Admin)
         {
             <MudNavLink Style="border-bottom: 0.1px solid;" Href="/settings" Icon="@Icons.Material.Filled.Settings">
-                <SystemText TextId=SystemTextId.Setting FallbackText="Setting" IsFirstLoaded="@IsFirstLoaded"></SystemText>
+                <SystemText TextId=SystemTextId.Setting FallbackText="Setting" ></SystemText>
             </MudNavLink>
         }
     </MudNavMenu>

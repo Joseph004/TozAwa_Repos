@@ -1,5 +1,4 @@
 using Fluxor;
-using Grains;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.JSInterop;
 using MudBlazor;
@@ -24,7 +23,6 @@ public record MemberState
     public int TotalItems { get; set; }
     public HubConnection HubConnection { get; init; }
     public MemberKeyedCollection Members { get; init; } = [];
-    public Orleans.Streams.StreamSubscriptionHandle<MemberNotification> Subscription { get; init; }
     public LoadingState LoadingState { get; init; }
     public IJSRuntime JSRuntime { get; init; }
     public MemberDto SelectedItem { get; init; }

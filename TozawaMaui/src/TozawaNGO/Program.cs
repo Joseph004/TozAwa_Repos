@@ -11,12 +11,10 @@ using MudBlazor;
 using MudBlazor.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Orleans.Configuration;
 using TozawaNGO;
 using TozawaNGO.Services;
 using TozawaNGO.Shared;
 using Fluxor;
-using Shared.SignalR;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using ShareRazorClassLibrary.Configurations;
@@ -86,27 +84,16 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
-builder.Host.UseOrleansClient(client =>
-{
-    client.UseSignalR(configure: null);
-    client.UseLocalhostClustering();
-    client.AddMemoryStreams("SMS");
-    client.Configure<ClusterOptions>(options =>
-    {
-        options.ClusterId = "dev";
-        options.ServiceId = "OrleansBasics";
-    });
-});
-
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
-}).AddOrleans();
+});
 
 builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(Program).Assembly));
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy("admin-member", policy => policy.RequireClaim("admin-member", "MemberIsAdmin"));
-builder.Services.AddScoped<AuthenticationStateProvider, ShareRazorClassLibrary.Helpers.AuthStateProvider>();
+builder.Services.AddScoped<AuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<AuthStateProvider>());
 
 
 builder.Services.AddMvcCore(options =>
@@ -155,10 +142,7 @@ builder.Services.AddBlazoredSessionStorage(config =>
 
 builder.Services.RegisterHttpClients();
 
-builder.Services.AddScoped<AuthStateProvider>();
-
 builder.Services.AddScoped<WeatherForecastService>();
-builder.Services.AddSingleton<TodoService>();
 builder.Services.AddScoped<ICookie, Cookie>();
 builder.Services.AddScoped<TozawaNGO.StateHandler.UserState>();
 builder.Services.AddScoped<TozawaNGO.StateHandler.ScrollTopState>();
@@ -174,6 +158,7 @@ builder.Services.AddScoped<FileService>();
 builder.Services.AddScoped<LoadingState>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 builder.Services.AddScoped<IEncryptDecrypt, EncryptDecrypt>();
+builder.Services.AddScoped<FirsloadState>();
 
 builder.Services.AddControllers();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -214,7 +199,7 @@ app.UseAuthorization();
 app.UseRequestLocalization(GetLocalizationOptions());
 
 app.MapControllers();
-app.MapHub<ClientHub>("/hubs/clienthub");
+/* app.MapHub<ClientHub>("/hubs/clienthub"); */
 app.Use(async (context, next) =>
 {
     context.Features.Get<IHttpMaxRequestBodySizeFeature>().MaxRequestBodySize = null;

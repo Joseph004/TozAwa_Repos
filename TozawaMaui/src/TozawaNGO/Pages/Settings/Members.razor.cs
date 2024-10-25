@@ -1,5 +1,4 @@
 using Fluxor;
-using Grains.Helpers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using MudBlazor;
@@ -10,6 +9,7 @@ using TozawaNGO.StateHandler;
 using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Services;
 using ShareRazorClassLibrary.Models.FormModels;
+using ShareRazorClassLibrary.Helpers;
 
 namespace TozawaNGO.Pages
 {
@@ -21,6 +21,7 @@ namespace TozawaNGO.Pages
         [Inject] private ISnackBarService snackBarService { get; set; }
         [Inject] MemberService memberService { get; set; }
         [Inject] private LoadingState LoadingState { get; set; }
+        [Inject] FirsloadState FirsloadState { get; set; }
         [Inject] IState<TozawaNGO.State.Member.Store.MemberState> MemberState { get; set; }
         [Inject] IDispatcher Dispatcher { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
@@ -39,12 +40,12 @@ namespace TozawaNGO.Pages
         protected PatchMemberRequest _patchMemberRequest = new();
         public int ThumbnailSize = 24;
         protected int[] _pageSizeOptions = [20, 50, 100];
-        private bool firstLoaded;
         private double scrollTop;
 
         protected override async Task OnInitializedAsync()
         {
             ScrollTopState.SetSource("memberPage");
+            FirsloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
             AttachmentService.OnChange += UpdateMemberAttachments;
@@ -57,6 +58,11 @@ namespace TozawaNGO.Pages
             Dispatcher.Dispatch(new MemberDataAction(_page, _pageSize, _searchString, MemberState.Value.IncludeDeleted, MemberState.Value.PageOfEmail, MemberState.Value.Email, ScrollTopState.ScrollTop.TryGetValue(ScrollTopState.Source, out double value) ? value : 0, LoadingState, JSRuntime));
             await base.OnInitializedAsync();
         }
+        private void FirsLoadChanged()
+        {
+            StateHasChanged();
+        }
+
         private string GetDescColor(MemberDto member)
         {
             return string.IsNullOrEmpty(member.Description) ? $"color: #c4c4c4;" : "";
@@ -92,54 +98,15 @@ namespace TozawaNGO.Pages
                 await JSRuntime.InvokeAsync<object>("SetScroll", (-1) * scrollTop);
             }
         }
-        /* private async Task SetDescriptionIcon()
-        {
-            foreach (var textField in MemberState.Value.MudTextField)
-            {
-                DescriptionIcon.TryAdd(textField.Key, "");
-                var dotNetReference = DotNetObjectReference.Create(this);
-                var isOverflowed = await JSRuntime.InvokeAsync<bool>("checkOverflow", textField.Key, dotNetReference);
-                if (isOverflowed)
-                {
-                    DescriptionIcon[textField.Key] = Icons.Material.Outlined.Info;
-                }
-            }
-            StateHasChanged();
-        } 
-        [JSInvokable("AddDescIcon")]
-        public void SetDescriptionIcon(string id, bool isRemoved = false)
-        {
-            Guid.TryParse(id, out Guid guid);
-            if (guid == Guid.Empty) return;
-            var member = MemberState.Value.Members.First(x => x.Id == guid);
-            if (DescriptionIcon.ContainsKey(guid))
-            {
-                if (isRemoved)
-                {
-                    DescriptionIcon[guid] = "";
-                    StateHasChanged();
-                    return;
-                }
-
-                if (!string.IsNullOrEmpty(member.Description) && member.Description.Length > 5)
-                {
-                    DescriptionIcon[guid] = Icons.Material.Outlined.Info;
-
-                    StateHasChanged();
-                }
-            }
-        }*/
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                firstLoaded = true;
                 LoadingState.SetRequestInProgress(true);
             }
-            if (!MemberState.Value.IsLoading && MemberState.Value.Members.Count > 0 && firstLoaded)
+            if (!MemberState.Value.IsLoading && MemberState.Value.Members.Count > 0 && FirsloadState.IsFirstLoaded)
             {
                 //await SetDescriptionIcon();
-                firstLoaded = false;
                 LoadingState.SetRequestInProgress(false);
                 await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.5))).ContinueWith(async o => { await SetScrollJS(); });
             }
@@ -327,6 +294,7 @@ namespace TozawaNGO.Pages
         {
             try
             {
+                FirsloadState.OnChange -= FirsLoadChanged;
                 _translationService.LanguageChanged -= LanguageChanged;
                 _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
                 AttachmentService.OnChange -= UpdateMemberAttachments;

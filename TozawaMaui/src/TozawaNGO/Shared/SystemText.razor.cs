@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Services;
 
 
 namespace TozawaNGO.Shared;
@@ -12,9 +13,8 @@ public partial class SystemText : BaseComponent
     [Parameter] public string Style { get; set; } = "font-familly: cursive;";
     [Parameter] public string FallbackText { get; set; }
     [Parameter] public int? Limit { get; set; }
-#pragma warning disable CS0108
-    [Parameter] public bool IsFirstLoaded { get; set; }
     [Parameter] public bool? ToUpper { get; set; }
+    [Inject] FirsloadState FirsloadState { get; set; }
 
     public string NotTranslated = string.Empty;
     public string NotTranslatedTitle = string.Empty;

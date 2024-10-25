@@ -7,6 +7,8 @@ using TozawaMauiHybrid.Configurations;
 using TozawaMauiHybrid.Helpers;
 using TozawaMauiHybrid.Services;
 using TozawaMauiHybrid.Extensions;
+using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Components.Forms.Mapping;
 
 namespace TozawaMauiHybrid
 {
@@ -65,25 +67,22 @@ namespace TozawaMauiHybrid
                config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
            });
 
-            builder.Services.RegisterHttpClients();
-
-            builder.Services.AddScoped<AuthStateProvider>();
+            builder.Services.AddSingleton<IEncryptDecrypt, EncryptDecrypt>();
+            builder.Services.AddSingleton<ScrollTopState>();
+            builder.Services.AddSingleton<AuthenticationService>();
+            builder.Services.AddSingleton<LoadingState>();
+            builder.Services.AddSingleton<FirsloadState>();
+            builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
+            builder.Services.RegisterHttpClients(appSettings);
+            builder.Services.AddAuthorizationCore();
+            builder.Services.AddSingleton<AuthStateProvider>();
+            builder.Services.AddSingleton<AuthenticationStateProvider>(s => s.GetRequiredService<AuthStateProvider>());
             builder.Services.AddSingleton<PreferencesStoreClone>();
-#if DEBUG
-            if (DeviceInfo.Platform == DevicePlatform.Android)
-            {
-                var handler = HttpHelper.GetInsecureHandler();
-                builder.Services.AddSingleton(sp => new HttpClient(handler) { });
-            }
-            else
-            {
-                builder.Services.AddSingleton(sp => new HttpClient { });
-            }
-#else
-           builder.Services.AddSingleton(sp => new HttpClient { });
-#endif
-            builder.Services.AddScoped<ITranslationService, TranslationService>();
-            builder.Services.AddScoped<WeatherForecastService>();
+            builder.Services.AddSingleton<ITranslationService, TranslationService>();
+            builder.Services.AddSingleton<WeatherForecastService>();
+
+            builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
             return builder.Build();
         }
     }

@@ -92,7 +92,7 @@ else
         OnRowClick="RowClickEvent" @bind-SelectedItem="_selectedItem" RowClass="cursor-pointer">
         <ToolBarContent>
             <MudText Typo="Typo.h6">
-                <SystemText TextId=SystemTextId.Members FallbackText="Members" IsFirstLoaded="@IsFirstLoaded"/>
+                <SystemText TextId=SystemTextId.Members FallbackText="Members" />
             </MudText>
             <MudSpacer />
             <MudTextField T="string" DebounceInterval="500" Margin="Margin.Dense" @bind-Value="_searchString"
@@ -107,7 +107,7 @@ else
                     <MudMenuItem OnClick="@((e) => OpenDialog())">
                         <MudText Typo="Typo.body1">
                             <MudIcon Class="text-icon" Icon="@Icons.Material.Filled.AddCircle"></MudIcon>
-                            <SystemText TextId=SystemTextId.Add FallbackText="Add" IsFirstLoaded="@IsFirstLoaded"/>
+                            <SystemText TextId=SystemTextId.Add FallbackText="Add" />
                         </MudText>
                     </MudMenuItem>
                 </MudMenu>
@@ -127,13 +127,13 @@ else
             <MudTHeadRow Class="header-centered">
                 <MudTh></MudTh>
                 <MudTh>
-                    <SystemText TextId=SystemTextId.FirstName FallbackText="First name" IsFirstLoaded="@IsFirstLoaded"/>
+                    <SystemText TextId=SystemTextId.FirstName FallbackText="First name" />
                 </MudTh>
                 <MudTh>
-                    <SystemText TextId=SystemTextId.LastName FallbackText="Last name" IsFirstLoaded="@IsFirstLoaded"/>
+                    <SystemText TextId=SystemTextId.LastName FallbackText="Last name" />
                 </MudTh>
                 <MudTh>
-                    <SystemText TextId=SystemTextId.Email FallbackText="Email" IsFirstLoaded="@IsFirstLoaded"/>
+                    <SystemText TextId=SystemTextId.Email FallbackText="Email" />
                 </MudTh>
                 <MudTh>
                 </MudTh>
@@ -208,12 +208,12 @@ else
         </RowTemplate>
         <NoRecordsContent>
             <MudText>
-                <SystemText TextId=SystemTextId.NoMachingRecords FallbackText="No matching records found" IsFirstLoaded="@IsFirstLoaded"/>
+                <SystemText TextId=SystemTextId.NoMachingRecords FallbackText="No matching records found" />
             </MudText>
         </NoRecordsContent>
         <LoadingContent>
             <MudText>
-                <SystemText TextId=SystemTextId.Loading FallbackText="Loading" IsFirstLoaded="@IsFirstLoaded"/>
+                <SystemText TextId=SystemTextId.Loading FallbackText="Loading" />
             </MudText>
         </LoadingContent>
         <PagerContent>

@@ -14,7 +14,6 @@ namespace TozawaNGO.Shared
 
         public CurrentUserDto _currentUser { get; set; } = new();
         public List<ActiveLanguageDto> ActiveLanguages { get; set; } = [];
-        public bool IsFirstLoaded { get; set; }
 
         public BasePage()
         {
@@ -23,7 +22,6 @@ namespace TozawaNGO.Shared
 
         protected override void OnInitialized()
         {
-            IsFirstLoaded = false;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
             base.OnInitialized();
@@ -46,7 +44,6 @@ namespace TozawaNGO.Shared
         {
             if (firstRender)
             {
-                IsFirstLoaded = true;
                 StateHasChanged();
             }
             await base.OnAfterRenderAsync(firstRender);

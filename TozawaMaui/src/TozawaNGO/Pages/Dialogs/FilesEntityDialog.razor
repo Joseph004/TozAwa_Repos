@@ -46,15 +46,15 @@
                     <MudTh>
                     </MudTh>
                     <MudTh>
-                        <SystemText TextId="@SystemTextId.Name" FallbackText="Name" IsFirstLoaded="@IsFirstLoaded">
+                        <SystemText TextId="@SystemTextId.Name" FallbackText="Name" >
                         </SystemText>
                     </MudTh>
                     <MudTh>
                         <SystemText TextId="@SystemTextId.AttachmentType" FallbackText="Attachment type"
-                            IsFirstLoaded="@IsFirstLoaded"></SystemText>
+                            ></SystemText>
                     </MudTh>
                     <MudTh>
-                        <SystemText TextId="@SystemTextId.Filesize" FallbackText="Filesize" IsFirstLoaded="@IsFirstLoaded">
+                        <SystemText TextId="@SystemTextId.Filesize" FallbackText="Filesize" >
                         </SystemText>
                     </MudTh>
                     <MudTh>
@@ -99,12 +99,12 @@
         else
         {
             <SystemText TextId="@SystemTextId.NoAttachmentsExists" FallbackText="Entity contains no attachments"
-                IsFirstLoaded="@IsFirstLoaded"></SystemText>
+                ></SystemText>
         }
     </DialogContent>
     <DialogActions>
         <MudButton Disabled="@_onProgress" Color="Color.Primary" OnClick="Add" Variant="Variant.Filled">
-            <SystemText TextId="@SystemTextId.Close" FallbackText="Close" IsFirstLoaded="@IsFirstLoaded"></SystemText>
+            <SystemText TextId="@SystemTextId.Close" FallbackText="Close" ></SystemText>
         </MudButton>
         <MudSpacer />
         <MudSelect Disabled="@_onProgress" Style="@($"position: {"relative"}; bottom: {"11px"}")"
@@ -119,7 +119,7 @@
             StartIcon="@Icons.Material.Filled.CloudUpload" for="fileInput">
             <MudText>
                 <SystemText TextId="@SystemTextId.FileUpload" FallbackText="Upload files"
-                    IsFirstLoaded="@IsFirstLoaded"></SystemText>
+                    ></SystemText>
             </MudText>
         </MudButton>
     </DialogActions>
