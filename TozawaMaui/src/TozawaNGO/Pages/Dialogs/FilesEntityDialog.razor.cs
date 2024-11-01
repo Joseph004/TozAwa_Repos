@@ -34,6 +34,7 @@ namespace TozawaNGO.Pages
         private string _error = "";
         private string _searchString = null;
         private List<FileAttachmentDto> _attachments = [];
+        private FileAttachmentDto _selectedItem;
 
         protected void Add() => MudDialog.Close(DialogResult.Ok(Entity));
         protected void Cancel() => MudDialog.Cancel();
@@ -44,6 +45,22 @@ namespace TozawaNGO.Pages
             _fileTypeValidationMessage = _translationService.Translate(SystemTextId.PleaseUseValidAllowedFiles, "the file type is not valid, only images pdf word textfile and excel are allowed").Text;
 
             LoadData();
+        }
+        private string GetLabel(Guid labelId, string label)
+        {
+            return Translate(labelId, label);
+        }
+        protected string SelectedRowClassFunc(FileAttachmentDto element, int rowNumber)
+        {
+            if (_selectedItem != null && _selectedItem.Id == element.Id)
+            {
+                return "selected";
+            }
+            return string.Empty;
+        }
+        protected void RowClickEvent(TableRowClickEventArgs<FileAttachmentDto> tableRowClickEventArgs)
+        {
+
         }
         private bool IsValideFile(IBrowserFile file)
         {

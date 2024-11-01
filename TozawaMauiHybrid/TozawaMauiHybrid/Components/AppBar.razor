@@ -2,7 +2,7 @@
 @using TozawaMauiHybrid.Helpers
 @using Microsoft.AspNetCore.Components
 @using Microsoft.AspNetCore.Components.Authorization
-@* @inject NavigationManager NavManager *@
+@inject NavigationManager NavManager
 @inherits BaseComponent
 
 
@@ -16,13 +16,17 @@
     }
     <MudSpacer />
 
-    <MudText Class="appbarTitle">
-        <SystemText TextId=SystemTextId.ToZawaTitle Style="font-familly: cursive; font-size: max(1.2vw, 13px)"
-            SystemTextTypo=Typo.h2 FallbackText="Svensk Förening för internationella arbete inom teknik och informatik"
-            ></SystemText>
-    </MudText>
+    @if (DeviceInfo.Platform == DevicePlatform.WinUI)
+    {
+        <MudText Class="appbarTitle">
+            <SystemText TextId=SystemTextId.ToZawaTitle Style="font-familly: cursive; font-size: max(1.2vw, 13px)"
+                SystemTextTypo=Typo.h2 FallbackText="Svensk Förening för internationella arbete inom teknik och informatik">
+            </SystemText>
+        </MudText>
 
-    <MudSpacer />
+        <MudSpacer />
+    }
+
     <LanguageSelection />
     <AuthorizeView>
         <Authorized>
@@ -37,7 +41,7 @@
                             <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Person" Size="Size.Small"
                                 Color="Color.Warning">
                             </MudIcon>
-                            <SystemText TextId=SystemTextId.Hello FallbackText="Hello" >
+                            <SystemText TextId=SystemTextId.Hello FallbackText="Hello">
                             </SystemText>
                             <b>@context.User.Identity.Name!</b>
                         </MudText>
@@ -48,8 +52,7 @@
                             <MudText>
                                 <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Logout" Size="Size.Small">
                                 </MudIcon>
-                                <SystemText TextId=SystemTextId.Logout FallbackText="Logout"
-                                    ></SystemText>
+                                <SystemText TextId=SystemTextId.Logout FallbackText="Logout"></SystemText>
                             </MudText>
                         </MudButton>
                     </MudMenuItem>

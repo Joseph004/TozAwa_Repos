@@ -18,6 +18,7 @@ namespace TozawaNGO.Shared
 {
     public partial class MainLayout : BaseComponentLayout
     {
+        [Inject] private NavMenuTabState NavMenuTabState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] ILogger<MainLayout> _logger { get; set; }
         [Inject] NavigationManager _navigationManager { get; set; }
@@ -29,6 +30,7 @@ namespace TozawaNGO.Shared
         [Inject] ILocalStorageService _localStorageService { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
         public string _loginUrl { get; set; } = $"";
+        private string _containerPaddingClass { get; set; } = "pt-16 px-16 flex-1 d-flex";
         private Timer _timer;
         private readonly int _timerInterval = 15 * 60 * 1000; //15 min
         private bool _disabledPage = false;
@@ -38,6 +40,7 @@ namespace TozawaNGO.Shared
         private void ToggleSidebar()
         {
             _sidebarOpen = !_sidebarOpen;
+            NavMenuTabState.SetMenuOpen(_sidebarOpen);
             StateHasChanged();
         }
         protected override void OnParametersSet()
@@ -57,6 +60,7 @@ namespace TozawaNGO.Shared
         };
         protected async override Task OnInitializedAsync()
         {
+            NavMenuTabState.OnChange += StateHasChanged;
             FirsloadState.OnChange += ReloadPage;
             LoadingState.OnChange += DisabledPage;
             await base.OnInitializedAsync();
@@ -79,6 +83,7 @@ namespace TozawaNGO.Shared
         {
             if (firstRender)
             {
+                NavMenuTabState.SetMenuOpen(_sidebarOpen);
                 FirsloadState.SetFirsLoad(true);
                 _timer = new Timer(_timerInterval);
                 _timer.Elapsed += LogoutTimeout;
@@ -199,12 +204,13 @@ namespace TozawaNGO.Shared
         }
         private void RefreshTimer(EventArgs e)
         {
+            NavMenuTabState.SetMenuOpen(_sidebarOpen);
             _timer.Interval = _timerInterval;
         }
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+
         public override void Dispose()
-#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
+            NavMenuTabState.OnChange -= StateHasChanged;
             FirsloadState.OnChange -= ReloadPage;
             LoadingState.OnChange -= DisabledPage;
             if (_timer != null)

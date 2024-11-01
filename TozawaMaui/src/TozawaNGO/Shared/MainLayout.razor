@@ -12,9 +12,9 @@
     Class="@($"d-flex flex-column flex-grow-1 gap-4 {_disableAttrString}")" @onmousemove="RefreshTimer">
     <AppBar OnSidebarToggled="ToggleSidebar" />
 
-    <NavMenu SideBarOpen="_sidebarOpen" />
+    <NavMenu @bind-SideBarOpen="_sidebarOpen" />
     <LoadingScreen>
-        <MudMainContent Class="pt-16 px-16 flex-1 d-flex">
+        <MudMainContent id="tzMainContainer" Class="@_containerPaddingClass">
             <MudContainer Style="display: flex !important; flex-direction: column;" Class="mt-3 d-flex">
                 <ErrorBoundary @ref="_errorBoundary">
                     <ChildContent>

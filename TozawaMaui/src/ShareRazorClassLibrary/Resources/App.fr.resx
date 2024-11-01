@@ -399,4 +399,12 @@
     <value>L'adresse mail requis</value>
     <comment>.</comment>
   </data>
+  <data name="cff59b9e-9269-40bc-9c1d-d550bef95d5f" xml:space="preserve">
+    <value>Fichier</value>
+    <comment>.</comment>
+  </data>
+  <data name="d176a986-b45d-4439-8595-ef3acd447917" xml:space="preserve">
+    <value>Telecharger</value>
+    <comment>.</comment>
+  </data>
 </root>

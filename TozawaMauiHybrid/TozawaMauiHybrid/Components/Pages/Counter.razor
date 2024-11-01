@@ -16,7 +16,7 @@
     private int storeCount = 0;
 
     [Inject] ScrollTopState ScrollTopState { get; set; }
-    protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync() 
     {
         ScrollTopState.SetSource("Counter");
         ScrollTopState.OnChange += SetScroll;

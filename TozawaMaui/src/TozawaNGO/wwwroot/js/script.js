@@ -57,3 +57,42 @@ function saveAsFile(filename, bytesBase64) {
         document.body.removeChild(link);
     }
 }
+window.DisabledCopyPasteToPasswordField = (message) => {
+    $('.tz_password').bind("cut copy paste", function (e) {
+        e.preventDefault();
+        alert(message);
+        $('.tz_password').bind("contextmenu", function (e) {
+            e.preventDefault();
+        });
+    });
+};
+function getScreeenSize() {
+    var width = window.innerWidth;
+    return width;
+}
+function getWindowSize() {
+    var element = document.getElementById("tzMainContainer");
+    var width = window.innerWidth;
+    if (width <= 980) {
+        if (element.classList.contains("pt-16")) {
+            element.classList.remove("pt-16")
+        }
+        if (element.classList.contains("px-16")) {
+            element.classList.remove("px-16")
+        }
+    } else {
+        if (!element.classList.contains("pt-16")) {
+            element.classList.add("pt-16")
+        }
+        if (!element.classList.contains("px-16")) {
+            element.classList.add("px-16")
+        }
+    }
+}
+window.addEventListener("resize", getWindowSize);
+window.onload = function () {
+    setTimeout(function () {
+        getWindowSize();
+    }, 700);
+};
+

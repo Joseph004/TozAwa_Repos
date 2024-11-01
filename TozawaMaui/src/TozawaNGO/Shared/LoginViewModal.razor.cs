@@ -40,6 +40,7 @@ namespace TozawaNGO.Shared
         {
             if (firstRender)
             {
+                await JSRuntime.InvokeVoidAsync("DisabledCopyPasteToPasswordField", Translate(SystemTextId.WriteYourPassword, "You need to write your password. No copy paste is allowed"));
             }
             await base.OnAfterRenderAsync(firstRender);
         }

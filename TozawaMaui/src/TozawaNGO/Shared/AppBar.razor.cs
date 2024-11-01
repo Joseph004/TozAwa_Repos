@@ -19,6 +19,7 @@ namespace TozawaNGO.Shared
         [Inject] LoadingState LoadingState { get; set; }
         [Inject] FirsloadState FirsloadState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
+        [Inject] private NavMenuTabState NavMenuTabState { get; set; }
         [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
         public string _loginUrl { get; set; } = $"";
@@ -26,6 +27,7 @@ namespace TozawaNGO.Shared
 
         protected async override Task OnInitializedAsync()
         {
+            NavMenuTabState.OnChange += HandleLogo;
             FirsloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
@@ -43,6 +45,18 @@ namespace TozawaNGO.Shared
         }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
+            StateHasChanged();
+        }
+        private void HandleLogo()
+        {
+            if (NavMenuTabState.IsMenuOpen && _showLogo)
+            {
+                _showLogo = false;
+            }
+            else if (!NavMenuTabState.IsMenuOpen && !_showLogo)
+            {
+                _showLogo = true;
+            }
             StateHasChanged();
         }
         private async Task ToggleSideBar()
@@ -153,6 +167,7 @@ namespace TozawaNGO.Shared
         }
         protected override void Dispose(bool disposed)
         {
+            NavMenuTabState.OnChange -= HandleLogo;
             FirsloadState.OnChange -= FirsLoadChanged;
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;

@@ -159,6 +159,7 @@ builder.Services.AddScoped<LoadingState>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 builder.Services.AddScoped<IEncryptDecrypt, EncryptDecrypt>();
 builder.Services.AddScoped<FirsloadState>();
+builder.Services.AddScoped<NavMenuTabState>();
 
 builder.Services.AddControllers();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");

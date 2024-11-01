@@ -278,6 +278,10 @@ namespace TozawaNGO.Pages
             var dialog = DialogService.Show<EditMembersDialog>($"Edit", parameters, options);
             var result = await dialog.Result;
         }
+        private string GetLabel(Guid labelId, string label)
+        {
+            return Translate(labelId, label);
+        }
         protected string SelectedRowClassFunc(MemberDto element, int rowNumber)
         {
             if (_selectedItem != null && _selectedItem.Id == element.Id)

@@ -16,15 +16,17 @@ namespace TozawaMauiHybrid.Component
         [Inject] PreferencesStoreClone _storage { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
+        [Inject] private NavMenuTabState NavMenuTabState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] FirsloadState FirsloadState { get; set; }
-        //[Inject] NavigationManager _navigationManager { get; set; }
+        [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
         public string _loginUrl { get; set; } = $"";
-        private bool _showLogo = false;
+        private bool _showLogo = DeviceInfo.Platform != DevicePlatform.WinUI;
 
         protected async override Task OnInitializedAsync()
         {
+            NavMenuTabState.OnChange += HandleLogo;
             FirsloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
@@ -44,9 +46,24 @@ namespace TozawaMauiHybrid.Component
         {
             StateHasChanged();
         }
+        private void HandleLogo()
+        {
+            if (NavMenuTabState.IsMenuOpen && _showLogo)
+            {
+                _showLogo = false;
+            }
+            else if (!NavMenuTabState.IsMenuOpen && !_showLogo)
+            {
+                _showLogo = true; 
+            }
+            StateHasChanged();
+        }
         private async Task ToggleSideBar()
         {
-            _showLogo = !_showLogo;
+            if (DeviceInfo.Platform == DevicePlatform.WinUI)
+            {
+                _showLogo = !_showLogo;
+            }
             await OnSidebarToggled.InvokeAsync();
         }
         private static string Decode(string param)
@@ -65,8 +82,8 @@ namespace TozawaMauiHybrid.Component
                 DialogOptions options = new()
                 {
                     DisableBackdropClick = true,
-                    Position = DialogPosition.TopCenter,
-                    MaxWidth = MaxWidth.Large,
+                    Position = DialogPosition.Center,
+                    MaxWidth = MaxWidth.Small,
                     CloseButton = false
                 };
                 var dialog = DialogService.Show<LoginViewModal>("Login", parameters, options);
@@ -150,8 +167,9 @@ namespace TozawaMauiHybrid.Component
             }
             await base.OnAfterRenderAsync(firstRender);
         }
-        public virtual void Dispose()
+        public override void Dispose()
         {
+            NavMenuTabState.OnChange -= HandleLogo;
             FirsloadState.OnChange -= FirsLoadChanged;
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;

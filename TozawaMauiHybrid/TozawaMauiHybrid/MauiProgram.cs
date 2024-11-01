@@ -8,7 +8,6 @@ using TozawaMauiHybrid.Helpers;
 using TozawaMauiHybrid.Services;
 using TozawaMauiHybrid.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Components.Forms.Mapping;
 
 namespace TozawaMauiHybrid
 {
@@ -80,6 +79,7 @@ namespace TozawaMauiHybrid
             builder.Services.AddSingleton<PreferencesStoreClone>();
             builder.Services.AddSingleton<ITranslationService, TranslationService>();
             builder.Services.AddSingleton<WeatherForecastService>();
+            builder.Services.AddSingleton<NavMenuTabState>();
 
             builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 

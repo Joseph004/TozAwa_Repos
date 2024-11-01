@@ -56,8 +56,8 @@ namespace TozawaNGO.Shared
                 ActiveLanguage = await _translationService.GetActiveLanguage();
 
                 Language = GetShortName(ActiveLanguage);
+                StateHasChanged();
             }
-            StateHasChanged();
         }
 
         public async Task ChangeActiveLanguage(Guid languageId)

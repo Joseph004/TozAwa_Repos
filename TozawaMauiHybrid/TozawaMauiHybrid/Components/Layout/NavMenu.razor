@@ -1,5 +1,6 @@
 ﻿@namespace TozawaMauiHybrid.Components.Layout
 @using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Services
 @inherits TozawaMauiHybrid.Component.BaseComponent
 
 <style>
@@ -20,22 +21,34 @@
         <img src="/images/TR_Max.png" asp-append-version="true" />
     </MudDrawerHeader>
     <MudNavMenu Class="mt-5 flex-1" Color="Color.Warning">
-        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/" Icon="@Icons.Material.Filled.Home">
+        <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Home ? "navlinkcolor" : "" )"
+            OnClick="@(()=>OnClickTab("/"))" Style="border-bottom: 0.1px solid;" Icon="@Icons.Material.Filled.Home"
+            IconColor="@(NavMenuTabState.ActiveTab == ActiveTab.Home ? Color.Warning : Color.Default)">
             <SystemText TextId=SystemTextId.Home FallbackText="Home"></SystemText>
         </MudNavLink>
-        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/counter" Icon="@Icons.Material.Filled.Storage">
-            Counter</MudNavLink>
-        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/weather" Icon="@Icons.Material.Filled.Storage">
-            Weather</MudNavLink>
+        <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Counter ? "navlinkcolor" : "" )"
+            Style="border-bottom: 0.1px solid;" OnClick="@(()=>OnClickTab("/counter"))"
+            IconColor="@(NavMenuTabState.ActiveTab == ActiveTab.Counter ? Color.Warning : Color.Default)"
+            Icon="@Icons.Material.Filled.Storage">
+            Counter
+        </MudNavLink>
+        <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Weather ? "navlinkcolor" : "" )"
+            Style="border-bottom: 0.1px solid;" OnClick="@(()=>OnClickTab("/weather"))"
+            IconColor="@(NavMenuTabState.ActiveTab == ActiveTab.Weather ? Color.Warning : Color.Default)"
+            Icon="@Icons.Material.Filled.Storage">
+            Weather
+        </MudNavLink>
         <MudNavGroup Style="border-bottom: 0.1px solid;" Title="Expanding"
             Icon="@Icons.Material.Filled.DashboardCustomize" Expanded="false">
-            <MudNavLink Href="#" Icon="@Icons.Material.Filled.Camera">Photos</MudNavLink>
-            <MudNavLink Href="#" Icon="@Icons.Material.Filled.Celebration">Party</MudNavLink>
+            <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Home ? "navlinkcolor" : "" )" Href="#"
+                Icon="@Icons.Material.Filled.Camera">Photos</MudNavLink>
+            <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Home ? "navlinkcolor" : "" )" Href="#"
+                Icon="@Icons.Material.Filled.Celebration">Party</MudNavLink>
         </MudNavGroup>
         @if (_currentUser != null && _currentUser.Admin)
         {
             <MudNavLink Style="border-bottom: 0.1px solid;" Href="settings" Icon="@Icons.Material.Filled.Settings">
-                <SystemText TextId=SystemTextId.Setting FallbackText="Setting" ></SystemText>
+                <SystemText TextId=SystemTextId.Setting FallbackText="Setting"></SystemText>
             </MudNavLink>
         }
     </MudNavMenu>

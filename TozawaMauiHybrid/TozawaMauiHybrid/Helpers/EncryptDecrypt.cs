@@ -1,7 +1,6 @@
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using TozawaMauiHybrid.Configurations;
 
 namespace TozawaMauiHybrid.Helpers;
 
@@ -17,7 +16,7 @@ public class EncryptDecrypt() : IEncryptDecrypt
         {
             byte[] byteData = Encoding.UTF8.GetBytes(data);
             string solutiondir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-            var assembly = solutiondir + "\\src\\" + "TozawaMauiHybrid";
+            var assembly = solutiondir + "\\TozawaMauiHybrid\\TozawaMauiHybrid";
             string path = Path.Combine(assembly, @"Helpers/mycert.pem");
             var collection = new X509Certificate2Collection();
             collection.Import(path);

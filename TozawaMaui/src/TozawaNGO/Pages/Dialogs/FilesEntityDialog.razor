@@ -19,8 +19,10 @@
         }
         @if (Entity != null && Entity.Attachments != null && Entity.Attachments.Count > 0)
         {
-            <MudTable Style="max-height: 350px; overflow: scroll;" T="FileAttachmentDto" Dense="true" Hover="true"
-                Items="@_attachments">
+            <MudTable Breakpoint="Breakpoint.Xs" Style="max-height: 350px; overflow: scroll;" T="FileAttachmentDto"
+                Striped="true" RowClassFunc="@SelectedRowClassFunc" CustomHeader="true" Dense="true" Hover="true"
+                Items="@_attachments" OnRowClick="RowClickEvent" @bind-SelectedItem="_selectedItem"
+                RowClass="cursor-pointer">
                 <ToolBarContent>
                     <MudText Typo="Typo.h6">
                         Total: @Entity.Attachments.Count
@@ -33,40 +35,45 @@
                     </MudTextField>
                 </ToolBarContent>
                 <ColGroup>
-                    <col style="width: 10%;" />
-                    <col style="width: 30%;" />
-                    <col style="width: 20%;" />
-                    <col style="width: 20%;" />
-                    <col style="width: 15%;" />
-                    <col style="width: 5%;" />
+                    <MudHidden Breakpoint="Breakpoint.Xs">
+                        <col style="width: 10%;" />
+                        <col style="width: 30%;" />
+                        <col style="width: 20%;" />
+                        <col style="width: 20%;" />
+                        <col style="width: 15%;" />
+                        <col style="width: 5%;" />
+                    </MudHidden>
                 </ColGroup>
                 <HeaderContent>
                     <MudTh>
+                        <MudIcon Icon="@Icons.Material.Filled.CloudDownload"></MudIcon>
                     </MudTh>
                     <MudTh>
+                        <MudIcon Icon="@Icons.Material.Filled.AttachFile"></MudIcon>
                     </MudTh>
                     <MudTh>
-                        <SystemText TextId="@SystemTextId.Name" FallbackText="Name" >
+                        <SystemText TextId="@SystemTextId.Name" FallbackText="Name">
                         </SystemText>
                     </MudTh>
                     <MudTh>
-                        <SystemText TextId="@SystemTextId.AttachmentType" FallbackText="Attachment type"
-                            ></SystemText>
+                        <SystemText TextId="@SystemTextId.AttachmentType" FallbackText="Attachment type"></SystemText>
                     </MudTh>
                     <MudTh>
-                        <SystemText TextId="@SystemTextId.Filesize" FallbackText="Filesize" >
+                        <SystemText TextId="@SystemTextId.Filesize" FallbackText="Filesize">
                         </SystemText>
                     </MudTh>
                     <MudTh>
+                        <SystemText TextId="@SystemTextId.Delete" FallbackText="Delete">
+                        </SystemText>
                     </MudTh>
                 </HeaderContent>
                 <RowTemplate>
-                    <MudTd>
+                    <MudTd DataLabel="@(GetLabel(SystemTextId.Download, "Download"))">
                         <MudIconButton Disabled="@_onProgress" Icon="@Icons.Material.Filled.Download"
                             @onclick="() => Download(context)">
                         </MudIconButton>
                     </MudTd>
-                    <MudTd>
+                    <MudTd DataLabel="@(GetLabel(SystemTextId.File, "File"))">
                         @if (!string.IsNullOrEmpty(context.MiniatureBlobUrl))
                         {
                             var thumb = "data:image/png;base64," + context.MiniatureBlobUrl;
@@ -84,12 +91,13 @@
                             <MudIconButton Icon=@GetFileTypeIcon(context)></MudIconButton>
                         }
                     </MudTd>
-                    <MudTd>@context.Name</MudTd>
-                    <MudTd>
+                    <MudTd DataLabel="@(GetLabel(SystemTextId.Name, "Name"))">@context.Name</MudTd>
+                    <MudTd DataLabel="@(GetLabel(SystemTextId.AttachmentType, "File type"))">
                         @context.FileAttachmentType
                     </MudTd>
-                    <MudTd>@(Math.Round(context.Size / 1000, 2))kb</MudTd>
-                    <MudTd>
+                    <MudTd DataLabel="@(GetLabel(SystemTextId.Filesize, "Size"))">@(Math.Round(context.Size / 1000, 2))kb
+                    </MudTd>
+                    <MudTd DataLabel="@(GetLabel(SystemTextId.Delete, "Delete"))">
                         <MudIconButton Disabled="@DisabledUploadFiles()" Icon="@Icons.Material.Filled.Delete"
                             @onclick="() => Delete(context)"></MudIconButton>
                     </MudTd>
@@ -98,13 +106,13 @@
         }
         else
         {
-            <SystemText TextId="@SystemTextId.NoAttachmentsExists" FallbackText="Entity contains no attachments"
-                ></SystemText>
+            <SystemText TextId="@SystemTextId.NoAttachmentsExists" FallbackText="Entity contains no attachments">
+            </SystemText>
         }
     </DialogContent>
     <DialogActions>
         <MudButton Disabled="@_onProgress" Color="Color.Primary" OnClick="Add" Variant="Variant.Filled">
-            <SystemText TextId="@SystemTextId.Close" FallbackText="Close" ></SystemText>
+            <SystemText TextId="@SystemTextId.Close" FallbackText="Close"></SystemText>
         </MudButton>
         <MudSpacer />
         <MudSelect Disabled="@_onProgress" Style="@($"position: {"relative"}; bottom: {"11px"}")"
@@ -118,8 +126,7 @@
         <MudButton Disabled="@DisabledUploadFiles()" HtmlTag="label" Variant="Variant.Filled" Color="Color.Primary"
             StartIcon="@Icons.Material.Filled.CloudUpload" for="fileInput">
             <MudText>
-                <SystemText TextId="@SystemTextId.FileUpload" FallbackText="Upload files"
-                    ></SystemText>
+                <SystemText TextId="@SystemTextId.FileUpload" FallbackText="Upload files"></SystemText>
             </MudText>
         </MudButton>
     </DialogActions>

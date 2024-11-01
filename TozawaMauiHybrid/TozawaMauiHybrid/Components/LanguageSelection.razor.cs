@@ -16,7 +16,7 @@ namespace TozawaMauiHybrid.Component
         [Inject] FirsloadState FirsloadState { get; set; }
         private string _dropArrowPosition = Icons.Material.Filled.KeyboardArrowDown;
         MudMenu _mudMenuRef = new();
-        public virtual void Dispose()
+        public override void Dispose()
         {
             FirsloadState.OnChange -= FirsLoadChanged;
         }
@@ -54,8 +54,8 @@ namespace TozawaMauiHybrid.Component
                 ActiveLanguage = await _translationService.GetActiveLanguage();
 
                 Language = GetShortName(ActiveLanguage);
+                StateHasChanged();
             }
-            StateHasChanged();
         }
 
         public async Task ChangeActiveLanguage(Guid languageId)

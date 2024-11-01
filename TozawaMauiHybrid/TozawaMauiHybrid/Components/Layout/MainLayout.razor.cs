@@ -18,6 +18,7 @@ namespace TozawaMauiHybrid.Components.Layout
 {
     public partial class MainLayout : BaseComponentLayout
     {
+        [Inject] private NavMenuTabState NavMenuTabState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] ICurrentUserService CurrentUserService { get; set; }
@@ -32,10 +33,11 @@ namespace TozawaMauiHybrid.Components.Layout
         private bool _disabledPage = false;
         private string _disableAttrString = "";
         private ErrorBoundary _errorBoundary;
-        private bool _sidebarOpen = true;
+        private bool _sidebarOpen = DeviceInfo.Platform == DevicePlatform.WinUI;
         private void ToggleSidebar()
         {
             _sidebarOpen = !_sidebarOpen;
+            NavMenuTabState.SetMenuOpen(_sidebarOpen);
             StateHasChanged();
         }
         protected override void OnParametersSet()
@@ -62,6 +64,7 @@ namespace TozawaMauiHybrid.Components.Layout
         };
         protected async override Task OnInitializedAsync()
         {
+            NavMenuTabState.OnChange += StateHasChanged;
             FirsloadState.OnChange += ReloadPage;
             await base.OnInitializedAsync();
         }
@@ -71,6 +74,7 @@ namespace TozawaMauiHybrid.Components.Layout
         }
         private void RefreshTimer(EventArgs e)
         {
+            NavMenuTabState.SetMenuOpen(_sidebarOpen);
             _timer.Interval = _timerInterval;
         }
         public string OnError(Exception ex)
@@ -81,6 +85,7 @@ namespace TozawaMauiHybrid.Components.Layout
         {
             if (firstRender)
             {
+                NavMenuTabState.SetMenuOpen(_sidebarOpen);
                 FirsloadState.SetFirsLoad(true);
                 _timer = new Timer(_timerInterval);
                 _timer.Elapsed += LogoutTimeout;
@@ -195,11 +200,9 @@ namespace TozawaMauiHybrid.Components.Layout
                 return $"/{currentPath}";
             }
         }
-
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
         public override void Dispose()
-#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
+            NavMenuTabState.OnChange -= StateHasChanged;
             FirsloadState.OnChange -= ReloadPage;
             LoadingState.OnChange -= DisabledPage;
             if (_timer != null)

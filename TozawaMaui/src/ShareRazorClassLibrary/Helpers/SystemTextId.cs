@@ -106,6 +106,8 @@ public static partial class SystemTextId
     public static Guid PleaseUseValidAllowedFiles => Guid.Parse("9ec2bab4-4b69-4c6d-aa8c-a8fbe79fe88b");
     public static Guid Register => Guid.Parse("2042a238-8375-4596-8f59-58d7fbf65d3c");
     public static Guid Files => Guid.Parse("edfda485-050c-4881-9dea-906a3aca1ff6");
+    public static Guid File => Guid.Parse("cff59b9e-9269-40bc-9c1d-d550bef95d5f");
+    public static Guid Download => Guid.Parse("d176a986-b45d-4439-8595-ef3acd447917");
     public static Guid Findus => Guid.Parse("aabd1818-fd10-41d0-8ad5-8c0d12e205d4");
     public static Guid Callus => Guid.Parse("a5836384-37d4-439c-a627-ee8b989722db");
     public static Guid Mailus => Guid.Parse("08933bdd-7275-4a80-bf3c-79226cded894");
