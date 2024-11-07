@@ -158,7 +158,7 @@ builder.Services.AddScoped<FileService>();
 builder.Services.AddScoped<LoadingState>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
 builder.Services.AddScoped<IEncryptDecrypt, EncryptDecrypt>();
-builder.Services.AddScoped<FirsloadState>();
+builder.Services.AddScoped<FirstloadState>();
 builder.Services.AddScoped<NavMenuTabState>();
 
 builder.Services.AddControllers();

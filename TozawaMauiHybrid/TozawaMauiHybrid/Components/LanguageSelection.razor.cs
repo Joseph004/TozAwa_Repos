@@ -13,16 +13,19 @@ namespace TozawaMauiHybrid.Component
         public List<TozawaMauiHybrid.Models.Dtos.ActiveLanguageDto> ActiveLanguages { get; set; }
         public ActiveLanguageDto ActiveLanguage { get; set; }
         private Dictionary<string, string> _cultures;
-        [Inject] FirsloadState FirsloadState { get; set; }
+        [Inject] FirstloadState FirstloadState { get; set; }
         private string _dropArrowPosition = Icons.Material.Filled.KeyboardArrowDown;
         MudMenu _mudMenuRef = new();
         public override void Dispose()
         {
-            FirsloadState.OnChange -= FirsLoadChanged;
+            FirstloadState.OnChange -= FirsLoadChanged;
         }
         private void FirsLoadChanged()
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
         public string Language = "";
         private void IsOpen()
@@ -40,7 +43,7 @@ namespace TozawaMauiHybrid.Component
 
         protected override void OnInitialized()
         {
-            FirsloadState.OnChange += FirsLoadChanged;
+            FirstloadState.OnChange += FirsLoadChanged;
             _cultures = _appSettings.Languages.ToDictionary(x => x.Culture, x => x.LongName);
 
             base.OnInitialized();

@@ -13,7 +13,7 @@ namespace TozawaNGO.Shared
         public List<ShareRazorClassLibrary.Models.Dtos.ActiveLanguageDto> ActiveLanguages { get; set; }
         public ActiveLanguageDto ActiveLanguage { get; set; }
         private Dictionary<string, string> _cultures;
-        [Inject] FirsloadState FirsloadState { get; set; }
+        [Inject] FirstloadState FirstloadState { get; set; }
         private string _dropArrowPosition = Icons.Material.Filled.KeyboardArrowDown;
         MudMenu _mudMenuRef = new();
 
@@ -33,20 +33,22 @@ namespace TozawaNGO.Shared
 
         protected override void OnInitialized()
         {
-            FirsloadState.OnChange += FirsLoadChanged;
+            FirstloadState.OnChange += FirsLoadChanged;
             _cultures = _appSettings.Languages.ToDictionary(x => x.Culture, x => x.LongName);
 
             base.OnInitialized();
         }
         protected override void Dispose(bool disposed)
         {
-            FirsloadState.OnChange -= FirsLoadChanged;
+            FirstloadState.OnChange -= FirsLoadChanged;
             base.Dispose(disposed);
         }
-
         private void FirsLoadChanged()
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
         protected override async Task OnAfterRenderAsync(bool isFirstLoaded)
         {

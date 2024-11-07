@@ -17,7 +17,7 @@ namespace TozawaNGO.Shared
         [Inject] ILocalStorageService _localStorageService { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
-        [Inject] FirsloadState FirsloadState { get; set; }
+        [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] private NavMenuTabState NavMenuTabState { get; set; }
         [Inject] NavigationManager _navigationManager { get; set; }
@@ -28,15 +28,19 @@ namespace TozawaNGO.Shared
         protected async override Task OnInitializedAsync()
         {
             NavMenuTabState.OnChange += HandleLogo;
-            FirsloadState.OnChange += FirsLoadChanged;
+            FirstloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
             await base.OnInitializedAsync();
         }
+
         private void FirsLoadChanged()
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+          {
+              StateHasChanged();
+          });
         }
         private async void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
@@ -71,7 +75,7 @@ namespace TozawaNGO.Shared
         private async Task Login()
         {
             var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            if (!context.User.Identity.IsAuthenticated)
+            if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
             {
                 var parameters = new DialogParameters
                 {
@@ -96,24 +100,15 @@ namespace TozawaNGO.Shared
                         await _localStorageService.SetItemAsync("authToken", userResponse.Token);
                         await _localStorageService.SetItemAsync("refreshToken", userResponse.RefreshToken);
 
-                        _loginUrl = $"login{NavigateToReturnPage()}";
                         LoadingState.SetRequestInProgress(false);
-                        await JSRuntime.InvokeVoidAsync("open", Decode(_loginUrl), "_top");
+                        _authStateProvider.SetFirstLoad(true);
+
+                        ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication();
+
+                        _currentUser = await _currentUserService.GetCurrentUser();
+                        FirstloadState.SetFirsLoad(true);
                     }
                 }
-            }
-        }
-        private string NavigateToReturnPage()
-        {
-            var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
-
-            if (string.IsNullOrEmpty(currentPath))
-            {
-                return "/homePage";
-            }
-            else
-            {
-                return $"/{currentPath}";
             }
         }
         private async Task Logout()
@@ -122,10 +117,8 @@ namespace TozawaNGO.Shared
             await _localStorageService.RemoveItemAsync("refreshToken");
 
             ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
-            StateHasChanged();
 
-            var logoutUrl = $"logout{NavigateToReturnPage()}";
-            await JSRuntime.InvokeVoidAsync("open", Decode(logoutUrl), "_top");
+            FirstloadState.SetFirsLoad(true);
         }
         private async Task Register()
         {
@@ -149,26 +142,33 @@ namespace TozawaNGO.Shared
                     DrawerIcon = "#ffffffb3"
                 }
             };
-
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
+                _authStateProvider.SetFirstLoad(firstRender);
                 var auth = await _authStateProvider.GetAuthenticationStateAsync();
-                if (auth.User.Identity.IsAuthenticated)
+                if (auth.User.Identity != null && auth.User.Identity.IsAuthenticated)
                 {
                     ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication();
 
                     _currentUser = await _currentUserService.GetCurrentUser();
-                    StateHasChanged();
                 }
+
+                await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.1))).ContinueWith(o =>
+                {
+                    InvokeAsync(() =>
+                    {
+                        FirstloadState.SetFirsLoad(true);
+                    });
+                });
             }
             await base.OnAfterRenderAsync(firstRender);
         }
         protected override void Dispose(bool disposed)
         {
             NavMenuTabState.OnChange -= HandleLogo;
-            FirsloadState.OnChange -= FirsLoadChanged;
+            FirstloadState.OnChange -= FirsLoadChanged;
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
             base.Dispose(disposed);

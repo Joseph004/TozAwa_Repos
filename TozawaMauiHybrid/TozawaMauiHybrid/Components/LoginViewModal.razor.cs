@@ -41,8 +41,9 @@ namespace TozawaMauiHybrid.Component
         {
             if (firstRender)
             {
+                await JSRuntime.InvokeVoidAsync("DisabledCopyPasteToPasswordField", Translate(SystemTextId.WriteYourPassword, "You need to write your password. No copy paste is allowed"));
+                await base.OnAfterRenderAsync(firstRender);
             }
-            await base.OnAfterRenderAsync(firstRender);
         }
 
         private LoginCommandFluentValidator LoginValidator()
@@ -186,10 +187,7 @@ namespace TozawaMauiHybrid.Component
               await Task.CompletedTask;
           });
         }
-
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
         public override void Dispose()
-#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
         }
     }

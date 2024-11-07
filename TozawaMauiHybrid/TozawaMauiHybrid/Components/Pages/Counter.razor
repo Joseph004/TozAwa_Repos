@@ -16,8 +16,10 @@
     private int storeCount = 0;
 
     [Inject] ScrollTopState ScrollTopState { get; set; }
-    protected override async Task OnInitializedAsync() 
+    [Inject] NavMenuTabState NavMenuTabState { get; set; }
+    protected override async Task OnInitializedAsync()
     {
+        NavMenuTabState.SetActiveTab(TozawaMauiHybrid.Services.ActiveTab.Counter);
         ScrollTopState.SetSource("Counter");
         ScrollTopState.OnChange += SetScroll;
         await base.OnInitializedAsync();

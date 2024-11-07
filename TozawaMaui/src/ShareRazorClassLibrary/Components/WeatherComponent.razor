@@ -38,9 +38,11 @@ else
 }
 
 @code {
+    [Inject] NavMenuTabState NavMenuTabState { get; set; }
     IEnumerable<WeatherDto> forecasts;
     protected override async Task OnInitializedAsync()
     {
+        NavMenuTabState.SetActiveTab(ShareRazorClassLibrary.Services.ActiveTab.Weather);
         var getResponse = await ForecastService.GetItems();
         forecasts = getResponse.Entity ?? [];
         await base.OnInitializedAsync();

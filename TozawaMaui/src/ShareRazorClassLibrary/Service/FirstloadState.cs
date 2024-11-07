@@ -1,7 +1,9 @@
 ﻿
+using Microsoft.AspNetCore.Components;
+
 namespace ShareRazorClassLibrary.Services
 {
-	public class FirsloadState
+	public class FirstloadState
 	{
 		public bool IsFirstLoaded { get; private set; } = false;
 		public event Action OnChange;

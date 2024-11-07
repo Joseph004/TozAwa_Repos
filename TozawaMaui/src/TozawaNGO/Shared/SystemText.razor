@@ -1,6 +1,7 @@
 @inherits BaseComponent
-@implements IDisposable
 @namespace TozawaNGO.Shared
+@implements IDisposable
+
 <style>
     .notTranslated {
         color: #c00 !important;
@@ -11,7 +12,7 @@
         opacity: 80%;
     }
 </style>
-@if (FirsloadState.IsFirstLoaded)
+@if (FirstloadState.IsFirstLoaded)
 {
     <MudTooltip Class="pa-0 ma-0 opaque">
         <ChildContent>

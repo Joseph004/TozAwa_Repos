@@ -7,6 +7,7 @@ using TozawaMauiHybrid.Features;
 using Microsoft.JSInterop;
 using System.Globalization;
 using TozawaMauiHybrid.Configurations;
+using TozawaMauiHybrid.Services;
 
 namespace TozawaMauiHybrid.Helpers;
 
@@ -15,13 +16,16 @@ public class AuthStateProvider(PreferencesStoreClone storage, AppSettings appSet
     private readonly PreferencesStoreClone _storage = storage;
     private readonly AuthenticationState _anonymous = new(new ClaimsPrincipal(new ClaimsIdentity()));
     private readonly AppSettings _appSettings = appSettings;
-
+    public void SetFirstLoad(bool firstLoad) => _firstLoad = firstLoad;
+    private bool _firstLoad = false;
     public event EventHandler<EventArgs> UserAuthenticationChanged;
 
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         try
         {
+            if (!_firstLoad) return _anonymous;
+
             string token = null;
             try
             {

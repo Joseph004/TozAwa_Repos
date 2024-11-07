@@ -8,7 +8,7 @@
 <MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" CloseButton="true" DisableBackdropClick="false"
     NoHeader="false" Position="DialogPosition.TopCenter" />
 
-<MudLayout Style="max-height: 100vh; height: 100vh;" @onkeypress="RefreshTimer"
+<MudLayout Style="max-height: 100vh; height: 100vh;" @onpointermove="RefreshTimer" @onkeypress="RefreshTimer"
     Class="@($"d-flex flex-column flex-grow-1 gap-4 {_disableAttrString}")" @onmousemove="RefreshTimer">
     <AppBar OnSidebarToggled="ToggleSidebar" />
 

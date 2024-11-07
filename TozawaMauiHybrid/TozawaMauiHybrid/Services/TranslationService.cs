@@ -52,20 +52,20 @@ namespace TozawaMauiHybrid.Services
         }
         private async IAsyncEnumerable<LocalizedString> GetAllLocalizedStrings()
         {
-            var activeCulture = await GetActiveLanguage();
+            var activeCulture = await GetActiveLanguage(); 
 
             if (activeCulture != null && activeCulture.Culture != _selectedCulture.Name)
             {
                 var cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
                 var culture = cultures.FirstOrDefault(x => x.Name == activeCulture.Culture);
-
+ 
                 if (culture != null)
                 {
                     _selectedCulture = culture;
-                }
+                } 
             }
 
-            ResourceManager rm = new(typeof(TozawaMauiHybrid.Resources.App));
+            ResourceManager rm = new(typeof(TozawaMauiHybrid.Resources.App)); 
             foreach (DictionaryEntry value in rm.GetResourceSet(_selectedCulture, true, true))
             {
                 yield return new LocalizedString((string)value.Key, (string)value.Value);
@@ -145,7 +145,7 @@ namespace TozawaMauiHybrid.Services
         {
             var languages = await GetActiveLanguages();
 
-            _activeLanguage ??= _storage != null ? _storage.Get<ActiveLanguageDto>($"{ActiveLanguageKey}_activeLanguage") : null;
+            _activeLanguage ??= _storage?.Get<ActiveLanguageDto>($"{ActiveLanguageKey}_activeLanguage");
             _activeLanguage ??= languages.FirstOrDefault();
 
             return _activeLanguage;
@@ -155,10 +155,7 @@ namespace TozawaMauiHybrid.Services
         {
             Dictionary<string, string> queryParameters = [];
 
-            if (_activeLanguages == null)
-            {
-                _activeLanguages = [.. (_appSettings.Languages ?? [])];
-            }
+            _activeLanguages ??= [.. (_appSettings.Languages ?? [])];
 
             return await Task.FromResult(_activeLanguages);
         }

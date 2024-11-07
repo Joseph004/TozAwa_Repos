@@ -62,10 +62,18 @@ function getScreeenSize() {
     var width = window.innerWidth;
     return width;
 }
+window.DisabledCopyPasteToPasswordField = (message) => {
+    $('.tz_password').bind("cut copy paste", function (e) {
+        e.preventDefault();
+        alert(message);
+        $('.tz_password').bind("contextmenu", function (e) {
+            e.preventDefault();
+        });
+    });
+};
 function getWindowSize() {
     var element = document.getElementById("tzMainContainer");
     var width = window.innerWidth;
-    console.log(width);
     if (width <= 980) {
         if (element.classList.contains("pt-16")) {
             element.classList.remove("pt-16")

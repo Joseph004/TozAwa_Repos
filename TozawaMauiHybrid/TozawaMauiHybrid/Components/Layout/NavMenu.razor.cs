@@ -24,22 +24,26 @@ namespace TozawaMauiHybrid.Components.Layout
         }
         [Parameter]
         public EventCallback<bool> SideBarOpenChanged { get; set; }
-        [Inject] FirsloadState FirsloadState { get; set; }
+        [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] NavigationManager NavManager { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
 
 
         protected async override Task OnInitializedAsync()
-        {
-            FirsloadState.OnChange += FirsLoadChanged;
+        { 
+            FirstloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
             await base.OnInitializedAsync();
         }
-        private void FirsLoadChanged()
+        private async void FirsLoadChanged()
         {
-            StateHasChanged();
+           await InvokeAsync(async() =>
+            {
+                _currentUser = await _currentUserService.GetCurrentUser();
+                StateHasChanged();
+            });
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -50,34 +54,26 @@ namespace TozawaMauiHybrid.Components.Layout
                 {
                     NavMenuTabState.SetActiveTab(currentTab.Value);
                 }
+                await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.1))).ContinueWith(o => { FirstloadState.SetFirsLoad(true); });
                 _currentUser = await _currentUserService.GetCurrentUser();
+                await base.OnAfterRenderAsync(firstRender);
             }
-            await base.OnAfterRenderAsync(firstRender);
         }
         private async Task OnClickTab(string link)
         {
-            var sizeWidth = await JSRuntime.InvokeAsync<int>("getScreeenSize");
-            if (sizeWidth <= 980)
+            var previousTab = NavMenuTabState.ActiveTab;
+            if (NavMenuTabState.GetTabPath(previousTab) != link)
             {
-                SideBarOpen = !SideBarOpen;
-                StateHasChanged();
+                var sizeWidth = await JSRuntime.InvokeAsync<int>("getScreeenSize");
+                if (sizeWidth <= 980)
+                {
+                    SideBarOpen = !SideBarOpen;
+                    StateHasChanged();
+                }
+                NavMenuTabState.SetMenuOpen(SideBarOpen);
+                NavMenuTabState.SetPreviousTab(previousTab);
+                NavManager.NavigateTo(link);
             }
-            NavMenuTabState.SetMenuOpen(SideBarOpen);
-            var tab = link switch
-            {
-                "/" => ActiveTab.Home,
-                "/counter" => ActiveTab.Counter,
-                "/weather" => ActiveTab.Weather,
-                _ => ActiveTab.Home,
-            };
-            if (DeviceInfo.Platform != DevicePlatform.WinUI)
-            {
-                SideBarOpen = !SideBarOpen;
-                StateHasChanged();
-            }
-            NavMenuTabState.SetActiveTab(tab);
-            _storage.Set(nameof(ActiveTab), NavMenuTabState.ActiveTab);
-            NavManager.NavigateTo(link);
         }
         private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
@@ -90,7 +86,7 @@ namespace TozawaMauiHybrid.Components.Layout
 
         public override void Dispose()
         {
-            FirsloadState.OnChange -= FirsLoadChanged;
+            FirstloadState.OnChange -= FirsLoadChanged;
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
         }

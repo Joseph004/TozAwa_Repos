@@ -70,7 +70,7 @@ namespace TozawaMauiHybrid
             builder.Services.AddSingleton<ScrollTopState>();
             builder.Services.AddSingleton<AuthenticationService>();
             builder.Services.AddSingleton<LoadingState>();
-            builder.Services.AddSingleton<FirsloadState>();
+            builder.Services.AddSingleton<FirstloadState>();
             builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
             builder.Services.RegisterHttpClients(appSettings);
             builder.Services.AddAuthorizationCore();
@@ -81,9 +81,9 @@ namespace TozawaMauiHybrid
             builder.Services.AddSingleton<WeatherForecastService>();
             builder.Services.AddSingleton<NavMenuTabState>();
 
-            builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+            //builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-            return builder.Build();
+            return builder.Build();  
         }
     }
 }

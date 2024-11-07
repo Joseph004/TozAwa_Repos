@@ -15,7 +15,7 @@ public partial class SystemText : BaseComponent
     [Parameter] public int? Limit { get; set; }
     [Parameter] public bool? ToUpper { get; set; }
 
-    [Inject] FirsloadState FirsloadState { get; set; }
+    [Inject] FirstloadState FirstloadState { get; set; }
 
     public string NotTranslated = string.Empty;
     public string NotTranslatedTitle = string.Empty;
@@ -23,13 +23,24 @@ public partial class SystemText : BaseComponent
     private string _translatedText { get; set; }
     private bool _istTranslated { get; set; }
 
-    protected override void OnInitialized()
+    protected async override Task OnInitializedAsync()
     {
-        base.OnInitialized();
+        FirstloadState.OnChange += FirsLoadChanged;
+        await base.OnInitializedAsync();
     }
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    private void FirsLoadChanged()
     {
-        return base.OnAfterRenderAsync(firstRender);
+        InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+    protected async override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await base.OnAfterRenderAsync(firstRender);
+        }
     }
     public string Translate()
     {
@@ -60,5 +71,9 @@ public partial class SystemText : BaseComponent
         var translationChanged = translation.IsTranslated != _istTranslated;
         _istTranslated = translation.IsTranslated;
         return translationChanged;
+    }
+    public override void Dispose()
+    {
+        FirstloadState.OnChange -= FirsLoadChanged;
     }
 }

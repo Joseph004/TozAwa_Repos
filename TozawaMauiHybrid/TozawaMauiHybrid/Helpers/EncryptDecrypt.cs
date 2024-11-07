@@ -15,8 +15,7 @@ public class EncryptDecrypt() : IEncryptDecrypt
         try
         {
             byte[] byteData = Encoding.UTF8.GetBytes(data);
-            string solutiondir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-            var assembly = solutiondir + "\\TozawaMauiHybrid\\TozawaMauiHybrid";
+            var assembly = AppDomain.CurrentDomain.BaseDirectory;
             string path = Path.Combine(assembly, @"Helpers/mycert.pem");
             var collection = new X509Certificate2Collection();
             collection.Import(path);

@@ -21,7 +21,7 @@ namespace TozawaNGO.Pages
         [Inject] private ISnackBarService snackBarService { get; set; }
         [Inject] MemberService memberService { get; set; }
         [Inject] private LoadingState LoadingState { get; set; }
-        [Inject] FirsloadState FirsloadState { get; set; }
+        [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] IState<TozawaNGO.State.Member.Store.MemberState> MemberState { get; set; }
         [Inject] IDispatcher Dispatcher { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
@@ -45,7 +45,7 @@ namespace TozawaNGO.Pages
         protected override async Task OnInitializedAsync()
         {
             ScrollTopState.SetSource("memberPage");
-            FirsloadState.OnChange += FirsLoadChanged;
+            FirstloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
             AttachmentService.OnChange += UpdateMemberAttachments;
@@ -60,7 +60,10 @@ namespace TozawaNGO.Pages
         }
         private void FirsLoadChanged()
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
 
         private string GetDescColor(MemberDto member)
@@ -104,7 +107,7 @@ namespace TozawaNGO.Pages
             {
                 LoadingState.SetRequestInProgress(true);
             }
-            if (!MemberState.Value.IsLoading && MemberState.Value.Members.Count > 0 && FirsloadState.IsFirstLoaded)
+            if (!MemberState.Value.IsLoading && MemberState.Value.Members.Count > 0 && FirstloadState.IsFirstLoaded)
             {
                 //await SetDescriptionIcon();
                 LoadingState.SetRequestInProgress(false);
@@ -298,7 +301,7 @@ namespace TozawaNGO.Pages
         {
             try
             {
-                FirsloadState.OnChange -= FirsLoadChanged;
+                FirstloadState.OnChange -= FirsLoadChanged;
                 _translationService.LanguageChanged -= LanguageChanged;
                 _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
                 AttachmentService.OnChange -= UpdateMemberAttachments;

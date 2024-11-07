@@ -407,4 +407,8 @@
     <value>Telecharger</value>
     <comment>.</comment>
   </data>
+  <data name="a28165f2-0ce0-490d-bfeb-6d572d12f905" xml:space="preserve">
+    <value>Vous devriez ecrire votre mot de passe. Aucun copier coller n*est autoriser.</value>
+    <comment>.</comment>
+  </data>
 </root>

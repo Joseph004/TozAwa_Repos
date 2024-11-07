@@ -18,7 +18,7 @@ namespace TozawaMauiHybrid.Component
         [Inject] LoadingState LoadingState { get; set; }
         [Inject] private NavMenuTabState NavMenuTabState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
-        [Inject] FirsloadState FirsloadState { get; set; }
+        [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
         public string _loginUrl { get; set; } = $"";
@@ -27,7 +27,7 @@ namespace TozawaMauiHybrid.Component
         protected async override Task OnInitializedAsync()
         {
             NavMenuTabState.OnChange += HandleLogo;
-            FirsloadState.OnChange += FirsLoadChanged;
+            FirstloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
@@ -40,7 +40,10 @@ namespace TozawaMauiHybrid.Component
         }
         private void FirsLoadChanged()
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+          {
+              StateHasChanged();
+          });
         }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
@@ -54,7 +57,7 @@ namespace TozawaMauiHybrid.Component
             }
             else if (!NavMenuTabState.IsMenuOpen && !_showLogo)
             {
-                _showLogo = true; 
+                _showLogo = true;
             }
             StateHasChanged();
         }
@@ -73,7 +76,7 @@ namespace TozawaMauiHybrid.Component
         private async Task Login()
         {
             var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            if (!context.User.Identity.IsAuthenticated)
+            if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
             {
                 var parameters = new DialogParameters
                 {
@@ -98,24 +101,14 @@ namespace TozawaMauiHybrid.Component
                         _storage.Set("authToken", userResponse.Token);
                         _storage.Set("refreshToken", userResponse.RefreshToken);
 
-                        _loginUrl = $"login{NavigateToReturnPage()}";
                         LoadingState.SetRequestInProgress(false);
-                        await JSRuntime.InvokeVoidAsync("open", Decode(_loginUrl), "_top");
+                        _authStateProvider.SetFirstLoad(true);
+                        await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication();
+
+                        _currentUser = await _currentUserService.GetCurrentUser();
+                        FirstloadState.SetFirsLoad(true);
                     }
                 }
-            }
-        }
-        private string NavigateToReturnPage()
-        {
-            var currentPath = "";//_navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
-
-            if (string.IsNullOrEmpty(currentPath))
-            {
-                return "/home";
-            }
-            else
-            {
-                return $"/{currentPath}";
             }
         }
         private async Task Logout()
@@ -126,8 +119,7 @@ namespace TozawaMauiHybrid.Component
             ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
             StateHasChanged();
 
-            var logoutUrl = $"logout{NavigateToReturnPage()}";
-            await JSRuntime.InvokeVoidAsync("open", Decode(logoutUrl), "_top");
+            FirstloadState.SetFirsLoad(true);
         }
         private async Task Register()
         {
@@ -156,21 +148,29 @@ namespace TozawaMauiHybrid.Component
         {
             if (firstRender)
             {
+                _authStateProvider.SetFirstLoad(firstRender);
                 var auth = await _authStateProvider.GetAuthenticationStateAsync();
-                if (auth.User.Identity.IsAuthenticated)
+                if (auth.User.Identity != null && auth.User.Identity.IsAuthenticated)
                 {
                     await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication();
 
                     _currentUser = await _currentUserService.GetCurrentUser();
-                    StateHasChanged();
                 }
+
+                await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.1))).ContinueWith(o =>
+                {
+                    InvokeAsync(() =>
+                    {
+                        FirstloadState.SetFirsLoad(true);
+                    });
+                });
+                await base.OnAfterRenderAsync(firstRender);
             }
-            await base.OnAfterRenderAsync(firstRender);
         }
         public override void Dispose()
         {
             NavMenuTabState.OnChange -= HandleLogo;
-            FirsloadState.OnChange -= FirsLoadChanged;
+            FirstloadState.OnChange -= FirsLoadChanged;
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
         }

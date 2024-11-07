@@ -25,9 +25,9 @@ namespace ShareRazorClassLibrary.HttpClients
     }
 
     public class TozAwaBffHttpClient : HttpClientHelper, ITozAwaBffHttpClient
-    {
+    { 
         public TozAwaBffHttpClient(HttpClient client, AppSettings appSettings, AuthenticationStateProvider authProvider, ILocalStorageService localStorageService,
-            NavigationManager navigationManager, ILogger<TozAwaBffHttpClient> logger, ITranslationService translationService, IJSRuntime jSRuntime, AuthStateProvider authStateProvider) : base(client, translationService, appSettings, authProvider, localStorageService, navigationManager, jSRuntime, authStateProvider, logger)
+            NavigationManager navigationManager, ILogger<TozAwaBffHttpClient> logger, ITranslationService translationService, IJSRuntime jSRuntime, AuthStateProvider authStateProvider, FirstloadState firstloadState) : base(client, translationService, appSettings, authProvider, localStorageService, navigationManager, jSRuntime, authStateProvider, firstloadState, logger)
         {
             client.BaseAddress = new Uri(appSettings.TozAwaNGOApiSettings.ApiUrl);
             client.DefaultRequestHeaders.Add("Accept", "application/json");

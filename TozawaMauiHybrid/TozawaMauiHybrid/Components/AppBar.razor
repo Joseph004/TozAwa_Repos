@@ -10,7 +10,7 @@
     <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleSideBar" />
     @if (_showLogo)
     {
-        <MudButton Href="/home" Color="Color.Inherit">
+        <MudButton Href="/" Color="Color.Inherit">
             <img src="/images/TR_Mini.png" asp-append-version="true" height="60px" width="150px" />
         </MudButton>
     }
@@ -60,12 +60,15 @@
             </MudMenu>
         </Authorized>
         <NotAuthorized>
-            <MudIconButton Class="mr-3 mb-1" OnClick="@(()=>Login())" Size="Size.Small"
-                Icon="@Icons.Material.Filled.Login" Color="Color.Inherit">
-            </MudIconButton>
-            <MudIconButton OnClick="@(()=>Register())" Icon="@Icons.Material.Filled.PersonAddAlt1" Size="Size.Small"
-                Color="Color.Inherit">
-            </MudIconButton>
+            @if (FirstloadState.IsFirstLoaded)
+            {
+                <MudIconButton Class="mr-3 mb-1" OnClick="@(()=>Login())" Size="Size.Small"
+                    Icon="@Icons.Material.Filled.Login" Color="Color.Inherit">
+                </MudIconButton>
+                <MudIconButton OnClick="@(()=>Register())" Icon="@Icons.Material.Filled.PersonAddAlt1" Size="Size.Small"
+                    Color="Color.Inherit">
+                </MudIconButton>
+            }
         </NotAuthorized>
     </AuthorizeView>
 </MudAppBar>

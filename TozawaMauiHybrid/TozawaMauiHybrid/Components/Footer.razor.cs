@@ -12,7 +12,7 @@ namespace TozawaMauiHybrid.Component
     {
         [Inject] IJSRuntime JS { get; set; }
         [Inject] public ISnackbar Snackbar { get; set; }
-        [Inject] FirsloadState FirsloadState { get; set; }
+        [Inject] FirstloadState FirstloadState { get; set; }
         public string _email { get; set; }
         SubscribeCommand model = new();
         MudForm form;
@@ -68,7 +68,7 @@ namespace TozawaMauiHybrid.Component
         }
         protected async override Task OnInitializedAsync()
         {
-            FirsloadState.OnChange += FirsLoadChanged;
+            FirstloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
@@ -122,11 +122,14 @@ namespace TozawaMauiHybrid.Component
         }
         private void FirsLoadChanged()
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
-        public virtual void Dispose()
+        public override void Dispose()
         {
-            FirsloadState.OnChange -= FirsLoadChanged;
+            FirstloadState.OnChange -= FirsLoadChanged;
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
         }

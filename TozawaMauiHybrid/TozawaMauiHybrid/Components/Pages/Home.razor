@@ -879,8 +879,10 @@ Welcome to your new app.
 
 @code {
     [Inject] ScrollTopState ScrollTopState { get; set; }
+    [Inject] NavMenuTabState NavMenuTabState { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        NavMenuTabState.SetActiveTab(TozawaMauiHybrid.Services.ActiveTab.Home);
         ScrollTopState.SetSource("Home");
         ScrollTopState.OnChange += SetScroll;
         await base.OnInitializedAsync();

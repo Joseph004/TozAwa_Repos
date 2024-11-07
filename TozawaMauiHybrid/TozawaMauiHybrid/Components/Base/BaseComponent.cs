@@ -35,8 +35,8 @@ namespace TozawaMauiHybrid.Component
             if (firstRender)
             {
                 _currentUser = await _currentUserService.GetCurrentUser();
+                await base.OnAfterRenderAsync(firstRender);
             }
-            await base.OnAfterRenderAsync(firstRender);
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {

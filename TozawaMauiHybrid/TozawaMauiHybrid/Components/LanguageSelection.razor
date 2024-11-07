@@ -2,7 +2,7 @@
 @namespace TozawaMauiHybrid.Component
 @implements IDisposable
 
-@if (FirsloadState.IsFirstLoaded)
+@if (FirstloadState.IsFirstLoaded)
 {
     <MudMenu @ref="_mudMenuRef" AnchorOrigin="@Origin.BottomCenter" Label="@GetTitle(ActiveLanguage)"
         TransformOrigin="@Origin.TopCenter" Class="mr-5 mb-1" MaxHeight="500" StartIcon="@Icons.Material.Filled.Translate"

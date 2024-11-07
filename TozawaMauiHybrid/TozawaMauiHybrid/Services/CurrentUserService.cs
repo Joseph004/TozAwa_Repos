@@ -50,7 +50,7 @@ public class CurrentUserService(
             var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
 
-            if (!user.Identity.IsAuthenticated)
+            if (user.Identity == null || !user.Identity.IsAuthenticated)
             {
                 //_logger.LogError("User is not authenticated");
                 return new CurrentUserDto();

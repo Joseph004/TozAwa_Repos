@@ -13,9 +13,6 @@ using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Models.ResponseRequests;
 using ShareRazorClassLibrary.Services;
 using Microsoft.JSInterop;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Http;
 
@@ -29,9 +26,11 @@ namespace ShareRazorClassLibrary.HttpClients
     NavigationManager navigationManager,
     IJSRuntime jSRuntime,
     AuthStateProvider authStateProvider,
+    FirstloadState firstloadState,
     ILogger<HttpClientHelper> logger)
     {
         protected readonly ILogger<HttpClientHelper> _logger = logger;
+        private readonly FirstloadState _firstloadState = firstloadState;
         private readonly ITranslationService _translationService = translationService;
         private readonly AppSettings _appSettings = appSettings;
         private readonly AuthenticationStateProvider _authProvider = authProvider;
@@ -382,7 +381,7 @@ namespace ShareRazorClassLibrary.HttpClients
 
             var token = await TryRefreshToken();
             var context = await _authProvider.GetAuthenticationStateAsync();
-            if (string.IsNullOrEmpty(token) && context.User.Identity.IsAuthenticated)
+            if (string.IsNullOrEmpty(token) && context.User.Identity != null && context.User.Identity.IsAuthenticated)
             {
                 await Logout();
                 token = string.Empty;
@@ -411,31 +410,13 @@ namespace ShareRazorClassLibrary.HttpClients
 
             ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
 
-            var logoutUrl = $"logout{NavigateToReturnPage()}";
-            await _jSRuntime.InvokeVoidAsync("open", Decode(logoutUrl), "_top");
-        }
-        private static string Decode(string param)
-        {
-            return HttpUtility.UrlDecode(param);
-        }
-        private string NavigateToReturnPage()
-        {
-            var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
-
-            if (string.IsNullOrEmpty(currentPath))
-            {
-                return "/homePage";
-            }
-            else
-            {
-                return $"/{currentPath}";
-            }
+            _firstloadState.SetFirsLoad(true);
         }
         protected async Task<HttpResponseMessage> PostFile(string url, HttpContent request)
         {
             var token = await TryRefreshToken();
             var context = await _authProvider.GetAuthenticationStateAsync();
-            if (string.IsNullOrEmpty(token) && context.User.Identity.IsAuthenticated)
+            if (string.IsNullOrEmpty(token) && context.User.Identity != null && context.User.Identity.IsAuthenticated)
             {
                 await Logout();
                 token = string.Empty;

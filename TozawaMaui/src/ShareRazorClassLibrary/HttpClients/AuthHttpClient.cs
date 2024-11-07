@@ -12,6 +12,7 @@ using ShareRazorClassLibrary.Extensions;
 using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Models.ResponseRequests;
+using ShareRazorClassLibrary.Services;
 
 namespace ShareRazorClassLibrary.HttpClients
 {
@@ -28,15 +29,16 @@ namespace ShareRazorClassLibrary.HttpClients
         private readonly ISessionStorageService _sessionStorageService;
         private readonly NavigationManager _navigationManager;
         private readonly HttpClient _client;
+        private readonly FirstloadState _firstloadState;
 
-        public AuthHttpClient(HttpClient client, AppSettings appSettings, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authProvider, ISessionStorageService sessionStorageService, NavigationManager navigationManager,
-           AuthenticationStateProvider authState)
+        public AuthHttpClient(HttpClient client, AppSettings appSettings, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authProvider, ISessionStorageService sessionStorageService, NavigationManager navigationManager, FirstloadState firstloadState)
         {
             _client = client;
             _logger = logger;
             _appSettings = appSettings;
             _sessionStorageService = sessionStorageService;
             _authProvider = authProvider;
+            _firstloadState = firstloadState;
 
             client.BaseAddress = new Uri(appSettings.TozAwaNGOApiSettings.ApiUrl);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
@@ -81,7 +83,7 @@ namespace ShareRazorClassLibrary.HttpClients
             await _sessionStorageService.RemoveItemAsync("refreshToken");
             // ((AuthStateProvider)_authProvider).NotifyUserLogout();
 
-            NavigateToReturnPage();
+            _firstloadState.SetFirsLoad(true);
         }
         public async Task RemoveCurrentUser()
         {
@@ -90,24 +92,11 @@ namespace ShareRazorClassLibrary.HttpClients
                 await _sessionStorageService.RemoveItemAsync("currentUser");
             }
         }
-        private void NavigateToReturnPage()
-        {
-            var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
-
-            if (string.IsNullOrEmpty(currentPath))
-            {
-                _navigationManager.NavigateTo("/homePage");
-            }
-            else
-            {
-                _navigationManager.NavigateTo($"/{currentPath}");
-            }
-        }
         public virtual async Task<HttpResponseMessage> Send(HttpRequestMessage request)
         {
             var token = await TryRefreshToken();
             var context = await _authProvider.GetAuthenticationStateAsync();
-            if (string.IsNullOrEmpty(token) && context.User.Identity.IsAuthenticated)
+            if (string.IsNullOrEmpty(token) && context.User.Identity != null && context.User.Identity.IsAuthenticated)
             {
                 await Logout();
                 token = string.Empty;

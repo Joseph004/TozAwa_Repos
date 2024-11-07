@@ -47,8 +47,8 @@ namespace TozawaMauiHybrid.Component
             {
                 IsFirstLoaded = true;
                 StateHasChanged();
+                await base.OnAfterRenderAsync(firstRender);
             }
-            await base.OnAfterRenderAsync(firstRender);
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {

@@ -44,7 +44,6 @@ namespace TozawaNGO.Shared
         {
             if (firstRender)
             {
-                StateHasChanged();
             }
             await base.OnAfterRenderAsync(firstRender);
         }
@@ -56,7 +55,7 @@ namespace TozawaNGO.Shared
             _currentUser = await _currentUserService.GetCurrentUser();
             ActiveLanguages = (await _translationService.GetActiveLanguages()).OrderBy(x => x.LongName).ToList();
             await base.SetParametersAsync(ParameterView.Empty);
-        }
+        } 
 
         public string Translate(Guid systemTextId, string fallback = null, int? limit = null, bool? toUpper = null)
         {

@@ -25,7 +25,7 @@ namespace TozawaMauiHybrid.Components.Layout
         [Inject] AppSettings _appSettings { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
-        [Inject] FirsloadState FirsloadState { get; set; }
+        [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] PreferencesStoreClone _storage { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
         private Timer _timer;
@@ -42,7 +42,7 @@ namespace TozawaMauiHybrid.Components.Layout
         }
         protected override void OnParametersSet()
         {
-            LoadingState.OnChange += DisabledPage;
+            //LoadingState.OnChange += DisabledPage;
             _errorBoundary?.Recover();
         }
         private async void DisabledPage()
@@ -64,13 +64,18 @@ namespace TozawaMauiHybrid.Components.Layout
         };
         protected async override Task OnInitializedAsync()
         {
+            LoadingState.OnChange += DisabledPage;
+
             NavMenuTabState.OnChange += StateHasChanged;
-            FirsloadState.OnChange += ReloadPage;
+            FirstloadState.OnChange += ReloadPage;
             await base.OnInitializedAsync();
         }
         public void ReloadPage()
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
         private void RefreshTimer(EventArgs e)
         {
@@ -86,7 +91,6 @@ namespace TozawaMauiHybrid.Components.Layout
             if (firstRender)
             {
                 NavMenuTabState.SetMenuOpen(_sidebarOpen);
-                FirsloadState.SetFirsLoad(true);
                 _timer = new Timer(_timerInterval);
                 _timer.Elapsed += LogoutTimeout;
                 _timer.AutoReset = false;
@@ -94,15 +98,15 @@ namespace TozawaMauiHybrid.Components.Layout
 
                 await LogoutIfUserExipired();
                 StateHasChanged();
+                await base.OnAfterRenderAsync(firstRender);
             }
-
-            await base.OnAfterRenderAsync(firstRender);
         }
         private async Task LogoutIfUserExipired()
         {
+            _authStateProvider.SetFirstLoad(FirstloadState.IsFirstLoaded);
             var auth = await _authStateProvider.GetAuthenticationStateAsync();
 
-            if (auth.User.Identity.IsAuthenticated)
+            if (auth.User.Identity != null && auth.User.Identity.IsAuthenticated)
             {
                 var token = _storage.Get<string>("authToken");
                 var refreshToken = _storage.Get<string>("refreshToken");
@@ -159,20 +163,23 @@ namespace TozawaMauiHybrid.Components.Layout
         {
             InvokeAsync(async () =>
               {
-                  var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-                  if (context.User.Identity.IsAuthenticated)
+                  if (FirstloadState.IsFirstLoaded)
                   {
-                      var parameters = new DialogParameters
+                      var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                      if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
                       {
-                          ["Title"] = "Logout"
-                      };
-                      DialogOptions options = new() { DisableBackdropClick = true, Position = DialogPosition.TopCenter };
-                      var dialog = DialogService.Show<ExpireModal>("Logout", parameters, options);
-                      var result = await dialog.Result;
+                          var parameters = new DialogParameters
+                          {
+                              ["Title"] = "Logout"
+                          };
+                          DialogOptions options = new() { DisableBackdropClick = true, Position = DialogPosition.TopCenter };
+                          var dialog = DialogService.Show<ExpireModal>("Logout", parameters, options);
+                          var result = await dialog.Result;
 
-                      if (!result.Canceled)
-                      {
-                          await Logout();
+                          if (!result.Canceled)
+                          {
+                              await Logout();
+                          }
                       }
                   }
               });
@@ -184,26 +191,13 @@ namespace TozawaMauiHybrid.Components.Layout
 
             ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
 
-            var logoutUrl = $"logout{NavigateToReturnPage()}";
-            await JSRuntime.InvokeVoidAsync("open", Decode(logoutUrl), "_top");
-        }
-        private string NavigateToReturnPage()
-        {
-            var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
-
-            if (string.IsNullOrEmpty(currentPath))
-            {
-                return "/home";
-            }
-            else
-            {
-                return $"/{currentPath}";
-            }
+            FirstloadState.SetFirsLoad(true);
+            await Task.CompletedTask;
         }
         public override void Dispose()
         {
             NavMenuTabState.OnChange -= StateHasChanged;
-            FirsloadState.OnChange -= ReloadPage;
+            FirstloadState.OnChange -= ReloadPage;
             LoadingState.OnChange -= DisabledPage;
             if (_timer != null)
             {

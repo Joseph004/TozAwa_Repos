@@ -1,7 +1,5 @@
-using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -11,6 +9,7 @@ using TozawaMauiHybrid.Extensions;
 using TozawaMauiHybrid.Helpers;
 using TozawaMauiHybrid.Models.Dtos;
 using TozawaMauiHybrid.Models.ResponseRequests;
+using TozawaMauiHybrid.Services;
 
 namespace TozawaMauiHybrid.HttpClients
 {
@@ -27,15 +26,17 @@ namespace TozawaMauiHybrid.HttpClients
         private readonly PreferencesStoreClone _storage;
         //private readonly NavigationManager _navigationManager;
         private readonly HttpClient _client;
+        private readonly FirstloadState _firstloadState;
 
         public AuthHttpClient(HttpClient client, AppSettings appSettings, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authProvider, PreferencesStoreClone storage,
-           AuthenticationStateProvider authState)
+           AuthenticationStateProvider authState, FirstloadState firstloadState)
         {
             _client = client;
             _logger = logger;
             _appSettings = appSettings;
             _storage = storage;
             _authProvider = authProvider;
+            _firstloadState = firstloadState;
 
             //_navigationManager = navigationManager;
 #if !DEBUG
@@ -79,26 +80,13 @@ namespace TozawaMauiHybrid.HttpClients
             _storage.Delete("refreshToken");
             // ((AuthStateProvider)_authProvider).NotifyUserLogout();
 
-            NavigateToReturnPage();
+            _firstloadState.SetFirsLoad(true);
         }
         public void RemoveCurrentUser()
         {
             if (_storage.Exists("currentUser"))
             {
                 _storage.Exists("currentUser");
-            }
-        }
-        private void NavigateToReturnPage()
-        {
-            var currentPath = ""; //_navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
-
-            if (string.IsNullOrEmpty(currentPath))
-            {
-                //_navigationManager.NavigateTo("/home");
-            }
-            else
-            {
-                //_navigationManager.NavigateTo($"/{currentPath}");
             }
         }
         public virtual async Task<HttpResponseMessage> Send(HttpRequestMessage request)
@@ -111,7 +99,7 @@ namespace TozawaMauiHybrid.HttpClients
 
             var token = await TryRefreshToken();
             var context = await _authProvider.GetAuthenticationStateAsync();
-            if (string.IsNullOrEmpty(token) && context.User.Identity.IsAuthenticated)
+            if (string.IsNullOrEmpty(token) && context.User.Identity != null && context.User.Identity.IsAuthenticated)
             {
                 Logout();
                 token = string.Empty;

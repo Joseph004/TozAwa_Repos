@@ -11,7 +11,7 @@ namespace TozawaNGO.Shared
     public partial class Footer : BaseComponent
     {
         [Inject] IJSRuntime JS { get; set; }
-        [Inject] FirsloadState FirsloadState { get; set; }
+        [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] public ISnackbar Snackbar { get; set; }
         public string _email { get; set; }
         SubscribeCommand model = new();
@@ -68,7 +68,7 @@ namespace TozawaNGO.Shared
         }
         protected async override Task OnInitializedAsync()
         {
-            FirsloadState.OnChange += FirsLoadChanged;
+            FirstloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
@@ -122,11 +122,14 @@ namespace TozawaNGO.Shared
         }
         private void FirsLoadChanged()
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
         protected override void Dispose(bool disposed)
         {
-            FirsloadState.OnChange -= FirsLoadChanged;
+            FirstloadState.OnChange -= FirsLoadChanged;
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
             base.Dispose(disposed);

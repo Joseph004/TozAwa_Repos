@@ -16,8 +16,8 @@
 
     <MudText Class="appbarTitle">
         <SystemText TextId=SystemTextId.ToZawaTitle Style="font-familly: cursive; font-size: max(1.2vw, 13px)"
-            SystemTextTypo=Typo.h2 FallbackText="Svensk Förening för internationella arbete inom teknik och informatik"
-            ></SystemText>
+            SystemTextTypo=Typo.h2 FallbackText="Svensk Förening för internationella arbete inom teknik och informatik">
+        </SystemText>
     </MudText>
 
     <MudSpacer />
@@ -35,7 +35,7 @@
                             <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Person" Size="Size.Small"
                                 Color="Color.Warning">
                             </MudIcon>
-                            <SystemText TextId=SystemTextId.Hello FallbackText="Hello" >
+                            <SystemText TextId=SystemTextId.Hello FallbackText="Hello">
                             </SystemText>
                             <b>@context.User.Identity.Name!</b>
                         </MudText>
@@ -46,8 +46,7 @@
                             <MudText>
                                 <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Logout" Size="Size.Small">
                                 </MudIcon>
-                                <SystemText TextId=SystemTextId.Logout FallbackText="Logout"
-                                    ></SystemText>
+                                <SystemText TextId=SystemTextId.Logout FallbackText="Logout"></SystemText>
                             </MudText>
                         </MudButton>
                     </MudMenuItem>
@@ -55,12 +54,15 @@
             </MudMenu>
         </Authorized>
         <NotAuthorized>
-            <MudIconButton Class="mr-3 mb-1" OnClick="@(()=>Login())" Size="Size.Small"
-                Icon="@Icons.Material.Filled.Login" Color="Color.Inherit">
-            </MudIconButton>
-            <MudIconButton OnClick="@(()=>Register())" Icon="@Icons.Material.Filled.PersonAddAlt1" Size="Size.Small"
-                Color="Color.Inherit">
-            </MudIconButton>
+            @if (FirstloadState.IsFirstLoaded)
+            {
+                <MudIconButton Class="mr-3 mb-1" OnClick="@(()=>Login())" Size="Size.Small"
+                    Icon="@Icons.Material.Filled.Login" Color="Color.Inherit">
+                </MudIconButton>
+                <MudIconButton OnClick="@(()=>Register())" Icon="@Icons.Material.Filled.PersonAddAlt1" Size="Size.Small"
+                    Color="Color.Inherit">
+                </MudIconButton>
+            }
         </NotAuthorized>
     </AuthorizeView>
 </MudAppBar>

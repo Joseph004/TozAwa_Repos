@@ -24,7 +24,7 @@ namespace TozawaNGO.Shared
         [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] ICurrentUserService CurrentUserService { get; set; }
         [Inject] AppSettings _appSettings { get; set; }
-        [Inject] FirsloadState FirsloadState { get; set; }
+        [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
         [Inject] ILocalStorageService _localStorageService { get; set; }
@@ -37,6 +37,7 @@ namespace TozawaNGO.Shared
         private string _disableAttrString = "";
         private ErrorBoundary _errorBoundary;
         private bool _sidebarOpen = true;
+
         private void ToggleSidebar()
         {
             _sidebarOpen = !_sidebarOpen;
@@ -61,13 +62,16 @@ namespace TozawaNGO.Shared
         protected async override Task OnInitializedAsync()
         {
             NavMenuTabState.OnChange += StateHasChanged;
-            FirsloadState.OnChange += ReloadPage;
+            FirstloadState.OnChange += ReloadPage;
             LoadingState.OnChange += DisabledPage;
             await base.OnInitializedAsync();
         }
         public void ReloadPage()
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+           {
+               StateHasChanged();
+           });
         }
         private async void DisabledPage()
         {
@@ -79,28 +83,26 @@ namespace TozawaNGO.Shared
                 StateHasChanged();
             });
         }
+
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
                 NavMenuTabState.SetMenuOpen(_sidebarOpen);
-                FirsloadState.SetFirsLoad(true);
                 _timer = new Timer(_timerInterval);
                 _timer.Elapsed += LogoutTimeout;
                 _timer.AutoReset = false;
                 _timer.Start();
-
                 await LogoutIfUserExipired();
-                StateHasChanged();
             }
-
             await base.OnAfterRenderAsync(firstRender);
         }
         private async Task LogoutIfUserExipired()
         {
+            _authStateProvider.SetFirstLoad(FirstloadState.IsFirstLoaded);
             var auth = await _authStateProvider.GetAuthenticationStateAsync();
 
-            if (auth.User.Identity.IsAuthenticated)
+            if (auth.User.Identity != null && auth.User.Identity.IsAuthenticated)
             {
                 var token = await _localStorageService.GetItemAsync<string>("authToken");
                 var refreshToken = await _localStorageService.GetItemAsync<string>("refreshToken");
@@ -158,10 +160,10 @@ namespace TozawaNGO.Shared
         {
             InvokeAsync(async () =>
               {
-                  if (FirsloadState.IsFirstLoaded)
+                  if (FirstloadState.IsFirstLoaded)
                   {
                       var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-                      if (context.User.Identity.IsAuthenticated)
+                      if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
                       {
                           var parameters = new DialogParameters
                           {
@@ -185,22 +187,8 @@ namespace TozawaNGO.Shared
             await _localStorageService.RemoveItemAsync("refreshToken");
 
             ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
-
-            var logoutUrl = $"logout{NavigateToReturnPage()}";
-            await JSRuntime.InvokeVoidAsync("open", Decode(logoutUrl), "_top");
-        }
-        private string NavigateToReturnPage()
-        {
-            var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
-
-            if (string.IsNullOrEmpty(currentPath))
-            {
-                return "/homePage";
-            }
-            else
-            {
-                return $"/{currentPath}";
-            }
+ 
+            FirstloadState.SetFirsLoad(true);
         }
         private void RefreshTimer(EventArgs e)
         {
@@ -211,7 +199,7 @@ namespace TozawaNGO.Shared
         public override void Dispose()
         {
             NavMenuTabState.OnChange -= StateHasChanged;
-            FirsloadState.OnChange -= ReloadPage;
+            FirstloadState.OnChange -= ReloadPage;
             LoadingState.OnChange -= DisabledPage;
             if (_timer != null)
             {

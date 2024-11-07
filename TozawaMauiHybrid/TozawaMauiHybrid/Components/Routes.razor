@@ -1,11 +1,15 @@
 ﻿@using TozawaMauiHybrid.Component
+@using TozawaMauiHybrid.Services
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(MauiProgram).Assembly">
         <Found Context="routeData">
             <AuthorizeRouteView RouteData="@routeData" DefaultLayout="@typeof(Layout.MainLayout)">
                 <NotAuthorized>
-                    <p>You need to login to view this content</p>
+                    @if (_isFirstloaded)
+                    {
+                        <p>You need to login to view this content</p>
+                    }
                 </NotAuthorized>
                 <Authorizing>
                     <h1>Authorization in progress</h1>
@@ -22,8 +26,26 @@
 </CascadingAuthenticationState>
 
 @code {
+    [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+    private bool _isFirstloaded;
     protected override Task OnInitializedAsync()
     {
+        _isFirstloaded = false;
         return Task.CompletedTask;
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            if (context.User.Identity == null || !context.User.Identity.IsAuthenticated)
+            {
+                _isFirstloaded = true;
+            }
+            await Task.CompletedTask;
+        }
+    }
+    public virtual void Dispose()
+    {
     }
 }

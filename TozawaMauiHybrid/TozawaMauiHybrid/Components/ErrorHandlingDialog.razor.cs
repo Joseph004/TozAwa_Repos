@@ -22,12 +22,13 @@ namespace TozawaMauiHybrid.Component
         {
             MudDialog.Close(DialogResult.Ok(true));
         }
-        protected override Task OnAfterRenderAsync(bool firstRender)
+        protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
-                JSRuntime.InvokeVoidAsync($"setModalDraggableAndResizable");
-
-            return base.OnAfterRenderAsync(firstRender);
+            {
+                await JSRuntime.InvokeVoidAsync($"setModalDraggableAndResizable");
+                await base.OnAfterRenderAsync(firstRender);
+            }
         }
     }
 }
