@@ -11,6 +11,11 @@ public partial class AuthenticationService(AuthenticationStateProvider authentic
     private readonly IAuthHttpClient _authHttpClient = authHttpClient;
     private readonly AuthenticationStateProvider _authenticationStateProvider = authenticationStateProvider;
 
+    public async Task<GetResponse<byte[]>> GetCert()
+    {
+        var uri = $"tzkey";
+        return await _authHttpClient.SendGet<byte[]>(uri);
+    }
     public async Task<AddResponse<LoginResponseDto>> PostLogin(LoginRequest command) => await _authHttpClient.SendPost<LoginResponseDto>("authenticate/signin", command);
     public async Task<AddResponse<LoginResponseDto>> CheckLockout(string userName) => await _authHttpClient.SendPost<LoginResponseDto>($"authenticate/root/{userName}", new object());
 }

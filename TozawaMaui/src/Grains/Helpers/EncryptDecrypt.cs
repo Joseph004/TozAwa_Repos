@@ -26,13 +26,10 @@ public class EncryptDecrypt : IEncryptDecrypt
         {
             byte[] byteData = Convert.FromBase64String(data);
             string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"Helpers/mycertprivatekey.pfx");
-            //Path.Combine(_hostEnvironment.WebRootPath, "Helpers/mycertprivatekey.pfx");
             var Password = _appSettings.PrivateKey; //Note This Password is That Password That We Have Put On Generate Keys  
             var collection = new X509Certificate2Collection();
             collection.Import(System.IO.File.ReadAllBytes(path), Password, X509KeyStorageFlags.PersistKeySet | X509KeyStorageFlags.MachineKeySet | X509KeyStorageFlags.PersistKeySet);
-#pragma warning disable SYSLIB0026
-            X509Certificate2 certificate = new();
-            certificate = collection[0];
+            var certificate = collection[0];
             foreach (var cert in collection)
             {
                 if (cert.FriendlyName.Contains("my certificate"))
@@ -42,9 +39,8 @@ public class EncryptDecrypt : IEncryptDecrypt
             }
             if (certificate.HasPrivateKey)
             {
-#pragma warning disable SYSLIB0028
-                RSA csp = (RSA)certificate.PrivateKey;
-                var privateKey = certificate.PrivateKey as RSACryptoServiceProvider;
+                RSA csp = (RSA)certificate.GetRSAPrivateKey();
+                var privateKey = certificate.GetRSAPrivateKey() as RSACryptoServiceProvider;
                 var keys = Encoding.UTF8.GetString(csp.Decrypt(byteData, RSAEncryptionPadding.OaepSHA1));
                 return keys;
             }

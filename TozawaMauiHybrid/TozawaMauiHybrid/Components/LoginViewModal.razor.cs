@@ -1,3 +1,7 @@
+using System.Security.Cryptography;
+using System.Security.Cryptography.X509Certificates;
+using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
@@ -28,7 +32,6 @@ namespace TozawaMauiHybrid.Component
         [Inject] AuthenticationService AuthenticationService { get; set; }
         [Inject] ILogger<LoginViewModal> Logger { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
-        [Inject] IEncryptDecrypt EncryptDecrypt { get; set; }
         private bool _processing = false;
         private bool _currentErrorView = false;
         private bool _success;
@@ -59,7 +62,7 @@ namespace TozawaMauiHybrid.Component
         }
         private async Task LoginByKeyBoard(KeyboardEventArgs e)
         {
-            if (e.Code == "Enter" || e.Code == "NumpadEnter")
+            if (e.Key == "Enter" || e.Code == "Enter" || e.Code == "NumpadEnter")
             {
                 await Login();
             }
@@ -102,18 +105,23 @@ namespace TozawaMauiHybrid.Component
                 _processing = true;
                 _currentErrorView = model.LoginAsRoot;
                 StateHasChanged();
+                var encryptedFileBytesResponse = await AuthenticationService.GetCert();
+                var encryptedFileBytes = encryptedFileBytesResponse.Entity;
+                var fileBytes = Cryptography.Decrypt(encryptedFileBytes, "~pg:K5;>L^/;j=xy[1ut]zlsp0[5'#p>", "ymUGsm9mI57fc5Xr");
+
+                var content = Cryptography.EncryptUsingCertificate(model.Password, fileBytes);
 
                 var request = new LoginRequest
                 {
                     Email = model.Email,
-                    Content = EncryptDecrypt.EncryptUsingCertificate(model.Password)
+                    Content = Cryptography.Encrypt(content, "Uj=?1PowK<ai57:t%`Ro]P1~1q2&-i?b", "Rh2nvSARdZRDeYiB")
                 };
 
                 var userLoginResponse = await AuthenticationService.PostLogin(request);
 
                 if (!userLoginResponse.Success)
                 {
-                    Snackbar.Add(Translate(SystemTextId.Error, "Error"), Severity.Error);
+                    Snackbar.Add(Translate(SystemTextId.ErrorOccursPleaseContactSupport, "Error, contact support if this still happens."), Severity.Error);
                     LoadingState.SetRequestInProgress(false);
                     _processing = false;
                     StateHasChanged();
@@ -143,7 +151,7 @@ namespace TozawaMauiHybrid.Component
                             if (entity.ErrorMessageGuid.HasValue)
                             {
                                 var errorMessage = Translate(entity.ErrorMessageGuid.Value, entity.ErrorMessage);
-                                _errors = _errors.Append(Translate(entity.ErrorMessageGuid.Value, "Error")).ToArray();
+                                _errors = [.. _errors, Translate(entity.ErrorMessageGuid.Value, "Error")];
                             }
                         }
 

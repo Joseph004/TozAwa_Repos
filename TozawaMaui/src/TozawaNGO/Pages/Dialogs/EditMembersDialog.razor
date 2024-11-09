@@ -4,7 +4,7 @@
 @using TozawaNGO.Shared
 @inherits BaseDialog
 
-<MudDialog>
+<MudDialog Class="tzModal">
     <DialogContent>
         <MudForm @ref="_editForm" @bind-IsValid="@_success" @bind-Errors="@_errors" Model="@Member">
             <div style="overflow: auto; max-height: 800px;" class="d-flex flex-column flex-grow-1 gap-4">

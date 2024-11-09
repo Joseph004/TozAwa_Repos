@@ -402,4 +402,16 @@
     <value>You need to write your password. No copy paste is allowed</value>
     <comment>.</comment>
   </data>
+  <data name="667d3f20-2377-49c6-9f95-0eadd44dc4b9" xml:space="preserve">
+    <value>Error, contact support if this still happens.</value>
+    <comment>.</comment>
+  </data>
+  <data name="82c74c77-fdda-427a-bd40-ffd17ed578e4" xml:space="preserve">
+    <value>You've been temporarely lockedout, please contact a technician!</value>
+    <comment>.</comment>
+  </data>
+   <data name="7943411d-e62f-4d79-8cef-712a369652a7" xml:space="preserve">
+    <value>Email or password wrong</value>
+    <comment>.</comment>
+  </data>
 </root>

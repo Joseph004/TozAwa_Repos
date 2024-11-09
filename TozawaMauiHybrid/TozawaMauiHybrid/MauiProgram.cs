@@ -8,6 +8,7 @@ using TozawaMauiHybrid.Helpers;
 using TozawaMauiHybrid.Services;
 using TozawaMauiHybrid.Extensions;
 using Microsoft.AspNetCore.Components.Authorization;
+using MudBlazor.Extensions;
 
 namespace TozawaMauiHybrid
 {
@@ -54,19 +55,15 @@ namespace TozawaMauiHybrid
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
-            builder.Services.AddMudServices(config =>
-           {
-               config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;
-               config.SnackbarConfiguration.PreventDuplicates = false;
-               config.SnackbarConfiguration.NewestOnTop = false;
-               config.SnackbarConfiguration.ShowCloseIcon = true;
-               config.SnackbarConfiguration.VisibleStateDuration = 5000;
-               config.SnackbarConfiguration.HideTransitionDuration = 500;
-               config.SnackbarConfiguration.ShowTransitionDuration = 500;
-               config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
-           });
+            builder.Services.AddMudServicesWithExtensions(c =>
+            {
+                c.WithoutAutomaticCssLoading();
+                c.WithDefaultDialogOptions(ex =>
+                 {
+                     ex.Position = DialogPosition.BottomRight;
+                 });
+            });
 
-            builder.Services.AddSingleton<IEncryptDecrypt, EncryptDecrypt>();
             builder.Services.AddSingleton<ScrollTopState>();
             builder.Services.AddSingleton<AuthenticationService>();
             builder.Services.AddSingleton<LoadingState>();
@@ -83,7 +80,7 @@ namespace TozawaMauiHybrid
 
             //builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-            return builder.Build();  
+            return builder.Build();
         }
     }
 }

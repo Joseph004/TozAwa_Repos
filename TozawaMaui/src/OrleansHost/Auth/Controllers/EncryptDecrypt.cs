@@ -1,38 +1,25 @@
 using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using ShareRazorClassLibrary.Configurations;
 
-namespace TozawaNGO.Helpers;
+namespace OrleansHost.Auth.Controllers;
 
-public static class EncryptDecrypt
+public static class Cryptography
 {
-    public static string EncryptUsingCertificate(string data)
-    {
-        try
-        {
-            byte[] byteData = Encoding.UTF8.GetBytes(data);
-            string solutiondir = Directory.GetParent(Directory.GetCurrentDirectory()).Parent.FullName;
-            var assembly = solutiondir + "\\src\\" + "ShareRazorClassLibrary";
-            string path = Path.Combine(assembly, @"Helpers/mycert.pem");
-            var collection = new X509Certificate2Collection();
-            collection.Import(path);
-            var certificate = collection[0];
-            var output = "";
-            using (RSA csp = (RSA)certificate.GetRSAPublicKey())
-            {
-                byte[] bytesEncrypted = csp.Encrypt(byteData, RSAEncryptionPadding.OaepSHA1);
-                output = Convert.ToBase64String(bytesEncrypted);
-            }
-            return output;
-        }
-        catch (Exception)
-        {
-            return "";
-        }
-    }
     public static byte[] Encrypt(byte[] plainBytes, string key, string ivStr)
     {
+        if (plainBytes == null || plainBytes.Length <= 0)
+        {
+            throw new ArgumentNullException(nameof(plainBytes));
+        }
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new ArgumentNullException(nameof(key));
+        }
+        if (string.IsNullOrEmpty(ivStr))
+        {
+            throw new ArgumentNullException(nameof(ivStr));
+        }
+
         var iv = Encoding.UTF8.GetBytes(ivStr);
         byte[] keyBytes = null;
         using (SHA256 mySHA256 = SHA256.Create())
@@ -42,6 +29,7 @@ public static class EncryptDecrypt
             //compute hash
             keyBytes = mySHA256.ComputeHash(ms);
         }
+
         byte[] encryptedBytes = null;
 
         // Set up the encryption objects
@@ -62,6 +50,20 @@ public static class EncryptDecrypt
 
     public static byte[] Decrypt(byte[] cipherBytes, string key, string ivStr)
     {
+        if (cipherBytes == null || cipherBytes.Length <= 0)
+        {
+            throw new ArgumentNullException(nameof(cipherBytes));
+        }
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new ArgumentNullException(nameof(key));
+        }
+        if (string.IsNullOrEmpty(ivStr))
+        {
+            throw new ArgumentNullException(nameof(ivStr));
+        }
+
+
         var iv = Encoding.UTF8.GetBytes(ivStr);
         byte[] keyBytes = null;
         using (SHA256 mySHA256 = SHA256.Create())
@@ -91,6 +93,19 @@ public static class EncryptDecrypt
 
     public static byte[] Encrypt(string plainText, string key, string ivStr)
     {
+        if (string.IsNullOrEmpty(plainText))
+        {
+            throw new ArgumentNullException(nameof(plainText));
+        }
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new ArgumentNullException(nameof(key));
+        }
+        if (string.IsNullOrEmpty(ivStr))
+        {
+            throw new ArgumentNullException(nameof(ivStr));
+        }
+
         var plainBytes = Encoding.UTF8.GetBytes(plainText);
         var iv = Encoding.UTF8.GetBytes(ivStr);
         byte[] keyBytes = null;
@@ -120,6 +135,18 @@ public static class EncryptDecrypt
     }
     public static byte[] Encrypt(byte[] plainBytes, string key, byte[] iv)
     {
+        if (plainBytes == null || plainBytes.Length <= 0)
+        {
+            throw new ArgumentNullException(nameof(plainBytes));
+        }
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new ArgumentNullException(nameof(key));
+        }
+        if (iv == null || iv.Length <= 0)
+        {
+            throw new ArgumentNullException(nameof(iv));
+        }
         byte[] keyBytes = null;
         using (SHA256 mySHA256 = SHA256.Create())
         {
@@ -148,6 +175,19 @@ public static class EncryptDecrypt
 
     public static byte[] Decrypt(byte[] cipherBytes, string key, byte[] iv)
     {
+        if (cipherBytes == null || cipherBytes.Length <= 0)
+        {
+            throw new ArgumentNullException(nameof(cipherBytes));
+        }
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new ArgumentNullException(nameof(key));
+        }
+        if (iv == null || iv.Length <= 0)
+        {
+            throw new ArgumentNullException(nameof(iv));
+        }
+
         byte[] keyBytes = null;
         using (SHA256 mySHA256 = SHA256.Create())
         {
@@ -170,11 +210,25 @@ public static class EncryptDecrypt
             using ICryptoTransform decryptor = aes.CreateDecryptor();
             decryptedBytes = decryptor.TransformFinalBlock(cipherBytes, 0, cipherBytes.Length);
         }
+
         return decryptedBytes;
     }
 
     public static byte[] Encrypt(string plainText, string key, byte[] iv)
     {
+        if (string.IsNullOrEmpty(plainText))
+        {
+            throw new ArgumentNullException(nameof(plainText));
+        }
+        if (string.IsNullOrEmpty(key))
+        {
+            throw new ArgumentNullException(nameof(key));
+        }
+        if (iv == null || iv.Length <= 0)
+        {
+            throw new ArgumentNullException(nameof(iv));
+        }
+
         var plainBytes = Encoding.UTF8.GetBytes(plainText);
         byte[] keyBytes = null;
         using (SHA256 mySHA256 = SHA256.Create())
@@ -198,7 +252,6 @@ public static class EncryptDecrypt
             using ICryptoTransform encryptor = aes.CreateEncryptor();
             encryptedBytes = encryptor.TransformFinalBlock(plainBytes, 0, plainBytes.Length);
         }
-
         return encryptedBytes;
     }
 }

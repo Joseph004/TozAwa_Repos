@@ -20,6 +20,7 @@ using Blazored.SessionStorage;
 using ShareRazorClassLibrary.Configurations;
 using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.Services;
+using MudBlazor.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -63,20 +64,15 @@ builder.Services.AddDataProtection();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-builder.Services.AddMudServices(config =>
+//builder.Services.AddMudBlazorDialog();
+builder.Services.AddMudServicesWithExtensions(c =>
 {
-    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;
-    config.SnackbarConfiguration.PreventDuplicates = false;
-    config.SnackbarConfiguration.NewestOnTop = false;
-    config.SnackbarConfiguration.ShowCloseIcon = true;
-    config.SnackbarConfiguration.VisibleStateDuration = 5000;
-    config.SnackbarConfiguration.HideTransitionDuration = 500;
-    config.SnackbarConfiguration.ShowTransitionDuration = 500;
-    config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
-}
-);
-builder.Services.AddMudBlazorDialog();
+    c.WithoutAutomaticCssLoading();
+    c.WithDefaultDialogOptions(ex =>
+    {
+        ex.Position = DialogPosition.BottomRight;
+    });
+});
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
@@ -157,7 +153,6 @@ builder.Services.AddScoped<BlazorServerAuthStateCache>();
 builder.Services.AddScoped<FileService>();
 builder.Services.AddScoped<LoadingState>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
-builder.Services.AddScoped<IEncryptDecrypt, EncryptDecrypt>();
 builder.Services.AddScoped<FirstloadState>();
 builder.Services.AddScoped<NavMenuTabState>();
 
@@ -192,6 +187,8 @@ RequestLocalizationOptions GetLocalizationOptions()
 
     return localizationOpotions;
 }
+
+app.UseMudExtensions();
 
 app.UseCookiePolicy();
 app.UseRouting();

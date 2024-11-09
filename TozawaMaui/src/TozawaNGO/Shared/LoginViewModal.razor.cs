@@ -6,6 +6,7 @@ using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Models.FormModels;
 using ShareRazorClassLibrary.Services;
+using TozawaNGO.Helpers;
 
 namespace TozawaNGO.Shared
 {
@@ -27,7 +28,6 @@ namespace TozawaNGO.Shared
         [Inject] AuthenticationService AuthenticationService { get; set; }
         [Inject] ILogger<LoginViewModal> Logger { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
-        [Inject] IEncryptDecrypt EncryptDecrypt { get; set; }
         private bool _processing = false;
         private bool _currentErrorView = false;
         private bool _success;
@@ -105,14 +105,14 @@ namespace TozawaNGO.Shared
                 var request = new LoginRequest
                 {
                     Email = model.Email,
-                    Content = EncryptDecrypt.EncryptUsingCertificate(model.Password)
+                    Content = EncryptDecrypt.Encrypt(EncryptDecrypt.EncryptUsingCertificate(model.Password), "Uj=?1PowK<ai57:t%`Ro]P1~1q2&-i?b", "Rh2nvSARdZRDeYiB")
                 };
 
                 var userLoginResponse = await AuthenticationService.PostLogin(request);
 
                 if (!userLoginResponse.Success)
                 {
-                    Snackbar.Add(Translate(SystemTextId.Error, "Error"), Severity.Error);
+                    Snackbar.Add(Translate(SystemTextId.ErrorOccursPleaseContactSupport, "Error, contact support if this still happens."), Severity.Error);
                     LoadingState.SetRequestInProgress(false);
                     _processing = false;
                     StateHasChanged();

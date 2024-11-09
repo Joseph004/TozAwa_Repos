@@ -10,6 +10,8 @@ using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Services;
 using ShareRazorClassLibrary.Models.FormModels;
 using ShareRazorClassLibrary.Helpers;
+using MudBlazor.Extensions.Options;
+using MudBlazor.Extensions;
 
 namespace TozawaNGO.Pages
 {
@@ -73,17 +75,20 @@ namespace TozawaNGO.Pages
         private async Task ShowLongText(MemberDto member)
         {
             if (string.IsNullOrEmpty(member.Description)) return;
-            var options = new DialogOptions
+            var options = new DialogOptionsEx
             {
-                DisableBackdropClick = true,
-                MaxWidth = MaxWidth.Medium,
-                CloseButton = true
+                Resizeable = true,
+                BackdropClick = false,
+                DragMode = MudDialogDragMode.Simple,
+                Position = DialogPosition.Center,
+                CloseButton = true,
+                MaxWidth = MaxWidth.Medium
             };
             var parameters = new DialogParameters
             {
                 ["Entity"] = member
             };
-            var dialog = DialogService.Show<DescriptionMemberDialog>(member.FirstName + " " + member.LastName, parameters, options);
+            var dialog = await DialogService.ShowEx<DescriptionMemberDialog>(member.FirstName + " " + member.LastName, parameters, options);
             var result = await dialog.Result;
         }
         private void SetLoading()
@@ -145,10 +150,14 @@ namespace TozawaNGO.Pages
         }
         protected async Task ToggleDeleted(MemberDto item, bool hardDelete = false)
         {
-            var options = new DialogOptions
+            var options = new DialogOptionsEx
             {
-                MaxWidth = MaxWidth.Small,
-                CloseButton = false
+                Resizeable = true,
+                BackdropClick = false,
+                DragMode = MudDialogDragMode.Simple,
+                Position = DialogPosition.Center,
+                CloseButton = false,
+                MaxWidth = MaxWidth.Small
             };
 
             var parameters = new DialogParameters
@@ -159,7 +168,7 @@ namespace TozawaNGO.Pages
                 ["title"] = item.Deleted ? hardDelete ? Translate(SystemTextId.Delete) : Translate(SystemTextId.Restore) : Translate(SystemTextId.Delete)
             };
 
-            var dialog = DialogService.Show<DeleteEntityDialog>(item.Deleted ? Translate(SystemTextId.Restore) : Translate(SystemTextId.Delete), parameters, options);
+            var dialog = await DialogService.ShowEx<DeleteEntityDialog>(item.Deleted ? Translate(SystemTextId.Restore) : Translate(SystemTextId.Delete), parameters, options);
             var result = await dialog.Result;
 
             if (!result.Canceled)
@@ -183,11 +192,14 @@ namespace TozawaNGO.Pages
         protected async Task ToggleFiles(MemberDto item)
         {
             await Task.FromResult(1);
-            var options = new DialogOptions
+            var options = new DialogOptionsEx
             {
-                DisableBackdropClick = true,
-                MaxWidth = MaxWidth.Large,
-                CloseButton = false
+                Resizeable = true,
+                BackdropClick = true,
+                DragMode = MudDialogDragMode.Simple,
+                Position = DialogPosition.Center,
+                CloseButton = false,
+                MaxWidth = MaxWidth.Large
             };
             var parameters = new DialogParameters
             {
@@ -196,7 +208,7 @@ namespace TozawaNGO.Pages
                 ["Source"] = nameof(MemberDto)
             };
             var userName = item.Admin ? item.UserName : item.Email;
-            DialogService.Show<FilesEntityDialog>($"{userName}", parameters, options);
+            await DialogService.ShowEx<FilesEntityDialog>($"{userName}", parameters, options);
         }
         protected async Task ToggleIncludeDeleted()
         {
@@ -237,17 +249,20 @@ namespace TozawaNGO.Pages
         }
         private async Task OpenDialog()
         {
-            var options = new DialogOptions
+            var options = new DialogOptionsEx
             {
-                DisableBackdropClick = true,
-                MaxWidth = MaxWidth.ExtraLarge,
-                CloseButton = false
+                Resizeable = true,
+                BackdropClick = true,
+                DragMode = MudDialogDragMode.Simple,
+                Position = DialogPosition.Center,
+                CloseButton = false,
+                MaxWidth = MaxWidth.ExtraLarge
             };
             var parameters = new DialogParameters
             {
                 ["_activeLanguages"] = ActiveLanguages
             };
-            var dialog = DialogService.Show<AddMembersDialog>($"{Translate(SystemTextId.Add)} {Translate(SystemTextId.Member)}", parameters, options);
+            var dialog = await DialogService.ShowEx<AddMembersDialog>($"{Translate(SystemTextId.Add)} {Translate(SystemTextId.Member)}", parameters, options);
             var result = await dialog.Result;
             if (!result.Canceled)
             {
@@ -259,11 +274,14 @@ namespace TozawaNGO.Pages
         }
         private async Task ToggleEdit(MemberDto member)
         {
-            var options = new DialogOptions
+            var options = new DialogOptionsEx
             {
-                DisableBackdropClick = true,
-                MaxWidth = MaxWidth.Medium,
-                CloseButton = false
+                Resizeable = true,
+                BackdropClick = true,
+                DragMode = MudDialogDragMode.Simple,
+                Position = DialogPosition.Center,
+                CloseButton = false,
+                MaxWidth = MaxWidth.Medium
             };
             var data = new MemberDto
             {
@@ -278,7 +296,7 @@ namespace TozawaNGO.Pages
             {
                 ["Member"] = data
             };
-            var dialog = DialogService.Show<EditMembersDialog>($"Edit", parameters, options);
+            var dialog = await DialogService.ShowEx<EditMembersDialog>($"Edit", parameters, options);
             var result = await dialog.Result;
         }
         private string GetLabel(Guid labelId, string label)

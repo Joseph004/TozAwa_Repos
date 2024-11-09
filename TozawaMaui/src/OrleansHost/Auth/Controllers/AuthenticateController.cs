@@ -19,6 +19,7 @@ using Grains.Configurations;
 using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using Grains.Helpers;
+using OrleansHost.Auth.Controllers;
 
 namespace Grains.Auth.Controllers
 {
@@ -51,7 +52,11 @@ namespace Grains.Auth.Controllers
                 ErrorMessage = ""
             });
 
-            var pswd = _encryptDecrypt.DecryptUsingCertificate(request.Content);
+            var key = "Uj=?1PowK<ai57:t%`Ro]P1~1q2&-i?b";
+            var iv = "Rh2nvSARdZRDeYiB";
+            var pwdBytes = Cryptography.Decrypt(request.Content, key, iv);
+
+            var pswd = _encryptDecrypt.DecryptUsingCertificate(Encoding.UTF8.GetString(pwdBytes));
 
             var command = new LoginCommand
             {
@@ -78,7 +83,7 @@ namespace Grains.Auth.Controllers
 
             if (user == null)
             {
-                response.Success = false;
+                response.Success = true;
                 response.Message = "Error";
                 response.StatusCode = HttpStatusCode.BadRequest;
 
@@ -96,11 +101,11 @@ namespace Grains.Auth.Controllers
                 response.Entity.ErrorMessageGuid = Helpers.SystemTextId.Unauthorized;
                 return Ok(response);
             }
-            
+
             var validPassword = await userManager.CheckPasswordAsync(user, command.Password);
             if (!validPassword)
             {
-                response.Success = false;
+                response.Success = true;
                 response.Message = "Error";
                 response.StatusCode = HttpStatusCode.BadRequest;
 

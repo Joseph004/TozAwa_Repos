@@ -88,8 +88,8 @@
     <PackageReference Include="System.Linq.Async" Version="6.*" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.*" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.*" />
-    <PackageReference Include="MudBlazor" Version="6.*" />
-    <PackageReference Include="MudBlazor.Extensions" Version="1.*" />
+    <PackageReference Include="MudBlazor" Version="7.*" />
+     <PackageReference Include="MudBlazor.Extensions" Version="2.*" />
   </ItemGroup>
 
   <ItemGroup>

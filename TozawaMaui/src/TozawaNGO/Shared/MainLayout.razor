@@ -4,8 +4,9 @@
 
 <MudThemeProvider Theme="_currentTheme" />
 <MudSnackbarProvider />
+<MudPopoverProvider />
 
-<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" CloseButton="true" DisableBackdropClick="false"
+<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" CloseButton="true"
     NoHeader="false" Position="DialogPosition.TopCenter" />
 
 <MudLayout Style="max-height: 100vh; height: 100vh;" @onpointermove="RefreshTimer" @onkeypress="RefreshTimer"

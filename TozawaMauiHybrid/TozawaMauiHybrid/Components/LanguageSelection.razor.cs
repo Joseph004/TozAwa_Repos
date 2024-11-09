@@ -30,7 +30,7 @@ namespace TozawaMauiHybrid.Component
         public string Language = "";
         private void IsOpen()
         {
-            if (_mudMenuRef.IsOpen)
+            if (_mudMenuRef.Open)
             {
                 _dropArrowPosition = Icons.Material.Filled.KeyboardArrowUp;
             }

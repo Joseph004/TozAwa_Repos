@@ -411,4 +411,16 @@
     <value>Vous devriez ecrire votre mot de passe. Aucun copier coller n*est autoriser.</value>
     <comment>.</comment>
   </data>
+  <data name="667d3f20-2377-49c6-9f95-0eadd44dc4b9" xml:space="preserve">
+    <value>Erreur, Veuillez contacter le service client si ceci persiste.</value>
+    <comment>.</comment>
+  </data>
+  <data name="82c74c77-fdda-427a-bd40-ffd17ed578e4" xml:space="preserve">
+    <value>Vous avez été temporairement bloquer, vueillez contactez le service client.</value>
+    <comment>.</comment>
+  </data>
+   <data name="7943411d-e62f-4d79-8cef-712a369652a7" xml:space="preserve">
+    <value>L'email ou le mot de passe sont mal ecrit. Vueillez reessayer</value>
+    <comment>.</comment>
+  </data>
 </root>

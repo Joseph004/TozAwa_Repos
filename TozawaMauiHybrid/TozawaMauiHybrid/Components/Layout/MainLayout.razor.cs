@@ -13,6 +13,8 @@ using TozawaMauiHybrid.Configurations;
 using Microsoft.AspNetCore.Components.Authorization;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
+using MudBlazor.Extensions.Options;
+using MudBlazor.Extensions;
 
 namespace TozawaMauiHybrid.Components.Layout
 {
@@ -57,7 +59,7 @@ namespace TozawaMauiHybrid.Components.Layout
         }
         private MudTheme _currentTheme = new()
         {
-            Palette = new PaletteLight()
+            PaletteLight = new PaletteLight()
             {
                 AppbarBackground = "#000000"
             }
@@ -172,8 +174,16 @@ namespace TozawaMauiHybrid.Components.Layout
                           {
                               ["Title"] = "Logout"
                           };
-                          DialogOptions options = new() { DisableBackdropClick = true, Position = DialogPosition.TopCenter };
-                          var dialog = DialogService.Show<ExpireModal>("Logout", parameters, options);
+                          var options = new DialogOptionsEx
+                          {
+                              Resizeable = true,
+                              BackdropClick = false,
+                              DragMode = MudDialogDragMode.Simple,
+                              Position = DialogPosition.Center,
+                              CloseButton = false,
+                              MaxWidth = MaxWidth.Small
+                          };
+                          var dialog = await DialogService.ShowEx<ExpireModal>("Logout", parameters, options);
                           var result = await dialog.Result;
 
                           if (!result.Canceled)

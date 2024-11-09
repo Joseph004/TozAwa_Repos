@@ -28,6 +28,8 @@ using Shared.SignalR;
 using Grains.Helpers;
 using OrleansHost.Helpers;
 using OrleansHost.Validation;
+using OrleansHost.Auth.Controllers;
+using System.Text.Json.Serialization;
 
 namespace OrleansHost.Api
 {
@@ -118,6 +120,12 @@ namespace OrleansHost.Api
                     services.AddSignalR();
 
                     services.AddControllers()
+                        .AddNewtonsoftJson()
+                        .AddJsonOptions(o =>
+                        {
+                            o.JsonSerializerOptions.Converters.Add(new SystemTextJsonExceptionConverter());
+                            o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                        })
                         .AddApplicationPart(typeof(WeatherController).Assembly)
                         .AddControllersAsServices();
 

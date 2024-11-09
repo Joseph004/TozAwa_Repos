@@ -7,6 +7,8 @@ using Microsoft.JSInterop;
 using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Services;
+using MudBlazor.Extensions.Options;
+using MudBlazor.Extensions;
 
 namespace TozawaNGO.Shared
 {
@@ -81,14 +83,17 @@ namespace TozawaNGO.Shared
                 {
                     ["Title"] = "Login"
                 };
-                DialogOptions options = new()
+                var options = new DialogOptionsEx
                 {
-                    DisableBackdropClick = true,
-                    Position = DialogPosition.TopCenter,
-                    MaxWidth = MaxWidth.Small,
-                    CloseButton = false
+                    Resizeable = true,
+                    BackdropClick = false,
+                    DragMode = MudDialogDragMode.Simple,
+                    Position = DialogPosition.Center,
+                    CloseButton = false,
+                    MaxWidth = MaxWidth.Small
                 };
-                var dialog = DialogService.Show<LoginViewModal>("Login", parameters, options);
+
+                var dialog = await DialogService.ShowEx<LoginViewModal>("Login", parameters, options);
                 var result = await dialog.Result;
 
                 if (!result.Canceled)
@@ -124,24 +129,6 @@ namespace TozawaNGO.Shared
         {
             await Task.FromResult(1);
         }
-        private static MudTheme GenerateDarkTheme() =>
-            new()
-            {
-                Palette = new PaletteDark()
-                {
-                    Black = "#27272f",
-                    Background = "#32333d",
-                    BackgroundGrey = "#27272f",
-                    Surface = "#373740",
-                    TextPrimary = "#ffffffb3",
-                    TextSecondary = "rgba(255,255,255, 0.50)",
-                    AppbarBackground = "#000000",
-                    AppbarText = "#ffffffb3",
-                    DrawerBackground = "#27272f",
-                    DrawerText = "#ffffffb3",
-                    DrawerIcon = "#ffffffb3"
-                }
-            };
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)

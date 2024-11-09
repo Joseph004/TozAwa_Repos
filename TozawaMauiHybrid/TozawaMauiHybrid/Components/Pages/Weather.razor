@@ -1,4 +1,5 @@
 ﻿@page "/weather"
+@using System.Security.Cryptography.X509Certificates
 @using TozawaMauiHybrid.Helpers
 @using TozawaMauiHybrid.Models.Dtos
 @using TozawaMauiHybrid.Services
@@ -10,25 +11,25 @@
 
 @if (forecasts == null)
 {
-                        <p><em>Loading...</em></p>
+    <p><em>Loading...</em></p>
 }
 else
 {
-                        <MudTable Items="@forecasts" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading"
-                            LoadingProgressColor="Color.Info">
-                            <HeaderContent>
-                                <MudTh>Date</MudTh>
-                                <MudTh>Temp. (C)</MudTh>
-                                <MudTh>Temp. (F)</MudTh>
-                                <MudTh>Summary</MudTh>
-                            </HeaderContent>
-                            <RowTemplate>
-                                <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
-                                <MudTd DataLabel="Temp. (C)">@context.TemperatureC</MudTd>
-                                <MudTd DataLabel="Temp. (F)">@context.TemperatureF</MudTd>
-                                <MudTd DataLabel="Summary">@context.Summary</MudTd>
-                            </RowTemplate>
-                        </MudTable>
+    <MudTable Items="@forecasts" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading"
+        LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>Date</MudTh>
+            <MudTh>Temp. (C)</MudTh>
+            <MudTh>Temp. (F)</MudTh>
+            <MudTh>Summary</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+            <MudTd DataLabel="Temp. (C)">@context.TemperatureC</MudTd>
+            <MudTd DataLabel="Temp. (F)">@context.TemperatureF</MudTd>
+            <MudTd DataLabel="Summary">@context.Summary</MudTd>
+        </RowTemplate>
+    </MudTable>
 }
 
 @code {
@@ -46,7 +47,7 @@ else
     {
     }
     protected override async Task OnInitializedAsync()
-    {
+    { 
         NavMenuTabState.SetActiveTab(TozawaMauiHybrid.Services.ActiveTab.Weather);
         ScrollTopState.SetSource("Weather");
         ScrollTopState.OnChange += SetScroll;
@@ -55,3 +56,4 @@ else
         await base.OnInitializedAsync();
     }
 }
+using Android.Content;

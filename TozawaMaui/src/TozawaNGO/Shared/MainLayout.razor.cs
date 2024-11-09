@@ -13,6 +13,8 @@ using Microsoft.AspNetCore.Components.Web;
 using ShareRazorClassLibrary.Services;
 using ShareRazorClassLibrary.Configurations;
 using ShareRazorClassLibrary.Helpers;
+using MudBlazor.Extensions.Options;
+using MudBlazor.Extensions;
 
 namespace TozawaNGO.Shared
 {
@@ -54,7 +56,7 @@ namespace TozawaNGO.Shared
         }
         private MudTheme _currentTheme = new()
         {
-            Palette = new PaletteLight()
+            PaletteLight = new PaletteLight()
             {
                 AppbarBackground = "#000000"
             }
@@ -169,8 +171,16 @@ namespace TozawaNGO.Shared
                           {
                               ["Title"] = "Logout"
                           };
-                          DialogOptions options = new() { DisableBackdropClick = true, Position = DialogPosition.TopCenter };
-                          var dialog = DialogService.Show<ExpireModal>("Logout", parameters, options);
+                          var options = new DialogOptionsEx
+                          {
+                              Resizeable = true,
+                              BackdropClick = true,
+                              DragMode = MudDialogDragMode.Simple,
+                              Position = DialogPosition.Center,
+                              CloseButton = false,
+                              MaxWidth = MaxWidth.Small
+                          };
+                          var dialog = await DialogService.ShowEx<ExpireModal>("Logout", parameters, options);
                           var result = await dialog.Result;
 
                           if (!result.Canceled)
@@ -187,7 +197,7 @@ namespace TozawaNGO.Shared
             await _localStorageService.RemoveItemAsync("refreshToken");
 
             ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
- 
+
             FirstloadState.SetFirsLoad(true);
         }
         private void RefreshTimer(EventArgs e)

@@ -72,6 +72,6 @@ namespace TozawaMauiHybrid.Models.FormModels
     public class LoginRequest
     {
         public string Email { get; set; } = "";
-        public string Content { get; set; }
+        public byte[] Content { get; set; }
     }
 }

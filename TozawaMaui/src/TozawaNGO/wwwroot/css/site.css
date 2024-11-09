@@ -230,3 +230,10 @@ a,
 }
 
 /* Nav link */
+
+/* Begin_Dialog */
+.tzModal {
+    height: auto !important;
+}
+
+/* End_Dialog */

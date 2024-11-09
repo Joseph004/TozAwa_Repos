@@ -6,6 +6,8 @@ using Microsoft.JSInterop;
 using TozawaMauiHybrid.Helpers;
 using TozawaMauiHybrid.Models.Dtos;
 using TozawaMauiHybrid.Services;
+using MudBlazor.Extensions.Options;
+using MudBlazor.Extensions;
 
 namespace TozawaMauiHybrid.Component
 {
@@ -82,14 +84,17 @@ namespace TozawaMauiHybrid.Component
                 {
                     ["Title"] = "Login"
                 };
-                DialogOptions options = new()
+                var options = new DialogOptionsEx
                 {
-                    DisableBackdropClick = true,
+                    Resizeable = true,
+                    DragMode = MudDialogDragMode.Simple,
+                    BackdropClick = false,
                     Position = DialogPosition.Center,
-                    MaxWidth = MaxWidth.Small,
-                    CloseButton = false
+                    CloseButton = false,
+                    MaxWidth = MaxWidth.Small
                 };
-                var dialog = DialogService.Show<LoginViewModal>("Login", parameters, options);
+
+                var dialog = await DialogService.ShowEx<LoginViewModal>("Login", parameters, options);
                 var result = await dialog.Result;
 
                 if (!result.Canceled)
@@ -125,25 +130,6 @@ namespace TozawaMauiHybrid.Component
         {
             await Task.FromResult(1);
         }
-        private static MudTheme GenerateDarkTheme() =>
-            new()
-            {
-                Palette = new PaletteDark()
-                {
-                    Black = "#27272f",
-                    Background = "#32333d",
-                    BackgroundGrey = "#27272f",
-                    Surface = "#373740",
-                    TextPrimary = "#ffffffb3",
-                    TextSecondary = "rgba(255,255,255, 0.50)",
-                    AppbarBackground = "#000000",
-                    AppbarText = "#ffffffb3",
-                    DrawerBackground = "#27272f",
-                    DrawerText = "#ffffffb3",
-                    DrawerIcon = "#ffffffb3"
-                }
-            };
-
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
