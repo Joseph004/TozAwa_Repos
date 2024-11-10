@@ -149,12 +149,12 @@ namespace TozawaNGO.Pages
                         Attachment = new Dictionary<Guid, AttachmentDownloadDto> { { id, response } };
                     }
                     await SetFile();
-                    HandleDisabled();
                 }
                 else
                 {
                     await Move(direction, index);
                 }
+                HandleDisabled();
             }
         }
         public override void Dispose()
