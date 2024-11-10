@@ -13,9 +13,9 @@
 <div style="@($"{_disableAttrString}")">
     <MudDialog Class="@($"tzModal")">
         <DialogContent>
-            @if (!string.IsNullOrEmpty(_error))
+            @if (!string.IsNullOrEmpty(_error) && showAlert)
             {
-                <MudAlert Severity="Severity.Error" Variant="Variant.Filled" Dense="true" Class="my-2">@_error</MudAlert>
+                <MudAlert Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="(() => CloseMe(false))" Variant="Variant.Filled" Dense="true" Class="my-2">@_error</MudAlert>
             }
             @if (Entity != null && Entity.Attachments != null && Entity.Attachments.Count > 0)
             {

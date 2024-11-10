@@ -86,19 +86,23 @@ namespace TozawaNGO.Pages
         }
         private bool IsValideFile(IBrowserFile file)
         {
+            showAlert = false;
             if (!FileValidator.IsValidContentType(file.ContentType))
             {
                 _error = _fileTypeValidationMessage;
+                showAlert = true;
                 return false;
             }
             else if (!FileValidator.IsValidName(file.Name))
             {
                 _error = _alphaNumericFileNameValidationMessage;
+                showAlert = true;
                 return false;
             }
             else if (!FileValidator.IsValidLength(file.Name))
             {
                 _error = _fileNameLengthValidationMessage;
+                showAlert = true;
                 return false;
             }
 
@@ -130,11 +134,15 @@ namespace TozawaNGO.Pages
         }
         protected string GetFileTypeIcon(FileAttachmentDto attachment) =>
             attachment.MimeType.Contains("image") ? Icons.Material.Filled.Image : Icons.Material.Filled.FileCopy;
-
-
+        private bool showAlert = true;
+        private void CloseMe(bool value)
+        {
+            showAlert = value;
+        }
         private async Task ShowDocumentInFrame(FileAttachmentDto attachment)
         {
             _error = "";
+            showAlert = false;
             if (FileValidator.IsImage(attachment.MimeType) || FileValidator.IsPdf(attachment.MimeType))
             {
                 var item = await GetAttachmentDownloadDto(attachment);
@@ -158,6 +166,7 @@ namespace TozawaNGO.Pages
             else
             {
                 _error = _translationService.Translate(SystemTextId.OnlyPdfAndImage, "Only image and pdf are visable").Text;
+                showAlert = true;
             }
             StateHasChanged();
         }
@@ -253,9 +262,11 @@ namespace TozawaNGO.Pages
             try
             {
                 _error = string.Empty;
+                showAlert = false;
                 if (e.FileCount > 10)
                 {
                     _error = _translationService.Translate(SystemTextId.MaximumFilesAllowed, "You can only upload 10 files at a moment!").Text;
+                    showAlert = true;
                     return;
                 }
                 LoadingState.SetRequestInProgress(true);
@@ -273,6 +284,7 @@ namespace TozawaNGO.Pages
                     if (Entity.Attachments.Any(x => x.Name == file.Name && x.MimeType == file.ContentType))
                     {
                         _error = $"{Translate(SystemTextId.FileName, "Filename")} {file.Name.ToUpper()} {Translate(SystemTextId.AlreadyExists, "already exist")} : {Translate(SystemTextId.Name, "Name")}";
+                        showAlert = true;
                         LoadingState.SetRequestInProgress(false);
                         _onProgress = false;
                         StateHasChanged();
@@ -291,6 +303,7 @@ namespace TozawaNGO.Pages
                     if (_files.Any(x => x.Size > FileValidator.MaxAllowedSize))
                     {
                         _error = $"{Translate(SystemTextId.TheAllowedMaximumSizeIs, "The Allowed maximum size is")} {Math.Round(Convert.ToDouble(FileValidator.MaxAllowedSize) / 1000, 2)}KB";
+                        showAlert = true;
                         _files.Clear();
                     }
                     else

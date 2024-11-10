@@ -99,6 +99,17 @@ namespace TozawaNGO.Pages
                 _disabledBackwards = false;
                 return;
             }
+            else
+            {
+                var attach = Attachments.First(x => x.Id == lastItem);
+
+                if (FileValidator.IsImage(attach.MimeType) || FileValidator.IsPdf(attach.MimeType))
+                {
+                    return;
+                }
+                _disabledForwards = true;
+                _disabledBackwards = false;
+            }
             var FirstItem = AttachmentIds.ElementAtOrDefault(index - 1);
             if (FirstItem == Guid.Empty)
             {
@@ -106,24 +117,44 @@ namespace TozawaNGO.Pages
                 _disabledBackwards = true;
                 return;
             }
+            else
+            {
+                var attach = Attachments.First(x => x.Id == FirstItem);
+
+                if (FileValidator.IsImage(attach.MimeType) || FileValidator.IsPdf(attach.MimeType))
+                {
+                    return;
+                }
+                _disabledForwards = false;
+                _disabledBackwards = true;
+            }
             StateHasChanged();
         }
-        private async Task Move(Direction direction)
+        private async Task Move(Direction direction, int? indexparam = null)
         {
             var currentId = Attachment.First().Key;
-            int index = AttachmentIds.FindIndex(a => a == currentId);
+            int index = indexparam ?? AttachmentIds.FindIndex(a => a == currentId);
 
             var id = direction == Direction.Forwards ? AttachmentIds.ElementAtOrDefault(index + 1) : AttachmentIds.ElementAtOrDefault(index - 1);
 
             if (id != Guid.Empty)
             {
-                var response = await GetAttachmentDownloadDto(id);
-                if (!string.IsNullOrEmpty(response.Name))
+                var attach = Attachments.First(x => x.Id == id);
+
+                if (FileValidator.IsImage(attach.MimeType) || FileValidator.IsPdf(attach.MimeType))
                 {
-                    Attachment = new Dictionary<Guid, AttachmentDownloadDto> { { id, response } };
+                    var response = await GetAttachmentDownloadDto(id);
+                    if (!string.IsNullOrEmpty(response.Name))
+                    {
+                        Attachment = new Dictionary<Guid, AttachmentDownloadDto> { { id, response } };
+                    }
+                    await SetFile();
+                    HandleDisabled();
                 }
-                await SetFile();
-                HandleDisabled();
+                else
+                {
+                    await Move(direction, index);
+                }
             }
         }
         public override void Dispose()
