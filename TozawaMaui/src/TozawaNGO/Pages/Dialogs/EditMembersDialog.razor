@@ -4,7 +4,8 @@
 @using TozawaNGO.Shared
 @inherits BaseDialog
 
-<MudDialog Class="tzModal">
+<div style="@($"{_disableAttrString}")">
+    <MudDialog Class="@($"tzModal")">
     <DialogContent>
         <MudForm @ref="_editForm" @bind-IsValid="@_success" @bind-Errors="@_errors" Model="@Member">
             <div style="overflow: auto; max-height: 800px;" class="d-flex flex-column flex-grow-1 gap-4">
@@ -45,13 +46,14 @@
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">
+        <MudButton Disabled="@(_disabledPage)" OnClick="Cancel">
             <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel"  />
         </MudButton>
-        <MudButton Color="Color.Primary" OnClick="SaveItem" Disabled="@DisabledAddButton()">
+        <MudButton Disabled="@(_disabledPage || DisabledAddButton())" Color="Color.Primary" OnClick="SaveItem">
             <MudText>
                 <SystemText TextId=SystemTextId.Update FallbackText="Edit"  />
             </MudText>
         </MudButton>
     </DialogActions>
 </MudDialog>
+</div>

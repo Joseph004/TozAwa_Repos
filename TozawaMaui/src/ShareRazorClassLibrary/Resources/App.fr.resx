@@ -423,4 +423,8 @@
     <value>L'email ou le mot de passe sont mal ecrit. Vueillez reessayer</value>
     <comment>.</comment>
   </data>
+  <data name="be0145f5-65d8-4fbb-8c62-978465cea86f" xml:space="preserve">
+    <value>seulment le pdf et les images peuvent etres visualisé</value>
+    <comment>.</comment>
+  </data>
 </root>

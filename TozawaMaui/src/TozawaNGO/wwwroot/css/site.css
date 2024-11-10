@@ -77,6 +77,10 @@ a,
 
 /* Loading screen Bigen */
 
+.disabledDialog {
+    pointer-events: none;
+}
+
 .disabledPage> :not(.loaderDiv) {
     pointer-events: none;
     filter: opacity(0.5);

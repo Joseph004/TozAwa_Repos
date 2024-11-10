@@ -8,8 +8,9 @@ using Grains.Helpers;
 namespace OrleansHost.Attachment.Handlers.Queries.FileAttachment;
 
 public class GetAttachmentsQueryHandler(
-    IGrainFactory factory) : IRequestHandler<GetAttachmentsQuery, List<Grains.Models.Dtos.FileAttachmentDto>>
+    IGrainFactory factory, IMediator mediator) : IRequestHandler<GetAttachmentsQuery, List<Grains.Models.Dtos.FileAttachmentDto>>
 {
+    public readonly IMediator _mediator = mediator;
     private readonly IGrainFactory _factory = factory;
 
     public async Task<List<Grains.Models.Dtos.FileAttachmentDto>> Handle(GetAttachmentsQuery request, CancellationToken cancellationToken)

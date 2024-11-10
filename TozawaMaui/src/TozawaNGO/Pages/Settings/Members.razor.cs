@@ -81,7 +81,7 @@ namespace TozawaNGO.Pages
                 BackdropClick = false,
                 DragMode = MudDialogDragMode.Simple,
                 Position = DialogPosition.Center,
-                CloseButton = true,
+                CloseButton = false,
                 MaxWidth = MaxWidth.Medium
             };
             var parameters = new DialogParameters
@@ -195,7 +195,7 @@ namespace TozawaNGO.Pages
             var options = new DialogOptionsEx
             {
                 Resizeable = true,
-                BackdropClick = true,
+                BackdropClick = false,
                 DragMode = MudDialogDragMode.Simple,
                 Position = DialogPosition.Center,
                 CloseButton = false,

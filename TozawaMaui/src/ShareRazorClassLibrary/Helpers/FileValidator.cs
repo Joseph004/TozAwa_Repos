@@ -1,3 +1,4 @@
+using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
 using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Models.FormModels.Request;
@@ -7,6 +8,9 @@ namespace ShareRazorClassLibrary.Helpers;
 public static class FileValidator
 {
     private static readonly string _pattern = @"^[a-zA-zŽžÀ-ÿZ0-9-_ ]*[.]{0,1}[a-zA-zŽžÀ-ÿZ0-9-_ ]*$";
+    private static readonly Dictionary<int, ImageType> _imageTag = Enum.GetValues(typeof(ImageType))
+               .Cast<ImageType>()
+               .ToDictionary(t => (int)t);
     private static readonly int FileNameLength = 255;
     private static readonly string _png = "image/png";
     private static readonly string _jpg = "image/jpeg";
@@ -21,12 +25,77 @@ public static class FileValidator
     public static bool IsValidContentType(string contentType)
         => !string.IsNullOrEmpty(contentType) && _validContentTypes.Split(",").Contains(contentType);
 
-    public static bool IsExcel(string conentType) => !string.IsNullOrEmpty(conentType) && _excel.Split(",").Contains(conentType);
+    public static bool IsImage(string conentType) => !string.IsNullOrEmpty(conentType) && conentType == _jpg || conentType == _png;
+    public static bool IsPdf(string conentType) => !string.IsNullOrEmpty(conentType) && conentType == pdf;
+    public static bool IsTextplain(string conentType) => !string.IsNullOrEmpty(conentType) && conentType == textplain;
+    public static bool IsExcel(string conentType) => !string.IsNullOrEmpty(conentType) && word.Split(",").Contains(conentType);
+    public static bool IsWord(string conentType) => !string.IsNullOrEmpty(conentType) && _excel.Split(",").Contains(conentType);
     public static bool IsXml(string conentType) => !string.IsNullOrEmpty(conentType) && _xml.Split(",").Contains(conentType);
     private static bool IsValidContent(byte[] bytes) => bytes != null && bytes.Length <= MaxAllowedSize;
     public static bool IsValidName(string fileName)
         => !string.IsNullOrEmpty(fileName) && IsValidFileName(fileName);
 
+    public static bool IsValidePdf(byte[] bytes)
+    {
+       if (!IsValiBytes(bytes)) return false;
+
+        var header = new[] { bytes[0], bytes[1], bytes[2], bytes[3] };
+        var isHeaderValid = header[0] == 0x25 && header[1] == 0x50 && header[2] == 0x44 && header[3] == 0x46; //%PDF
+        var trailer = new[] { bytes[^5], bytes[^4], bytes[^3], bytes[^2], bytes[^1] };
+        var isTrailerValid = trailer[0] == 0x25 && trailer[1] == 0x25 && trailer[2] == 0x45 && trailer[3] == 0x4f && trailer[4] == 0x46; //%%EOF
+        return isHeaderValid && isTrailerValid;
+    }
+    public static bool IsValiBytes(byte[] bytes)
+    {
+        return bytes != null && bytes.Length > 0;
+    }
+    public static bool IsValideImage(byte[] bytes)
+    {
+        if (!IsValiBytes(bytes)) return false;
+
+        int key = (bytes[1] << 8) + bytes[0];
+        if (_imageTag.TryGetValue(key, out ImageType s))
+        {
+            if (s == ImageType.None) return false;
+
+            return true;
+        }
+        return false;
+    }
+    public static bool IsValideWord(byte[] bytes)
+    {
+        if (!IsValiBytes(bytes)) return false;
+        if (ScanFileForMimeType(bytes) == "application/x-zip-compressed" || ScanFileForMimeType(bytes) == "application/octet-stream")
+            return true;
+        else
+            return false;
+    }
+    private static string ScanFileForMimeType(byte[] bytes)
+    {
+        try
+        {
+            UInt32 mimeType = default(UInt32);
+            FindMimeFromData(0, null, bytes, 256, null, 0, ref mimeType, 0);
+            IntPtr mimeTypePtr = new IntPtr(mimeType);
+            string mime = Marshal.PtrToStringUni(mimeTypePtr);
+            Marshal.FreeCoTaskMem(mimeTypePtr);
+            if (string.IsNullOrEmpty(mime))
+                mime = "application/octet-stream";
+            return mime;
+        }
+        catch (Exception ex)
+        {
+            return "application/octet-stream";
+        }
+    }
+
+    [DllImport("urlmon.dll", CharSet = CharSet.Auto)]
+    private static extern UInt32 FindMimeFromData(
+       UInt32 pBC, [MarshalAs(UnmanagedType.LPStr)]
+       string pwzUrl, [MarshalAs(UnmanagedType.LPArray)]
+       byte[] pBuffer, UInt32 cbSize, [MarshalAs(UnmanagedType.LPStr)]
+       string pwzMimeProposed, UInt32 dwMimeFlags, ref UInt32 ppwzMimeOut, UInt32 dwReserverd
+    );
     public static bool IsValidLength(string fileName) => fileName.Length <= FileNameLength;
 
     private static bool IsValidFileName(string name)
@@ -72,4 +141,17 @@ public static class FileValidator
         }
         return true;
     }
+}
+public enum ImageType
+{
+    None = 0,
+    BMP = 0x4D42,
+    JPG = 0xD8FF,
+    GIF = 0x4947,
+    PCX = 0x050A,
+    PNG = 0x5089,
+    PSD = 0x4238,
+    RAS = 0xA659,
+    SGI = 0xDA01,
+    TIFF = 0x4949
 }

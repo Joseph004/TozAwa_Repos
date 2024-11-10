@@ -22,7 +22,8 @@ namespace TozawaNGO.Pages
         [Inject] private LoadingState LoadingState { get; set; }
         [Inject] private ISnackBarService snackBarService { get; set; }
         [Inject] IDispatcher Dispatcher { get; set; }
-
+        private bool _disabledPage = false;
+        private string _disableAttrString = "";
         private MudForm _editForm;
         private MemberDto _backupItem;
         protected PatchMemberRequest _patchMemberRequest = new();
@@ -123,9 +124,24 @@ namespace TozawaNGO.Pages
             ResetItemToOriginalValues();
             MudDialog.Cancel();
         }
+        private async void DisabledPage()
+        {
+            _disabledPage = LoadingState.RequestInProgress;
 
+            _disableAttrString = _disabledPage ? "pointer-events: none;" : "";
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        }
+        public override void Dispose()
+        {
+            LoadingState.OnChange -= DisabledPage;
+            base.Dispose();
+        }
         protected override void OnInitialized()
         {
+            LoadingState.OnChange += DisabledPage;
             var memperProperties = typeof(MemberDto).GetProperties();
             foreach (var prop in memperProperties)
             {

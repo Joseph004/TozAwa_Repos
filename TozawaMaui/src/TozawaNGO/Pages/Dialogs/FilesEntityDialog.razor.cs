@@ -1,6 +1,10 @@
+using System.Text;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
 using MudBlazor;
+using MudBlazor.Extensions;
+using MudBlazor.Extensions.Options;
+using RestSharp.Extensions;
 using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.Models;
 using ShareRazorClassLibrary.Models.Dtos;
@@ -38,8 +42,26 @@ namespace TozawaNGO.Pages
 
         protected void Add() => MudDialog.Close(DialogResult.Ok(Entity));
         protected void Cancel() => MudDialog.Cancel();
+        private bool _disabledPage = false;
+        private string _disableAttrString = "";
+        private async void DisabledPage()
+        {
+            _disabledPage = LoadingState.RequestInProgress;
+
+            _disableAttrString = _disabledPage ? "pointer-events: none;" : "";
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        }
+        public override void Dispose()
+        {
+            LoadingState.OnChange -= DisabledPage;
+            base.Dispose();
+        }
         protected override void OnInitialized()
         {
+            LoadingState.OnChange += DisabledPage;
             _alphaNumericFileNameValidationMessage = _translationService.Translate(SystemTextId.PleaseUsevalidFileName, "The file name should be alpha numeric").Text;
             _fileNameLengthValidationMessage = _translationService.Translate(SystemTextId.PleaseUseNormalFileNameLength, "Please the file name is too large, use max 255 characters as recommanded").Text;
             _fileTypeValidationMessage = _translationService.Translate(SystemTextId.PleaseUseValidAllowedFiles, "the file type is not valid, only images pdf word textfile and excel are allowed").Text;
@@ -109,24 +131,75 @@ namespace TozawaNGO.Pages
         protected string GetFileTypeIcon(FileAttachmentDto attachment) =>
             attachment.MimeType.Contains("image") ? Icons.Material.Filled.Image : Icons.Material.Filled.FileCopy;
 
-        private async void Download(FileAttachmentDto attachment)
-        {
-            _onProgress = true;
-            LoadingState.SetRequestInProgress(true);
-            StateHasChanged();
 
-            var attachmentResponse = await AttachmentService.AttachmentDownload(attachment.Id);
-            if (attachmentResponse.Success)
+        private async Task ShowDocumentInFrame(FileAttachmentDto attachment)
+        {
+            _error = "";
+            if (FileValidator.IsImage(attachment.MimeType) || FileValidator.IsPdf(attachment.MimeType))
             {
-                var item = attachmentResponse.Entity ?? new AttachmentDownloadDto();
-                await FileService.Download(item.Name, item.Content);
+                var item = await GetAttachmentDownloadDto(attachment);
+                var options = new DialogOptionsEx
+                {
+                    Resizeable = true,
+                    BackdropClick = false,
+                    DragMode = MudDialogDragMode.Simple,
+                    Position = DialogPosition.Center,
+                    CloseButton = false,
+                    MaxWidth = MaxWidth.ExtraLarge
+                };
+                var parameters = new DialogParameters
+                {
+                    ["Attachment"] = new Dictionary<Guid, AttachmentDownloadDto> { { attachment.Id, item } },
+                    ["Attachments"] = _attachments
+                };
+                var dialog = await DialogService.ShowEx<ShowDocumentDialog>(attachment.Name, parameters, options);
+                var result = await dialog.Result;
             }
             else
             {
-                Snackbar.Add(attachmentResponse.Message, Severity.Error);
+                _error = _translationService.Translate(SystemTextId.OnlyPdfAndImage, "Only image and pdf are visable").Text;
             }
-            LoadingState.SetRequestInProgress(false);
-            _onProgress = false;
+            StateHasChanged();
+        }
+        private async Task<AttachmentDownloadDto> GetAttachmentDownloadDto(FileAttachmentDto attachment)
+        {
+            AttachmentDownloadDto item = new();
+            if (FileValidator.IsValiBytes(attachment.Content))
+            {
+                item = new AttachmentDownloadDto
+                {
+                    Name = attachment.Name,
+                    Content = attachment.Content,
+                    MineType = attachment.MimeType
+                };
+            }
+            else
+            {
+                _onProgress = true;
+                LoadingState.SetRequestInProgress(true);
+
+                var attachmentResponse = await AttachmentService.AttachmentDownload(attachment.Id);
+                if (attachmentResponse.Success)
+                {
+                    item = attachmentResponse.Entity ?? new AttachmentDownloadDto();
+                    attachment.Content = item.Content;
+                }
+                else
+                {
+                    Snackbar.Add(attachmentResponse.Message, Severity.Error);
+                }
+                LoadingState.SetRequestInProgress(false);
+                _onProgress = false;
+            }
+            return item;
+        }
+        private async void Download(FileAttachmentDto attachment)
+        {
+            var item = await GetAttachmentDownloadDto(attachment);
+            if (!string.IsNullOrEmpty(item.Name))
+            {
+                await FileService.Download(item.Name, item.Content);
+            }
             StateHasChanged();
         }
         private bool DisabledUploadFiles()

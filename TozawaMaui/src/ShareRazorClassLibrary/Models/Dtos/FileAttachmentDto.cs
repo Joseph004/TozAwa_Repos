@@ -15,6 +15,7 @@ namespace ShareRazorClassLibrary.Models.Dtos
         public string ImageClass { get; set; } = "";
         public string MiniatureBlobUrl { get; set; } = "";
         public string Thumbnail { get; set; } = "";
+        public byte[] Content { get; set; }
     }
 }
 

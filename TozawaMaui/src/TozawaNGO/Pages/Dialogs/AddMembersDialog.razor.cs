@@ -17,7 +17,18 @@ namespace TozawaNGO.Pages
         [Inject] MemberService memberService { get; set; }
         [Inject] private LoadingState LoadingState { get; set; }
         [Inject] private ISnackBarService snackBarService { get; set; }
+        private bool _disabledPage = false;
+        private string _disableAttrString = "";
+        private async void DisabledPage()
+        {
+            _disabledPage = LoadingState.RequestInProgress;
 
+            _disableAttrString = _disabledPage ? "pointer-events: none;" : "";
+            await InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        }
         private MudForm _addForm;
         private AddMemberRequest _addFormModel = new();
         private bool _success;
@@ -30,6 +41,7 @@ namespace TozawaNGO.Pages
 
         protected override async Task OnInitializedAsync()
         {
+            LoadingState.OnChange += DisabledPage;
             _currentCulture = await _translationService.GetActiveLanguage();
 
             foreach (var item in _activeLanguages.Where(l => l.Id != _currentCulture.Id))
@@ -136,6 +148,10 @@ namespace TozawaNGO.Pages
 
             MudDialog.Close(DialogResult.Ok(model));
         }
-
+        public override void Dispose()
+        {
+            LoadingState.OnChange -= DisabledPage;
+            base.Dispose();
+        }
     }
 }

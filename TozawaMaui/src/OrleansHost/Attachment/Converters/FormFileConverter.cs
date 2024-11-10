@@ -39,12 +39,10 @@ public static class FormFileConverter
         {
             using var ms = new MemoryStream(fileBytes);
             ms.Position = 0;
-#pragma warning disable CA1416 // Validate platform compatibility
             using (Image.FromStream(ms))
             {
                 return true;
             }
-#pragma warning restore CA1416 // Validate platform compatibility
         }
         catch (Exception ex)
         {

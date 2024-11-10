@@ -18,13 +18,7 @@ public class GetAttachmentQueryHandler(TozawangoDbContext context, IGoogleServic
     {
         var attachment = await _context.FileAttachments
             .Include(x => x.Owners)
-            .FirstOrDefaultAsync(x => x.Id == request.Id);
-
-        if (attachment == null)
-        {
-            throw new Exception($"Attachment with Id [{request.Id}] was not found.");
-        }
-
+            .FirstOrDefaultAsync(x => x.Id == request.Id) ?? throw new Exception($"Attachment with Id [{request.Id}] was not found.");
         var stream = await _googleService.StreamFromGoogleFileByFileId(attachment.BlobId);
         var bytes = FileUtil.ReadAllBytesFromStream(stream);
 

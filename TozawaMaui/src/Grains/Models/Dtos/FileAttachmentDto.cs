@@ -15,6 +15,7 @@ namespace Grains.Models.Dtos
         public string ImageClass { get; set; } = "";
         public string MiniatureBlobUrl { get; set; } = "";
         public string Thumbnail { get; set; } = "";
+        public byte[] Content { get; set; }
         public DateTime Timestamp { get; set; }
     }
 }

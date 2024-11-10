@@ -406,4 +406,8 @@
     <value>Email or password wrong</value>
     <comment>.</comment>
   </data>
+  <data name="be0145f5-65d8-4fbb-8c62-978465cea86f" xml:space="preserve">
+    <value>Only pdf and images are visable</value>
+    <comment>.</comment>
+  </data>
 </root>

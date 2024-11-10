@@ -10,4 +10,9 @@ public class FileService(IJSRuntime jsRuntime)
     {
         await _jsRuntime.SaveAs($"{name}", Convert.ToBase64String(content));
     }
+    public async Task ShowFile(Stream stream, string elementrId, string contentType, string title)
+    {
+        var strRef = new DotNetStreamReference(stream);
+        await _jsRuntime.InvokeVoidAsync("SetSource", elementrId, strRef, contentType, title);
+    }
 }

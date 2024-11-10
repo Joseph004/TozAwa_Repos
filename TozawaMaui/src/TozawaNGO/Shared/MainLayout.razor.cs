@@ -174,7 +174,7 @@ namespace TozawaNGO.Shared
                           var options = new DialogOptionsEx
                           {
                               Resizeable = true,
-                              BackdropClick = true,
+                              BackdropClick = false,
                               DragMode = MudDialogDragMode.Simple,
                               Position = DialogPosition.Center,
                               CloseButton = false,
@@ -215,6 +215,7 @@ namespace TozawaNGO.Shared
             {
                 _timer.Elapsed -= LogoutTimeout;
             }
+            base.Dispose();
         }
     }
 }

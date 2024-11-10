@@ -9,7 +9,7 @@
     }
 </style>
 
-<MudDialog Class="@MudDialog.Id.ToString()">
+<MudDialog Class=@($"tzModal {MudDialog.Id.ToString()}")>
     <TitleContent>
         <MudText Typo="Typo.h6">
             @if (item.Deleted)

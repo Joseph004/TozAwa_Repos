@@ -186,11 +186,9 @@ namespace TozawaNGO.Shared
               await Task.CompletedTask;
           });
         }
-
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
         public override void Dispose()
-#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
+            base.Dispose();
         }
     }
 }

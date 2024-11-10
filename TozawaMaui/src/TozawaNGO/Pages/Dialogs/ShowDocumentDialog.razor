@@ -1,0 +1,45 @@
+@namespace TozawaNGO.Pages
+@using ShareRazorClassLibrary.Helpers
+@using TozawaNGO.Shared
+@inherits BaseDialog
+<div style="@($"{_disableAttrString}")">
+    <MudDialog Class="@($"tzModal")">
+        <DialogContent>
+            @if (_showImage)
+            {
+                <img id="avatar" height="600" width="600" />
+            }
+            else if(_showFile)
+            {
+                <iframe id="iframe" style="height: calc(100vh - 200px)" />
+            }
+        </DialogContent>
+        <DialogActions>
+            <MudIconButton Disabled="@(_disabledPage || _disabledBackwards)"
+                @onclick="@(() => Move(Direction.Backwards))" Icon=@Icons.Material.Filled.ArrowBack></MudIconButton>
+            <MudIconButton Disabled="@(_disabledPage || _disabledForwards)" @onclick="@(() => Move(Direction.Forwards))"
+                Icon=@Icons.Material.Filled.ArrowForward></MudIconButton>
+            <MudButton Disabled="@(_disabledPage)" OnClick="Cancel">
+                <SystemText TextId=SystemTextId.Close FallbackText="Close" />
+            </MudButton>
+        </DialogActions>
+    </MudDialog>
+</div>
+
+<script>
+    window.SetSource = async (elementId, stream, contentType, title) => {
+        const arrayBuffer = await stream.arrayBuffer();
+        let blobOptions = {};
+        if (contentType) {
+            blobOptions['type'] = contentType;
+        }
+        const blob = new Blob([arrayBuffer], blobOptions);
+        const url = URL.createObjectURL(blob);
+        const element = document.getElementById(elementId);
+        element.title = title;
+        element.onload = () => {
+            URL.revokeObjectURL(url);
+        }
+        element.src = url;
+    }
+</script>
