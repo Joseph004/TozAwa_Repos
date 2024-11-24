@@ -6,6 +6,11 @@
 
 <div style="@($"{_disableAttrString}")">
     <MudDialog Class="@($"tzModal")">
+        <TitleContent>
+            <MudText Color=Color.Secondary>
+                @Member.Email
+            </MudText>
+        </TitleContent>
         <DialogContent>
             <MudForm @ref="_editForm" @bind-IsValid="@_success" @bind-Errors="@_errors" Model="@Member">
                 <div style="overflow: auto; max-height: 800px;" class="d-flex flex-column flex-grow-1 gap-4">
@@ -48,14 +53,17 @@
             </MudForm>
         </DialogContent>
         <DialogActions>
-            <MudButton Disabled="@(_disabledPage)" OnClick="Cancel">
-                <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" />
-            </MudButton>
-            <MudButton Disabled="@(_disabledPage || DisabledAddButton())" Color="Color.Primary" OnClick="SaveItem">
-                <MudText>
-                    <SystemText TextId=SystemTextId.Update FallbackText="Edit" />
-                </MudText>
-            </MudButton>
+            <div class="d-flex flex-row-reverse flex-grow-1 gap-4">
+                <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(_disabledPage)" OnClick="Cancel">
+                    <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" />
+                </MudButton>
+                <MudButton Color="Color.Success" StartIcon="@Icons.Material.Filled.Save" Variant="Variant.Filled"
+                    Disabled="@(_disabledPage || DisabledAddButton())" OnClick="SaveItem">
+                    <MudText>
+                        <SystemText TextId=SystemTextId.Update FallbackText="Edit" />
+                    </MudText>
+                </MudButton>
+            </div>
         </DialogActions>
     </MudDialog>
 </div>

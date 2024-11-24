@@ -5,6 +5,11 @@
 
 <div style="@($"{_disableAttrString}")">
 <MudDialog Class="@($"tzModal")">
+    <TitleContent>
+            <MudText Color=Color.Secondary>
+                @Title
+            </MudText>
+    </TitleContent>
     <DialogContent>
         <MudForm @ref="_addForm" @bind-IsValid="@_success" @bind-Errors="@_errors" Model="@_addFormModel">
             <MudPaper MaxHeight="1200px" class="overflow-scroll">
@@ -59,14 +64,16 @@
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton Disabled="@(_disabledPage)" OnClick="Cancel">
+ <div class="d-flex flex-row-reverse flex-grow-1 gap-4">
+        <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(_disabledPage)" OnClick="Cancel">
             <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel"  />
         </MudButton>
-        <MudButton Disabled="@(_disabledPage || DisabledAddButton())" Color="Color.Primary" OnClick="AddItem">
+        <MudButton Variant="Variant.Filled" Disabled="@(_disabledPage || DisabledAddButton())" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save" OnClick="AddItem">
             <MudText>
                 <SystemText TextId=SystemTextId.Add FallbackText="Add"  />
             </MudText>
         </MudButton>
+    </div>
     </DialogActions>
 </MudDialog>
 </div>

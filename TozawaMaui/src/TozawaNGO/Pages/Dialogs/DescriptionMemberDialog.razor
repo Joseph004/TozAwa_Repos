@@ -4,6 +4,11 @@
 @inherits BaseDialog
 
 <MudDialog Class="tzModal">
+    <TitleContent>
+        <MudText Color=Color.Secondary>
+            @Title
+        </MudText>
+    </TitleContent>
     <DialogContent>
         <div style="overflow: auto; max-height: 800px;">
             <MudTextField Margin="Margin.Dense" T="string" Text="@Entity.Description"
@@ -11,8 +16,8 @@
         </div>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">
-            <SystemText TextId=SystemTextId.Close FallbackText="Close"  />
+        <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled" Color="Color.Primary" OnClick="Cancel">
+            <SystemText TextId=SystemTextId.Close FallbackText="Close" />
         </MudButton>
     </DialogActions>
 </MudDialog>

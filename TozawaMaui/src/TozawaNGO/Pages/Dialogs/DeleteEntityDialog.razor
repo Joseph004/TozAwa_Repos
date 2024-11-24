@@ -11,7 +11,7 @@
 
 <MudDialog Class=@($"tzModal {MudDialog.Id.ToString()}")>
     <TitleContent>
-        <MudText Typo="Typo.h6">
+        <MudText Color=Color.Secondary Typo="Typo.h6">
             @if (item.Deleted)
             {
                 @if (hardDelete)
@@ -34,22 +34,24 @@
         <MudText>@body</MudText>
     </DialogContent>
     <DialogActions>
-        <MudButton Variant="Variant.Filled" OnClick="Cancel">
-            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel"  />
+        <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled" OnClick="Cancel">
+            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" />
         </MudButton>
         @if (item.Deleted)
         {
             @if (hardDelete)
             {
-                <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="@(e => Confirm(false, true))">
-                    <SystemText TextId=SystemTextId.Delete FallbackText="Delete"  />
-                    <SystemText TextId=SystemTextId.Definitively FallbackText="definitively"  />
+                <MudButton StartIcon=@Icons.Material.Filled.Delete Color="Color.Error" Variant="Variant.Filled"
+                    OnClick="@(e => Confirm(false, true))">
+                    <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
+                    <SystemText TextId=SystemTextId.Definitively FallbackText="definitively" />
                 </MudButton>
             }
             else
             {
-                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@(e => Confirm(false, false))">
-                    <SystemText TextId=SystemTextId.Restore FallbackText="Restore"  />
+                <MudButton StartIcon=@Icons.Material.Filled.RestoreFromTrash Color="Color.Primary" Variant="Variant.Filled"
+                    OnClick="@(e => Confirm(false, false))">
+                    <SystemText TextId=SystemTextId.Restore FallbackText="Restore" />
                 </MudButton>
             }
         }
@@ -57,18 +59,21 @@
         {
             @if (hardDelete)
             {
-                <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="@(e => Confirm(false, true))">
+                <MudButton StartIcon=@Icons.Material.Filled.Delete Color="Color.Error" Variant="Variant.Filled"
+                    OnClick="@(e => Confirm(false, true))">
                     <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
                 </MudButton>
             }
             else
             {
-                <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@(e => Confirm(true, false))">
+                <MudButton StartIcon=@Icons.Material.Filled.RestoreFromTrash Color="Color.Primary" Variant="Variant.Filled"
+                    OnClick="@(e => Confirm(true, false))">
                     <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
                     <SystemText TextId=SystemTextId.Temporarily FallbackText="temporarily" />
                 </MudButton>
 
-                <MudButton Color="Color.Error" Variant="Variant.Filled" OnClick="@(e => Confirm(false, true))">
+                <MudButton StartIcon=@Icons.Material.Filled.Delete Color="Color.Error" Variant="Variant.Filled"
+                    OnClick="@(e => Confirm(false, true))">
                     <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
                     <SystemText TextId=SystemTextId.Definitively FallbackText="definitively" />
                 </MudButton>

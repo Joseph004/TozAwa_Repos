@@ -5,10 +5,9 @@
 
 <MudDialog Class="tzModal">
     <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Login" Class="mr-3 mb-n1" />
-            <span>Toz'Awa</span>
-        </MudText>
+        <div style="max-width: fit-content; margin-left: auto; margin-right: auto;">
+            <img src="/images/avatarprofile.png" asp-append-version="true" height="60px" width="60px" />
+        </div>
     </TitleContent>
     <DialogContent>
         <ErrorBoundary>
@@ -48,13 +47,13 @@
     </DialogContent>
     <DialogActions>
         <div class="d-flex flex-row-reverse flex-grow-1 gap-4">
-            <MudButton Disabled="@DisabledLoginButton()" OnClick="@((MouseEventArgs e)=>LoginByClick(@loginButton, e))"
-                Color="Color.Primary" Variant="Variant.Filled" Target="_top">
+            <MudButton Color="Color.Success" StartIcon="@Icons.Material.Filled.Login" Disabled="@DisabledLoginButton()"
+                OnClick="@((MouseEventArgs e)=>LoginByClick(@loginButton, e))" Variant="Variant.Filled" Target="_top">
                 <MudText>
                     <SystemText TextId=SystemTextId.Login FallbackText="Login"></SystemText>
                 </MudText>
             </MudButton>
-            <MudButton Disabled="@_processing" Variant="Variant.Filled" OnClick="Cancel">
+            <MudButton StartIcon="@Icons.Material.Filled.Close" Disabled="@_processing" Color="Color.Primary" Variant="Variant.Filled" OnClick="Cancel">
                 <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel"></SystemText>
             </MudButton>
         </div>

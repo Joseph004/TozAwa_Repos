@@ -86,7 +86,8 @@ namespace TozawaNGO.Pages
             };
             var parameters = new DialogParameters
             {
-                ["Entity"] = member
+                ["Entity"] = member,
+                ["Title"] = member.FirstName + " " + member.LastName
             };
             var dialog = await DialogService.ShowEx<DescriptionMemberDialog>(member.FirstName + " " + member.LastName, parameters, options);
             var result = await dialog.Result;
@@ -260,7 +261,8 @@ namespace TozawaNGO.Pages
             };
             var parameters = new DialogParameters
             {
-                ["_activeLanguages"] = ActiveLanguages
+                ["_activeLanguages"] = ActiveLanguages,
+                ["Title"] = $"{Translate(SystemTextId.Add)} {Translate(SystemTextId.Member)}"
             };
             var dialog = await DialogService.ShowEx<AddMembersDialog>($"{Translate(SystemTextId.Add)} {Translate(SystemTextId.Member)}", parameters, options);
             var result = await dialog.Result;

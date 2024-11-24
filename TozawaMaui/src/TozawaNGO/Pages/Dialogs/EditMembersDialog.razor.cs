@@ -49,6 +49,7 @@ namespace TozawaNGO.Pages
             {
                 Member.Email = _backupItem.Email;
                 RestoreInputIcon[nameof(MemberDto.Email)] = "";
+                MudDialog.StateHasChanged();
             }
             else if (type == nameof(MemberDto.Description))
             {
@@ -97,6 +98,7 @@ namespace TozawaNGO.Pages
                 {
                     RestoreInputIcon[nameof(MemberDto.Email)] = Icons.Material.Filled.Undo;
                 }
+                MudDialog.StateHasChanged();
             }
             else if (type == nameof(MemberDto.Description))
             {

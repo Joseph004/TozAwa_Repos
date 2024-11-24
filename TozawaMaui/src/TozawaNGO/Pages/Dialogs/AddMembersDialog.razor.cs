@@ -14,6 +14,7 @@ namespace TozawaNGO.Pages
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public string Name { get; set; }
+        [Parameter] public string Title { get; set; }
         [Inject] MemberService memberService { get; set; }
         [Inject] private ISnackBarService snackBarService { get; set; }
         private bool _disabledPage = false;
@@ -140,7 +141,7 @@ namespace TozawaNGO.Pages
         private void AddItem()
         {
             if (DisabledAddButton()) return;
-           _RequestInProgress = true;
+            _RequestInProgress = true;
             _onProgress = true;
 
             var model = _addForm.Model as AddMemberRequest;
