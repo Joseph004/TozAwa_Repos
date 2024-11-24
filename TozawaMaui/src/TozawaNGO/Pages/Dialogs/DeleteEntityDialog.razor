@@ -20,7 +20,7 @@
                 }
                 else
                 {
-                    <MudIcon Icon="@Icons.Material.Filled.RestoreFromTrash" Class="mr-3 mb-n1" />
+                    <MudIcon Icon="@Icons.Material.Filled.AccessTimeFilled" Class="mr-3 mb-n1" />
                 }
             }
             else
@@ -49,7 +49,7 @@
             }
             else
             {
-                <MudButton StartIcon=@Icons.Material.Filled.RestoreFromTrash Color="Color.Primary" Variant="Variant.Filled"
+                <MudButton StartIcon=@Icons.Material.Filled.AccessTimeFilled Color="Color.Primary" Variant="Variant.Filled"
                     OnClick="@(e => Confirm(false, false))">
                     <SystemText TextId=SystemTextId.Restore FallbackText="Restore" />
                 </MudButton>
@@ -66,7 +66,7 @@
             }
             else
             {
-                <MudButton StartIcon=@Icons.Material.Filled.RestoreFromTrash Color="Color.Primary" Variant="Variant.Filled"
+                <MudButton StartIcon=@Icons.Material.Filled.AccessTimeFilled Color="Color.Primary" Variant="Variant.Filled"
                     OnClick="@(e => Confirm(true, false))">
                     <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
                     <SystemText TextId=SystemTextId.Temporarily FallbackText="temporarily" />
