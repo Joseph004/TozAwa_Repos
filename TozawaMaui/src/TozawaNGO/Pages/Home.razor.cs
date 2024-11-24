@@ -34,7 +34,7 @@ namespace TozawaNGO.Pages
             await base.OnInitializedAsync();
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
-        {
+        { 
             if (firstRender)
             {
                 if (HomeState.Value.ScrollTop != 0)
