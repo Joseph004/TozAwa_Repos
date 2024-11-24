@@ -9,8 +9,7 @@ namespace OrleansHost.Attachment.Models.Validation
     {
         public ConvertImageToPngCommandValidator()
         {
-            RuleFor(x => x.File).NotEmpty();
-            RuleFor(x => x.File.ContentType).Must(x => x.Contains("image/"));
+            RuleFor(x => x.Bytes).NotEmpty();
         }
     }
 }

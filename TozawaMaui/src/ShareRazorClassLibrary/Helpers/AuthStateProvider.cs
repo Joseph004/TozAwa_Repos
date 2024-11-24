@@ -1,62 +1,45 @@
 
 using System.Security.Claims;
-using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Newtonsoft.Json;
 using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Features;
 using Microsoft.JSInterop;
 using System.Globalization;
-using Blazored.LocalStorage;
 using ShareRazorClassLibrary.Configurations;
 using System.IdentityModel.Tokens.Jwt;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using Blazored.LocalStorage;
+using TozawaNGO.Helpers;
 
 namespace ShareRazorClassLibrary.Helpers;
 
-public class AuthStateProvider(ISessionStorageService sessionStorageService, ILocalStorageService localStorage, AppSettings appSettings) : AuthenticationStateProvider
+public class AuthStateProvider(ILocalStorageService localStorageService, AppSettings appSettings) : AuthenticationStateProvider
 {
-    private readonly ISessionStorageService _sessionStorageService = sessionStorageService;
-    private readonly ILocalStorageService _localStorage = localStorage;
+    private readonly ILocalStorageService _localStorageService = localStorageService;
     private readonly AuthenticationState _anonymous = new(new ClaimsPrincipal(new ClaimsIdentity()));
     private readonly AppSettings _appSettings = appSettings;
-
     public event EventHandler<EventArgs> UserAuthenticationChanged;
-
-    public void SetFirstLoad(bool firstLoad) => _firstLoad = firstLoad;
-    private bool _firstLoad = false;
+    public UserLoginStateDto UserLoginStateDto { get; } = new();
     public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
         try
         {
-            if (!_firstLoad) return _anonymous;
-
-            string token = null;
-            try
-            {
-                token = await _localStorage.GetItemAsync<string>("authToken");
-            }
-            catch (Exception)
-            {
-                token = null;
-            }
-            if (string.IsNullOrWhiteSpace(token))
+            if (string.IsNullOrWhiteSpace(UserLoginStateDto.JWTToken) || !UserLoginStateDto.IsAuthenticated)
                 return _anonymous;
-            return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(JwtParser.ParseClaimsFromJwt(token), "jwtAuthType"))));
+
+            if (UserLoginStateDto.IsAuthenticated && !string.IsNullOrWhiteSpace(UserLoginStateDto.JWTToken))
+                return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(JwtParser.ParseClaimsFromJwt(UserLoginStateDto.JWTToken), "tzuserauthentication"))));
         }
         catch (JSDisconnectedException)
         {
-            return new AuthenticationState(new ClaimsPrincipal());
+            return _anonymous;
         }
+        return _anonymous;
     }
-    public async Task<CurrentUserDto> GetUserFromToken(string token)
+    public async Task<CurrentUserDto> GetUserFromToken()
     {
-        if (string.IsNullOrEmpty(token))
-        {
-            token = await _localStorage.GetItemAsync<string>("authToken");
-        }
-
         var authUser = await GetAuthenticationStateAsync();
         if (!authUser.User.Claims.Any()) return new CurrentUserDto();
 
@@ -71,45 +54,70 @@ public class AuthStateProvider(ISessionStorageService sessionStorageService, ILo
 
         return authUser.User.Claims.Where(x => x.Type == nameof(CurrentUserDto)).Select(c => c.Value).SingleOrDefault();
     }
-    public async Task RemoveCurrentUser()
+    public async void NotifyUserAuthentication(List<Claim> claims)
     {
-        if (await _sessionStorageService.ContainKeyAsync("currentUser"))
+        var authenticatedUser = new ClaimsPrincipal();
+        if (claims != null && claims.Count > 0)
         {
-            await _sessionStorageService.RemoveItemAsync("currentUser");
-        }
-    }
-    public async Task SetCurrentUser(CurrentUserDto user)
-    {
-        if (await _sessionStorageService.ContainKeyAsync("currentUser"))
-        {
-            await _sessionStorageService.RemoveItemAsync("currentUser");
-        }
-        await _sessionStorageService.SetItemAsync("currentUser", user);
-    }
-    public async void NotifyUserAuthentication()
-    {
-        var token = await _localStorage.GetItemAsync<string>("authToken");
+            var token = claims.Where(x => x.Type == "auth_token").Select(c => c.Value).SingleOrDefault();
+            var refreshToken = claims.Where(x => x.Type == "auth_refreshtoken").Select(c => c.Value).SingleOrDefault();
 
-        var refreshAt = DateTimeOffset.UtcNow.AddSeconds(Convert.ToDouble(_appSettings.JWTSettings.ExpiryInMinutes)).ToString(CultureInfo.InvariantCulture);
-        var user = await GetUserFromToken(token);
-        await SetCurrentUser(user);
-        var claims = new List<Claim>
+            UserLoginStateDto.Set(true, token, refreshToken);
+
+            authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "tzuserauthentication"));
+            var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+            NotifyAuthenticationStateChanged(authState);
+            await _localStorageService.SetItemAsync("auth_token", EncryptDecrypt.Encrypt(token, "PG=?1PowK<ai57:t%`Ro}L9~1q2&-i/H", "HK2nvSMadZRDeTbB"));
+            await _localStorageService.SetItemAsync("auth_refreshtoken", EncryptDecrypt.Encrypt(refreshToken, "PG??1PowK>oy9b:t%`Ro}L9~1q2&-i'R", "NQ2nvSMadFJDeTxW"));
+            UserAuthenticationChanged(this, new EventArgs());
+        }
+        else
+        {
+            UserLoginStateDto.Set(false, null, null);
+        }
+    }
+
+    public async Task NotifyUserAuthentication(string token, string refreshToken)
+    {
+        var authenticatedUser = new ClaimsPrincipal();
+        if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken))
+        {
+            UserLoginStateDto.Set(true, token, refreshToken);
+            var refreshAt = DateTimeOffset.UtcNow.AddSeconds(Convert.ToDouble(_appSettings.JWTSettings.ExpiryInMinutes)).ToString(CultureInfo.InvariantCulture);
+            var user = await GetUserFromToken();
+            var claims = new List<Claim>
         {
             new(nameof(CurrentUserDto), await GetUserTokenWhenUserIsAuthenticate()),
             new(ClaimTypes.Email, string.IsNullOrEmpty(user.Email) ? "" : user.Email),
             new(ClaimTypes.Name, user.UserName),
             new("refresh_at", refreshAt),
+            new("auth_token", token),
+            new("auth_refreshtoken", refreshToken),
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new("exp", _appSettings.JWTSettings.ExpiryInMinutes)
         };
-        if (user.Admin)
-        {
-            claims.Add(new Claim("admin-member", "MemberIsAdmin"));
+            if (user.Roles.Count >= 1)
+            {
+                foreach (var role in user.Roles)
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, Enum.GetName(typeof (RoleDto), role)));
+                }
+            }
+            if (user.Admin)
+            {
+                claims.Add(new Claim("admin-member", "MemberIsAdmin"));
+            }
+            authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "tzuserauthentication"));
+            var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
+            NotifyAuthenticationStateChanged(authState);
+            await _localStorageService.SetItemAsync("auth_token", EncryptDecrypt.Encrypt(token, "PG=?1PowK<ai57:t%`Ro}L9~1q2&-i/H", "HK2nvSMadZRDeTbB"));
+            await _localStorageService.SetItemAsync("auth_refreshtoken", EncryptDecrypt.Encrypt(refreshToken, "PG??1PowK>oy9b:t%`Ro}L9~1q2&-i'R", "NQ2nvSMadFJDeTxW"));
+            UserAuthenticationChanged(this, new EventArgs());
         }
-        var authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "jwtAuthType"));
-        var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
-        NotifyAuthenticationStateChanged(authState);
-        UserAuthenticationChanged(this, new EventArgs());
+        else
+        {
+            UserLoginStateDto.Set(false, null, null);
+        }
     }
     public bool ValidateCurrentToken(string token)
     {
@@ -135,12 +143,13 @@ public class AuthStateProvider(ISessionStorageService sessionStorageService, ILo
         }
         return true;
     }
-
-    public async void NotifyUserLogout()
+    public async Task NotifyUserLogout()
     {
-        await RemoveCurrentUser();
         var authState = Task.FromResult(_anonymous);
         NotifyAuthenticationStateChanged(authState);
+        UserLoginStateDto.Set(false, null, null);
+        await _localStorageService.RemoveItemAsync("auth_token");
+        await _localStorageService.RemoveItemAsync("auth_refreshtoken");
         UserAuthenticationChanged(this, new EventArgs());
     }
 }

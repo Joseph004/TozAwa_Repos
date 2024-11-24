@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Components;
 using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Services;
-using TozawaNGO.Services;
 
 namespace TozawaNGO.Shared
 {
@@ -24,7 +23,10 @@ namespace TozawaNGO.Shared
         }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+          {
+              StateHasChanged();
+          });
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {

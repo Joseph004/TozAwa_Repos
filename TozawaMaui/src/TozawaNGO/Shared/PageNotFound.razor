@@ -1,3 +1,5 @@
+@page "/StatusCode/{responseCode}"
+
 @using Blazored.SessionStorage
 @using ShareRazorClassLibrary.Helpers
 @using ShareRazorClassLibrary.Services
@@ -5,6 +7,10 @@
 @implements IDisposable
 @inject NavigationManager NavManager
 @inject ITranslationService TranslationService
+
+<MudPopoverProvider />
+
+<MudText Typo="Typo.h3">StatusCode @ResponseCode</MudText>
 
 <MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Elevation="0">
     <MudPaper Style="margin-top: 5px;" Class="mud-theme-primary" Width="100%" Height="25px">
@@ -22,6 +28,8 @@
 </MudPaper>
 
 @code {
+    [Parameter]
+    public string ResponseCode { get; set; }
     [Inject] public NavMenuTabState NavMenuTabState { get; set; }
     [Inject] FirstloadState FirstloadState { get; set; }
     [Inject] ISessionStorageService SessionStorageService { get; set; }

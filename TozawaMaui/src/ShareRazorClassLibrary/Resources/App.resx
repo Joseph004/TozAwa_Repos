@@ -418,4 +418,12 @@
     <value>Only pdf and images are visable</value>
     <comment>.</comment>
   </data>
+  <data name="d2232c5d-c73d-4714-87d6-c1e76c858090" xml:space="preserve">
+    <value>View as pdf</value>
+    <comment>.</comment>
+  </data>
+  <data name="fe71f628-b733-4123-a7d3-81a32730fa75" xml:space="preserve">
+    <value>Download as pdf</value>
+    <comment>.</comment>
+  </data>
 </root>

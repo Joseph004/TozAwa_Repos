@@ -15,6 +15,7 @@ using ShareRazorClassLibrary.Configurations;
 using ShareRazorClassLibrary.Helpers;
 using MudBlazor.Extensions.Options;
 using MudBlazor.Extensions;
+using TozawaNGO.Helpers;
 
 namespace TozawaNGO.Shared
 {
@@ -26,7 +27,6 @@ namespace TozawaNGO.Shared
         [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] ICurrentUserService CurrentUserService { get; set; }
         [Inject] AppSettings _appSettings { get; set; }
-        [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
         [Inject] ILocalStorageService _localStorageService { get; set; }
@@ -39,6 +39,7 @@ namespace TozawaNGO.Shared
         private string _disableAttrString = "";
         private ErrorBoundary _errorBoundary;
         private bool _sidebarOpen = true;
+        private bool _firstLoaded = false;
 
         private void ToggleSidebar()
         {
@@ -64,16 +65,8 @@ namespace TozawaNGO.Shared
         protected async override Task OnInitializedAsync()
         {
             NavMenuTabState.OnChange += StateHasChanged;
-            FirstloadState.OnChange += ReloadPage;
             LoadingState.OnChange += DisabledPage;
             await base.OnInitializedAsync();
-        }
-        public void ReloadPage()
-        {
-            InvokeAsync(() =>
-           {
-               StateHasChanged();
-           });
         }
         private async void DisabledPage()
         {
@@ -90,26 +83,52 @@ namespace TozawaNGO.Shared
         {
             if (firstRender)
             {
+                if (await _localStorageService.ContainKeyAsync("auth_token") && await
+                                _localStorageService.ContainKeyAsync("auth_refreshtoken"))
+                {
+                    var token = EncryptDecrypt.Decrypt(await _localStorageService.GetItemAsync<byte[]>("auth_token"),
+                    "PG=?1PowK<ai57:t%`Ro}L9~1q2&-i/H", "HK2nvSMadZRDeTbB");
+                    var refreshToken = EncryptDecrypt.Decrypt(await _localStorageService.GetItemAsync<byte[]>("auth_refreshtoken"),
+                    "PG??1PowK>oy9b:t%`Ro}L9~1q2&-i'R", "NQ2nvSMadFJDeTxW");
+                    if (!string.IsNullOrEmpty(Encoding.UTF8.GetString(token)) &&
+                    !string.IsNullOrEmpty(Encoding.UTF8.GetString(refreshToken)))
+                    {
+                        if (((AuthStateProvider)_authStateProvider).ValidateCurrentToken(Encoding.UTF8.GetString(token)))
+                        {
+                            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, Encoding.UTF8.GetString(token),
+                            Encoding.UTF8.GetString(refreshToken));
+                            await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(Encoding.UTF8.GetString(token), Encoding.UTF8.GetString(refreshToken));
+                        }
+                        else
+                        {
+                            await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
+                        }
+                    }
+                }
+
                 NavMenuTabState.SetMenuOpen(_sidebarOpen);
                 _timer = new Timer(_timerInterval);
                 _timer.Elapsed += LogoutTimeout;
                 _timer.AutoReset = false;
                 _timer.Start();
+                _firstLoaded = true;
+                StateHasChanged();
                 await LogoutIfUserExipired();
             }
             await base.OnAfterRenderAsync(firstRender);
         }
         private async Task LogoutIfUserExipired()
         {
-            _authStateProvider.SetFirstLoad(FirstloadState.IsFirstLoaded);
             var auth = await _authStateProvider.GetAuthenticationStateAsync();
 
             if (auth.User.Identity != null && auth.User.Identity.IsAuthenticated)
             {
-                var token = await _localStorageService.GetItemAsync<string>("authToken");
-                var refreshToken = await _localStorageService.GetItemAsync<string>("refreshToken");
+                var token = EncryptDecrypt.Decrypt(await _localStorageService.GetItemAsync<byte[]>("auth_token"),
+                    "PG=?1PowK<ai57:t%`Ro}L9~1q2&-i/H", "HK2nvSMadZRDeTbB");
+                var refreshToken = EncryptDecrypt.Decrypt(await _localStorageService.GetItemAsync<byte[]>("auth_refreshtoken"),
+                "PG??1PowK>oy9b:t%`Ro}L9~1q2&-i'R", "NQ2nvSMadFJDeTxW");
 
-                if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken) && !ValidateCurrentToken(token))
+                if (!string.IsNullOrEmpty(Encoding.UTF8.GetString(token)) && !string.IsNullOrEmpty(Encoding.UTF8.GetString(refreshToken)) && !ValidateCurrentToken(Encoding.UTF8.GetString(token)))
                 {
                     var exp = auth.User.Claims.First(x => x.Type == "logoutexpat").Value;
                     var year = Convert.ToInt32(exp.Split("/")[2].Split(":")[0].Split(" ")[0]);
@@ -162,54 +181,48 @@ namespace TozawaNGO.Shared
         {
             InvokeAsync(async () =>
               {
-                  if (FirstloadState.IsFirstLoaded)
+                  var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                  if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
                   {
-                      var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-                      if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
+                      var parameters = new DialogParameters
                       {
-                          var parameters = new DialogParameters
-                          {
-                              ["Title"] = "Logout"
-                          };
-                          var options = new DialogOptionsEx
-                          {
-                              Resizeable = true,
-                              BackdropClick = false,
-                              DragMode = MudDialogDragMode.Simple,
-                              Position = DialogPosition.Center,
-                              CloseButton = false,
-                              MaxWidth = MaxWidth.Small
-                          };
-                          var dialog = await DialogService.ShowEx<ExpireModal>("Logout", parameters, options);
-                          var result = await dialog.Result;
+                          ["Title"] = "Logout"
+                      };
+                      var options = new DialogOptionsEx
+                      {
+                          Resizeable = true,
+                          BackdropClick = false,
+                          DragMode = MudDialogDragMode.Simple,
+                          Position = DialogPosition.Center,
+                          CloseButton = false,
+                          MaxWidth = MaxWidth.Small
+                      };
+                      var dialog = await DialogService.ShowEx<ExpireModal>("Logout", parameters, options);
+                      var result = await dialog.Result;
 
-                          if (!result.Canceled)
-                          {
-                              await Logout();
-                          }
+                      if (!result.Canceled)
+                      {
+                          await Logout();
                       }
                   }
               });
         }
         private async Task Logout()
         {
-            await _localStorageService.RemoveItemAsync("authToken");
-            await _localStorageService.RemoveItemAsync("refreshToken");
-
-            ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
-
-            FirstloadState.SetFirsLoad(true);
+            await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
         }
         private void RefreshTimer(EventArgs e)
         {
             NavMenuTabState.SetMenuOpen(_sidebarOpen);
-            _timer.Interval = _timerInterval;
+            if (_timer != null)
+            {
+                _timer.Interval = _timerInterval;
+            }
         }
 
         public override void Dispose()
         {
             NavMenuTabState.OnChange -= StateHasChanged;
-            FirstloadState.OnChange -= ReloadPage;
             LoadingState.OnChange -= DisabledPage;
             if (_timer != null)
             {

@@ -19,10 +19,10 @@ namespace TozawaNGO.Pages
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public MemberDto Member { get; set; }
         [Inject] MemberService memberService { get; set; }
-        [Inject] private LoadingState LoadingState { get; set; }
         [Inject] private ISnackBarService snackBarService { get; set; }
         [Inject] IDispatcher Dispatcher { get; set; }
         private bool _disabledPage = false;
+        private bool _RequestInProgress = false;
         private string _disableAttrString = "";
         private MudForm _editForm;
         private MemberDto _backupItem;
@@ -126,7 +126,7 @@ namespace TozawaNGO.Pages
         }
         private async void DisabledPage()
         {
-            _disabledPage = LoadingState.RequestInProgress;
+            _disabledPage = _RequestInProgress;
 
             _disableAttrString = _disabledPage ? "pointer-events: none;" : "";
             await InvokeAsync(() =>
@@ -136,12 +136,10 @@ namespace TozawaNGO.Pages
         }
         public override void Dispose()
         {
-            LoadingState.OnChange -= DisabledPage;
             base.Dispose();
         }
         protected override void OnInitialized()
         {
-            LoadingState.OnChange += DisabledPage;
             var memperProperties = typeof(MemberDto).GetProperties();
             foreach (var prop in memperProperties)
             {
@@ -289,7 +287,7 @@ namespace TozawaNGO.Pages
             {
                 MudDialog.Cancel();
             }
-            LoadingState.SetRequestInProgress(true);
+            _RequestInProgress = true;
             _onProgress = true;
 
             if (!Member.Deleted)

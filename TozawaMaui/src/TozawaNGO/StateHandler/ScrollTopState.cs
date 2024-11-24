@@ -10,8 +10,11 @@ namespace TozawaNGO.StateHandler
 
         public void SetScrollTop(double scrollTop, string source)
         {
-            ScrollTop[source] = scrollTop;
-            NotifyStateChanged();
+            if (!string.IsNullOrEmpty(source) && ScrollTop.ContainsKey(source))
+            {
+                ScrollTop[source] = scrollTop;
+                NotifyStateChanged();
+            }
         }
         public void SetSource(string source)
         {

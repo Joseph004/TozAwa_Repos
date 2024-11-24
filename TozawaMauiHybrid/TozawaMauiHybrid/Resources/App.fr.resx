@@ -419,4 +419,13 @@
     <value>seulment le pdf et les images peuvent etres visualisé</value>
     <comment>.</comment>
   </data>
+  <data name="d2232c5d-c73d-4714-87d6-c1e76c858090" xml:space="preserve">
+    <value>Visualiser en pdf</value>
+    <comment>.</comment>
+  </data>
+  <data name="fe71f628-b733-4123-a7d3-81a32730fa75" xml:space="preserve">
+    <value>Telecharger en pdf</value>
+    <value>Telecharger en pdf</value>
+    <comment>.</comment>
+  </data>
 </root>

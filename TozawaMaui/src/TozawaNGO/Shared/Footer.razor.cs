@@ -79,7 +79,10 @@ namespace TozawaNGO.Shared
         }
         private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+         {
+             StateHasChanged();
+         });
         }
         private async void _translationService_LanguageChanged(object sender, EventArgs e)
         {
@@ -92,7 +95,10 @@ namespace TozawaNGO.Shared
             }
             _email = _translationService.Translate(SystemTextId.Email, "Email").Text;
 
-            StateHasChanged();
+            await InvokeAsync(() =>
+           {
+               StateHasChanged();
+           });
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {

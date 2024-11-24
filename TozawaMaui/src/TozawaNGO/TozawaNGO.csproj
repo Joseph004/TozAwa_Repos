@@ -21,7 +21,6 @@
     <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.*" />
     <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.*" />
     <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.Common" Version="4.*" />
-    <PackageReference Include="FluentValidation.AspNetCore" Version="11.*" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.*" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.*" />
     <PackageReference Include="IpInfo.Api.Client" Version="1.*" />
@@ -36,7 +35,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.*" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.*" />
-    <PackageReference Include="MudBlazor.Extensions" Version="2.*" />
   </ItemGroup>
 
   <ItemGroup>

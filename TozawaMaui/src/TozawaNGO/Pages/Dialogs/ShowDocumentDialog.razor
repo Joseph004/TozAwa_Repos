@@ -1,33 +1,86 @@
 @namespace TozawaNGO.Pages
 @using ShareRazorClassLibrary.Helpers
 @using TozawaNGO.Shared
+@using TozawaNGO.Helpers
 @inherits BaseDialog
+
 <div style="@($"{_disableAttrString}")">
     <MudDialog Class="@($"tzModal")">
+        <TitleContent>
+            <div class="d-flex flex-row flex-grow-1 gap-4">
+                <MudText Style="width: 45%;" Color=Color.Primary>
+                    @((!FileValidator.IsPdf(Attachment.First().Value.MineType) && FileValidator.IsValiBytes(Attachment.First().Value.PdfConvertedContent)) ? Attachment.First().Value.Name.Split(".")[0] + ".pdf" : Attachment.First().Value.Name)
+                </MudText>
+                <MudText Color=Color.Secondary>
+                    @(Attachments.IndexOf(Attachments.First(x => x.Id == Attachment.First().Key)) + 1)
+                </MudText>
+                /
+                <MudText Color=Color.Secondary>
+                    @Attachments.Count()
+                </MudText>
+            </div>
+        </TitleContent>
         <DialogContent>
             @if (_showImage)
             {
-                <img id="avatar" height="600" width="600" />
+                <img id="avatar" style="height: calc(100vh - 200px); width: 600px; margin-left: auto;
+                         margin-right: auto;
+                         display: block;" />
             }
-            else if(_showFile)
+            else if (_showFile)
             {
-                <iframe id="iframe" style="height: calc(100vh - 200px)" />
+                <object id="iframe" style="height: calc(100vh - 200px); width: 100%;">
+                </object>
             }
         </DialogContent>
         <DialogActions>
-            <MudIconButton Disabled="@(_disabledPage || _disabledBackwards)"
-                @onclick="@(() => Move(Direction.Backwards))" Icon=@Icons.Material.Filled.ArrowBack></MudIconButton>
-            <MudIconButton Disabled="@(_disabledPage || _disabledForwards)" @onclick="@(() => Move(Direction.Forwards))"
-                Icon=@Icons.Material.Filled.ArrowForward></MudIconButton>
-            <MudButton Disabled="@(_disabledPage)" OnClick="Cancel">
+            <MudTooltip ShowOnHover=@(!string.IsNullOrEmpty(Translate(SystemTextId.Download, "Download"))) Placement="Placement.Top" Arrow="true" Color="Color.Primary">
+                <ChildContent>
+                    <MudIconButton Variant="Variant.Filled" Color=Color.Secondary Disabled="@(_disabledPage)"
+                        Icon="@Icons.Material.Filled.CloudDownload" @onclick=" ()=> Download()">
+                    </MudIconButton>
+                </ChildContent>
+                <TooltipContent>
+                    <MudText>
+                        @Translate(SystemTextId.Download, "Download");
+                    </MudText>
+                </TooltipContent>
+            </MudTooltip>
+            <MudTooltip ShowOnHover=@(!string.IsNullOrEmpty(_textBackwards)) Placement="Placement.Top" Arrow="true" Color="Color.Primary">
+                <ChildContent>
+                    <MudIconButton Variant="Variant.Filled" Color=Color.Primary
+                        Disabled="@(_disabledPage || _disabledBackwards)" @onclick="@(() => Move(Direction.Backwards))"
+                        Icon=@Icons.Material.Filled.ArrowBack>
+                    </MudIconButton>
+                </ChildContent>
+                <TooltipContent>
+                    <MudText>
+                        @_textBackwards
+                    </MudText>
+                </TooltipContent>
+            </MudTooltip>
+            <MudTooltip ShowOnHover=@(!string.IsNullOrEmpty(_textForwards)) Placement="Placement.Top" Arrow="true" Color="Color.Primary">
+                <ChildContent>
+                    <MudIconButton Variant="Variant.Filled" Color=Color.Primary
+                        Disabled="@(_disabledPage || _disabledForwards)" @onclick="@(() => Move(Direction.Forwards))"
+                        Icon=@Icons.Material.Filled.ArrowForward>
+                    </MudIconButton>
+                </ChildContent>
+                <TooltipContent>
+                    <MudText>
+                        @_textForwards
+                    </MudText>
+                </TooltipContent>
+            </MudTooltip>
+            <MudIconButton Variant="Variant.Filled" Color=Color.Default Disabled="@(_disabledPage)" OnClick="Cancel">
                 <SystemText TextId=SystemTextId.Close FallbackText="Close" />
-            </MudButton>
+            </MudIconButton>
         </DialogActions>
     </MudDialog>
 </div>
 
 <script>
-    window.SetSource = async (elementId, stream, contentType, title) => {
+    window.SetSource = async (elementId, stream, contentType, title, isImage) => {
         const arrayBuffer = await stream.arrayBuffer();
         let blobOptions = {};
         if (contentType) {
@@ -40,6 +93,11 @@
         element.onload = () => {
             URL.revokeObjectURL(url);
         }
-        element.src = url;
+        if (isImage) {
+            element.src = url;
+        } else {
+            element.data = url;
+            element.type = contentType;
+        }
     }
 </script>

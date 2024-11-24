@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
-using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.WebUtilities;
@@ -22,31 +21,20 @@ namespace ShareRazorClassLibrary.HttpClients
     ITranslationService translationService,
     AppSettings appSettings,
     AuthenticationStateProvider authProvider,
-    ILocalStorageService localStorageService,
     NavigationManager navigationManager,
     IJSRuntime jSRuntime,
     AuthStateProvider authStateProvider,
-    FirstloadState firstloadState,
     ILogger<HttpClientHelper> logger)
     {
         protected readonly ILogger<HttpClientHelper> _logger = logger;
-        private readonly FirstloadState _firstloadState = firstloadState;
         private readonly ITranslationService _translationService = translationService;
         private readonly AppSettings _appSettings = appSettings;
         private readonly AuthenticationStateProvider _authProvider = authProvider;
-        private readonly ILocalStorageService _localStorageService = localStorageService;
         private readonly NavigationManager _navigationManager = navigationManager;
         private readonly AuthStateProvider _authStateProvider = authStateProvider;
         private readonly IJSRuntime _jSRuntime = jSRuntime;
         private readonly HttpClient _client = client;
 
-        public async Task RemoveCurrentUser()
-        {
-            if (await _localStorageService.ContainKeyAsync("currentUser"))
-            {
-                await _localStorageService.RemoveItemAsync("currentUser");
-            }
-        }
         private async Task<AddResponse<LoginResponseDto>> PostRefresh(string url, RefreshTokenDto value)
         {
             var request = PostRequest(url, value);
@@ -62,14 +50,15 @@ namespace ShareRazorClassLibrary.HttpClients
                      new AddResponse<LoginResponseDto>(postResponse.IsSuccessStatusCode, StatusTexts.GetHttpStatusText(postResponse.StatusCode), postResponse.StatusCode, null);
 
             if (!postResponse.IsSuccessStatusCode || !postContent.Success)
+            {
+                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null);
                 return postContent;
+            }
 
             var result = postContent.Entity ?? new LoginResponseDto();
 
-            await _localStorageService.SetItemAsync("authToken", result.Token);
-            await _localStorageService.SetItemAsync("refreshToken", result.RefreshToken);
-
-            ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication();
+            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, result.Token, result.RefreshToken);
+            await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(result.Token, result.RefreshToken);
 
             return postContent;
         }
@@ -348,8 +337,8 @@ namespace ShareRazorClassLibrary.HttpClients
         }
         private async Task<string> TryRefreshToken()
         {
-            var token = await _localStorageService.GetItemAsync<string>("authToken");
-            var refreshToken = await _localStorageService.GetItemAsync<string>("refreshToken");
+            var token = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTToken;
+            var refreshToken = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTRefreshToken;
 
             var request = new RefreshTokenDto()
             {
@@ -391,7 +380,7 @@ namespace ShareRazorClassLibrary.HttpClients
 
             request.Headers.Add("toza-active-language", activeLanguage.Id.ToString());
             var response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-
+           
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 var content = await response.Content.ReadAsStringAsync();
@@ -405,12 +394,7 @@ namespace ShareRazorClassLibrary.HttpClients
         }
         private async Task Logout()
         {
-            await _localStorageService.RemoveItemAsync("authToken");
-            await _localStorageService.RemoveItemAsync("refreshToken");
-
-            ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
-
-            _firstloadState.SetFirsLoad(true);
+            await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
         }
         protected async Task<HttpResponseMessage> PostFile(string url, HttpContent request)
         {

@@ -8,10 +8,8 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using MudBlazor;
-using MudBlazor.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using TozawaNGO;
 using TozawaNGO.Services;
 using TozawaNGO.Shared;
 using Fluxor;
@@ -64,7 +62,7 @@ builder.Services.AddDataProtection();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-//builder.Services.AddMudBlazorDialog();
+
 builder.Services.AddMudServicesWithExtensions(c =>
 {
     c.WithoutAutomaticCssLoading();
@@ -187,8 +185,6 @@ RequestLocalizationOptions GetLocalizationOptions()
 
     return localizationOpotions;
 }
-
-app.UseMudExtensions();
 
 app.UseCookiePolicy();
 app.UseRouting();

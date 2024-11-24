@@ -16,6 +16,7 @@ namespace ShareRazorClassLibrary.Models.Dtos
         public string MiniatureBlobUrl { get; set; } = "";
         public string Thumbnail { get; set; } = "";
         public byte[] Content { get; set; }
+        public byte[] PdfConvertedContent { get; set; }
     }
 }
 

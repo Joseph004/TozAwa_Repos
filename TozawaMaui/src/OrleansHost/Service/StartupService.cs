@@ -98,7 +98,7 @@ public class StartupService(IServiceProvider services) : IHostedService
 
         foreach (var item in items)
         {
-            var thumbnail = string.Empty;
+            var thumbnail = string.Empty; 
             var miniatureBlobUrl = string.Empty;
 
             if (!string.IsNullOrEmpty(item.MiniatureId) && item.Owners.Count > 0)

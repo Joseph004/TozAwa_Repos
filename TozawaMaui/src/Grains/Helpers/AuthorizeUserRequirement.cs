@@ -31,6 +31,11 @@ namespace Grains.Helpers
                     context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     context.Result = new ContentResult() { Content = "Oops, you are not authorized please contact support!!!", StatusCode = (int)HttpStatusCode.Unauthorized };
                 }
+            } 
+            else 
+            {
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                context.Result = new ContentResult() { Content = "Oops, you are not authorized please contact support!!!", StatusCode = (int)HttpStatusCode.Unauthorized };
             }
         }
     }
@@ -58,6 +63,11 @@ namespace Grains.Helpers
                     context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     context.Result = new ContentResult() { Content = "Oops, you are not authorized please contact support!!!", StatusCode = (int)HttpStatusCode.Unauthorized };
                 }
+            } 
+            else 
+            {
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                context.Result = new ContentResult() { Content = "Oops, you are not authorized please contact support!!!", StatusCode = (int)HttpStatusCode.Unauthorized };
             }
         }
     }

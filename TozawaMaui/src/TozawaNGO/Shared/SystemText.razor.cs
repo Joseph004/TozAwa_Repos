@@ -21,15 +21,14 @@ public partial class SystemText : BaseComponent
 
     private string _translatedText { get; set; }
     private bool _istTranslated { get; set; }
+    private bool _firstLoaded = false;
 
     protected override void Dispose(bool disposing)
     {
-        FirstloadState.OnChange -= FirsLoadChanged;
         base.Dispose(disposing);
     }
     protected async override Task OnInitializedAsync()
     {
-        FirstloadState.OnChange += FirsLoadChanged;
         await base.OnInitializedAsync();
     }
     private void FirsLoadChanged()
@@ -43,25 +42,32 @@ public partial class SystemText : BaseComponent
     {
         if (firstRender)
         {
+            _firstLoaded = true;
+            StateHasChanged();
+            FirstloadState.SetFirsLoad(true);
         }
         return base.OnAfterRenderAsync(firstRender);
     }
 
     public string Translate()
     {
-        var translation = _translationService.Translate(TextId, FallbackText, Limit, ToUpper);
-        bool translationChanged = CheckIfIsTranslatedChanged(translation);
-
-        NotTranslated = translation.IsTranslated ? string.Empty : "notTranslated";
-        NotTranslatedTitle = translation.IsTranslated ? string.Empty : $"Not translated: {translation.Id}";
-        bool newTranslation = CheckIfTranslationChanged(translation);
-
-        if (newTranslation || translationChanged)
+        var response = "Not translated";
+        if (_translationService.TranslationLoaded())
         {
-            StateHasChanged();
-        }
+            var translation = _translationService.Translate(TextId, FallbackText, Limit, ToUpper);
+            bool translationChanged = CheckIfIsTranslatedChanged(translation);
 
-        return translation.Text;
+            NotTranslated = translation.IsTranslated ? string.Empty : "notTranslated";
+            NotTranslatedTitle = translation.IsTranslated ? string.Empty : $"Not translated: {translation.Id}";
+            bool newTranslation = CheckIfTranslationChanged(translation);
+
+            if (newTranslation || translationChanged)
+            {
+                StateHasChanged();
+            }
+            response = translation.Text;
+        }
+        return response;
     }
 
     private bool CheckIfTranslationChanged(TranslationDto translation)

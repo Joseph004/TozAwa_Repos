@@ -1,64 +1,34 @@
 using Blazored.SessionStorage;
 using ShareRazorClassLibrary.HttpClients;
 using ShareRazorClassLibrary.Models.Dtos;
-using Microsoft.AspNetCore.Components.Authorization;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
+using ShareRazorClassLibrary.Helpers;
 
 namespace ShareRazorClassLibrary.Services;
 public class CurrentUserService(
     IAuthHttpClient client,
-    ISessionStorageService sessionStorageService,
     ISnackBarService snackBarService,
-    AuthenticationStateProvider authenticationStateProvider,
+    AuthStateProvider authStateProvider,
     ILogger<CurrentUserService> logger) : ICurrentUserService
 {
     private readonly IAuthHttpClient _client = client;
     private readonly ISnackBarService _snackBarService = snackBarService;
-    private readonly ISessionStorageService _sessionStorageService = sessionStorageService;
-    private readonly AuthenticationStateProvider _authenticationStateProvider = authenticationStateProvider;
-
-
+    private readonly AuthStateProvider _authStateProvider = authStateProvider;
     private readonly ILogger<CurrentUserService> _logger = logger;
 
-    public async Task RemoveCurrentUser()
-    {
-        if (await _sessionStorageService.ContainKeyAsync("currentUser"))
-        {
-            await _sessionStorageService.RemoveItemAsync("currentUser");
-        }
-    }
-    public async Task SetCurrentUser(CurrentUserDto user)
-    {
-        if (await _sessionStorageService.ContainKeyAsync("currentUser"))
-        {
-            await _sessionStorageService.RemoveItemAsync("currentUser");
-        }
-        await _sessionStorageService.SetItemAsync("currentUser", user);
-    }
     public async Task<CurrentUserDto> GetCurrentUser()
     {
         try
         {
-            if (await _sessionStorageService.ContainKeyAsync("currentUser"))
-            {
-                var response = await _sessionStorageService.GetItemAsync<CurrentUserDto>("currentUser");
-                if (response != null && response.Id != Guid.Empty)
-                {
-                    return response;
-                }
-            }
+            var authState = await _authStateProvider.GetAuthenticationStateAsync();
 
-            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-
-            if (user.Identity == null || !user.Identity.IsAuthenticated)
+            if (authState.User.Identity == null || !authState.User.Identity.IsAuthenticated)
             {
                 //_logger.LogError("User is not authenticated");
-                return new CurrentUserDto(); 
+                return new CurrentUserDto();
             }
-
-            var userString = user.Claims.Where(x => x.Type == nameof(CurrentUserDto)).Select(c => c.Value).SingleOrDefault();
+            var userString = authState.User.Claims.Where(x => x.Type == nameof(CurrentUserDto)).Select(c => c.Value).SingleOrDefault();
 
             return JsonConvert.DeserializeObject<CurrentUserDto>(userString);
         }
@@ -71,12 +41,14 @@ public class CurrentUserService(
 
     public async Task<bool> HasRole(string role)
     {
-        if (!await _sessionStorageService.ContainKeyAsync("currentUser"))
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+
+        if (authState.User.Identity == null || !authState.User.Identity.IsAuthenticated)
         {
-            await GetCurrentUser();
+            return false;
         }
 
-        var currentUser = await _sessionStorageService.GetItemAsync<CurrentUserDto>("currentUser");
+        var currentUser = await GetCurrentUser();
         return currentUser.Roles.Any(r => r == GetRole(role));
     }
     private static RoleDto GetRole(string role)

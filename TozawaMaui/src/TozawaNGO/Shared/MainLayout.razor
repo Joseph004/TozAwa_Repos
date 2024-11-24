@@ -6,32 +6,36 @@
 <MudSnackbarProvider />
 <MudPopoverProvider />
 
-<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" CloseButton="true"
-    NoHeader="false" Position="DialogPosition.TopCenter" />
+<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" CloseButton="true" NoHeader="false"
+    Position="DialogPosition.TopCenter" />
 
 <MudLayout Style="max-height: 100vh; height: 100vh;" @onpointermove="RefreshTimer" @onkeypress="RefreshTimer"
     Class="@($"d-flex flex-column flex-grow-1 gap-4 {_disableAttrString}")" @onmousemove="RefreshTimer">
-    <AppBar OnSidebarToggled="ToggleSidebar" />
-
-    <NavMenu @bind-SideBarOpen="_sidebarOpen" />
     <LoadingScreen>
-        <MudMainContent id="tzMainContainer" Class="@_containerPaddingClass">
-            <MudContainer Style="display: flex !important; flex-direction: column;" Class="mt-3 d-flex">
-                <ErrorBoundary @ref="_errorBoundary">
-                    <ChildContent>
-                        @Body
-                    </ChildContent>
-                    <ErrorContent Context="ex">
-                        <MudPaper Class="pa-4" Style="@($"background: var(--mud-palette-error);")">
-                            <MudText>
-                                @OnError(@ex);
-                            </MudText>
-                        </MudPaper>
-                    </ErrorContent>
-                </ErrorBoundary>
-                <Footer></Footer>
-            </MudContainer>
-        </MudMainContent>
-        <ScrollToTop></ScrollToTop>
+        @if (_firstLoaded)
+        {
+            <AppBar OnSidebarToggled="ToggleSidebar" />
+
+            <NavMenu @bind-SideBarOpen="_sidebarOpen" />
+
+            <MudMainContent id="tzMainContainer" Class="@_containerPaddingClass">
+                <MudContainer Style="display: flex !important; flex-direction: column;" Class="mt-3 d-flex">
+                    <ErrorBoundary @ref="_errorBoundary">
+                        <ChildContent>
+                            @Body
+                        </ChildContent>
+                        <ErrorContent Context="ex">
+                            <MudPaper Class="pa-4" Style="@($"background: var(--mud-palette-error);")">
+                                <MudText>
+                                    @OnError(@ex);
+                                </MudText>
+                            </MudPaper>
+                        </ErrorContent>
+                    </ErrorBoundary>
+                    <Footer></Footer>
+                </MudContainer>
+            </MudMainContent>
+            <ScrollToTop></ScrollToTop>
+        }
     </LoadingScreen>
 </MudLayout>

@@ -1,0 +1,45 @@
+@namespace TozawaNGO.Shared
+@using ShareRazorClassLibrary.Helpers
+@inject NavigationManager NavManager
+@inherits ComponentBase
+
+<AuthorizeView>
+    <Authorized>
+        <MudMenu TransformOrigin="@Origin.TopLeft" AnchorOrigin="Origin.BottomCenter">
+            <ActivatorContent>
+                <MudImage Src="/images/profile_avatar.jpg" Alt="Profil avatar" Height="35" Width="35" Elevation="30"
+                    Class="rounded-lg" />
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem>
+                    <MudText>
+                        <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Person" Size="Size.Small"
+                            Color="Color.Warning">
+                        </MudIcon>
+                        <SystemText TextId=SystemTextId.Hello FallbackText="Hello">
+                        </SystemText>
+                        <b>@context.User.Identity.Name!</b>
+                    </MudText>
+                </MudMenuItem>
+                <MudDivider />
+                <MudMenuItem>
+                    <MudButton OnClick="@(()=>Logout())" Color="Color.Inherit">
+                        <MudText>
+                            <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Logout" Size="Size.Small">
+                            </MudIcon>
+                            <SystemText TextId=SystemTextId.Logout FallbackText="Logout"></SystemText>
+                        </MudText>
+                    </MudButton>
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </Authorized>
+    <NotAuthorized>
+        <MudIconButton Class="mr-3 mb-1" OnClick="@(()=>LoginBtn())" Size="Size.Small"
+            Icon="@Icons.Material.Filled.Login" Color="Color.Inherit">
+        </MudIconButton>
+        <MudIconButton OnClick="@(()=>Register())" Icon="@Icons.Material.Filled.PersonAddAlt1" Size="Size.Small"
+            Color="Color.Inherit">
+        </MudIconButton>
+    </NotAuthorized>
+</AuthorizeView>

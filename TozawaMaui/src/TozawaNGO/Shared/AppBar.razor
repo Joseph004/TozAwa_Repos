@@ -5,64 +5,25 @@
 
 
 <MudAppBar Class="flex-none d-flex" Style="height: 60px; max-height: 60px;" Elevation="3">
-    <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleSideBar" />
-    @if (_showLogo)
+    @if (FirstloadState.IsFirstLoaded)
     {
-        <MudButton Href="/" Color="Color.Inherit">
-            <img src="/images/TR_Mini.png" asp-append-version="true" height="60px" width="150px" />
-        </MudButton>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="ToggleSideBar" />
+        @if (_showLogo)
+        {
+            <MudButton Href="/" Color="Color.Inherit">
+                <img src="/images/TR_Mini.png" asp-append-version="true" height="60px" width="150px" />
+            </MudButton>
+        }
+        <MudSpacer />
+
+        <MudText Class="appbarTitle">
+            <SystemText TextId=SystemTextId.ToZawaTitle Style="font-familly: cursive; font-size: max(1.2vw, 13px)"
+                SystemTextTypo=Typo.h2 FallbackText="Swedish Association for International Work in Technology and Informatics">
+            </SystemText>
+        </MudText>
+
+        <MudSpacer />
+        <LanguageSelection />
+        <Login />
     }
-    <MudSpacer />
-
-    <MudText Class="appbarTitle">
-        <SystemText TextId=SystemTextId.ToZawaTitle Style="font-familly: cursive; font-size: max(1.2vw, 13px)"
-            SystemTextTypo=Typo.h2 FallbackText="Svensk Förening för internationella arbete inom teknik och informatik">
-        </SystemText>
-    </MudText>
-
-    <MudSpacer />
-    <LanguageSelection />
-    <AuthorizeView>
-        <Authorized>
-            <MudMenu TransformOrigin="@Origin.TopCenter" AnchorOrigin="Origin.BottomCenter">
-                <ActivatorContent>
-                    <MudImage Src="/images/profile_avatar.jpg" Alt="Profil avatar" Height="35" Width="35" Elevation="30"
-                        Class="rounded-lg" />
-                </ActivatorContent>
-                <ChildContent>
-                    <MudMenuItem>
-                        <MudText>
-                            <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Person" Size="Size.Small"
-                                Color="Color.Warning">
-                            </MudIcon>
-                            <SystemText TextId=SystemTextId.Hello FallbackText="Hello">
-                            </SystemText>
-                            <b>@context.User.Identity.Name!</b>
-                        </MudText>
-                    </MudMenuItem>
-                    <MudDivider />
-                    <MudMenuItem>
-                        <MudButton OnClick="@(()=>Logout())" Color="Color.Inherit">
-                            <MudText>
-                                <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Logout" Size="Size.Small">
-                                </MudIcon>
-                                <SystemText TextId=SystemTextId.Logout FallbackText="Logout"></SystemText>
-                            </MudText>
-                        </MudButton>
-                    </MudMenuItem>
-                </ChildContent>
-            </MudMenu>
-        </Authorized>
-        <NotAuthorized>
-            @if (FirstloadState.IsFirstLoaded)
-            {
-                <MudIconButton Class="mr-3 mb-1" OnClick="@(()=>Login())" Size="Size.Small"
-                    Icon="@Icons.Material.Filled.Login" Color="Color.Inherit">
-                </MudIconButton>
-                <MudIconButton OnClick="@(()=>Register())" Icon="@Icons.Material.Filled.PersonAddAlt1" Size="Size.Small"
-                    Color="Color.Inherit">
-                </MudIconButton>
-            }
-        </NotAuthorized>
-    </AuthorizeView>
 </MudAppBar>

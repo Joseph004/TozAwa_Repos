@@ -1,7 +1,9 @@
 ﻿@page "/"
+@using Microsoft.AspNetCore.Components.Authorization
 @using Microsoft.AspNetCore.Components.Web
 @namespace TozawaNGO.Pages
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf;
+@inject AuthenticationStateProvider AuthenticationStateProvider;
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
 <!DOCTYPE html>
@@ -36,9 +38,9 @@
         <a class="dismiss">🗙</a>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="_framework/blazor.server.js"></script>
     <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script src="js/ajax_jquery.min.js"></script>
     <script src="js/script.js"></script>
 </body>
 

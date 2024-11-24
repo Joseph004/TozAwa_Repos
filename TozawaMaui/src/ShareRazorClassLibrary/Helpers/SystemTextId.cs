@@ -124,4 +124,6 @@ public static partial class SystemTextId
     public static Guid AttachmentOwnerId => Guid.Parse("368607f5-07d4-49c2-8014-415729f1fb01");
     public static Guid Update => Guid.Parse("2f2cad45-d815-41a1-b29d-121d3bd813a1");
     public static Guid OnlyPdfAndImage => Guid.Parse("be0145f5-65d8-4fbb-8c62-978465cea86f");
+    public static Guid ViewAsPdf => Guid.Parse("d2232c5d-c73d-4714-87d6-c1e76c858090");
+    public static Guid DownloadAsPdf => Guid.Parse("fe71f628-b733-4123-a7d3-81a32730fa75");
 }

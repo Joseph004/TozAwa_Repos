@@ -74,6 +74,13 @@ public class UserTokenService(AppSettings appSettings) : IUserTokenService
         new("exp", _appSettings.JWTSettings.ExpiryInMinutes),
         new("logoutexpat", exp)
     };
+        if (user.Roles.Count >= 1)
+        {
+            foreach (var role in user.Roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, Enum.GetName(typeof(RoleDto), role)));
+            }
+        }
         if (user.Admin)
         {
             claims.Add(new Claim("admin-member", "MemberIsAdmin"));

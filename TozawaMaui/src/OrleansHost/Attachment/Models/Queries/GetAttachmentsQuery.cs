@@ -1,6 +1,5 @@
 ﻿using MediatR;
 using Grains.Models.Enums;
-using FluentValidation;
 
 namespace OrleansHost.Attachment.Models.Queries
 {

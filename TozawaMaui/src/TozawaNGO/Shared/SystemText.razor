@@ -12,7 +12,7 @@
         opacity: 80%;
     }
 </style>
-@if (FirstloadState.IsFirstLoaded)
+@if (_firstLoaded && _translationService.TranslationLoaded())
 {
     <MudTooltip Class="pa-0 ma-0 opaque">
         <ChildContent>

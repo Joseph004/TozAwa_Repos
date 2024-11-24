@@ -10,13 +10,14 @@ using Grains.Auth.Controllers;
 using Grains.Auth.Models.Dtos;
 using Grains.Auth.Services;
 using Grains.Services;
+using Grains.Helpers;
 
 namespace OrleansHost.Attachment.Controllers
 {
     [Produces("application/json")]
     [Route("api/[controller]")]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-     [EnableCors("TozAwaCorsPolicyBff")]
+    [AuthorizeUserRequirement]
+    [EnableCors("TozAwaCorsPolicyBff")]
     public class BlobController(IMediator mediator, Grains.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : InitController(mediator, currentUserService, userTokenService)
     {
         [HttpGet, Route("{id}"), CheckRole(RoleDto.President, RoleDto.VicePresident)]
@@ -26,7 +27,7 @@ namespace OrleansHost.Attachment.Controllers
         public async Task<IActionResult> Post([FromForm] IFormFile file) => Ok(await _mediator.Send(new AddBlobCommand(file)));
 
         [HttpPost, Route("ConvertImageToPng"), CheckRole(RoleDto.President, RoleDto.VicePresident)]
-        public async Task<IActionResult> ConvertImageToPng(IFormFile file) => Ok(await _mediator.Send(new ConvertImageToPngCommand(file)));
+        public async Task<IActionResult> ConvertImageToPng([FromBody] byte[] bytes) => Ok(await _mediator.Send(new ConvertImageToPngCommand(bytes)));
     }
 }
 

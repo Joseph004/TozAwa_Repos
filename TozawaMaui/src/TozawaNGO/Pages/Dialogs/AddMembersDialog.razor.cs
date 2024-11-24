@@ -15,13 +15,13 @@ namespace TozawaNGO.Pages
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public string Name { get; set; }
         [Inject] MemberService memberService { get; set; }
-        [Inject] private LoadingState LoadingState { get; set; }
         [Inject] private ISnackBarService snackBarService { get; set; }
         private bool _disabledPage = false;
+        private bool _RequestInProgress = false;
         private string _disableAttrString = "";
         private async void DisabledPage()
         {
-            _disabledPage = LoadingState.RequestInProgress;
+            _disabledPage = _RequestInProgress;
 
             _disableAttrString = _disabledPage ? "pointer-events: none;" : "";
             await InvokeAsync(() =>
@@ -41,7 +41,6 @@ namespace TozawaNGO.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            LoadingState.OnChange += DisabledPage;
             _currentCulture = await _translationService.GetActiveLanguage();
 
             foreach (var item in _activeLanguages.Where(l => l.Id != _currentCulture.Id))
@@ -141,7 +140,7 @@ namespace TozawaNGO.Pages
         private void AddItem()
         {
             if (DisabledAddButton()) return;
-            LoadingState.SetRequestInProgress(true);
+           _RequestInProgress = true;
             _onProgress = true;
 
             var model = _addForm.Model as AddMemberRequest;
@@ -150,7 +149,6 @@ namespace TozawaNGO.Pages
         }
         public override void Dispose()
         {
-            LoadingState.OnChange -= DisabledPage;
             base.Dispose();
         }
     }

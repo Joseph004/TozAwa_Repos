@@ -24,9 +24,6 @@ namespace TozawaNGO.Shared
         }
         protected override Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender)
-                JSRuntime.InvokeVoidAsync($"setModalDraggableAndResizable");
-
             return base.OnAfterRenderAsync(firstRender);
         }
     }

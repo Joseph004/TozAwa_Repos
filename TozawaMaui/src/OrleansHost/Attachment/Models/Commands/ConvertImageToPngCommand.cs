@@ -1,10 +1,10 @@
-﻿using MediatR;
-using Microsoft.AspNetCore.Http;
+﻿using Grains.Models.Dtos;
+using MediatR;
 
 namespace OrleansHost.Attachment.Models.Commands
 {
-    public class ConvertImageToPngCommand(IFormFile file) : IRequest< byte[]>
+    public class ConvertImageToPngCommand(byte[] bytes) : IRequest<AttachmentDownloadDto>
     {
-        public IFormFile File { get; set; } = file;
+        public byte[] Bytes { get; set; } = bytes;
     }
 }

@@ -6,14 +6,15 @@ using Grains.Auth.Services;
 using OrleansHost.Attachment.Models.Commands;
 using Grains.Models.Enums;
 using OrleansHost.Attachment.Models.Queries;
+using Grains.Helpers;
 
 namespace OrleansHost.Attachment.Controllers;
 
+[AuthorizeUserRequirement]
 [Produces("application/json")]
 [Route("api/[controller]")]
 public class FileAttachmentController(IMediator mediator, Grains.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : InitController(mediator, currentUserService, userTokenService)
 {
-
     [HttpPost, Route("{id}")]
     public async Task<IActionResult> AddAttachment(Guid id, [FromBody] AddAttachmentCommand request)
     {

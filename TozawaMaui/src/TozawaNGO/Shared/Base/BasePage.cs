@@ -29,11 +29,17 @@ namespace TozawaNGO.Shared
 
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+           {
+               StateHasChanged();
+           });
         }
         private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+           {
+               StateHasChanged();
+           });
         }
 
         protected override async Task OnInitializedAsync()
@@ -55,7 +61,7 @@ namespace TozawaNGO.Shared
             _currentUser = await _currentUserService.GetCurrentUser();
             ActiveLanguages = (await _translationService.GetActiveLanguages()).OrderBy(x => x.LongName).ToList();
             await base.SetParametersAsync(ParameterView.Empty);
-        } 
+        }
 
         public string Translate(Guid systemTextId, string fallback = null, int? limit = null, bool? toUpper = null)
         {

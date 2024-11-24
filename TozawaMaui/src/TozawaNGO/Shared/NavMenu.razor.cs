@@ -1,6 +1,7 @@
 using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared
@@ -30,6 +31,8 @@ namespace TozawaNGO.Shared
 
         protected async override Task OnInitializedAsync()
         {
+            _currentUser = await _currentUserService.GetCurrentUser();
+
             FirstloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
@@ -74,13 +77,23 @@ namespace TozawaNGO.Shared
                  StateHasChanged();
              });
         }
+        private string GetNavMudGroupRoles()
+        {
+            return $"{nameof(RoleDto.President)},{nameof(RoleDto.VicePresident)}";
+        }
         private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+          {
+              StateHasChanged();
+          });
         }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+          {
+              StateHasChanged();
+          });
         }
 
         protected override void Dispose(bool disposed)

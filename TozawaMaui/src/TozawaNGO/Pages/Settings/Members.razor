@@ -91,13 +91,13 @@ else
         Striped="true" @ref="_table" Breakpoint="Breakpoint.Xs" CustomHeader="true" RowClassFunc="@SelectedRowClassFunc" T="MemberDto" RowsPerPage="20"
         OnRowClick="RowClickEvent" @bind-SelectedItem="_selectedItem" RowClass="cursor-pointer">
         <ToolBarContent>
-            <MudText Typo="Typo.h6">
+            <MudText Typo="Typo.h6" Color="Color.Secondary">
                 <SystemText TextId=SystemTextId.Members FallbackText="Members" />
             </MudText>
             <MudSpacer />
             <MudTextField T="string" DebounceInterval="500" Margin="Margin.Dense" @bind-Value="_searchString"
                 OnDebounceIntervalElapsed="s => OnSearch(s)" Placeholder="@Translate(SystemTextId.SearchText)"
-                Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+                Adornment="Adornment.Start" AdornmentColor="Color.Secondary" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
                 Class="mt-0">
             </MudTextField>
             <MudSpacer />
@@ -151,7 +151,7 @@ else
             <MudTd DataLabel="@(GetLabel(SystemTextId.Email, "Email"))">@context.Email </MudTd>
             <MudTd DataLabel="@(GetLabel(SystemTextId.Description, "Description"))">
                 <div @onclick:stopPropagation="true" @onclick:preventDefault="true">
-                     <MudTooltip>
+                     <MudTooltip ShowOnHover=@(!string.IsNullOrEmpty(string.IsNullOrEmpty(context.Description) ? GetHelpText(context.Description) : context.Description.Length > 20 ? context.Description.Substring(0, 20) + "..." : context.Description))>
                             <ChildContent>
                                 <MudIconButton Style="@GetDescColor(context)" Color=@(Color.Default)
                                  Icon="@(Icons.Material.Filled.Info)" @onclick="@(e => ShowLongText(context))" >
