@@ -6,7 +6,7 @@ using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared;
 
-public partial class SystemText : BaseComponent
+public partial class SystemText : BaseComponent<SystemText>
 {
     [Parameter] public Typo SystemTextTypo { get; set; } = Typo.body1;
     [Parameter] public Guid TextId { get; set; }

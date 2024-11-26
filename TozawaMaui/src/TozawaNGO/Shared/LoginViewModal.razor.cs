@@ -10,11 +10,8 @@ using TozawaNGO.Helpers;
 
 namespace TozawaNGO.Shared
 {
-    public partial class LoginViewModal : BaseDialog
+    public partial class LoginViewModal : BaseDialog<LoginViewModal>
     {
-#pragma warning disable CS0649
-        [CascadingParameter]
-        public ErrorHandling ErrorHandling { get; set; } = null;
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public string Title { get; set; }
 
@@ -165,7 +162,7 @@ namespace TozawaNGO.Shared
             catch (Exception ex)
             {
                 LoadingState.SetRequestInProgress(false);
-                ErrorHandling?.ProcessError(ex, Translate(SystemTextId.LoginError, "Login error"), Translate(SystemTextId.ErrorOccursWhenLogIn, "Error occurs when login"));
+                await ProcessError(ex, Translate(SystemTextId.LoginError, "Login error"), Translate(SystemTextId.ErrorOccursWhenLogIn, "Error occurs when login"));
 
                 _processing = false;
                 StateHasChanged();

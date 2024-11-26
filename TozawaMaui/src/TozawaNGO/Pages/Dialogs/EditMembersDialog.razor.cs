@@ -14,7 +14,7 @@ using TozawaNGO.State.Member.Store;
 
 namespace TozawaNGO.Pages
 {
-    public partial class EditMembersDialog : BaseDialog
+    public partial class EditMembersDialog : BaseDialog<EditMembersDialog>
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public MemberDto Member { get; set; }

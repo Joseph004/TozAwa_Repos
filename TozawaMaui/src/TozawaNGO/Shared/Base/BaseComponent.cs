@@ -1,11 +1,19 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using MudBlazor;
+using MudBlazor.Extensions;
+using MudBlazor.Extensions.Core;
+using MudBlazor.Extensions.Options;
+using Nextended.Core.Extensions;
 using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Services;
 namespace TozawaNGO.Shared
 {
-    public partial class BaseComponent : Fluxor.Blazor.Web.Components.FluxorComponent, IDisposable
+    public partial class BaseComponent<T> : Fluxor.Blazor.Web.Components.FluxorComponent, IDisposable
     {
+        [Inject] ILogger<T> _logger { get; set; }
+        [Inject] IDialogService DialogService { get; set; }
         [Inject] protected ITranslationService _translationService { get; set; }
         [Inject] protected AuthStateProvider _authStateProvider { get; set; }
         [Inject] public ICurrentUserService _currentUserService { get; set; }
@@ -35,6 +43,42 @@ namespace TozawaNGO.Shared
           {
               StateHasChanged();
           });
+        }
+        public async Task ProcessError(Exception ex, string title, string body)
+        { 
+            _logger.LogError("Error:ProcessError - Type: {Type} Message: {Message}",
+            ex.GetType(), ex.Message);
+
+            var options = new DialogOptionsEx
+            {
+                BackgroundClass = "tz-mud-overlay",
+                BackdropClick = false,
+                CloseButton = false,
+                MaxWidth = MaxWidth.Small,
+                MaximizeButton = true,
+                FullHeight = false,
+                FullWidth = true,
+                DragMode = MudDialogDragMode.Simple,
+                Animations = [AnimationType.Pulse],
+                Position = DialogPosition.Center
+            };
+
+            options.SetProperties(ex => ex.Resizeable = true);
+            options.DialogAppearance = MudExAppearance.FromStyle(b =>
+            {
+                b.WithBackgroundColor("gold")
+                .WithOpacity(0.9);
+            });
+
+
+            var parameters = new DialogParameters
+            {
+                ["body"] = body,
+                ["title"] = title
+            };
+
+            var dialog = await DialogService.ShowEx<ErrorHandlingDialog>(title, parameters, options);
+            var result = await dialog.Result;
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {

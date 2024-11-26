@@ -12,6 +12,8 @@ using ShareRazorClassLibrary.Models.FormModels;
 using ShareRazorClassLibrary.Helpers;
 using MudBlazor.Extensions.Options;
 using MudBlazor.Extensions;
+using Nextended.Core.Extensions;
+using MudBlazor.Extensions.Core;
 
 namespace TozawaNGO.Pages
 {
@@ -77,13 +79,25 @@ namespace TozawaNGO.Pages
             if (string.IsNullOrEmpty(member.Description)) return;
             var options = new DialogOptionsEx
             {
-                Resizeable = true,
+                BackgroundClass = "tz-mud-overlay",
                 BackdropClick = false,
-                DragMode = MudDialogDragMode.Simple,
-                Position = DialogPosition.Center,
                 CloseButton = false,
-                MaxWidth = MaxWidth.Medium
+                MaxWidth = MaxWidth.Medium,
+                MaximizeButton = true,
+                FullHeight = false,
+                FullWidth = true,
+                DragMode = MudDialogDragMode.Simple,
+                Animations = [AnimationType.Pulse],
+                Position = DialogPosition.Center
             };
+
+            options.SetProperties(ex => ex.Resizeable = true);
+            options.DialogAppearance = MudExAppearance.FromStyle(b =>
+            {
+                b.WithBackgroundColor("gold")
+                .WithOpacity(0.9);
+            });
+
             var parameters = new DialogParameters
             {
                 ["Entity"] = member,
@@ -153,13 +167,24 @@ namespace TozawaNGO.Pages
         {
             var options = new DialogOptionsEx
             {
-                Resizeable = true,
+                BackgroundClass = "tz-mud-overlay",
                 BackdropClick = false,
-                DragMode = MudDialogDragMode.Simple,
-                Position = DialogPosition.Center,
                 CloseButton = false,
-                MaxWidth = MaxWidth.Small
+                MaxWidth = MaxWidth.Small,
+                MaximizeButton = true,
+                FullHeight = false,
+                FullWidth = true,
+                DragMode = MudDialogDragMode.Simple,
+                Animations = [AnimationType.Pulse],
+                Position = DialogPosition.Center
             };
+
+            options.SetProperties(ex => ex.Resizeable = true);
+            options.DialogAppearance = MudExAppearance.FromStyle(b =>
+            {
+                b.WithBackgroundColor("gold")
+                .WithOpacity(0.9);
+            });
 
             var parameters = new DialogParameters
             {
@@ -195,13 +220,25 @@ namespace TozawaNGO.Pages
             await Task.FromResult(1);
             var options = new DialogOptionsEx
             {
-                Resizeable = true,
+                BackgroundClass = "tz-mud-overlay",
                 BackdropClick = false,
-                DragMode = MudDialogDragMode.Simple,
-                Position = DialogPosition.Center,
                 CloseButton = false,
-                MaxWidth = MaxWidth.Large
+                MaxWidth = MaxWidth.Large,
+                MaximizeButton = true,
+                FullHeight = false,
+                FullWidth = true,
+                DragMode = MudDialogDragMode.Simple,
+                Animations = [AnimationType.Pulse],
+                Position = DialogPosition.Center
             };
+
+            options.SetProperties(ex => ex.Resizeable = true);
+            options.DialogAppearance = MudExAppearance.FromStyle(b =>
+            {
+                b.WithBackgroundColor("gold")
+                .WithOpacity(0.9);
+            });
+
             var parameters = new DialogParameters
             {
                 ["Entity"] = item,
@@ -252,13 +289,25 @@ namespace TozawaNGO.Pages
         {
             var options = new DialogOptionsEx
             {
-                Resizeable = true,
-                BackdropClick = true,
-                DragMode = MudDialogDragMode.Simple,
-                Position = DialogPosition.Center,
+                BackgroundClass = "tz-mud-overlay",
+                BackdropClick = false,
                 CloseButton = false,
-                MaxWidth = MaxWidth.ExtraLarge
+                MaxWidth = MaxWidth.ExtraLarge,
+                MaximizeButton = true,
+                FullHeight = true,
+                FullWidth = true,
+                DragMode = MudDialogDragMode.Simple,
+                Animations = [AnimationType.Pulse],
+                Position = DialogPosition.Center
             };
+
+            options.SetProperties(ex => ex.Resizeable = true);
+            options.DialogAppearance = MudExAppearance.FromStyle(b =>
+            {
+                b.WithBackgroundColor("gold")
+                .WithOpacity(0.9);
+            });
+
             var parameters = new DialogParameters
             {
                 ["_activeLanguages"] = ActiveLanguages,
@@ -278,13 +327,25 @@ namespace TozawaNGO.Pages
         {
             var options = new DialogOptionsEx
             {
-                Resizeable = true,
-                BackdropClick = true,
-                DragMode = MudDialogDragMode.Simple,
-                Position = DialogPosition.Center,
+                BackgroundClass = "tz-mud-overlay",
+                BackdropClick = false,
                 CloseButton = false,
-                MaxWidth = MaxWidth.Medium
+                MaxWidth = MaxWidth.Medium,
+                MaximizeButton = true,
+                FullHeight = true,
+                FullWidth = true,
+                DragMode = MudDialogDragMode.Simple,
+                Animations = [AnimationType.Pulse],
+                Position = DialogPosition.Center
             };
+
+            options.SetProperties(ex => ex.Resizeable = true);
+            options.DialogAppearance = MudExAppearance.FromStyle(b =>
+            {
+                b.WithBackgroundColor("gold")
+                .WithOpacity(0.9);
+            });
+
             var data = new MemberDto
             {
                 Id = member.Id,

@@ -6,7 +6,7 @@ using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared
 {
-    public partial class NavMenu : BaseComponent
+    public partial class NavMenu : BaseComponent<NavMenu>
     {
         [Inject] private NavMenuTabState NavMenuTabState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }

@@ -4,7 +4,7 @@ using MudBlazor;
 
 namespace TozawaNGO.Shared
 {
-    public partial class ErrorHandlingDialog : BaseDialog
+    public partial class ErrorHandlingDialog : BaseDialog<ErrorHandlingDialog>
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }

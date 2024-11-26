@@ -1,11 +1,16 @@
 @namespace TozawaNGO.Pages
 @using ShareRazorClassLibrary.Helpers
 @using TozawaNGO.Shared
-@inherits BaseDialog
+@inherits BaseDialog<DeleteEntityDialog>
 
 <style>
     .mud-tooltip-root {
         margin-right: 5px;
+    }
+
+    .tz-mud-overlay {
+        background: repeating-linear-gradient(135deg, #ccc, #ccc 10px, #aaa 10px, #aaa 20px) !important;
+        opacity: 0.7 !important;
     }
 </style>
 

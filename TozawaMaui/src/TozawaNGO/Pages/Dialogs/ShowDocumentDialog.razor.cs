@@ -8,7 +8,7 @@ using TozawaNGO.Shared;
 
 namespace TozawaNGO.Pages
 {
-    public partial class ShowDocumentDialog : BaseDialog
+    public partial class ShowDocumentDialog : BaseDialog<ShowDocumentDialog>
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Inject] protected FileService FileService { get; set; }

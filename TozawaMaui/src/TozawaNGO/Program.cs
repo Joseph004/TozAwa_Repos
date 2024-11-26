@@ -65,7 +65,6 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddMudServicesWithExtensions(c =>
 {
-    c.WithoutAutomaticCssLoading();
     c.WithDefaultDialogOptions(ex =>
     {
         ex.Position = DialogPosition.BottomRight;
@@ -163,7 +162,7 @@ var app = builder.Build();
 app.UseForwardedHeaders();
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/TozawaFirstRequestError");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
@@ -205,6 +204,7 @@ app.MapBlazorHub(configureOptions: options =>
     options.TransportMaxBufferSize = 131072;
     options.ApplicationMaxBufferSize = 131072;
 });
+
 app.MapFallbackToPage("/_Host");
 
 app.Run();

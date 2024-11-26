@@ -10,7 +10,7 @@ using TozawaNGO.Shared;
 
 namespace TozawaNGO.Pages
 {
-    public partial class AddMembersDialog : BaseDialog
+    public partial class AddMembersDialog : BaseDialog<AddMembersDialog>
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public string Name { get; set; }

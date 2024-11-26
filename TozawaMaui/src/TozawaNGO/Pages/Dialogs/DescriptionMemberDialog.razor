@@ -1,7 +1,19 @@
 @namespace TozawaNGO.Pages
 @using ShareRazorClassLibrary.Helpers
 @using TozawaNGO.Shared
-@inherits BaseDialog
+@inherits BaseDialog<DescriptionMemberDialog>
+
+<style>
+    .tz-mud-overlay {
+        background: repeating-linear-gradient(135deg, #ccc, #ccc 10px, #aaa 10px, #aaa 20px) !important;
+        opacity: 0.7 !important;
+    }
+
+    .dialog-content {
+        overflow: auto;
+        max-height: 800px;
+    }
+</style>
 
 <MudDialog Class="tzModal">
     <TitleContent>
@@ -10,13 +22,12 @@
         </MudText>
     </TitleContent>
     <DialogContent>
-        <div style="overflow: auto; max-height: 800px;">
-            <MudTextField Margin="Margin.Dense" T="string" Text="@Entity.Description"
-                Label="@(Translate(SystemTextId.Description))" Lines="5" Disabled />
-        </div>
+        <MudTextField Margin="Margin.Dense" T="string" Text="@Entity.Description"
+            Label="@(Translate(SystemTextId.Description))" Lines="5" Disabled />
     </DialogContent>
     <DialogActions>
-        <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled" Color="Color.Primary" OnClick="Cancel">
+        <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled" Color="Color.Primary"
+            OnClick="Cancel">
             <SystemText TextId=SystemTextId.Close FallbackText="Close" />
         </MudButton>
     </DialogActions>

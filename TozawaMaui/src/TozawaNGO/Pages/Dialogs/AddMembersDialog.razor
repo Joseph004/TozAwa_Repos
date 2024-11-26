@@ -1,7 +1,14 @@
 @namespace TozawaNGO.Pages
 @using ShareRazorClassLibrary.Helpers
 @using TozawaNGO.Shared
-@inherits BaseDialog
+@inherits BaseDialog<AddMembersDialog>
+
+<style>
+    .tz-mud-overlay {
+        background: repeating-linear-gradient(135deg, #ccc, #ccc 10px, #aaa 10px, #aaa 20px) !important;
+        opacity: 0.7 !important;
+    }
+</style>
 
 <div style="@($"{_disableAttrString}")">
 <MudDialog Class="@($"tzModal")">
@@ -11,8 +18,7 @@
             </MudText>
     </TitleContent>
     <DialogContent>
-        <MudForm @ref="_addForm" @bind-IsValid="@_success" @bind-Errors="@_errors" Model="@_addFormModel">
-            <MudPaper MaxHeight="1200px" class="overflow-scroll">
+        <MudForm Style="max-height: 1200px; overflow: scroll;" @ref="_addForm" @bind-IsValid="@_success" @bind-Errors="@_errors" Model="@_addFormModel">
                 <div class="d-flex align-center">
                     <MudTextField Immediate="true" Margin="Margin.Dense" T="string" @bind-Value="_addFormModel.FirstName"
                         Label="@(Translate(SystemTextId.FirstName))" Required="true"
@@ -59,8 +65,6 @@
                         Label="@Translate(SystemTextId.Description)" Lines="5" />
                     </div>
                 }
-
-            </MudPaper>
         </MudForm>
     </DialogContent>
     <DialogActions>

@@ -1,5 +1,12 @@
 @namespace TozawaNGO.Shared
-@inherits BaseDialog
+@inherits BaseDialog<ErrorHandlingDialog>
+
+<style>
+    .tz-mud-overlay {
+        background: repeating-linear-gradient(135deg, #ccc, #ccc 10px, #aaa 10px, #aaa 20px) !important;
+        opacity: 0.7 !important;
+    }
+</style>
 
 <MudDialog Class="@MudDialog.Id.ToString()">
     <TitleContent>

@@ -16,6 +16,8 @@ using ShareRazorClassLibrary.Helpers;
 using MudBlazor.Extensions.Options;
 using MudBlazor.Extensions;
 using TozawaNGO.Helpers;
+using Nextended.Core.Extensions;
+using MudBlazor.Extensions.Core;
 
 namespace TozawaNGO.Shared
 {
@@ -190,13 +192,25 @@ namespace TozawaNGO.Shared
                       };
                       var options = new DialogOptionsEx
                       {
-                          Resizeable = true,
+                          BackgroundClass = "tz-mud-overlay",
                           BackdropClick = false,
-                          DragMode = MudDialogDragMode.Simple,
-                          Position = DialogPosition.Center,
                           CloseButton = false,
-                          MaxWidth = MaxWidth.Small
+                          MaxWidth = MaxWidth.Small,
+                          MaximizeButton = true,
+                          FullHeight = false,
+                          FullWidth = true,
+                          DragMode = MudDialogDragMode.Simple,
+                          Animations = [AnimationType.Pulse],
+                          Position = DialogPosition.Center
                       };
+
+                      options.SetProperties(ex => ex.Resizeable = true);
+                      options.DialogAppearance = MudExAppearance.FromStyle(b =>
+                      {
+                          b.WithBackgroundColor("gold")
+                          .WithOpacity(0.9);
+                      });
+
                       var dialog = await DialogService.ShowEx<ExpireModal>("Logout", parameters, options);
                       var result = await dialog.Result;
 

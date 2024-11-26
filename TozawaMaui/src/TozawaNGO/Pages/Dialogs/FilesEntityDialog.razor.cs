@@ -12,10 +12,12 @@ using MudBlazor.Extensions.Options;
 using TozawaNGO.Services;
 using TozawaNGO.Shared;
 using MudBlazor.Extensions;
+using MudBlazor.Extensions.Core;
+using Nextended.Core.Extensions;
 
 namespace TozawaNGO.Pages
 {
-    public partial class FilesEntityDialog : BaseDialog
+    public partial class FilesEntityDialog : BaseDialog<FilesEntityDialog>
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public IAttachmentEntity Entity { get; set; }
@@ -155,13 +157,25 @@ namespace TozawaNGO.Pages
             {
                 var options = new DialogOptionsEx
                 {
-                    Resizeable = true,
+                    BackgroundClass = "tz-mud-overlay",
                     BackdropClick = false,
-                    DragMode = MudDialogDragMode.Simple,
-                    Position = DialogPosition.TopCenter,
                     CloseButton = false,
-                    MaxWidth = MaxWidth.ExtraLarge
+                    MaxWidth = MaxWidth.ExtraLarge,
+                    MaximizeButton = true,
+                    FullHeight = true,
+                    FullWidth = true,
+                    DragMode = MudDialogDragMode.Simple,
+                    Animations = [AnimationType.Pulse],
+                    Position = DialogPosition.Center
                 };
+
+                options.SetProperties(ex => ex.Resizeable = true);
+                options.DialogAppearance = MudExAppearance.FromStyle(b =>
+                {
+                    b.WithBackgroundColor("gold")
+                    .WithOpacity(0.9);
+                });
+
                 var attachments = _attachments.Where(x => FileValidator.IsImage(x.MimeType) || FileValidator.IsPdf(x.MimeType) || (!FileValidator.IsPdf(x.MimeType) && FileValidator.IsValiBytes(x.PdfConvertedContent)));
                 var parameters = new DialogParameters
                 {
@@ -198,13 +212,25 @@ namespace TozawaNGO.Pages
                 {
                     var options = new DialogOptionsEx
                     {
-                        Resizeable = true,
+                        BackgroundClass = "tz-mud-overlay",
                         BackdropClick = false,
-                        DragMode = MudDialogDragMode.Simple,
-                        Position = DialogPosition.TopCenter,
                         CloseButton = false,
-                        MaxWidth = MaxWidth.ExtraLarge
+                        MaxWidth = MaxWidth.ExtraLarge,
+                        MaximizeButton = true,
+                        FullHeight = true,
+                        FullWidth = true,
+                        DragMode = MudDialogDragMode.Simple,
+                        Animations = [AnimationType.Pulse],
+                        Position = DialogPosition.Center
                     };
+
+                    options.SetProperties(ex => ex.Resizeable = true);
+                    options.DialogAppearance = MudExAppearance.FromStyle(b =>
+                    {
+                        b.WithBackgroundColor("gold")
+                        .WithOpacity(0.9);
+                    });
+
                     var attachments = _attachments.Where(x => FileValidator.IsImage(x.MimeType) || FileValidator.IsPdf(x.MimeType) || FileValidator.IsTextplain(x.MimeType));
                     var parameters = new DialogParameters
                     {
@@ -283,8 +309,28 @@ namespace TozawaNGO.Pages
                 ["item"] = attachment,
                 ["title"] = Translate(SystemTextId.Delete)
             };
-            var options = new DialogOptions { CloseOnEscapeKey = true };
-            var dialog = DialogService.Show<DeleteEntityDialog>(Translate(SystemTextId.Delete), parameters);
+            var options = new DialogOptionsEx
+            {
+                BackgroundClass = "tz-mud-overlay",
+                BackdropClick = false,
+                CloseButton = false,
+                MaxWidth = MaxWidth.Small,
+                MaximizeButton = true,
+                FullHeight = false,
+                FullWidth = true,
+                DragMode = MudDialogDragMode.Simple,
+                Animations = [AnimationType.Pulse],
+                Position = DialogPosition.Center
+            };
+
+            options.SetProperties(ex => ex.Resizeable = true);
+            options.DialogAppearance = MudExAppearance.FromStyle(b =>
+            {
+                b.WithBackgroundColor("gold")
+                .WithOpacity(0.9);
+            });
+
+            var dialog = await DialogService.ShowEx<DeleteEntityDialog>(Translate(SystemTextId.Delete), parameters, options);
             var result = await dialog.Result;
 
             if (!result.Canceled)

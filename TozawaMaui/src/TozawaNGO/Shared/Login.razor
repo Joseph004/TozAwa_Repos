@@ -1,9 +1,12 @@
 @namespace TozawaNGO.Shared
 @using ShareRazorClassLibrary.Helpers
 @inject NavigationManager NavManager
-@inherits ComponentBase
+@inherits BaseComponent<Login>
 
-<AuthorizeView>
+
+<ErrorHandling TCategoryName=@typeof(Login) @ref="_errorBoundary">
+    <ChildContent>
+        <AuthorizeView>
     <Authorized>
         <MudMenu TransformOrigin="@Origin.TopLeft" AnchorOrigin="Origin.BottomCenter">
             <ActivatorContent>
@@ -43,3 +46,8 @@
         </MudIconButton>
     </NotAuthorized>
 </AuthorizeView>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>

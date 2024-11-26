@@ -6,7 +6,7 @@ using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared
 {
-    public partial class LanguageSelection : BaseComponent
+    public partial class LanguageSelection : BaseComponent<LanguageSelection>
     {
         [Inject] private AppSettings _appSettings { get; set; }
         [Inject] ISnackbar Snackbar { get; set; }

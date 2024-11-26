@@ -8,7 +8,7 @@ using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared
 {
-    public partial class Footer : BaseComponent
+    public partial class Footer : BaseComponent<Footer>
     {
         [Inject] IJSRuntime JS { get; set; }
         [Inject] FirstloadState FirstloadState { get; set; }

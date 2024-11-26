@@ -5,7 +5,7 @@ using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared
 {
-    public partial class AppBar : BaseComponent
+    public partial class AppBar : BaseComponent<AppBar>
     {
         [Parameter]
         public EventCallback OnSidebarToggled { get; set; }
