@@ -21,7 +21,6 @@ namespace TozawaNGO.Shared
         [Inject] LoadingState LoadingState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] FirstloadState FirstloadState { get; set; }
-        private ErrorBoundary _errorBoundary;
         public DialogOptionsEx Options { get; set; }
 
         protected async override Task OnInitializedAsync()
@@ -30,10 +29,6 @@ namespace TozawaNGO.Shared
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
             await base.OnInitializedAsync();
-        }
-        protected override void OnParametersSet()
-        {
-            _errorBoundary?.Recover();
         }
         private async void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {

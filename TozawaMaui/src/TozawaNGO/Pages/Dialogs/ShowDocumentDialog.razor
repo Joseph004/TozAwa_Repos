@@ -84,9 +84,10 @@
                     </MudText>
                 </TooltipContent>
             </MudTooltip>
-            <MudIconButton Variant="Variant.Filled" Color=Color.Default Disabled="@(_disabledPage)" OnClick="Cancel">
-                <SystemText TextId=SystemTextId.Close FallbackText="Close" />
-            </MudIconButton>
+            <MudButton StartIcon="@Icons.Material.Filled.Close" Disabled="@(_disabledPage)"
+                Color="Color.Default" OnClick="Cancel" Variant="Variant.Filled">
+                <SystemText TextId="@SystemTextId.Close" FallbackText="Close"></SystemText>
+            </MudButton>
         </DialogActions>
     </MudDialog>
 </div>
