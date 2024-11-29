@@ -14,75 +14,82 @@
     }
 </style>
 
-<MudDialog Class=@($"tzModal {MudDialog.Id.ToString()}")>
-    <TitleContent>
-        <MudText Color=Color.Secondary Typo="Typo.h6">
-            @if (item.Deleted)
-            {
-                @if (hardDelete)
+<ErrorHandling TCategoryName=@typeof(DeleteEntityDialog)>
+    <ChildContent>
+        <MudDialog Class=@($"tzModal {MudDialog.Id.ToString()}")>
+            <TitleContent>
+                <MudText Color=Color.Secondary Typo="Typo.h6">
+                    @if (item.Deleted)
+                    {
+                        @if (hardDelete)
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Delete" Class="mr-3 mb-n1" />
+                        }
+                        else
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.AccessTimeFilled" Class="mr-3 mb-n1" />
+                        }
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@Icons.Material.Filled.Delete" Class="mr-3 mb-n1" />
+                    }
+                    <span>@title</span>
+                </MudText>
+            </TitleContent>
+            <DialogContent>
+                <MudText>@body</MudText>
+            </DialogContent>
+            <DialogActions>
+                <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled" OnClick="Cancel">
+                    <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" />
+                </MudButton>
+                @if (item.Deleted)
                 {
-                    <MudIcon Icon="@Icons.Material.Filled.Delete" Class="mr-3 mb-n1" />
+                    @if (hardDelete)
+                    {
+                        <MudButton StartIcon=@Icons.Material.Filled.Delete Color="Color.Error" Variant="Variant.Filled"
+                            OnClick="@(e => Confirm(false, true))">
+                            <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
+                            <SystemText TextId=SystemTextId.Definitively FallbackText="definitively" />
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton StartIcon=@Icons.Material.Filled.AccessTimeFilled Color="Color.Primary"
+                            Variant="Variant.Filled" OnClick="@(e => Confirm(false, false))">
+                            <SystemText TextId=SystemTextId.Restore FallbackText="Restore" />
+                        </MudButton>
+                    }
                 }
                 else
                 {
-                    <MudIcon Icon="@Icons.Material.Filled.AccessTimeFilled" Class="mr-3 mb-n1" />
-                }
-            }
-            else
-            {
-                <MudIcon Icon="@Icons.Material.Filled.Delete" Class="mr-3 mb-n1" />
-            }
-            <span>@title</span>
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-        <MudText>@body</MudText>
-    </DialogContent>
-    <DialogActions>
-        <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled" OnClick="Cancel">
-            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" />
-        </MudButton>
-        @if (item.Deleted)
-        {
-            @if (hardDelete)
-            {
-                <MudButton StartIcon=@Icons.Material.Filled.Delete Color="Color.Error" Variant="Variant.Filled"
-                    OnClick="@(e => Confirm(false, true))">
-                    <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
-                    <SystemText TextId=SystemTextId.Definitively FallbackText="definitively" />
-                </MudButton>
-            }
-            else
-            {
-                <MudButton StartIcon=@Icons.Material.Filled.AccessTimeFilled Color="Color.Primary" Variant="Variant.Filled"
-                    OnClick="@(e => Confirm(false, false))">
-                    <SystemText TextId=SystemTextId.Restore FallbackText="Restore" />
-                </MudButton>
-            }
-        }
-        else
-        {
-            @if (hardDelete)
-            {
-                <MudButton StartIcon=@Icons.Material.Filled.Delete Color="Color.Error" Variant="Variant.Filled"
-                    OnClick="@(e => Confirm(false, true))">
-                    <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
-                </MudButton>
-            }
-            else
-            {
-                <MudButton StartIcon=@Icons.Material.Filled.AccessTimeFilled Color="Color.Primary" Variant="Variant.Filled"
-                    OnClick="@(e => Confirm(true, false))">
-                    <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
-                    <SystemText TextId=SystemTextId.Temporarily FallbackText="temporarily" />
-                </MudButton>
+                    @if (hardDelete)
+                    {
+                        <MudButton StartIcon=@Icons.Material.Filled.Delete Color="Color.Error" Variant="Variant.Filled"
+                            OnClick="@(e => Confirm(false, true))">
+                            <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
+                        </MudButton>
+                    }
+                    else
+                    {
+                        <MudButton StartIcon=@Icons.Material.Filled.AccessTimeFilled Color="Color.Primary"
+                            Variant="Variant.Filled" OnClick="@(e => Confirm(true, false))">
+                            <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
+                            <SystemText TextId=SystemTextId.Temporarily FallbackText="temporarily" />
+                        </MudButton>
 
-                <MudButton StartIcon=@Icons.Material.Filled.Delete Color="Color.Error" Variant="Variant.Filled"
-                    OnClick="@(e => Confirm(false, true))">
-                    <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
-                    <SystemText TextId=SystemTextId.Definitively FallbackText="definitively" />
-                </MudButton>
-            }
-        }
-    </DialogActions>
-</MudDialog>
+                        <MudButton StartIcon=@Icons.Material.Filled.Delete Color="Color.Error" Variant="Variant.Filled"
+                            OnClick="@(e => Confirm(false, true))">
+                            <SystemText TextId=SystemTextId.Delete FallbackText="Delete" />
+                            <SystemText TextId=SystemTextId.Definitively FallbackText="definitively" />
+                        </MudButton>
+                    }
+                }
+            </DialogActions>
+        </MudDialog>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>

@@ -146,11 +146,6 @@ namespace TozawaNGO.Pages
             scrollTop = scroll;
             Dispatcher.Dispatch(new MemberDataAction(_page, _pageSize, _searchString, _includeDeleted, MemberState.Value.PageOfEmail, MemberState.Value.Email, scrollTop, LoadingState, JSRuntime));
         }
-        private bool DisabledEditRow()
-        {
-            var entity = _selectedItem ?? new MemberDto();
-            return entity.Deleted;
-        }
         private void UpdateMemberAttachments()
         {
             ReloadData();
@@ -325,6 +320,8 @@ namespace TozawaNGO.Pages
         }
         private async Task ToggleEdit(MemberDto member)
         {
+            if (member.Deleted) return;
+
             var options = new DialogOptionsEx
             {
                 BackgroundClass = "tz-mud-overlay",

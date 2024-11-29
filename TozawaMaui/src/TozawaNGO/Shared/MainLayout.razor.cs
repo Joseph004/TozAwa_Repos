@@ -116,8 +116,8 @@ namespace TozawaNGO.Shared
                 _firstLoaded = true;
                 StateHasChanged();
                 await LogoutIfUserExipired();
+                await base.OnAfterRenderAsync(firstRender);
             }
-            await base.OnAfterRenderAsync(firstRender);
         }
         private async Task LogoutIfUserExipired()
         {

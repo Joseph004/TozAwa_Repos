@@ -10,8 +10,10 @@
     }
 </style>
 
-<div style="@($"{_disableAttrString}")">
-<MudDialog Class="@($"tzModal")">
+<ErrorHandling  TCategoryName=@typeof(AddMembersDialog)>
+    <ChildContent>
+        <div style="@($"{_disableAttrString}")">
+ <MudDialog Class="@($"tzModal")">
     <TitleContent>
             <MudText Color=Color.Secondary>
                 @Title
@@ -81,6 +83,12 @@
     </DialogActions>
 </MudDialog>
 </div>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>
+
 
 @if (_RequestInProgress)
 {

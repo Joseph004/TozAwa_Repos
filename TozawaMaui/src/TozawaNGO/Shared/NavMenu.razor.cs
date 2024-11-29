@@ -50,8 +50,8 @@ namespace TozawaNGO.Shared
                 }
                 _currentUser = await _currentUserService.GetCurrentUser();
                 await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.1))).ContinueWith(o => { FirstloadState.SetFirsLoad(true); });
+                await base.OnAfterRenderAsync(firstRender);
             }
-            await base.OnAfterRenderAsync(firstRender);
         }
         private async Task OnClickTab(string link)
         {

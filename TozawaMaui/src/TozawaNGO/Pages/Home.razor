@@ -5,9 +5,9 @@
 
 <PageTitle>Home</PageTitle>
 
-<ShareRazorClassLibrary.Component1 />
-
-<div class="homecontainer">
+<ErrorHandling TCategoryName=@typeof(Home)>
+  <ChildContent>
+    <div class="homecontainer">
   <div class="homeDiv">
     <h1>Hello, world!</h1>
 
@@ -889,3 +889,10 @@
 
   </div>
 </div>
+  </ChildContent>
+  <ErrorContent Context="ex">
+    @string.Empty
+  </ErrorContent>
+</ErrorHandling>
+<ShareRazorClassLibrary.Component1 />
+

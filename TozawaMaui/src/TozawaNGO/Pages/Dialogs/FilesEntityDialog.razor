@@ -20,7 +20,9 @@
     }
 </style>
 
-<div style="@($"{_disableAttrString}")">
+<ErrorHandling  TCategoryName=@typeof(FilesEntityDialog)>
+    <ChildContent>
+        <div style="@($"{_disableAttrString}")">
     <MudDialog Class="@($"tzModal")">
         <TitleContent>
             <MudText Color=Color.Secondary>
@@ -179,6 +181,11 @@
         </DialogActions>
     </MudDialog>
 </div>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>
 
 @if (_RequestInProgress)
 {

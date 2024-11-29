@@ -3,7 +3,9 @@
 
 html,
 body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: "lato, sans-serif";
+    letter-spacing: 2px;
+    font-size: 15px;
     max-height: 100vh;
     height: 100vh;
 }

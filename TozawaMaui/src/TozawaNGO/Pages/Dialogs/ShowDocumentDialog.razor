@@ -11,7 +11,9 @@
     }
 </style>
 
-<div style="@($"{_disableAttrString}")">
+<ErrorHandling TCategoryName=@typeof(ShowDocumentDialog)>
+    <ChildContent>
+      <div style="@($"{_disableAttrString}")">
     <MudDialog Class="@($"tzModal")">
         <TitleContent>
             <div class="d-flex flex-row flex-grow-1 gap-4">
@@ -84,13 +86,19 @@
                     </MudText>
                 </TooltipContent>
             </MudTooltip>
-            <MudButton StartIcon="@Icons.Material.Filled.Close" Disabled="@(_disabledPage)"
-                Color="Color.Default" OnClick="Cancel" Variant="Variant.Filled">
+            <MudButton StartIcon="@Icons.Material.Filled.Close" Disabled="@(_disabledPage)" Color="Color.Default"
+                OnClick="Cancel" Variant="Variant.Filled">
                 <SystemText TextId="@SystemTextId.Close" FallbackText="Close"></SystemText>
             </MudButton>
         </DialogActions>
     </MudDialog>
-</div>
+</div>  
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>
+
 
 <script>
     window.SetSource = async (elementId, stream, contentType, title, isImage) => {

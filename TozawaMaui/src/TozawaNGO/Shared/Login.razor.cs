@@ -7,9 +7,7 @@ using ShareRazorClassLibrary.Services;
 using MudBlazor.Extensions.Options;
 using MudBlazor.Extensions;
 using MudBlazor.Extensions.Core;
-using MudBlazor.Extensions.Helper;
 using Nextended.Core.Extensions;
-using Microsoft.AspNetCore.Components.Web;
 
 namespace TozawaNGO.Shared
 {
@@ -67,8 +65,6 @@ namespace TozawaNGO.Shared
                 b.WithBackgroundColor("gold")
                 .WithOpacity(0.9);
             });
-            Options.DialogBackgroundAppearance = MudExAppearance.FromCss(MudExCss.Classes.Backgrounds.EmptyIndicator)
-                .WithStyle(b => b.WithOpacity(0.5));
         }
         private async Task LoginBtn()
         {
@@ -120,10 +116,11 @@ namespace TozawaNGO.Shared
             }
             await base.OnAfterRenderAsync(firstRender);
         }
-        public virtual void Dispose()
+        protected override void Dispose(bool disposed)
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
+            base.Dispose(disposed);
         }
     }
 }

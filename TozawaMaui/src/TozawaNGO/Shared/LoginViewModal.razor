@@ -10,15 +10,15 @@
     }
 </style>
 
-<MudDialog Class="tzModal">
-    <TitleContent>
-        <div style="max-width: fit-content; margin-left: auto; margin-right: auto;">
-            <img src="/images/avatarprofile.png" asp-append-version="true" height="60px" width="60px" />
-        </div>
-    </TitleContent>
-    <DialogContent>
-        <ErrorBoundary>
-            <ChildContent>
+<ErrorHandling TCategoryName=@typeof(LoginViewModal)>
+    <ChildContent>
+        <MudDialog Class="tzModal">
+            <TitleContent>
+                <div style="max-width: fit-content; margin-left: auto; margin-right: auto;">
+                    <img src="/images/avatarprofile.png" asp-append-version="true" height="60px" width="60px" />
+                </div>
+            </TitleContent>
+            <DialogContent>
                 <MudForm Model="@model" @ref="@form" @bind-IsValid="@_success" @bind-Errors="@_errors"
                     ValidationDelay="0">
                     <MudCardContent>
@@ -46,24 +46,25 @@
                             "Password")) InputType="InputType.Password" />
                     </MudCardContent>
                 </MudForm>
-            </ChildContent>
-            <ErrorContent>
-                Sorry, I can't show because of an internal error.
-            </ErrorContent>
-        </ErrorBoundary>
-    </DialogContent>
-    <DialogActions>
-        <div class="d-flex flex-row-reverse flex-grow-1 gap-4">
-            <MudButton Color="Color.Success" StartIcon="@Icons.Material.Filled.Login" Disabled="@DisabledLoginButton()"
-                OnClick="@((MouseEventArgs e)=>LoginByClick(@loginButton, e))" Variant="Variant.Filled" Target="_top">
-                <MudText>
-                    <SystemText TextId=SystemTextId.Login FallbackText="Login"></SystemText>
-                </MudText>
-            </MudButton>
-            <MudButton StartIcon="@Icons.Material.Filled.Close" Disabled="@_processing" Color="Color.Primary"
-                Variant="Variant.Filled" OnClick="Cancel">
-                <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel"></SystemText>
-            </MudButton>
-        </div>
-    </DialogActions>
-</MudDialog>
+            </DialogContent>
+            <DialogActions>
+                <div class="d-flex flex-row-reverse flex-grow-1 gap-4">
+                    <MudButton Color="Color.Success" StartIcon="@Icons.Material.Filled.Login"
+                        Disabled="@DisabledLoginButton()" OnClick="@((MouseEventArgs e)=>LoginByClick(@loginButton, e))"
+                        Variant="Variant.Filled" Target="_top">
+                        <MudText>
+                            <SystemText TextId=SystemTextId.Login FallbackText="Login"></SystemText>
+                        </MudText>
+                    </MudButton>
+                    <MudButton StartIcon="@Icons.Material.Filled.Close" Disabled="@_processing" Color="Color.Primary"
+                        Variant="Variant.Filled" OnClick="Cancel">
+                        <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel"></SystemText>
+                    </MudButton>
+                </div>
+            </DialogActions>
+        </MudDialog>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>

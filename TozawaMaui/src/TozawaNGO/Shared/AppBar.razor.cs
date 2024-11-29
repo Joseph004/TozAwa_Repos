@@ -84,8 +84,8 @@ namespace TozawaNGO.Shared
                         FirstloadState.SetFirsLoad(true);
                     });
                 });
+                await base.OnAfterRenderAsync(firstRender);
             }
-            await base.OnAfterRenderAsync(firstRender);
         }
         protected override void Dispose(bool disposed)
         {

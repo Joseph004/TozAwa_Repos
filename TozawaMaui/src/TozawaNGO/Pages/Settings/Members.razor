@@ -81,7 +81,9 @@
 @using TozawaNGO.Shared
 @inherits BasePage
 
-@if (MemberState.Value.IsLoading || MemberState.Value.Members.Count == 0)
+<ErrorHandling  TCategoryName=@typeof(Members)>
+    <ChildContent>
+        @if (MemberState.Value.IsLoading || MemberState.Value.Members.Count == 0)
 {
  SetLoading();
 }
@@ -186,7 +188,7 @@ else
             </MudTd>
             <MudTd DataLabel="@(GetLabel(SystemTextId.Update, "Edit"))">
                 <div @onclick:stopPropagation="true" @onclick:preventDefault="true">
-                    <MudIconButton Disabled="@DisabledEditRow()" Icon="@(Icons.Material.Filled.Edit)" @onclick="@(e => ToggleEdit(context))" Color=@(Color.Default)></MudIconButton>
+                    <MudIconButton Disabled="@context.Deleted" Icon="@(Icons.Material.Filled.Edit)" @onclick="@(e => ToggleEdit(context))" Color=@(Color.Default)></MudIconButton>
                 </div>
             </MudTd>
             <MudTd DataLabel="@(GetLabel(SystemTextId.Delete, "Delete"))">
@@ -228,4 +230,9 @@ else
         Label="@(Translate(SystemTextId.ShowDeletedItems))" />
     </div>
 }
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>
 
