@@ -8,6 +8,7 @@ namespace TozawaNGO.Shared
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
+        [Inject] NavigationManager NavManager { get; set; }
         [Parameter] public string title { get; set; }
         [Parameter] public string body { get; set; }
 
@@ -17,6 +18,10 @@ namespace TozawaNGO.Shared
         }
         protected override void OnInitialized()
         {
+        }
+        private void Reload()
+        {
+            NavManager.NavigateTo(NavManager.Uri, true);
         }
         private void Confirm()
         {

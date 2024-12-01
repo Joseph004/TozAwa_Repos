@@ -46,6 +46,7 @@ public class StartupService(IServiceProvider services) : IHostedService
 
         foreach (var memberItem in items)
         {
+            var attachmentsCount = await context.FileAttachments.Include(t => t.Owners).CountAsync(x => x.Owners.Any(y => y.OwnerId == memberItem.UserId));
             var item = new MemberItem(
         memberItem.UserId,
       memberItem.PartnerId,
@@ -74,6 +75,7 @@ public class StartupService(IServiceProvider services) : IHostedService
       memberItem.StationIds,
       memberItem.Email,
       memberItem.PasswordHash,
+      attachmentsCount,
       SystemTextId.MemberOwnerId
             );
             await factory.GetGrain<IMemberGrain>(item.UserId).ActivateAsync(item);
@@ -98,11 +100,11 @@ public class StartupService(IServiceProvider services) : IHostedService
 
         foreach (var item in items)
         {
-            var thumbnail = string.Empty; 
+            var thumbnail = string.Empty;
             var miniatureBlobUrl = string.Empty;
 
             if (!string.IsNullOrEmpty(item.MiniatureId) && item.Owners.Count > 0)
-            {
+            { 
                 var stream = await googleService.StreamFromGoogleFileByFolder(item.Owners.Select(x => x.OwnerId).First().ToString(), item.MiniatureId);
                 var bytes = FileUtil.ReadAllBytesFromStream(stream);
                 if (bytes != null)

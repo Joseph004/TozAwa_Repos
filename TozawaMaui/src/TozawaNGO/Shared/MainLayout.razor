@@ -18,24 +18,22 @@
 
             <NavMenu @bind-SideBarOpen="_sidebarOpen" />
 
-            <MudMainContent id="tzMainContainer" Class="@_containerPaddingClass">
-                <MudContainer Style="display: flex !important; flex-direction: column;font-size: 15px;font-family: lato, sans-serif; letter-spacing: 2px;" Class="mt-3 d-flex">
-                    <ErrorBoundary @ref="_errorBoundary">
-                        <ChildContent>
+            <ErrorHandling TCategoryName="@typeof(MainLayout)">
+                <ChildContent>
+                    <MudMainContent id="tzMainContainer" Class="@_containerPaddingClass">
+                        <MudContainer
+                            Style="display: flex !important; flex-direction: column;font-size: 15px;font-family: lato, sans-serif; letter-spacing: 2px;"
+                            Class="mt-3 d-flex">
                             @Body
-                        </ChildContent>
-                        <ErrorContent Context="ex">
-                            <MudPaper Class="pa-4" Style="@($"background: var(--mud-palette-error);")">
-                                <MudText>
-                                    @OnError(@ex);
-                                </MudText>
-                            </MudPaper>
-                        </ErrorContent>
-                    </ErrorBoundary>
-                    <Footer></Footer>
-                </MudContainer>
-            </MudMainContent>
-            <ScrollToTop></ScrollToTop>
+                            <Footer></Footer>
+                        </MudContainer>
+                    </MudMainContent>
+                    <ScrollToTop></ScrollToTop>
+                </ChildContent>
+                <ErrorContent Context="ex">
+                    @string.Empty
+                </ErrorContent>
+            </ErrorHandling>
         }
     </LoadingScreen>
 </MudLayout>

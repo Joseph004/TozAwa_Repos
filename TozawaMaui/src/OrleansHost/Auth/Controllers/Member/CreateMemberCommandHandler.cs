@@ -100,6 +100,7 @@ namespace Grains.Auth.Controllers
       newuser.StationIds,
       newuser.Email,
       newuser.PasswordHash,
+      0,
       SystemTextId.MemberOwnerId
             );
             await _factory.GetGrain<IMemberGrain>(newuser.UserId).SetAsync(item);

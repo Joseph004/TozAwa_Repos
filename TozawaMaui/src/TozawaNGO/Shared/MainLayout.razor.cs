@@ -18,6 +18,7 @@ using MudBlazor.Extensions;
 using TozawaNGO.Helpers;
 using Nextended.Core.Extensions;
 using MudBlazor.Extensions.Core;
+using ShareRazorClassLibrary.Models.Dtos;
 
 namespace TozawaNGO.Shared
 {
@@ -32,6 +33,7 @@ namespace TozawaNGO.Shared
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
         [Inject] ILocalStorageService _localStorageService { get; set; }
+        [Inject] AuthenticationService AuthenticationService { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
         public string _loginUrl { get; set; } = $"";
         private string _containerPaddingClass { get; set; } = "pt-16 px-16 flex-1 d-flex";
@@ -85,25 +87,27 @@ namespace TozawaNGO.Shared
         {
             if (firstRender)
             {
-                if (await _localStorageService.ContainKeyAsync("auth_token") && await
-                                _localStorageService.ContainKeyAsync("auth_refreshtoken"))
+                var userResponse = new LoginResponseDto();
+                if (await _localStorageService.ContainKeyAsync("auth_loggedIn"))
                 {
-                    var token = EncryptDecrypt.Decrypt(await _localStorageService.GetItemAsync<byte[]>("auth_token"),
+                    var idBytes = EncryptDecrypt.Decrypt(await _localStorageService.GetItemAsync<byte[]>("auth_loggedIn"),
                     "PG=?1PowK<ai57:t%`Ro}L9~1q2&-i/H", "HK2nvSMadZRDeTbB");
-                    var refreshToken = EncryptDecrypt.Decrypt(await _localStorageService.GetItemAsync<byte[]>("auth_refreshtoken"),
-                    "PG??1PowK>oy9b:t%`Ro}L9~1q2&-i'R", "NQ2nvSMadFJDeTxW");
-                    if (!string.IsNullOrEmpty(Encoding.UTF8.GetString(token)) &&
-                    !string.IsNullOrEmpty(Encoding.UTF8.GetString(refreshToken)))
+                    if (!string.IsNullOrEmpty(Encoding.UTF8.GetString(idBytes)))
                     {
-                        if (((AuthStateProvider)_authStateProvider).ValidateCurrentToken(Encoding.UTF8.GetString(token)))
+                        var response = await AuthenticationService.GetLoggedIn(Guid.Parse(Encoding.UTF8.GetString(idBytes)));
+                        if (response.Success && response.Entity != null)
                         {
-                            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, Encoding.UTF8.GetString(token),
-                            Encoding.UTF8.GetString(refreshToken));
-                            await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(Encoding.UTF8.GetString(token), Encoding.UTF8.GetString(refreshToken));
-                        }
-                        else
-                        {
-                            await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
+                            userResponse = response.Entity;
+                            if (((AuthStateProvider)_authStateProvider).ValidateCurrentToken(response.Entity.Token))
+                            {
+                                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, response.Entity.Token,
+                                response.Entity.RefreshToken);
+                                await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(response.Entity.Token, response.Entity.RefreshToken);
+                            }
+                            else
+                            {
+                                await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
+                            }
                         }
                     }
                 }
@@ -115,22 +119,17 @@ namespace TozawaNGO.Shared
                 _timer.Start();
                 _firstLoaded = true;
                 StateHasChanged();
-                await LogoutIfUserExipired();
+                await LogoutIfUserExipired(userResponse);
                 await base.OnAfterRenderAsync(firstRender);
             }
         }
-        private async Task LogoutIfUserExipired()
+        private async Task LogoutIfUserExipired(LoginResponseDto loginResponse)
         {
             var auth = await _authStateProvider.GetAuthenticationStateAsync();
 
             if (auth.User.Identity != null && auth.User.Identity.IsAuthenticated)
             {
-                var token = EncryptDecrypt.Decrypt(await _localStorageService.GetItemAsync<byte[]>("auth_token"),
-                    "PG=?1PowK<ai57:t%`Ro}L9~1q2&-i/H", "HK2nvSMadZRDeTbB");
-                var refreshToken = EncryptDecrypt.Decrypt(await _localStorageService.GetItemAsync<byte[]>("auth_refreshtoken"),
-                "PG??1PowK>oy9b:t%`Ro}L9~1q2&-i'R", "NQ2nvSMadFJDeTxW");
-
-                if (!string.IsNullOrEmpty(Encoding.UTF8.GetString(token)) && !string.IsNullOrEmpty(Encoding.UTF8.GetString(refreshToken)) && !ValidateCurrentToken(Encoding.UTF8.GetString(token)))
+                if (!string.IsNullOrEmpty(loginResponse.Token) && !string.IsNullOrEmpty(loginResponse.RefreshToken) && !ValidateCurrentToken(loginResponse.Token))
                 {
                     var exp = auth.User.Claims.First(x => x.Type == "logoutexpat").Value;
                     var year = Convert.ToInt32(exp.Split("/")[2].Split(":")[0].Split(" ")[0]);
@@ -223,6 +222,8 @@ namespace TozawaNGO.Shared
         }
         private async Task Logout()
         {
+            var user = await ((AuthStateProvider)_authStateProvider).GetUserFromToken();
+            await AuthenticationService.PostLogout(user.Id);
             await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
         }
         private void RefreshTimer(EventArgs e)

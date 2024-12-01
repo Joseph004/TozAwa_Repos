@@ -30,7 +30,11 @@ namespace TozawaNGO.Pages
         private AttachmentType _attachmentType { get; set; } = AttachmentType.Intern;
         protected static Guid _areYouSureTranslation = Guid.Parse("c41187b6-6dc7-4e9a-a403-4982b34f21f8");
         protected int _thumbnailSize = 24;
-        private bool _onProgress;
+        protected int[] _pageSizeOptions = [20, 50, 100];
+        protected int _page = 0;
+        protected int _pageSize = 20;
+        private IEnumerable<FileAttachmentDto> pagedData;
+        private MudTable<FileAttachmentDto> _table;
         private readonly List<IBrowserFile> _files = [];
         private readonly List<(byte[], string, string)> _filesToSend = [];
         private string _alphaNumericFileNameValidationMessage;
@@ -39,7 +43,7 @@ namespace TozawaNGO.Pages
         private string _error = "";
         private string _searchString = null;
         private bool _RequestInProgress = false;
-        private List<FileAttachmentDto> _attachments = [];
+        private int _totalItems;
         private FileAttachmentDto _selectedItem;
 
         protected void Add() => MudDialog.Close(DialogResult.Ok(Entity));
@@ -65,8 +69,6 @@ namespace TozawaNGO.Pages
             _alphaNumericFileNameValidationMessage = _translationService.Translate(SystemTextId.PleaseUsevalidFileName, "The file name should be alpha numeric").Text;
             _fileNameLengthValidationMessage = _translationService.Translate(SystemTextId.PleaseUseNormalFileNameLength, "Please the file name is too large, use max 255 characters as recommanded").Text;
             _fileTypeValidationMessage = _translationService.Translate(SystemTextId.PleaseUseValidAllowedFiles, "the file type is not valid, only images pdf word textfile and excel are allowed").Text;
-
-            LoadData();
         }
         private string GetLabel(Guid labelId, string label)
         {
@@ -108,28 +110,41 @@ namespace TozawaNGO.Pages
 
             return true;
         }
-        private static Func<FileAttachmentDto, bool> Filtered(string searchString) => x =>
-                                                                              (!string.IsNullOrEmpty(x.Name) && x.Name.Contains(searchString, StringComparison.InvariantCultureIgnoreCase)) ||
-                                                                               (!string.IsNullOrEmpty(x.FileAttachmentType) && x.FileAttachmentType.Contains(searchString, StringComparison.InvariantCultureIgnoreCase)) ||
-                                                                               (!string.IsNullOrEmpty(x.Size.ToString()) && x.Size.ToString().Contains(searchString, StringComparison.InvariantCultureIgnoreCase));
-
-        private void LoadData()
+        private Func<FileAttachmentDto, int, string> _disableRowClick => (x, i) =>
         {
-            if (!string.IsNullOrEmpty(_searchString))
+            string style = string.Empty;
+            //condition for the row to be disabled
+            if (_RequestInProgress)
             {
-                _attachments = (Entity.Attachments ?? []).Where(Filtered(_searchString)).ToList();
+                style += "pointer-events: none;";
             }
-            else
+
+            return style;
+        };
+        private async Task<TableData<FileAttachmentDto>> ServerReload(TableState state, CancellationToken token)
+        {
+            _RequestInProgress = true;
+            DisabledPage();
+            _page = state.Page;
+            _pageSize = state.PageSize;
+            var response = await AttachmentService.GetAttachments(new ShareRazorClassLibrary.Models.Requests.GetAttachments
             {
-                _attachments = (Entity.Attachments ?? []).Select(x => (FileAttachmentDto)x.Clone()).ToList();
-            }
-            StateHasChanged();
+                SearchString = _searchString,
+                OwnerId = Entity.Id,
+                Page = _page,
+                PageSize = _pageSize
+            });
+            var items = response.Entity.Items ?? [];
+            _totalItems = response.Entity.TotalItems;
+            pagedData = items;
+            _RequestInProgress = false;
+            DisabledPage();
+            return new TableData<FileAttachmentDto>() { TotalItems = _totalItems, Items = pagedData };
         }
-        protected void OnSearch(string text)
+        protected async Task OnSearch(string text)
         {
             _searchString = text;
-
-            _attachments = Entity.Attachments.Where(Filtered(_searchString)).ToList();
+            await _table.ReloadServerData();
             StateHasChanged();
         }
         protected string GetFileTypeIcon(FileAttachmentDto attachment) =>
@@ -148,7 +163,7 @@ namespace TozawaNGO.Pages
             showOptionButtonToPdf = !showOptionButtonToPdf;
             var item = await GetAttachmentDownloadDto(attachment);
             _RequestInProgress = true;
-            _onProgress = true;
+            DisabledPage();
             var converted = await AttachmentService.ConvertToPdf(item.Content, item.MineType);
             attachment.PdfConvertedContent = converted;
             item.PdfConvertedContent = converted;
@@ -176,14 +191,14 @@ namespace TozawaNGO.Pages
                     .WithOpacity(0.9);
                 });
 
-                var attachments = _attachments.Where(x => FileValidator.IsImage(x.MimeType) || FileValidator.IsPdf(x.MimeType) || (!FileValidator.IsPdf(x.MimeType) && FileValidator.IsValiBytes(x.PdfConvertedContent)));
+                var attachments = pagedData.Where(x => FileValidator.IsImage(x.MimeType) || FileValidator.IsPdf(x.MimeType) || (!FileValidator.IsPdf(x.MimeType) && FileValidator.IsValiBytes(x.PdfConvertedContent)));
                 var parameters = new DialogParameters
                 {
                     ["Attachment"] = new Dictionary<Guid, AttachmentDownloadDto> { { attachment.Id, item } },
                     ["Attachments"] = attachments
                 };
-                _onProgress = false;
                 _RequestInProgress = false;
+                DisabledPage();
                 var dialog = await DialogService.ShowEx<ShowDocumentDialog>($"{name}", parameters, options);
                 var result = await dialog.Result;
             }
@@ -195,8 +210,8 @@ namespace TozawaNGO.Pages
                 }
             }
             showSelect.Add(attachment.Id, showOptionButtonToPdf);
-            _onProgress = false;
             _RequestInProgress = false;
+            DisabledPage();
             MudDialog.StateHasChanged();
         }
         private async Task ShowDocumentInFrame(FileAttachmentDto attachment)
@@ -231,7 +246,7 @@ namespace TozawaNGO.Pages
                         .WithOpacity(0.9);
                     });
 
-                    var attachments = _attachments.Where(x => FileValidator.IsImage(x.MimeType) || FileValidator.IsPdf(x.MimeType) || FileValidator.IsTextplain(x.MimeType));
+                    var attachments = pagedData.Where(x => FileValidator.IsImage(x.MimeType) || FileValidator.IsPdf(x.MimeType) || FileValidator.IsTextplain(x.MimeType));
                     var parameters = new DialogParameters
                     {
                         ["Attachment"] = new Dictionary<Guid, AttachmentDownloadDto> { { attachment.Id, item } },
@@ -258,8 +273,8 @@ namespace TozawaNGO.Pages
         private async Task<AttachmentDownloadDto> GetAttachmentDownloadDto(FileAttachmentDto attachment)
         {
             AttachmentDownloadDto item = new();
-            _onProgress = true;
             _RequestInProgress = true;
+            DisabledPage();
 
             if (FileValidator.IsValiBytes(attachment.Content))
             {
@@ -284,7 +299,7 @@ namespace TozawaNGO.Pages
                 }
             }
             _RequestInProgress = false;
-            _onProgress = false;
+            DisabledPage();
             return item;
         }
         private async void Download(FileAttachmentDto attachment)
@@ -298,7 +313,7 @@ namespace TozawaNGO.Pages
         }
         private bool DisabledUploadFiles()
         {
-            return Entity.Deleted || !HasPermission || _onProgress;
+            return Entity.Deleted || !HasPermission || _RequestInProgress;
         }
         private async void Delete(FileAttachmentDto attachment)
         {
@@ -336,7 +351,7 @@ namespace TozawaNGO.Pages
             if (!result.Canceled)
             {
                 _RequestInProgress = true;
-                _onProgress = true;
+                DisabledPage();
                 MudDialog.StateHasChanged();
 
                 var deleteResponse = await AttachmentService.AttachmentDelete(attachment.Id, Entity.Id, Guid.Parse(attachment.BlobId), Source);
@@ -356,8 +371,8 @@ namespace TozawaNGO.Pages
                     Snackbar.Add(deleteResponse.Message, Severity.Error);
                 }
                 _RequestInProgress = false;
-                _onProgress = false;
-                LoadData();
+                DisabledPage();
+                await _table.ReloadServerData();
                 MudDialog.StateHasChanged();
             }
         }
@@ -376,14 +391,14 @@ namespace TozawaNGO.Pages
                     return;
                 }
                 _RequestInProgress = true;
-                _onProgress = true;
+                DisabledPage();
                 MudDialog.StateHasChanged();
                 foreach (var file in e.GetMultipleFiles())
                 {
                     if (!IsValideFile(file))
                     {
                         _RequestInProgress = false;
-                        _onProgress = false;
+                        DisabledPage();
                         return;
                     }
 
@@ -413,7 +428,7 @@ namespace TozawaNGO.Pages
                         _error = $"{Translate(SystemTextId.FileName, "Filename")} {file.Name.ToUpper()} {Translate(SystemTextId.AlreadyExists, "already exist")} : {Translate(SystemTextId.Name, "Name")}";
                         showAlert = true;
                         _RequestInProgress = false;
-                        _onProgress = false;
+                        DisabledPage();
                         MudDialog.StateHasChanged();
 
                         return;
@@ -458,8 +473,8 @@ namespace TozawaNGO.Pages
                     }
                 }
                 _RequestInProgress = false;
-                _onProgress = false;
-                LoadData();
+                DisabledPage();
+                await _table.ReloadServerData();
                 MudDialog.StateHasChanged();
             }
             catch (Exception)

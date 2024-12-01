@@ -133,7 +133,7 @@ public class Effects(MemberService memberService, AttachmentService attachmentSe
                 {
                     return;
                 }
-                attachments = attachResponse.Entity ?? [];
+                attachments = attachResponse.Entity.Items?.ToList() ?? [];
             }
 
             dispatcher.Dispatch(new HandleAttachments(attachments, action.OwnerId, action.IsDeleted));

@@ -19,6 +19,7 @@ namespace TozawaNGO.Shared
         [Inject] LoadingState LoadingState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] FirstloadState FirstloadState { get; set; }
+        [Inject] AuthenticationService AuthenticationService { get; set; }
         public DialogOptionsEx Options { get; set; }
 
         protected async override Task OnInitializedAsync()
@@ -92,10 +93,12 @@ namespace TozawaNGO.Shared
                 }
             }
         }
-        private void Logout()
-        {
+        private async Task Logout()
+        {    
+            var user = await ((AuthStateProvider)_authStateProvider).GetUserFromToken();
+            await AuthenticationService.PostLogout(user.Id);
             ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null);
-            ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
+            await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
         }
         private async Task Register()
         {

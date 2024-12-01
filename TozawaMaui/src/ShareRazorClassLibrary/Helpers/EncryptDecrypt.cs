@@ -60,7 +60,7 @@ public static class EncryptDecrypt
     }
 
     public static byte[] Decrypt(byte[] cipherBytes, string key, string ivStr)
-    {
+    { 
         var iv = Encoding.UTF8.GetBytes(ivStr);
         byte[] keyBytes = null;
         using (SHA256 mySHA256 = SHA256.Create())

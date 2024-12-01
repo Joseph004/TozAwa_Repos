@@ -118,7 +118,7 @@ namespace Grains.Auth.Controllers
             request.PatchModel.ApplyTo(member);
 
             _context.SaveChanges();
-
+            var attachmentsCount = await context.FileAttachments.Include(t => t.Owners).CountAsync(x => x.Owners.Any(y => y.OwnerId == member.UserId), cancellationToken);
             var item = new MemberItem(
                 member.UserId,
       member.PartnerId,
@@ -147,9 +147,11 @@ namespace Grains.Auth.Controllers
       member.StationIds,
       member.Email,
       member.PasswordHash,
+      attachmentsCount,
       SystemTextId.MemberOwnerId
             );
             var memberDto = MemberConverter.Convert(member);
+            memberDto.AttachmentsCount = attachmentsCount;
             await _factory.GetGrain<IMemberGrain>(member.UserId).SetAsync(item);
             await _hub.Clients.All.SendAsync("MemberUpdated", member.UserId, false, cancellationToken: cancellationToken);
 

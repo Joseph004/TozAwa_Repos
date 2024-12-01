@@ -13,6 +13,6 @@ namespace ShareRazorClassLibrary.Services
 			IsFirstLoaded = isFirstLoaded;
 			NotifyStateChanged();
 		}
-		private void NotifyStateChanged() => OnChange.Invoke();
+		private void NotifyStateChanged() => OnChange?.Invoke();
 	}
 }

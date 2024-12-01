@@ -43,7 +43,7 @@ namespace OrleansHost.Auth.Models.Queries
             }
 
             _context.SaveChanges();
-
+            var attachmentsCount = await context.FileAttachments.Include(t => t.Owners).CountAsync(x => x.Owners.Any(y => y.OwnerId == user.UserId));
             await _factory.GetGrain<IMemberGrain>(user.UserId).SetAsync(new MemberItem(
                 user.UserId,
       user.PartnerId,
@@ -72,6 +72,7 @@ namespace OrleansHost.Auth.Models.Queries
       user.StationIds,
       user.Email,
       user.PasswordHash,
+      attachmentsCount,
       SystemTextId.MemberOwnerId
             ));
 

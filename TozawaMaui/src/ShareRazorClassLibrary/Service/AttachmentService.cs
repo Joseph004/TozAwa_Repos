@@ -1,5 +1,6 @@
 using System.Net;
 using Blazored.SessionStorage;
+using MudBlazor;
 using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.HttpClients;
 using ShareRazorClassLibrary.Models.Dtos;
@@ -27,7 +28,7 @@ public class AttachmentService(ITozAwaBffHttpClient client, ISessionStorageServi
     }
     private void NotifyStateChanged() => OnChange.Invoke();
 
-    public async Task<AddResponse<List<FileAttachmentDto>>> GetAttachments(GetAttachments request) => await _client.SendPost02<List<FileAttachmentDto>>($"{_baseUriPath}", request);
+    public async Task<AddResponse<TableData<FileAttachmentDto>>> GetAttachments(GetAttachments request) => await _client.SendPost02<TableData<FileAttachmentDto>>($"{_baseUriPath}", request);
     public async Task<DeleteResponse> AttachmentDelete(Guid id, Guid ownerId, Guid blobId, string source)
     {
         if (await _sessionStorageService.ContainKeyAsync(blobId.ToString()))

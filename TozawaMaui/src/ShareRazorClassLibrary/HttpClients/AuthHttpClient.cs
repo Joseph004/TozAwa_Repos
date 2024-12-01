@@ -30,8 +30,9 @@ namespace ShareRazorClassLibrary.HttpClients
         private readonly NavigationManager _navigationManager;
         private readonly HttpClient _client;
         private readonly FirstloadState _firstloadState;
+        private readonly AuthStateProvider _authStateProvider;
 
-        public AuthHttpClient(HttpClient client, AppSettings appSettings, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authProvider, ISessionStorageService sessionStorageService, NavigationManager navigationManager, FirstloadState firstloadState)
+        public AuthHttpClient(HttpClient client, AppSettings appSettings, AuthStateProvider authStateProvider, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authProvider, ISessionStorageService sessionStorageService, NavigationManager navigationManager, FirstloadState firstloadState)
         {
             _client = client;
             _logger = logger;
@@ -39,6 +40,7 @@ namespace ShareRazorClassLibrary.HttpClients
             _sessionStorageService = sessionStorageService;
             _authProvider = authProvider;
             _firstloadState = firstloadState;
+            _authStateProvider = authStateProvider;
 
             client.BaseAddress = new Uri(appSettings.TozAwaNGOApiSettings.ApiUrl);
             client.DefaultRequestHeaders.Add("Accept", "application/json");
@@ -48,32 +50,47 @@ namespace ShareRazorClassLibrary.HttpClients
         }
         private async Task<string> TryRefreshToken()
         {
-            var authState = await _authProvider.GetAuthenticationStateAsync();
+            /* var authState = await _authProvider.GetAuthenticationStateAsync();
             var user = authState.User;
             var exp = user.FindFirst(c => c.Type.Equals("exp"))?.Value;
             if (string.IsNullOrEmpty(exp)) return string.Empty;
             var expTime = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(exp));
             var timeUTC = DateTime.UtcNow;
-            var diff = expTime - timeUTC;
+            var diff = expTime - timeUTC; */
 
-            var token = await _sessionStorageService.GetItemAsync<string>("authToken");
-            var refreshToken = await _sessionStorageService.GetItemAsync<string>("refreshToken");
+            var token = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTToken;
+            var refreshToken = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTRefreshToken;
 
             var request = new RefreshTokenDto()
             {
                 Token = token,
                 RefreshToken = refreshToken
             };
-
-            if (diff.TotalMinutes <= 2)
+            if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken) && !_authStateProvider.ValidateCurrentToken(token))
             {
-                var response = await PostRefresh("token/refresh", request);
+                var response = await PostRefresh("token/refresh/", request);
                 if (response.Success)
                 {
                     var result = response.Entity ?? new LoginResponseDto();
                     return result.Token;
                 }
             }
+            else
+            {
+                if (!string.IsNullOrEmpty(request.Token))
+                {
+                    return request.Token;
+                }
+            }
+            /*  if (diff.TotalMinutes <= 2)
+             {
+                 var response = await PostRefresh("token/refresh", request);
+                 if (response.Success)
+                 {
+                     var result = response.Entity ?? new LoginResponseDto();
+                     return result.Token;
+                 }
+             } */
             return string.Empty;
         }
         private async Task Logout()

@@ -29,7 +29,6 @@ public class ErrorHandling<T> : ErrorBoundary
     {
         _logger.LogError("Error:ProcessError - Type: {Type} Message: {Message}",
         ex.GetType(), ex.Message);
-
         var options = new DialogOptionsEx
         {
             BackgroundClass = "tz-mud-overlay",
@@ -37,7 +36,7 @@ public class ErrorHandling<T> : ErrorBoundary
             CloseButton = false,
             MaxWidth = MaxWidth.Small,
             MaximizeButton = true,
-            FullHeight = false,
+            FullHeight = true,
             FullWidth = true,
             DragMode = MudDialogDragMode.Simple,
             Animations = [AnimationType.Pulse],
@@ -50,7 +49,6 @@ public class ErrorHandling<T> : ErrorBoundary
             b.WithBackgroundColor("gold")
             .WithOpacity(0.9);
         });
-
 
         var parameters = new DialogParameters
         {

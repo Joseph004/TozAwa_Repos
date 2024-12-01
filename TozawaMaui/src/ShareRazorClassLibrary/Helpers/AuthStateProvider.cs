@@ -67,8 +67,9 @@ public class AuthStateProvider(ILocalStorageService localStorageService, AppSett
             authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "tzuserauthentication"));
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
             NotifyAuthenticationStateChanged(authState);
-            await _localStorageService.SetItemAsync("auth_token", EncryptDecrypt.Encrypt(token, "PG=?1PowK<ai57:t%`Ro}L9~1q2&-i/H", "HK2nvSMadZRDeTbB"));
-            await _localStorageService.SetItemAsync("auth_refreshtoken", EncryptDecrypt.Encrypt(refreshToken, "PG??1PowK>oy9b:t%`Ro}L9~1q2&-i'R", "NQ2nvSMadFJDeTxW"));
+            var userString = claims.Where(x => x.Type == nameof(CurrentUserDto)).Select(c => c.Value).SingleOrDefault();
+            var user = JsonConvert.DeserializeObject<CurrentUserDto>(userString);
+            await _localStorageService.SetItemAsync("auth_loggedIn", EncryptDecrypt.Encrypt(user.Id.ToString(), "PG=?1PowK<ai57:t%`Ro}L9~1q2&-i/H", "HK2nvSMadZRDeTbB"));
             UserAuthenticationChanged(this, new EventArgs());
         }
         else
@@ -100,7 +101,7 @@ public class AuthStateProvider(ILocalStorageService localStorageService, AppSett
             {
                 foreach (var role in user.Roles)
                 {
-                    claims.Add(new Claim(ClaimTypes.Role, Enum.GetName(typeof (RoleDto), role)));
+                    claims.Add(new Claim(ClaimTypes.Role, Enum.GetName(typeof(RoleDto), role)));
                 }
             }
             if (user.Admin)
@@ -110,8 +111,7 @@ public class AuthStateProvider(ILocalStorageService localStorageService, AppSett
             authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "tzuserauthentication"));
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
             NotifyAuthenticationStateChanged(authState);
-            await _localStorageService.SetItemAsync("auth_token", EncryptDecrypt.Encrypt(token, "PG=?1PowK<ai57:t%`Ro}L9~1q2&-i/H", "HK2nvSMadZRDeTbB"));
-            await _localStorageService.SetItemAsync("auth_refreshtoken", EncryptDecrypt.Encrypt(refreshToken, "PG??1PowK>oy9b:t%`Ro}L9~1q2&-i'R", "NQ2nvSMadFJDeTxW"));
+            await _localStorageService.SetItemAsync("auth_loggedIn", EncryptDecrypt.Encrypt(user.Id.ToString(), "PG=?1PowK<ai57:t%`Ro}L9~1q2&-i/H", "HK2nvSMadZRDeTbB"));
             UserAuthenticationChanged(this, new EventArgs());
         }
         else
@@ -148,8 +148,7 @@ public class AuthStateProvider(ILocalStorageService localStorageService, AppSett
         var authState = Task.FromResult(_anonymous);
         NotifyAuthenticationStateChanged(authState);
         UserLoginStateDto.Set(false, null, null);
-        await _localStorageService.RemoveItemAsync("auth_token");
-        await _localStorageService.RemoveItemAsync("auth_refreshtoken");
+        await _localStorageService.RemoveItemAsync("auth_loggedIn");
         UserAuthenticationChanged(this, new EventArgs());
     }
 }

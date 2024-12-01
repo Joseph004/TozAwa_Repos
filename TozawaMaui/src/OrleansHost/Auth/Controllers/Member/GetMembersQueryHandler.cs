@@ -3,7 +3,6 @@ using MediatR;
 using Grains.Auth.Models.Authentication;
 using Grains.Auth.Models.Converters;
 using Grains.Auth.Models.Dtos.Backend;
-using OrleansHost.Attachment.Models.Queries;
 using Grains.Helpers;
 using System.Buffers;
 using System.Collections.Immutable;
@@ -73,6 +72,7 @@ namespace Grains.Auth.Controllers
                         ModifiedDate = memberItem.ModifiedDate,
                         StationIds = memberItem.StationIds
                     });
+                    member.AttachmentsCount = memberItem.AttachmentsCount;
                     member.Timestamp = memberItem.Timestamp;
 
                     converted.Add(member);
@@ -87,7 +87,7 @@ namespace Grains.Auth.Controllers
                         var itemPage = (int)Math.Floor((double)itemIndex / request.PageSize);
                         var pagedItems = converted.Skip(itemPage * request.PageSize).Take(request.PageSize);
                         await SetTranslation(pagedItems);
-                        await GetAttachments(pagedItems);
+                        //await GetAttachments(pagedItems);
                         return new TableDataDto<MemberDto> { Items = pagedItems, TotalItems = converted.Count, ItemPage = itemPage };
                     }
                 }
@@ -103,7 +103,7 @@ namespace Grains.Auth.Controllers
                 }
                 var paged = converted.Skip(request.Page * request.PageSize).Take(request.PageSize);
                 await SetTranslation(paged);
-                await GetAttachments(paged);
+                //await GetAttachments(paged);
                 return new TableDataDto<MemberDto> { Items = paged, TotalItems = converted.Count };
             }
             finally
@@ -149,25 +149,25 @@ namespace Grains.Auth.Controllers
             }
         }
 
-        private async Task GetAttachments(IEnumerable<MemberDto> members)
-        {
-            var request = new GetAttachmentsByOwnerIdsQuery
-            {
-                OwnerIds = members.Select(x => x.Id).ToList()
-            };
-            var ownerAttachments = await _mediator.Send(request);
-            if (ownerAttachments != null)
-            {
-                foreach (var ownerAttachment in ownerAttachments)
+        /*         private async Task GetAttachments(IEnumerable<MemberDto> members)
                 {
-                    var member = members.First(x => x.Id == ownerAttachment.OwnerId);
-                    member.Attachments.AddRange(ownerAttachment.Attachments);
-                    if (member.Attachments != null && member.Attachments.Any(x => !string.IsNullOrEmpty(x.MiniatureId) && !string.IsNullOrEmpty(x.Thumbnail)))
+                    var request = new GetAttachmentsByOwnerIdsQuery
                     {
-                        member.Thumbnail = member.Attachments.First(x => !string.IsNullOrEmpty(x.MiniatureId) && !string.IsNullOrEmpty(x.Thumbnail)).Thumbnail;
+                        OwnerIds = members.Select(x => x.Id).ToList()
+                    };
+                    var ownerAttachments = await _mediator.Send(request);
+                    if (ownerAttachments != null)
+                    {
+                        foreach (var ownerAttachment in ownerAttachments)
+                        {
+                            var member = members.First(x => x.Id == ownerAttachment.OwnerId);
+                            member.Attachments.AddRange(ownerAttachment.Attachments);
+                            if (member.Attachments != null && member.Attachments.Any(x => !string.IsNullOrEmpty(x.MiniatureId) && !string.IsNullOrEmpty(x.Thumbnail)))
+                            {
+                                member.Thumbnail = member.Attachments.First(x => !string.IsNullOrEmpty(x.MiniatureId) && !string.IsNullOrEmpty(x.Thumbnail)).Thumbnail;
+                            }
+                        }
                     }
-                }
-            }
-        }
+                } */
     }
 }

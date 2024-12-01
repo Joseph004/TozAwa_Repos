@@ -20,6 +20,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Http;
 using Grains.Helpers;
 using OrleansHost.Auth.Controllers;
+using System.Buffers;
+using System.Collections.Immutable;
 
 namespace Grains.Auth.Controllers
 {
@@ -42,6 +44,42 @@ namespace Grains.Auth.Controllers
 
         [HttpGet, Route("current/{oid:Guid}")]
         public async Task<IActionResult> GetCurrentUser(Guid oid) => Ok(await _mediator.Send(new GetCurrentUserQuery(oid)));
+
+        [HttpPost, Route("getUser/{id}")]
+        public async Task<ActionResult> GetLoggedInUser(Guid id)
+        {
+            // get all item keys for this owner
+            var keys = await _factory.GetGrain<ILoggedInManagerGrain>(SystemTextId.LoggedInOwnerId).GetAllAsync();
+            // fast path for empty owner
+            if (keys.Length == 0) return Ok(new AddResponse<LoginResponseDto>(false, "Error", HttpStatusCode.InternalServerError, null));
+
+            var tasks = ArrayPool<Task<LoggedInItem>>.Shared.Rent(keys.Length);
+            try
+            {
+                // issue all requests at the same time
+                for (var i = 0; i < keys.Length; ++i)
+                {
+                    tasks[i] = _factory.GetGrain<ILoggedInGrain>(keys[i]).GetAsync();
+                }
+                // compose the result as requests complete
+                var result = ImmutableArray.CreateBuilder<LoggedInItem>(tasks.Length);
+                for (var i = 0; i < keys.Length; ++i)
+                {
+                    result.Add(await tasks[i]);
+                }
+                var user = result.FirstOrDefault(x => x.UserId == id);
+                return user != null ? Ok(new AddResponse<LoginResponseDto>(true, "Succeeded", HttpStatusCode.OK, new LoginResponseDto
+                {
+                    Token = user?.Token,
+                    RefreshToken = user?.RefreshToken,
+                    LoginSuccess = true
+                })) : Ok(new AddResponse<LoginResponseDto>(false, "Error", HttpStatusCode.InternalServerError, null));
+            }
+            finally
+            {
+                ArrayPool<Task<LoggedInItem>>.Shared.Return(tasks);
+            }
+        }
 
         [HttpPost, Route("signin")]
         public async Task<ActionResult> SignInPost([FromBody] LoginRequest request)
@@ -126,6 +164,8 @@ namespace Grains.Auth.Controllers
             response.Entity.Token = token;
             response.Entity.ExpiresIn = _appSettings.JWTSettings.ExpiryInMinutes;
             response.Entity.RefreshToken = user.RefreshToken;
+
+            await _factory.GetGrain<ILoggedInGrain>(user.UserId).SetAsync(new LoggedInItem(user.UserId, token, user.RefreshToken, SystemTextId.LoggedInOwnerId));
 
             return Ok(response);
         }

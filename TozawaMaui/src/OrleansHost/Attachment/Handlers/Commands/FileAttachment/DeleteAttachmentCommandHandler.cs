@@ -10,6 +10,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR;
 using Shared.SignalR;
 using Grains;
+using Grains.Auth.Models.Dtos.Backend;
 
 namespace OrleansHost.Attachment.Handlers.Commands;
 
@@ -46,6 +47,14 @@ public class DeleteAttachmentCommandHandler(TozawangoDbContext context, IGoogleS
             _context.SaveChanges();
 
             await _factory.GetGrain<IAttachmentGrain>(fileId).ClearAsync();
+
+            if (request.Source == nameof(MemberDto))
+            {
+                var memberItem = await _factory.GetGrain<IMemberGrain>(request.OwnerId).GetAsync();
+                memberItem.AttachmentsCount--;
+                await _factory.GetGrain<IMemberGrain>(request.OwnerId).SetAsync(memberItem);
+            }
+
             await _hub.Clients.All.SendAsync("AttachmentDeleted", fileId.ToString(), request.OwnerId, request.Source, cancellationToken: cancellationToken);
 
             return new DeleteResponse(true, UpdateMessages.EntityDeletedSuccess, HttpStatusCode.OK);

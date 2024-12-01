@@ -7,6 +7,7 @@ namespace ShareRazorClassLibrary.Models.Dtos
         public string Text { get; set; } = "";
         public Guid DescriptionTextId { get; set; }
         public string Thumbnail { get; set; }
+        public int AttachmentsCount { get; set; }
         public List<FileAttachmentDto> Attachments { get; set; } = [];
     }
 }

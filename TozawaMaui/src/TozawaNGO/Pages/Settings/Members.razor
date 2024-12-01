@@ -166,25 +166,9 @@ else
                 </div>
             </MudTd>
             <MudTd DataLabel="@(GetLabel(SystemTextId.Files, "Files"))" onclick="event.stopPropagation()" @onmousedown="() => ToggleFiles(context)">
-                @if (!string.IsNullOrEmpty(context.Thumbnail))
-                {
-                    var thumb = "data:image/png;base64," + context.Thumbnail;
-                    <MudBadge Content="@context.Attachments.Count()" Overlap="true" Color="Color.Primary">
-                        <MudTooltip>
-                            <ChildContent>
-                                <img src="@thumb" height="@ThumbnailSize" width="@ThumbnailSize" />
-                            </ChildContent>
-                            <TooltipContent>
-                                <img src="@thumb" />
-                            </TooltipContent>
-                        </MudTooltip>
-                    </MudBadge>
-                }
-                else {
-                    <MudBadge Content="@context.Attachments.Count()" Overlap="true" Color="Color.Primary">
-                        <MudIcon Icon="@Icons.Material.Filled.Folder" Style="height:24px;width:24px)" Color="Color.Default"/>
-                    </MudBadge>                     
-                }
+                <MudBadge Content="@context.AttachmentsCount" Overlap="true" Color="Color.Primary">
+                    <MudIcon Icon="@Icons.Material.Filled.Folder" Style="height:24px;width:24px)" Color="Color.Secondary"/>
+                </MudBadge>                     
             </MudTd>
             <MudTd DataLabel="@(GetLabel(SystemTextId.Update, "Edit"))">
                 <div @onclick:stopPropagation="true" @onclick:preventDefault="true">

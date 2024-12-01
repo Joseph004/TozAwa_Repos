@@ -23,7 +23,7 @@
 <ErrorHandling  TCategoryName=@typeof(FilesEntityDialog)>
     <ChildContent>
         <div style="@($"{_disableAttrString}")">
-    <MudDialog Class="@($"tzModal")">
+    <MudDialog Style="max-height: 100%;" Class="@($"tzModal")">
         <TitleContent>
             <MudText Color=Color.Secondary>
                 @Entity.Email
@@ -35,15 +35,13 @@
                 <MudAlert Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="(() => CloseMe(false))"
                     Variant="Variant.Filled" Dense="true" Class="my-2">@_error</MudAlert>
             }
-            @if (Entity != null && Entity.Attachments != null && Entity.Attachments.Count > 0)
-            {
-                <MudTable Breakpoint="Breakpoint.Xs" Style="background-color: gold;overflow: auto; opacity: 0.9;"
-                    T="FileAttachmentDto" Striped="true" RowClassFunc="@SelectedRowClassFunc" CustomHeader="true"
-                    Dense="true" Hover="true" Items="@_attachments" OnRowClick="RowClickEvent"
+                <MudTable RowStyleFunc="@_disableRowClick" RowsPerPage="20" Breakpoint="Breakpoint.Xs" Style="background-color: gold;overflow: auto; opacity: 0.9;"
+                    T="FileAttachmentDto" ServerData="ServerReload" @ref="_table" Striped="true" RowClassFunc="@SelectedRowClassFunc" CustomHeader="true"
+                    Dense="true" Hover="true" OnRowClick="RowClickEvent"
                     @bind-SelectedItem="_selectedItem" RowClass="cursor-pointer">
                     <ToolBarContent>
                         <MudText Typo="Typo.h6" Color="Color.Secondary">
-                            Total: @_attachments.Count
+                            <SystemText TextId="@SystemTextId.Files" FallbackText="Files"></SystemText>: @Entity.AttachmentsCount
                         </MudText>
                         <MudSpacer />
                         <MudTextField Disabled="@(_disabledPage)" T="string" DebounceInterval="500" Margin="Margin.Dense"
@@ -91,7 +89,7 @@
                             <MudTooltip ShowOnHover=@(!string.IsNullOrEmpty(Translate(SystemTextId.Download, "Download")))
                                 Placement="Placement.Top" Arrow="true" Color="Color.Primary">
                                 <ChildContent>
-                                    <MudIconButton Disabled="@(_disabledPage || _onProgress)"
+                                    <MudIconButton Disabled="@(_disabledPage)"
                                         Icon="@Icons.Material.Filled.Download" @onclick="() => Download(context)">
                                     </MudIconButton>
                                 </ChildContent>
@@ -147,17 +145,28 @@
                                 Icon="@Icons.Material.Filled.Delete" @onclick="() => Delete(context)"></MudIconButton>
                         </MudTd>
                     </RowTemplate>
+            <NoRecordsContent>
+                @if(!_RequestInProgress) 
+                    {
+                 <MudText>
+                <SystemText TextId=SystemTextId.NoMachingRecords FallbackText="No matching records found" />
+             </MudText>
+                    }
+        </NoRecordsContent>
+        <LoadingContent>
+            <MudText>
+                <SystemText TextId=SystemTextId.Loading FallbackText="Loading" />
+            </MudText>
+        </LoadingContent>
+        <PagerContent>
+            <MudTablePager Class="pa-4" PageSizeOptions="@_pageSizeOptions"
+                RowsPerPageString="@(Translate(SystemTextId.RowsPerPage, "Rows per page"))" />
+        </PagerContent>
                 </MudTable>
-            }
-            else
-            {
-                <SystemText TextId="@SystemTextId.NoAttachmentsExists" FallbackText="Entity contains no attachments">
-                </SystemText>
-            }
         </DialogContent>
         <DialogActions>
             <div class="d-flex flex-row-reverse flex-grow-1 gap-4">
-                <MudButton StartIcon="@Icons.Material.Filled.Close" Disabled="@(_disabledPage || _onProgress)"
+                <MudButton StartIcon="@Icons.Material.Filled.Close" Disabled="@(_disabledPage)"
                     Color="Color.Primary" OnClick="Add" Variant="Variant.Filled">
                     <SystemText TextId="@SystemTextId.Close" FallbackText="Close"></SystemText>
                 </MudButton>
@@ -167,7 +176,7 @@
                         <SystemText TextId="@SystemTextId.FileUpload" FallbackText="Upload files"></SystemText>
                     </MudText>
                 </MudButton>
-                <MudSelect Variant="Variant.Filled" Disabled="@(_disabledPage || _onProgress)" Class="tzSelect"
+                <MudSelect Variant="Variant.Filled" Disabled="@(_disabledPage)" Class="tzSelect"
                     @bind-Value="_attachmentType" AnchorOrigin="Origin.BottomCenter"
                     Placeholder="Select an attachment type">
                     @foreach (AttachmentType item in Enum.GetValues(typeof(AttachmentType)))

@@ -60,7 +60,7 @@ namespace ShareRazorClassLibrary.Services
 				_ => "/",
 			};
 		}
-		private void NotifyStateChanged() => OnChange.Invoke();
+		private void NotifyStateChanged() => OnChange?.Invoke();
 	}
 
 	public enum ActiveTab

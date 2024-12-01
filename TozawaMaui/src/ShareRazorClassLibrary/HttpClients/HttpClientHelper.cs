@@ -35,6 +35,16 @@ namespace ShareRazorClassLibrary.HttpClients
         private readonly IJSRuntime _jSRuntime = jSRuntime;
         private readonly HttpClient _client = client;
 
+        private async Task PostLogout(string url, string token, string refreshToken)
+        {
+            var request = PostRequest(url, null);
+
+            if (!string.IsNullOrEmpty(token))
+            {
+                request.Headers.Add("tzuserauthentication", token);
+            }
+            await _client.SendAsync(request);
+        }
         private async Task<AddResponse<LoginResponseDto>> PostRefresh(string url, RefreshTokenDto value)
         {
             var request = PostRequest(url, value);
@@ -380,7 +390,7 @@ namespace ShareRazorClassLibrary.HttpClients
 
             request.Headers.Add("toza-active-language", activeLanguage.Id.ToString());
             var response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
-           
+
             if (response.StatusCode == HttpStatusCode.Unauthorized)
             {
                 var content = await response.Content.ReadAsStringAsync();
@@ -394,6 +404,10 @@ namespace ShareRazorClassLibrary.HttpClients
         }
         private async Task Logout()
         {
+            var token = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTToken;
+            var refreshToken = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTRefreshToken;
+            var user = await ((AuthStateProvider)_authStateProvider).GetUserFromToken();
+            await PostLogout($"token/logout/{user.Id.ToString()}", token, refreshToken);
             await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
         }
         protected async Task<HttpResponseMessage> PostFile(string url, HttpContent request)

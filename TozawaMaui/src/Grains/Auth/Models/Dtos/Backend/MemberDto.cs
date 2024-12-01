@@ -9,6 +9,7 @@ namespace Grains.Auth.Models.Dtos.Backend
         public Guid DescriptionTextId { get; set; }
         public string Thumbnail { get; set; } = "";
         public List<Grains.Models.Dtos.FileAttachmentDto> Attachments { get; set; } = [];
+        public int AttachmentsCount { get; set; }
     }
 }
 

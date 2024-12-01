@@ -426,4 +426,20 @@
     <value>Download as pdf</value>
     <comment>.</comment>
   </data>
+  <data name="4c4a82df-5135-442e-913a-108b6dc4626a" xml:space="preserve">
+    <value>You are not authorized to reach this page.</value>
+    <comment>.</comment>
+  </data>
+  <data name="f8eb2e15-fe92-4106-9138-86c90b49f5af" xml:space="preserve">
+    <value>You may need to log in as a different user.</value>
+    <comment>.</comment>
+  </data>
+  <data name="5608eef3-268b-49fe-9ff9-f293d8677785" xml:space="preserve">
+    <value>Sorry.</value>
+    <comment>.</comment>
+  </data>
+  <data name="970dcdc8-6d74-4c08-aa2f-e18c7f46e52b" xml:space="preserve">
+    <value>Reload page</value>
+    <comment>.</comment>
+  </data>
 </root>
