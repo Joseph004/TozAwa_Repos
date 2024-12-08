@@ -1,0 +1,41 @@
+@namespace TozawaMauiHybrid.Pages
+@using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Component
+@inherits BaseDialog<DescriptionMemberDialog>
+
+<style>
+    .tz-mud-overlay {
+        background: repeating-linear-gradient(135deg, #ccc, #ccc 10px, #aaa 10px, #aaa 20px) !important;
+        opacity: 0.7 !important;
+    }
+
+    .dialog-content {
+        overflow: auto;
+        max-height: 800px;
+    }
+</style>
+
+<ErrorHandling TCategoryName=@typeof(DescriptionMemberDialog)>
+    <ChildContent>
+        <MudDialog Class="tzModal">
+            <TitleContent>
+                <MudText Color=Color.Secondary>
+                    @Title
+                </MudText>
+            </TitleContent>
+            <DialogContent>
+                <MudTextField Margin="Margin.Dense" T="string" Text="@Entity.Description"
+                    Label="@(Translate(SystemTextId.Description))" Lines="5" Disabled />
+            </DialogContent>
+            <DialogActions>
+                <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled" Color="Color.Primary"
+                    OnClick="Cancel">
+                    <SystemText TextId=SystemTextId.Close FallbackText="Close" />
+                </MudButton>
+            </DialogActions>
+        </MudDialog>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>

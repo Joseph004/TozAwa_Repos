@@ -22,6 +22,7 @@ using Grains.Helpers;
 using OrleansHost.Auth.Controllers;
 using System.Buffers;
 using System.Collections.Immutable;
+using Microsoft.EntityFrameworkCore;
 
 namespace Grains.Auth.Controllers
 {
@@ -48,6 +49,15 @@ namespace Grains.Auth.Controllers
         [HttpPost, Route("getUser/{id}")]
         public async Task<ActionResult> GetLoggedInUser(Guid id)
         {
+            var dbUser = await _mediator.Send(new GetMemberQuery
+            {
+                Id = id
+            });
+
+            if (dbUser == null)
+            {
+                return Ok(new AddResponse<LoginResponseDto>(false, "Error", HttpStatusCode.Unauthorized, null));
+            }
             // get all item keys for this owner
             var keys = await _factory.GetGrain<ILoggedInManagerGrain>(SystemTextId.LoggedInOwnerId).GetAllAsync();
             // fast path for empty owner
@@ -80,7 +90,50 @@ namespace Grains.Auth.Controllers
                 ArrayPool<Task<LoggedInItem>>.Shared.Return(tasks);
             }
         }
+        [HttpPost, Route("loggedin/{id}")]
+        public async Task<ActionResult> GetLoggedInUserMember(Guid id)
+        {
+            var dbUser = await _mediator.Send(new GetMemberQuery
+            {
+                Id = id
+            });
 
+            if (dbUser == null)
+            {
+                return Ok(new AddResponse<LoginResponseDto>(false, "Error", HttpStatusCode.Unauthorized, null));
+            }
+            // get all item keys for this owner
+            var keys = await _factory.GetGrain<ILoggedInManagerGrain>(SystemTextId.LoggedInOwnerId).GetAllAsync();
+            // fast path for empty owner
+            if (keys.Length == 0) return Ok(new AddResponse<LoginResponseDto>(false, "Error", HttpStatusCode.InternalServerError, null));
+
+            var tasks = ArrayPool<Task<LoggedInItem>>.Shared.Rent(keys.Length);
+            try
+            {
+                // issue all requests at the same time
+                for (var i = 0; i < keys.Length; ++i)
+                {
+                    tasks[i] = _factory.GetGrain<ILoggedInGrain>(keys[i]).GetAsync();
+                }
+                // compose the result as requests complete
+                var result = ImmutableArray.CreateBuilder<LoggedInItem>(tasks.Length);
+                for (var i = 0; i < keys.Length; ++i)
+                {
+                    result.Add(await tasks[i]);
+                }
+                var user = result.FirstOrDefault(x => x.UserId == id);
+                return user != null ? dbUser.Admin ? Ok(new AddResponse<LoginResponseDto>(false, "Error", HttpStatusCode.Unauthorized, null)) : Ok(new AddResponse<LoginResponseDto>(true, "Succeeded", HttpStatusCode.OK, new LoginResponseDto
+                {
+                    Token = user?.Token,
+                    RefreshToken = user?.RefreshToken,
+                    LoginSuccess = true
+                })) : Ok(new AddResponse<LoginResponseDto>(false, "Error", HttpStatusCode.InternalServerError, null));
+            }
+            finally
+            {
+                ArrayPool<Task<LoggedInItem>>.Shared.Return(tasks);
+            }
+        }
         [HttpPost, Route("signin")]
         public async Task<ActionResult> SignInPost([FromBody] LoginRequest request)
         {
@@ -139,7 +192,128 @@ namespace Grains.Auth.Controllers
                 response.Entity.ErrorMessageGuid = Helpers.SystemTextId.Unauthorized;
                 return Ok(response);
             }
+            if (!user.AdminMember)
+            {
+                response.Success = false;
+                response.Message = "Error";
+                response.StatusCode = HttpStatusCode.BadRequest;
 
+                response.Entity.LoginSuccess = false;
+                response.Entity.ErrorMessageGuid = Helpers.SystemTextId.Unauthorized;
+                return Ok(response);
+            }
+            var validPassword = await userManager.CheckPasswordAsync(user, command.Password);
+            if (!validPassword)
+            {
+                response.Success = true;
+                response.Message = "Error";
+                response.StatusCode = HttpStatusCode.BadRequest;
+
+                response.Entity.LoginSuccess = false;
+                response.Entity.ErrorMessageGuid = Helpers.SystemTextId.EmailOrPasswordWrong;
+                return Ok(response);
+            }
+
+            var userDto = await _mediator.Send(new GetCurrentUserQuery(user.UserId));
+
+            var securityToken = _userTokenService.GenerateTokenOptions(userDto);
+            var token = new JwtSecurityTokenHandler().WriteToken(securityToken);
+
+            user.RefreshToken = _userTokenService.GenerateRefreshToken();
+            user.RefreshTokenExpiryTime = DateTime.Now.AddDays(7);
+            await userManager.UpdateAsync(user);
+
+            response.Entity.Token = token;
+            response.Entity.ExpiresIn = _appSettings.JWTSettings.ExpiryInMinutes;
+            response.Entity.RefreshToken = user.RefreshToken;
+
+            await _factory.GetGrain<ILoggedInGrain>(user.UserId).SetAsync(new LoggedInItem(user.UserId, token, user.RefreshToken, SystemTextId.LoggedInOwnerId));
+
+            return Ok(response);
+        }
+
+        [HttpPost, Route("member/login")]
+        public async Task<ActionResult> SignInPostMember([FromBody] LoginRequest request)
+        {
+            var response = new AddResponse<LoginResponseDto>(true, "Success", HttpStatusCode.OK, new LoginResponseDto
+            {
+                LoginSuccess = true,
+                ErrorMessage = ""
+            });
+
+            var key = "Uj=?1PowK<ai57:t%`Ro]P1~1q2&-i?b";
+            var iv = "Rh2nvSARdZRDeYiB";
+            var pwdBytes = Cryptography.Decrypt(request.Content, key, iv);
+
+            var pswd = _encryptDecrypt.DecryptUsingCertificate(Encoding.UTF8.GetString(pwdBytes));
+
+            var command = new LoginCommand
+            {
+                Email = request.Email,
+                Password = pswd
+            };
+
+            var validator = new LoginCommandFluentValidator();
+
+            var requestValidate = await validator.ValidateAsync(command);
+
+            if (!requestValidate.IsValid)
+            {
+                response.Success = false;
+                response.Message = "Error";
+                response.StatusCode = HttpStatusCode.BadRequest;
+
+                response.Entity.LoginSuccess = false;
+                response.Entity.ErrorMessage = requestValidate.Errors.Where(x => !string.IsNullOrEmpty(x.ErrorMessage)).FirstOrDefault().ErrorMessage;
+                return Ok(response);
+            }
+
+            var user = await _mediator.Send(new GetApplicationUserQuery(command.Email));
+
+            if (user == null)
+            {
+                response.Success = true;
+                response.Message = "Error";
+                response.StatusCode = HttpStatusCode.BadRequest;
+
+                response.Entity.LoginSuccess = false;
+                response.Entity.ErrorMessageGuid = Helpers.SystemTextId.EmailOrPasswordWrong;
+                return Ok(response);
+            }
+            /* var user1 = _context.TzUsers.First(x => x.Email == "josephluhandu@yahoo.com");
+            user1.Roles = [Role.President];
+            _context.Entry(user1).State = EntityState.Modified;
+            _context.SaveChanges(); */
+            /* var user1 = await userManager.FindByEmailAsync("bonheurluhandu@yahoo.com");
+            user1.Roles.Add(Role.LandLoard);
+            _context.SaveChanges();
+            user1.UserName = "BonheurLuhandu";
+            user1.PasswordHash = userManager.PasswordHasher.HashPassword(user, "Zairenumber02?");
+            var res = await userManager.UpdateAsync(user1);
+            if (res.Succeeded)
+            {
+                // change password has been succeeded
+            } */
+            if (user.Deleted)
+            {
+                response.Success = false;
+                response.Message = "Error";
+                response.StatusCode = HttpStatusCode.BadRequest;
+
+                response.Entity.LoginSuccess = false;
+                response.Entity.ErrorMessageGuid = Helpers.SystemTextId.Unauthorized;
+                return Ok(response);
+            }
+            if (user.AdminMember)
+            {
+                response.Success = false;
+                response.Message = "Error";
+                response.StatusCode = HttpStatusCode.BadRequest;
+
+                response.Entity.LoginSuccess = false;
+                response.Entity.ErrorMessageGuid = Helpers.SystemTextId.Unauthorized;
+                return Ok(response);
+            }
             var validPassword = await userManager.CheckPasswordAsync(user, command.Password);
             if (!validPassword)
             {

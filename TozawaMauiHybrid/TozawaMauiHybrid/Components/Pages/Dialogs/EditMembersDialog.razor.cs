@@ -4,15 +4,14 @@ using Fluxor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
-using ShareRazorClassLibrary.Helpers;
-using ShareRazorClassLibrary.Models.Dtos;
-using ShareRazorClassLibrary.Models.FormModels;
-using ShareRazorClassLibrary.Services;
-using TozawaNGO.Services;
-using TozawaNGO.Shared;
-using TozawaNGO.State.Member.Store;
+using TozawaMauiHybrid.Helpers;
+using TozawaMauiHybrid.Models.Dtos;
+using TozawaMauiHybrid.Models.FormModels;
+using TozawaMauiHybrid.Services;
+using TozawaMauiHybrid.Component;
+using TozawaMauiHybrid.State.Member.Store;
 
-namespace TozawaNGO.Pages
+namespace TozawaMauiHybrid.Pages
 {
     public partial class EditMembersDialog : BaseDialog<EditMembersDialog>
     {
@@ -20,7 +19,7 @@ namespace TozawaNGO.Pages
         [Parameter] public MemberDto Member { get; set; }
         [Inject] MemberService memberService { get; set; }
         [Inject] private ISnackBarService snackBarService { get; set; }
-        [Inject] IDispatcher Dispatcher { get; set; }
+        [Inject] Fluxor.IDispatcher Dispatcher { get; set; }
         private bool _disabledPage = false;
         private bool _RequestInProgress = false;
         private string _disableAttrString = "";

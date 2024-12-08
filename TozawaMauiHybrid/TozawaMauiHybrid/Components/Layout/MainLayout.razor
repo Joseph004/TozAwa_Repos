@@ -5,35 +5,34 @@
 <MudSnackbarProvider />
 <MudPopoverProvider />
 
-<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" CloseButton="true"
-    NoHeader="false" Position="DialogPosition.TopCenter" />
+<MudDialogProvider FullWidth="true" MaxWidth="MaxWidth.ExtraSmall" CloseButton="true" NoHeader="false"
+    Position="DialogPosition.TopCenter" />
 
 <MudLayout Style="max-height: 100vh; height: 100vh;" @onpointermove="RefreshTimer" @onkeypress="RefreshTimer"
     Class="@($"d-flex flex-column flex-grow-1 gap-4 {_disableAttrString}")" @onmousemove="RefreshTimer">
-    <AppBar OnSidebarToggled="ToggleSidebar" />
-
-    <NavMenu @bind-SideBarOpen="_sidebarOpen" />
     <LoadingScreen>
-        <MudMainContent id="tzMainContainer" Class="flex-1 d-flex">
-            <MudContainer Style="display: flex !important; flex-direction: column;" Class="mt-3 d-flex">
-                <ErrorBoundary @ref="_errorBoundary">
-                    <ChildContent>
-                        @Body
-                    </ChildContent>
-                    <ErrorContent Context="ex">
-                        <MudPaper Class="pa-4" Style="@($"background: var(--mud-palette-error);")">
-                            <MudText>
-                                @OnError(@ex);
-                            </MudText>
-                        </MudPaper>
-                    </ErrorContent>
-                </ErrorBoundary>
-                @if (DeviceInfo.Platform != DevicePlatform.WinUI)
-                {
-                    <Footer></Footer>
-                }
-            </MudContainer>
-        </MudMainContent>
-        <ScrollToTop></ScrollToTop>
+        @if (_firstLoaded)
+        {
+            <AppBar OnSidebarToggled="ToggleSidebar" />
+
+            <NavMenu @bind-SideBarOpen="_sidebarOpen" />
+            <ErrorHandling TCategoryName="@typeof(MainLayout)">
+                <ChildContent>
+                    <MudMainContent id="tzMainContainer" Class="flex-1 d-flex">
+                        <MudContainer Style="display: flex !important; flex-direction: column;" Class="mt-3 d-flex">
+                            @Body
+                            @if (DeviceInfo.Platform != DevicePlatform.WinUI)
+                            {
+                                <Footer></Footer>
+                            }
+                        </MudContainer>
+                    </MudMainContent>
+                    <ScrollToTop></ScrollToTop>
+                </ChildContent>
+                <ErrorContent Context="ex">
+                    @string.Empty
+                </ErrorContent>
+            </ErrorHandling>
+        }
     </LoadingScreen>
 </MudLayout>

@@ -55,7 +55,7 @@ public class GetAttachmentsQueryHandler(
             return new TableData<Grains.Models.Dtos.FileAttachmentDto>() { TotalItems = response.Count, Items = response };
         }
         else
-        {
+        { 
             // get all item keys for this owner
             if (request.GetAll)
             {

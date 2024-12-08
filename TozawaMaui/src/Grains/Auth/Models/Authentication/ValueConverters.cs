@@ -16,6 +16,18 @@ internal class ListOfGuidsCoverter : ValueConverter<List<Guid>, string>
              null)
     { }
 }
+internal class ListOfRolesCoverter : ValueConverter<List<Role>, string>
+{
+    public ListOfRolesCoverter() :
+        base(v => JsonConvert.SerializeObject(v, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore }),
+             v => JsonConvert.DeserializeObject<List<Role>>(v, new JsonSerializerSettings
+             {
+                 NullValueHandling = NullValueHandling.Ignore,
+                 Formatting = Formatting.None
+             }),
+             null)
+    { }
+}
 internal class DictionaryGuidStringCoverter : ValueConverter<Dictionary<Guid, string>, string>
 {
     public DictionaryGuidStringCoverter() :

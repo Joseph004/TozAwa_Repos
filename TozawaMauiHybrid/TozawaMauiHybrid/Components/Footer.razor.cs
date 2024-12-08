@@ -3,12 +3,13 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using MudBlazor;
+using TozawaMauiHybrid.Component;
 using TozawaMauiHybrid.Helpers;
 using TozawaMauiHybrid.Services;
 
-namespace TozawaMauiHybrid.Component
+namespace TozawaMauiHybrid.Components
 {
-    public partial class Footer : BaseComponent
+    public partial class Footer : BaseComponent<Footer>
     {
         [Inject] IJSRuntime JS { get; set; }
         [Inject] public ISnackbar Snackbar { get; set; }
@@ -45,13 +46,19 @@ namespace TozawaMauiHybrid.Component
             {
                 _errors = [.. _errors, requestValidate.Errors.Where(x => !string.IsNullOrEmpty(x.ErrorMessage)).FirstOrDefault().ErrorMessage];
 
-                StateHasChanged();
+                await InvokeAsync(() =>
+         {
+             StateHasChanged();
+         });
                 return;
             }
 
             requestInProgress = true;
             EmailInputIcon = Icons.Material.Filled.ChangeCircle;
-            StateHasChanged();
+            await InvokeAsync(() =>
+          {
+              StateHasChanged();
+          });
 
             //Sending request...
             Thread.Sleep(15000);
@@ -60,7 +67,10 @@ namespace TozawaMauiHybrid.Component
             model.Email = "";
             EmailInputIcon = Icons.Material.Filled.Send;
             Snackbar.Add("Thanks for your subscribtion!", MudBlazor.Severity.Success);
-            StateHasChanged();
+            await InvokeAsync(() =>
+          {
+              StateHasChanged();
+          });
         }
         public bool DisabledSend()
         {
@@ -79,7 +89,10 @@ namespace TozawaMauiHybrid.Component
         }
         private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+         {
+             StateHasChanged();
+         });
         }
         private async void _translationService_LanguageChanged(object sender, EventArgs e)
         {
@@ -92,7 +105,10 @@ namespace TozawaMauiHybrid.Component
             }
             _email = _translationService.Translate(SystemTextId.Email, "Email").Text;
 
-            StateHasChanged();
+            await InvokeAsync(() =>
+         {
+             StateHasChanged();
+         });
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -127,11 +143,12 @@ namespace TozawaMauiHybrid.Component
                 StateHasChanged();
             });
         }
-        public override void Dispose()
+        protected override void Dispose(bool disposed)
         {
             FirstloadState.OnChange -= FirsLoadChanged;
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
+            base.Dispose(disposed);
         }
     }
 

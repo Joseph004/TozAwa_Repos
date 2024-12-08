@@ -49,7 +49,10 @@ namespace TozawaMauiHybrid.Component
             {
                 await _translationService.EnsureTranslations();
                 _currentUser = await _currentUserService.GetCurrentUser();
-                StateHasChanged();
+                await InvokeAsync(() =>
+         {
+             StateHasChanged();
+         });
             }
         }
         protected override async Task OnInitializedAsync()

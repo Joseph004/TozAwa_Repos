@@ -31,8 +31,6 @@ namespace TozawaNGO.Shared
 
         protected async override Task OnInitializedAsync()
         {
-            _currentUser = await _currentUserService.GetCurrentUser();
-
             FirstloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
@@ -48,7 +46,6 @@ namespace TozawaNGO.Shared
                 {
                     NavMenuTabState.SetActiveTab(currentTab.Value);
                 }
-                _currentUser = await _currentUserService.GetCurrentUser();
                 await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.1))).ContinueWith(o => { FirstloadState.SetFirsLoad(true); });
                 await base.OnAfterRenderAsync(firstRender);
             }
@@ -69,17 +66,16 @@ namespace TozawaNGO.Shared
                 NavManager.NavigateTo(link);
             }
         }
-        private async void FirsLoadChanged()
+        private void FirsLoadChanged()
         {
-            await InvokeAsync(async () =>
-             {
-                 _currentUser = await _currentUserService.GetCurrentUser();
-                 StateHasChanged();
-             });
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
         private string GetNavMudGroupRoles()
         {
-            return $"{nameof(RoleDto.President)},{nameof(RoleDto.VicePresident)}";
+            return $"{Enum.GetName(typeof(RoleDto), RoleDto.LandLoard)}";
         }
         private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {

@@ -43,6 +43,7 @@ namespace TozawaNGO.Pages
         private string _error = "";
         private string _searchString = null;
         private bool _RequestInProgress = false;
+        private bool _isServerReload = true;
         private int _totalItems;
         private FileAttachmentDto _selectedItem;
 
@@ -60,12 +61,38 @@ namespace TozawaNGO.Pages
                 StateHasChanged();
             });
         }
+        public void HandleAttachment()
+        {
+            if (!AttachmentService.OnDelete)
+            {
+                if (AttachmentService.FileAttachmentDtos != null && !pagedData.Any(x => x.Id == AttachmentService.FileAttachmentDtos.Attachments.First().Id))
+                {
+                    pagedData.Append(AttachmentService.FileAttachmentDtos.Attachments.First());
+                    _totalItems++;
+                    _isServerReload = false;
+                    _table.ReloadServerData();
+                }
+            }
+            else
+            {
+                if (AttachmentService.FileAttachmentDtos != null && pagedData.Any(x => x.Id == AttachmentService.FileAttachmentDtos.Attachments.First().Id))
+                {
+                    pagedData = pagedData.Where(x => x.Id != AttachmentService.FileAttachmentDtos.Attachments.First().Id);
+                    _totalItems--;
+                    _isServerReload = false;
+                    _table.ReloadServerData();
+                }
+            }
+        }
         public override void Dispose()
         {
+            AttachmentService.OnChange -= HandleAttachment;
             base.Dispose();
         }
         protected override void OnInitialized()
         {
+            AttachmentService.OnChange += HandleAttachment;
+
             _alphaNumericFileNameValidationMessage = _translationService.Translate(SystemTextId.PleaseUsevalidFileName, "The file name should be alpha numeric").Text;
             _fileNameLengthValidationMessage = _translationService.Translate(SystemTextId.PleaseUseNormalFileNameLength, "Please the file name is too large, use max 255 characters as recommanded").Text;
             _fileTypeValidationMessage = _translationService.Translate(SystemTextId.PleaseUseValidAllowedFiles, "the file type is not valid, only images pdf word textfile and excel are allowed").Text;
@@ -123,6 +150,12 @@ namespace TozawaNGO.Pages
         };
         private async Task<TableData<FileAttachmentDto>> ServerReload(TableState state, CancellationToken token)
         {
+            if (!_isServerReload)
+            {
+                _isServerReload = true;
+                return new TableData<FileAttachmentDto>() { TotalItems = _totalItems, Items = pagedData };
+            }
+
             _RequestInProgress = true;
             DisabledPage();
             _page = state.Page;
@@ -311,6 +344,10 @@ namespace TozawaNGO.Pages
             }
             MudDialog.StateHasChanged();
         }
+        private bool DisabledDelete(FileAttachmentDto context)
+        {
+            return context.CreatedBy != _currentUser.UserName;
+        }
         private bool DisabledUploadFiles()
         {
             return Entity.Deleted || !HasPermission || _RequestInProgress;
@@ -354,17 +391,11 @@ namespace TozawaNGO.Pages
                 DisabledPage();
                 MudDialog.StateHasChanged();
 
-                var deleteResponse = await AttachmentService.AttachmentDelete(attachment.Id, Entity.Id, Guid.Parse(attachment.BlobId), Source);
+                var deleteResponse = await AttachmentService.AttachmentDelete(attachment.Id, Entity.Id, Source);
                 if (deleteResponse.Success)
                 {
                     Entity.Attachments.RemoveAll(x => x.Id == attachment.Id);
-                    var files = new OwnerAttachments
-                    {
-                        OwnerId = Entity.Id,
-                        Attachments = [attachment]
-                    };
                     MudDialog.StateHasChanged();
-                    AttachmentService.SetNotifyChange(files, true);
                 }
                 else
                 {
@@ -459,12 +490,7 @@ namespace TozawaNGO.Pages
                         {
                             Entity.Attachments.AddRange(attachmentsResponse.Entity ?? []);
                             _files.Clear();
-                            var files = new OwnerAttachments
-                            {
-                                OwnerId = Entity.Id,
-                                Attachments = attachmentsResponse.Entity ?? []
-                            };
-                            AttachmentService.SetNotifyChange(files);
+                            _filesToSend.Clear();
                         }
                         else
                         {

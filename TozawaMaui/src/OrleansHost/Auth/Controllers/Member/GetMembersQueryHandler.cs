@@ -17,6 +17,11 @@ namespace Grains.Auth.Controllers
 
         public async Task<TableDataDto<Models.Dtos.Backend.MemberDto>> Handle(GetMembersQuery request, CancellationToken cancellationToken)
         {
+            if (!request.IsAdminRequest && _currentUserService.User.Admin)
+            {
+                return new TableDataDto<MemberDto> { Items = [], TotalItems = 0, ItemPage = 0 };
+            }
+
             // get all item keys for this owner
             var keys = await _factory.GetGrain<IMemberManagerGrain>(SystemTextId.MemberOwnerId).GetAllAsync();
 
@@ -43,6 +48,13 @@ namespace Grains.Auth.Controllers
                 foreach (var memberItem in result)
                 {
                     if (!request.IncludeDeleted && memberItem.Deleted) continue;
+
+                    if (!request.IsAdminRequest)
+                    {
+                       //get all members by this currentuserId
+                       continue;
+                    }
+
                     var member = MemberConverter.Convert(new ApplicationUser
                     {
                         UserId = memberItem.UserId,

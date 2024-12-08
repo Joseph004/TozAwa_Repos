@@ -25,6 +25,11 @@ namespace Grains.Auth.Controllers
 
         public async Task<Models.Dtos.Backend.MemberDto> Handle(CreateMemberCommand request, CancellationToken cancellationToken)
         {
+            if (!_currentUserService.IsAdmin())
+            {
+                throw new UnauthorizedAccessException("user not allowed to update");
+            }
+
             var existingMember = await _context.TzUsers
                            .FirstOrDefaultAsync(x => x.Email == request.Email, cancellationToken: cancellationToken);
 

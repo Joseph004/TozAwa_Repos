@@ -19,7 +19,6 @@ namespace Grains.Auth.Models.Authentication
         public string LastLoginIPAdress { get; set; } = "xxxxxxxxx";
         public string Adress { get; set; }
         public string UserPasswordHash { get; set; }
-        [NotMapped]
         public List<Role> Roles { get; set; } = [Role.None];
         public DateTime LastAttemptLogin { get; set; }
         public string RefreshToken { get; set; }
@@ -43,6 +42,7 @@ namespace Grains.Auth.Models.Authentication
         public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
             builder.Property(e => e.StationIds).HasConversion<ListOfGuidsCoverter, ListOfGuidsComparer>();
+            builder.Property(e => e.Roles).HasConversion<ListOfRolesCoverter, ListOfRolesComparer>();
         }
     }
 }

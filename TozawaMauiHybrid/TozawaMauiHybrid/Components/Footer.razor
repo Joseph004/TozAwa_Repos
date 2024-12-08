@@ -1,7 +1,7 @@
-@namespace TozawaMauiHybrid.Component
+@namespace TozawaMauiHybrid.Components
 @using TozawaMauiHybrid.Helpers
-@inherits BaseComponent
-@implements IDisposable
+@using TozawaMauiHybrid.Component
+@inherits BaseComponent<Footer>
 
 <style>
     .mud-input-helper-text {
@@ -9,47 +9,58 @@
     }
 </style>
 
-
-<div class="mt-5"></div>
-<footer style="margin-top: auto; background-color: #000; overflow: auto;" id="footer">
-    <div class="footer">
-        <div style="display: flex;">
-            <div style="margin-right: -5px;">
-                <MudIconButton Icon="@Icons.Material.Filled.LocationOn" Size="Size.Large" Style="@($"color:#FFA500;")">
-                </MudIconButton>
+<ErrorHandling TCategoryName=@typeof(Footer)>
+    <ChildContent>
+        <div class="mt-5"></div>
+        <footer style="margin-top: auto; background-color: #000; overflow: auto;" id="footer">
+            <div class="footer">
+                <div style="display: flex;">
+                    <div style="margin-right: -5px;">
+                        <MudIconButton Icon="@Icons.Material.Filled.LocationOn" Size="Size.Large"
+                            Style="@($"color:#FFA500;")">
+                        </MudIconButton>
+                    </div>
+                    <div style="margin-left: -5px; margin-top: 5px;">
+                        <SystemText Style="font-size: medium; color: white;" TextId=SystemTextId.Findus
+                            FallbackText="Find us"></SystemText><br>
+                        <MudLink Style="font-size: small !important; color: #757575 !important;" Href="#">Tallrisvägen
+                            15L, 702 34 Örebro
+                        </MudLink>
+                    </div>
+                </div>
+                <div style="display: flex;">
+                    <div style="margin-right: -5px;">
+                        <MudIconButton Icon="@Icons.Material.Filled.PhoneEnabled" Size="Size.Large"
+                            Style="@($"color:#FFA500;")">
+                        </MudIconButton>
+                    </div>
+                    <div style="margin-left: -5px; margin-top: 5px;">
+                        <SystemText Style="font-size: medium; color: white;" TextId=SystemTextId.Callus
+                            FallbackText="Call us"></SystemText><br>
+                        <MudLink Style="font-size: small !important; color: #757575 !important;"
+                            Href="tel:+46701573032">0046-70 157 30 32
+                        </MudLink>
+                    </div>
+                </div>
+                <div style="display: flex;">
+                    <div style="margin-right: -5px;">
+                        <MudIconButton Icon="@Icons.Material.Filled.Email" Size="Size.Large"
+                            Style="@($"color:#FFA500;")">
+                        </MudIconButton>
+                    </div>
+                    <div style="margin-left: -5px; margin-top: 5px;">
+                        <SystemText Style="font-size: medium; color: white;" TextId=SystemTextId.Mailus
+                            FallbackText="Mail us"></SystemText><br>
+                        <MudLink Style="font-size: small !important; color: #757575 !important;"
+                            Href="mailto:josephluhandu@yahoo.com">
+                            josephluhandu@yahoo.com</MudLink>
+                    </div>
+                </div>
             </div>
-            <div style="margin-left: -5px; margin-top: 5px;">
-                <SystemText Style="font-size: medium; color: white;" TextId=SystemTextId.Findus FallbackText="Find us"
-                    ></SystemText><br>
-                <MudLink Style="font-size: small !important; color: #757575 !important;" Href="#">Tallrisvägen 15L, 702 34 Örebro
-                </MudLink>
-            </div>
-        </div>
-        <div style="display: flex;">
-            <div style="margin-right: -5px;">
-                <MudIconButton Icon="@Icons.Material.Filled.PhoneEnabled" Size="Size.Large"
-                    Style="@($"color:#FFA500;")">
-                </MudIconButton>
-            </div>
-            <div style="margin-left: -5px; margin-top: 5px;">
-                <SystemText Style="font-size: medium; color: white;" TextId=SystemTextId.Callus FallbackText="Call us"
-                    ></SystemText><br>
-                <MudLink Style="font-size: small !important; color: #757575 !important;" Href="tel:+46701573032">0046-70 157 30 32
-                </MudLink>
-            </div>
-        </div>
-        <div style="display: flex;">
-            <div style="margin-right: -5px;">
-                <MudIconButton Icon="@Icons.Material.Filled.Email" Size="Size.Large" Style="@($"color:#FFA500;")">
-                </MudIconButton>
-            </div>
-            <div style="margin-left: -5px; margin-top: 5px;">
-                <SystemText Style="font-size: medium; color: white;" TextId=SystemTextId.Mailus FallbackText="Mail us"
-                    ></SystemText><br>
-                <MudLink Style="font-size: small !important; color: #757575 !important;" Href="mailto:josephluhandu@yahoo.com">
-                    josephluhandu@yahoo.com</MudLink>
-            </div>
-        </div>
-    </div>
-    <MudDivider DividerType="DividerType.Middle" Class="my-2" />
-</footer>
+            <MudDivider DividerType="DividerType.Middle" Class="my-2" />
+        </footer>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>

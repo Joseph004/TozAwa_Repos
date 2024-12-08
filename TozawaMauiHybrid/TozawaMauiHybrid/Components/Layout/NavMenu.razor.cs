@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using TozawaMauiHybrid.Component;
 using TozawaMauiHybrid.Helpers;
+using TozawaMauiHybrid.Models.Dtos;
 using TozawaMauiHybrid.Services;
 
 namespace TozawaMauiHybrid.Components.Layout
 {
-    public partial class NavMenu : BaseComponent
+    public partial class NavMenu : BaseComponent<NavMenu>
     {
         [Inject] private NavMenuTabState NavMenuTabState { get; set; }
         [Inject] PreferencesStoreClone _storage { get; set; }
@@ -30,18 +31,17 @@ namespace TozawaMauiHybrid.Components.Layout
 
 
         protected async override Task OnInitializedAsync()
-        { 
+        {
             FirstloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
             await base.OnInitializedAsync();
         }
-        private async void FirsLoadChanged()
+        private void FirsLoadChanged()
         {
-           await InvokeAsync(async() =>
+            InvokeAsync(() =>
             {
-                _currentUser = await _currentUserService.GetCurrentUser();
                 StateHasChanged();
             });
         }
@@ -55,7 +55,6 @@ namespace TozawaMauiHybrid.Components.Layout
                     NavMenuTabState.SetActiveTab(currentTab.Value);
                 }
                 await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.1))).ContinueWith(o => { FirstloadState.SetFirsLoad(true); });
-                _currentUser = await _currentUserService.GetCurrentUser();
                 await base.OnAfterRenderAsync(firstRender);
             }
         }
@@ -77,18 +76,28 @@ namespace TozawaMauiHybrid.Components.Layout
         }
         private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+         {
+             StateHasChanged();
+         });
+        }
+        private string GetNavMudGroupRoles()
+        {
+            return $"{nameof(RoleDto.President)},{nameof(RoleDto.VicePresident)}";
         }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
+            InvokeAsync(() =>
+        {
             StateHasChanged();
+        });
         }
-
-        public override void Dispose()
+        protected override void Dispose(bool disposed)
         {
             FirstloadState.OnChange -= FirsLoadChanged;
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
+            base.Dispose(disposed);
         }
     }
 }

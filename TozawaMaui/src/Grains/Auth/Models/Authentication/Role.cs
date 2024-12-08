@@ -7,6 +7,9 @@ namespace Grains.Auth.Models.Authentication
         President = 1,
         VicePresident = 2,
         Cashier = 3,
-        Signatory = 4
+        Signatory = 4,
+        LandLoard = 5,
+        Tenant = 6,
+        economist = 7
     }
 }

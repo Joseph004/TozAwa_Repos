@@ -4,10 +4,11 @@ using MudBlazor;
 
 namespace TozawaMauiHybrid.Component
 {
-    public partial class ErrorHandlingDialog : BaseDialog
+    public partial class ErrorHandlingDialog : BaseDialog<ErrorHandlingDialog>
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
+        [Inject] NavigationManager NavManager { get; set; }
         [Parameter] public string title { get; set; }
         [Parameter] public string body { get; set; }
 
@@ -21,6 +22,10 @@ namespace TozawaMauiHybrid.Component
         private void Confirm()
         {
             MudDialog.Close(DialogResult.Ok(true));
+        }
+        private void Reload()
+        {
+            NavManager.NavigateTo(NavManager.Uri, true);
         }
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {

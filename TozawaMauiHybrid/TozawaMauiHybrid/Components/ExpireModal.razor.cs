@@ -3,7 +3,7 @@ using MudBlazor;
 
 namespace TozawaMauiHybrid.Component
 {
-    public partial class ExpireModal : BaseDialog
+    public partial class ExpireModal : BaseDialog<ExpireModal>
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public string Title { get; set; }

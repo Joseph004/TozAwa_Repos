@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
 using ShareRazorClassLibrary.Services;
 using TozawaNGO.Shared;
 
@@ -8,6 +9,7 @@ namespace TozawaNGO.Pages
     {
         [Inject] NavMenuTabState NavMenuTabState { get; set; }
         private ActiveTab _activeTab;
+        private MudTheme Theme = new MudTheme();
 
         protected override void OnInitialized()
         {

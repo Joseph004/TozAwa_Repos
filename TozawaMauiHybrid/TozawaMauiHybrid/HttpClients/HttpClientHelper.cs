@@ -11,11 +11,8 @@ using TozawaMauiHybrid.Models.Dtos;
 using TozawaMauiHybrid.Models.ResponseRequests;
 using TozawaMauiHybrid.Services;
 using Microsoft.JSInterop;
-using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
-using System.Web;
 using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Components;
 
 namespace TozawaMauiHybrid.HttpClients
 {
@@ -23,37 +20,32 @@ namespace TozawaMauiHybrid.HttpClients
     ITranslationService translationService,
     AppSettings appSettings,
     AuthenticationStateProvider authProvider,
-    PreferencesStoreClone storage,
+    NavigationManager navigationManager,
     IJSRuntime jSRuntime,
     AuthStateProvider authStateProvider,
-    FirstloadState firstloadState,
     ILogger<HttpClientHelper> logger)
     {
         protected readonly ILogger<HttpClientHelper> _logger = logger;
         private readonly ITranslationService _translationService = translationService;
         private readonly AppSettings _appSettings = appSettings;
-        private readonly FirstloadState _firstloadState = firstloadState;
         private readonly AuthenticationStateProvider _authProvider = authProvider;
-        private readonly PreferencesStoreClone _storage = storage;
-        // private readonly NavigationManager _navigationManager = navigationManager;
+        private readonly NavigationManager _navigationManager = navigationManager;
         private readonly AuthStateProvider _authStateProvider = authStateProvider;
         private readonly IJSRuntime _jSRuntime = jSRuntime;
         private readonly HttpClient _client = client;
 
-        public void RemoveCurrentUser()
+        private async Task PostLogout(string url, string token, string refreshToken)
         {
-            if (_storage.Exists("currentUser"))
+            var request = PostRequest(url, null);
+
+            if (!string.IsNullOrEmpty(token))
             {
-                _storage.Delete("currentUNavigationManagerser");
+                request.Headers.Add("tzuserauthentication", token);
             }
+            await _client.SendAsync(request);
         }
         private async Task<AddResponse<LoginResponseDto>> PostRefresh(string url, RefreshTokenDto value)
         {
-            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
-            {
-                await Application.Current.MainPage.DisplayAlert("Alert", "No internet access.", "Ok");
-                return new AddResponse<LoginResponseDto>(false, StatusTexts.GetHttpStatusText(HttpStatusCode.InternalServerError), HttpStatusCode.InternalServerError, null);
-            }
             var request = PostRequest(url, value);
 
             if (!string.IsNullOrEmpty(value.Token))
@@ -67,14 +59,15 @@ namespace TozawaMauiHybrid.HttpClients
                      new AddResponse<LoginResponseDto>(postResponse.IsSuccessStatusCode, StatusTexts.GetHttpStatusText(postResponse.StatusCode), postResponse.StatusCode, null);
 
             if (!postResponse.IsSuccessStatusCode || !postContent.Success)
+            {
+                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null);
                 return postContent;
+            }
 
             var result = postContent.Entity ?? new LoginResponseDto();
 
-            _storage.Set("authToken", result.Token);
-            _storage.Set("refreshToken", result.RefreshToken);
-
-            await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication();
+            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, result.Token, result.RefreshToken);
+            await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(result.Token, result.RefreshToken);
 
             return postContent;
         }
@@ -280,7 +273,7 @@ namespace TozawaMauiHybrid.HttpClients
             }
         }
 
-        protected static HttpContent CreateMultiPartContent(IFormFile file)
+       /*  protected static HttpContent CreateMultiPartContent(IFormFile file)
         {
             if (file == null) return null;
             return new StreamContent(file.OpenReadStream())
@@ -291,7 +284,7 @@ namespace TozawaMauiHybrid.HttpClients
                     ContentType = new MediaTypeHeaderValue(file.ContentType)
                 }
             };
-        }
+        } */
 
         protected static HttpContent CreateHttpContent(object content, string mediaTypeHeader = "application/json")
         {
@@ -353,8 +346,8 @@ namespace TozawaMauiHybrid.HttpClients
         }
         private async Task<string> TryRefreshToken()
         {
-            var token = _storage.Get<string>("authToken");
-            var refreshToken = _storage.Get<string>("refreshToken");
+            var token = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTToken;
+            var refreshToken = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTRefreshToken;
 
             var request = new RefreshTokenDto()
             {
@@ -362,7 +355,7 @@ namespace TozawaMauiHybrid.HttpClients
                 RefreshToken = refreshToken
             };
 
-            if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken) && !ValidateCurrentToken(token))
+            if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken) && !_authStateProvider.ValidateCurrentToken(token))
             {
                 var response = await PostRefresh("token/refresh/", request);
                 if (response.Success)
@@ -380,38 +373,8 @@ namespace TozawaMauiHybrid.HttpClients
             }
             return string.Empty;
         }
-        private bool ValidateCurrentToken(string token)
-        {
-            var myIssuer = _appSettings.JWTSettings.ValidIssuer;
-            var myAudience = _appSettings.JWTSettings.ValidAudience;
-
-            var tokenHandler = new JwtSecurityTokenHandler();
-            try
-            {
-                tokenHandler.ValidateToken(token, new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    ValidateIssuer = true,
-                    ValidateAudience = true,
-                    ValidIssuer = myIssuer,
-                    ValidAudience = myAudience,
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey))
-                }, out SecurityToken validatedToken);
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-            return true;
-        }
-
         protected async Task<HttpResponseMessage> Send(HttpRequestMessage request)
         {
-            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
-            {
-                await Application.Current.MainPage.DisplayAlert("Alert", "No internet access.", "Ok");
-                return new();
-            }
             var activeLanguage = await _translationService.GetActiveLanguage();
 
             var token = await TryRefreshToken();
@@ -425,7 +388,6 @@ namespace TozawaMauiHybrid.HttpClients
             request.Headers.Add("tzuserauthentication", token);
 
             request.Headers.Add("toza-active-language", activeLanguage.Id.ToString());
-
             var response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
 
             if (response.StatusCode == HttpStatusCode.Unauthorized)
@@ -441,16 +403,11 @@ namespace TozawaMauiHybrid.HttpClients
         }
         private async Task Logout()
         {
-            _storage.Delete("authToken");
-            _storage.Delete("refreshToken");
-
+            var token = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTToken;
+            var refreshToken = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTRefreshToken;
+            var user = await ((AuthStateProvider)_authStateProvider).GetUserFromToken();
+            await PostLogout($"token/logout/{user.Id.ToString()}", token, refreshToken);
             ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
-
-            _firstloadState.SetFirsLoad(true);
-        }
-        private static string Decode(string param)
-        {
-            return HttpUtility.UrlDecode(param);
         }
         protected async Task<HttpResponseMessage> PostFile(string url, HttpContent request)
         {

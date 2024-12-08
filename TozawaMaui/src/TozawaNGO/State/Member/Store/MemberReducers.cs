@@ -37,31 +37,20 @@ public static class Redures
         {
             foreach (var item in action.AttachmentDtos)
             {
+                var files = new OwnerAttachments
+                {
+                    OwnerId = current.Id,
+                    Attachments = [item]
+                };
                 if (!action.isDeleted)
                 {
-                    if (!state.Members[state.Members.IndexOf(current)].Attachments.Any(x => x.Id == item.Id))
-                    {
-                        state.Members[state.Members.IndexOf(current)].Attachments.Add(item);
-                        if (string.IsNullOrEmpty(state.Members[state.Members.IndexOf(current)].Thumbnail))
-                        {
-                            state.Members[state.Members.IndexOf(current)].Thumbnail = item.Thumbnail;
-                        }
-                    }
+                    action.attachmentService.SetNotifyChange(files, false);
+                    state.Members[state.Members.IndexOf(current)].AttachmentsCount++;
                 }
                 else
                 {
-                    if (state.Members[state.Members.IndexOf(current)].Attachments.Any(x => x.Id == item.Id))
-                    {
-                        state.Members[state.Members.IndexOf(current)].Attachments.RemoveAll(x => x.Id == item.Id);
-                        if (string.IsNullOrEmpty(state.Members[state.Members.IndexOf(current)].Thumbnail))
-                        {
-                            var thb = state.Members[state.Members.IndexOf(current)].Attachments.FirstOrDefault(x => !string.IsNullOrEmpty(x.Thumbnail));
-                            if (thb != null)
-                            {
-                                state.Members[state.Members.IndexOf(current)].Thumbnail = thb.Thumbnail;
-                            }
-                        }
-                    }
+                    action.attachmentService.SetNotifyChange(files, true);
+                    state.Members[state.Members.IndexOf(current)].AttachmentsCount--;
                 }
             }
 

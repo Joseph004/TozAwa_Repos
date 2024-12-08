@@ -1,14 +1,13 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor;
-using ShareRazorClassLibrary.Helpers;
-using ShareRazorClassLibrary.Models.Dtos;
-using ShareRazorClassLibrary.Models.FormModels;
-using ShareRazorClassLibrary.Services;
-using TozawaNGO.Services;
-using TozawaNGO.Shared;
+using TozawaMauiHybrid.Component;
+using TozawaMauiHybrid.Helpers;
+using TozawaMauiHybrid.Models.Dtos;
+using TozawaMauiHybrid.Models.FormModels;
+using TozawaMauiHybrid.Services;
 
-namespace TozawaNGO.Pages
+namespace TozawaMauiHybrid.Pages
 {
     public partial class AddMembersDialog : BaseDialog<AddMembersDialog>
     {

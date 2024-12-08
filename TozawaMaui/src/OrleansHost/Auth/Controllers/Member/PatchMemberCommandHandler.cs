@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR;
 using Shared.SignalR;
 using Grains.Helpers;
+using Grains.Auth.Models.Dtos;
 
 namespace Grains.Auth.Controllers
 {
@@ -24,10 +25,15 @@ namespace Grains.Auth.Controllers
 
         public async Task<Models.Dtos.Backend.MemberDto> Handle(PatchMemberCommand request, CancellationToken cancellationToken)
         {
+            if (!_currentUserService.IsAdmin())
+            {
+                throw new UnauthorizedAccessException("user not allowed to update");
+            }
+
             var member = await _context.TzUsers
                            .FirstOrDefaultAsync(x => x.UserId == request.Id, cancellationToken: cancellationToken);
 
-            if (member == null)
+            if (member == null || (!_currentUserService.User.Roles.Any(x => x == RoleDto.VicePresident)) && member.AdminMember)
             {
                 _logger.LogWarning("Member not found {id}", request.Id);
                 throw new Exception(nameof(request));

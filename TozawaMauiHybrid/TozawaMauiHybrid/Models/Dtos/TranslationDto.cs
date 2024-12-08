@@ -1,7 +1,3 @@
-
-
-using System;
-
 namespace TozawaMauiHybrid.Models.Dtos
 {
     public class TranslationDto

@@ -9,7 +9,7 @@ public interface ITranslationService
     Task EnsureTranslations();
     TranslationDto Translate(Guid id, string fallback = null, int? limit = null, bool? toUpper = null);
     Task<List<ActiveLanguageDto>> GetActiveLanguages();
-    //Task<ActiveLanguageDto> GetActiveLanguageFirst();
+    bool TranslationLoaded();
     Task<ActiveLanguageDto> GetActiveLanguage();
     Task ChangeActiveLanguage(Guid languageId);
     string GetShortName(ActiveLanguageDto language);

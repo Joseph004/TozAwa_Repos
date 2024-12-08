@@ -1,24 +1,18 @@
-using System.Security.Cryptography;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Text.Json;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using MudBlazor;
+using TozawaMauiHybrid.Component;
 using TozawaMauiHybrid.Helpers;
 using TozawaMauiHybrid.Models.Dtos;
 using TozawaMauiHybrid.Models.FormModels;
 using TozawaMauiHybrid.Services;
 
-namespace TozawaMauiHybrid.Component
+namespace TozawaMauiHybrid.Components
 {
-    public partial class LoginViewModal : BaseDialog
+    public partial class LoginViewModal : BaseDialog<LoginViewModal>
     {
-#pragma warning disable CS0649
-        [CascadingParameter]
-        public ErrorHandling ErrorHandling { get; set; } = null;
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Parameter] public string Title { get; set; }
 
@@ -45,8 +39,8 @@ namespace TozawaMauiHybrid.Component
             if (firstRender)
             {
                 await JSRuntime.InvokeVoidAsync("DisabledCopyPasteToPasswordField", Translate(SystemTextId.WriteYourPassword, "You need to write your password. No copy paste is allowed"));
-                await base.OnAfterRenderAsync(firstRender);
             }
+            await base.OnAfterRenderAsync(firstRender);
         }
 
         private LoginCommandFluentValidator LoginValidator()
@@ -62,7 +56,7 @@ namespace TozawaMauiHybrid.Component
         }
         private async Task LoginByKeyBoard(KeyboardEventArgs e)
         {
-            if (e.Key == "Enter" || e.Code == "Enter" || e.Code == "NumpadEnter")
+            if (e.Code == "Enter" || e.Code == "NumpadEnter")
             {
                 await Login();
             }
@@ -95,91 +89,79 @@ namespace TozawaMauiHybrid.Component
         }
         private async Task Login()
         {
-            try
+            if (!_success) return;
+
+            LoadingState.SetRequestInProgress(true);
+
+            _errors = [];
+            _processing = true;
+            _currentErrorView = model.LoginAsRoot;
+            StateHasChanged();
+
+            var encryptedFileBytesResponse = await AuthenticationService.GetCert();
+            var encryptedFileBytes = encryptedFileBytesResponse.Entity;
+            var fileBytes = Cryptography.Decrypt(encryptedFileBytes, "~pg:K5;>L^/;j=xy[1ut]zlsp0[5'#p>", "ymUGsm9mI57fc5Xr");
+
+            var content = Cryptography.EncryptUsingCertificate(model.Password, fileBytes);
+
+            var request = new LoginRequest
             {
-                if (!_success) return;
+                Email = model.Email,
+                Content = Cryptography.Encrypt(content, "Uj=?1PowK<ai57:t%`Ro]P1~1q2&-i?b", "Rh2nvSARdZRDeYiB")
+            };
 
-                LoadingState.SetRequestInProgress(true);
+            var userLoginResponse = await AuthenticationService.PostLogin(request);
 
-                _errors = [];
-                _processing = true;
-                _currentErrorView = model.LoginAsRoot;
+            if (!userLoginResponse.Success)
+            {
+                Snackbar.Add(Translate(SystemTextId.ErrorOccursPleaseContactSupport, "Error, contact support if this still happens."), Severity.Error);
+                LoadingState.SetRequestInProgress(false);
+                _processing = false;
                 StateHasChanged();
-                var encryptedFileBytesResponse = await AuthenticationService.GetCert();
-                var encryptedFileBytes = encryptedFileBytesResponse.Entity;
-                var fileBytes = Cryptography.Decrypt(encryptedFileBytes, "~pg:K5;>L^/;j=xy[1ut]zlsp0[5'#p>", "ymUGsm9mI57fc5Xr");
-
-                var content = Cryptography.EncryptUsingCertificate(model.Password, fileBytes);
-
-                var request = new LoginRequest
+            }
+            else
+            {
+                var entity = userLoginResponse.Entity ?? new LoginResponseDto();
+                if (!entity.LoginSuccess)
                 {
-                    Email = model.Email,
-                    Content = Cryptography.Encrypt(content, "Uj=?1PowK<ai57:t%`Ro]P1~1q2&-i?b", "Rh2nvSARdZRDeYiB")
-                };
+                    if (entity.LoginAttemptCount == 3)
+                    {
+                        _errors = [.. _errors, Translate(SystemTextId.TemporarlyLockout, "You've been temporarely lockedout, please contact a technician!")];
+                    }
 
-                var userLoginResponse = await AuthenticationService.PostLogin(request);
+                    if (entity.ErrorMessageGuid.HasValue && entity.ErrorMessageGuid.Value == SystemTextId.EmailOrPasswordWrong)
+                    {
+                        var errorMessage = Translate(entity.ErrorMessageGuid.Value, entity.ErrorMessage);
+                        _errors = [.. _errors, Translate(SystemTextId.EmailOrPasswordWrong, "Email or password wrong")];
+                    }
+                    else if (entity.ErrorMessageGuid.HasValue && entity.ErrorMessageGuid.Value == SystemTextId.UserNamelOrPasswordWrong)
+                    {
+                        var errorMessage = Translate(entity.ErrorMessageGuid.Value, entity.ErrorMessage);
+                        _errors = [.. _errors, Translate(SystemTextId.UserNamelOrPasswordWrong, "User name or password wrong")];
+                    }
+                    else
+                    {
+                        if (entity.ErrorMessageGuid.HasValue)
+                        {
+                            var errorMessage = Translate(entity.ErrorMessageGuid.Value, entity.ErrorMessage);
+                            _errors = _errors.Append(Translate(entity.ErrorMessageGuid.Value, "Error")).ToArray();
+                        }
+                    }
 
-                if (!userLoginResponse.Success)
-                {
-                    Snackbar.Add(Translate(SystemTextId.ErrorOccursPleaseContactSupport, "Error, contact support if this still happens."), Severity.Error);
+                    StateHasChanged();
+                    await form.Validate();
+                    Snackbar.Add(entity.ErrorMessageGuid.HasValue ? Translate(entity.ErrorMessageGuid.Value, entity.ErrorMessage) : entity.ErrorMessage, Severity.Error);
                     LoadingState.SetRequestInProgress(false);
                     _processing = false;
                     StateHasChanged();
                 }
                 else
                 {
-                    var entity = userLoginResponse.Entity ?? new LoginResponseDto();
-                    if (!entity.LoginSuccess)
-                    {
-                        if (entity.LoginAttemptCount == 3)
-                        {
-                            _errors = [.. _errors, Translate(SystemTextId.TemporarlyLockout, "You've been temporarely lockedout, please contact a technician!")];
-                        }
-
-                        if (entity.ErrorMessageGuid.HasValue && entity.ErrorMessageGuid.Value == SystemTextId.EmailOrPasswordWrong)
-                        {
-                            var errorMessage = Translate(entity.ErrorMessageGuid.Value, entity.ErrorMessage);
-                            _errors = [.. _errors, Translate(SystemTextId.EmailOrPasswordWrong, "Email or password wrong")];
-                        }
-                        else if (entity.ErrorMessageGuid.HasValue && entity.ErrorMessageGuid.Value == SystemTextId.UserNamelOrPasswordWrong)
-                        {
-                            var errorMessage = Translate(entity.ErrorMessageGuid.Value, entity.ErrorMessage);
-                            _errors = [.. _errors, Translate(SystemTextId.UserNamelOrPasswordWrong, "User name or password wrong")];
-                        }
-                        else
-                        {
-                            if (entity.ErrorMessageGuid.HasValue)
-                            {
-                                var errorMessage = Translate(entity.ErrorMessageGuid.Value, entity.ErrorMessage);
-                                _errors = [.. _errors, Translate(entity.ErrorMessageGuid.Value, "Error")];
-                            }
-                        }
-
-                        StateHasChanged();
-                        await form.Validate();
-                        Snackbar.Add(entity.ErrorMessageGuid.HasValue ? Translate(entity.ErrorMessageGuid.Value, entity.ErrorMessage) : entity.ErrorMessage, Severity.Error);
-                        LoadingState.SetRequestInProgress(false);
-                        _processing = false;
-                        StateHasChanged();
-                    }
-                    else
-                    {
-                        Confirm(entity);
-                    }
+                    Confirm(entity);
                 }
-
-                _processing = false;
-                StateHasChanged();
-            }
-            catch (Exception ex)
-            {
-                LoadingState.SetRequestInProgress(false);
-                ErrorHandling?.ProcessError(ex, Translate(SystemTextId.LoginError, "Login error"), Translate(SystemTextId.ErrorOccursWhenLogIn, "Error occurs when login"));
-
-                _processing = false;
-                StateHasChanged();
             }
             LoadingState.SetRequestInProgress(false);
+            _processing = false;
             StateHasChanged();
         }
         private void Cancel()
@@ -197,6 +179,7 @@ namespace TozawaMauiHybrid.Component
         }
         public override void Dispose()
         {
+            base.Dispose();
         }
     }
 }

@@ -5,7 +5,7 @@ using TozawaMauiHybrid.Services;
 
 namespace TozawaMauiHybrid.Component
 {
-    public partial class BasePage : ComponentBase, IDisposable
+    public partial class BasePage : Fluxor.Blazor.Web.Components.FluxorComponent, IDisposable
     {
         [Inject] protected ITranslationService _translationService { get; set; }
         [Inject] protected AuthStateProvider _authStateProvider { get; set; }
@@ -13,7 +13,6 @@ namespace TozawaMauiHybrid.Component
 
         public CurrentUserDto _currentUser { get; set; } = new();
         public List<ActiveLanguageDto> ActiveLanguages { get; set; } = [];
-        public bool IsFirstLoaded { get; set; }
 
         public BasePage()
         {
@@ -22,7 +21,6 @@ namespace TozawaMauiHybrid.Component
 
         protected override void OnInitialized()
         {
-            IsFirstLoaded = false;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
             base.OnInitialized();
@@ -30,11 +28,17 @@ namespace TozawaMauiHybrid.Component
 
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+           {
+               StateHasChanged();
+           });
         }
         private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+           {
+               StateHasChanged();
+           });
         }
 
         protected override async Task OnInitializedAsync()
@@ -45,10 +49,8 @@ namespace TozawaMauiHybrid.Component
         {
             if (firstRender)
             {
-                IsFirstLoaded = true;
-                StateHasChanged();
-                await base.OnAfterRenderAsync(firstRender);
             }
+            await base.OnAfterRenderAsync(firstRender);
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {
@@ -79,10 +81,11 @@ namespace TozawaMauiHybrid.Component
 
             return myRole;
         }
-        public virtual void Dispose()
+        protected override void Dispose(bool disposed)
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
+            base.Dispose(disposed);
         }
     }
 }

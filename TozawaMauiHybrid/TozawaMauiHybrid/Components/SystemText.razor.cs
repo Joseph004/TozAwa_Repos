@@ -6,7 +6,7 @@ using TozawaMauiHybrid.Services;
 
 namespace TozawaMauiHybrid.Component;
 
-public partial class SystemText : BaseComponent
+public partial class SystemText : BaseComponent<SystemText>
 {
     [Parameter] public Typo SystemTextTypo { get; set; } = Typo.body1;
     [Parameter] public Guid TextId { get; set; }
@@ -22,10 +22,10 @@ public partial class SystemText : BaseComponent
 
     private string _translatedText { get; set; }
     private bool _istTranslated { get; set; }
+    private bool _firstLoaded = false;
 
     protected async override Task OnInitializedAsync()
     {
-        FirstloadState.OnChange += FirsLoadChanged;
         await base.OnInitializedAsync();
     }
     private void FirsLoadChanged()
@@ -39,24 +39,37 @@ public partial class SystemText : BaseComponent
     {
         if (firstRender)
         {
+            _firstLoaded = true;
+            await InvokeAsync(() =>
+         {
+             StateHasChanged();
+         });
+            FirstloadState.SetFirsLoad(true);
             await base.OnAfterRenderAsync(firstRender);
         }
     }
     public string Translate()
     {
-        var translation = _translationService.Translate(TextId, FallbackText, Limit, ToUpper);
-        bool translationChanged = CheckIfIsTranslatedChanged(translation);
+        var response = "Not translated";
+        if (_translationService.TranslationLoaded())
+        {
+            var translation = _translationService.Translate(TextId, FallbackText, Limit, ToUpper);
+            bool translationChanged = CheckIfIsTranslatedChanged(translation);
 
-        NotTranslated = translation.IsTranslated ? string.Empty : "notTranslated";
-        NotTranslatedTitle = translation.IsTranslated ? string.Empty : $"Not translated: {translation.Id}";
-        bool newTranslation = CheckIfTranslationChanged(translation);
+            NotTranslated = translation.IsTranslated ? string.Empty : "notTranslated";
+            NotTranslatedTitle = translation.IsTranslated ? string.Empty : $"Not translated: {translation.Id}";
+            bool newTranslation = CheckIfTranslationChanged(translation);
 
-        if (newTranslation || translationChanged)
+            if (newTranslation || translationChanged)
+            {
+                InvokeAsync(() =>
         {
             StateHasChanged();
+        });
+            }
+            response = translation.Text;
         }
-
-        return translation.Text;
+        return response;
     }
 
     private bool CheckIfTranslationChanged(TranslationDto translation)
@@ -72,8 +85,8 @@ public partial class SystemText : BaseComponent
         _istTranslated = translation.IsTranslated;
         return translationChanged;
     }
-    public override void Dispose()
+    protected override void Dispose(bool disposing)
     {
-        FirstloadState.OnChange -= FirsLoadChanged;
+        base.Dispose(disposing);
     }
 }

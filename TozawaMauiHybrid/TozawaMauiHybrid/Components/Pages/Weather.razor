@@ -1,4 +1,6 @@
 ﻿@page "/weather"
+@attribute [Authorize(Policy = "admin-member")]
+@attribute [Authorize(Roles = "President, VicePresident")]
 @using System.Security.Cryptography.X509Certificates
 @using TozawaMauiHybrid.Helpers
 @using TozawaMauiHybrid.Models.Dtos
@@ -56,4 +58,3 @@ else
         await base.OnInitializedAsync();
     }
 }
-using Android.Content;

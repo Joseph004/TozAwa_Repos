@@ -78,10 +78,22 @@
     <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.*" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.*" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="8.*" />
 
-    <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
+    <PackageReference Include="CodeBeam.MudBlazor.Extensions" Version="7.*" />
+    <PackageReference Include="Fluxor.Blazor.Web" Version="5.*" />
+    <PackageReference Include="FreeSpire.Presentation" Version="7.*" />
+    <PackageReference Include="GrapeCity.Documents.Word" Version="7.*" />
+    <PackageReference Include="GrapeCity.Documents.Word.Layout" Version="7.*" />
+    <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.*" />
+    <PackageReference Include="PDFsharp-MigraDoc" Version="6.*" />
+    <PackageReference Include="Syncfusion.Pdf.Net.Core" Version="27.*" />
+    <PackageReference Include="Syncfusion.XlsIO.Net.Core" Version="27.*" />
+    <PackageReference Include="Syncfusion.XlsIORenderer.Net.Core" Version="27.*" />
+
+    <PackageReference Include="Microsoft.Extensions.Http" Version="8.*" />
     <PackageReference Include="Microsoft.AspNetCore.JsonPatch" Version="8.*" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.*" />
     <PackageReference Include="Microsoft.IdentityModel.Tokens" Version="7.*" />
@@ -89,7 +101,7 @@
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="8.*" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.*" />
     <PackageReference Include="MudBlazor" Version="7.*" />
-     <PackageReference Include="MudBlazor.Extensions" Version="2.*" />
+    <PackageReference Include="MudBlazor.Extensions" Version="2.*" />
   </ItemGroup>
 
   <ItemGroup>

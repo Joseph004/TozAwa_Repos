@@ -106,7 +106,7 @@ public class AuthStateProvider(ILocalStorageService localStorageService, AppSett
             }
             if (user.Admin)
             {
-                claims.Add(new Claim("admin-member", "MemberIsAdmin"));
+                await NotifyUserLogout();
             }
             authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "tzuserauthentication"));
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));

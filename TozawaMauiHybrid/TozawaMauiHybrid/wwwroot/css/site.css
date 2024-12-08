@@ -1,8 +1,11 @@
 @import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
+@import url('https://fonts.googleapis.com/css?family=Source+Code+Pro:200');
 
 html,
 body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+    font-family: "lato, sans-serif";
+    letter-spacing: 2px;
+    font-size: 15px;
     max-height: 100vh;
     height: 100vh;
 }
@@ -77,6 +80,10 @@ a,
 
 /* Loading screen Bigen */
 
+.disabledDialog {
+    pointer-events: none;
+}
+
 .disabledPage> :not(.loaderDiv) {
     pointer-events: none;
     filter: opacity(0.5);
@@ -90,7 +97,7 @@ a,
 
 .text-icon {
     position: relative;
-    top: 5px;
+    top: -2px;
 }
 
 /* AppBar Bigins */
@@ -226,14 +233,14 @@ a,
 /* Nav link */
 
 .navlinkcolor {
-    color: #FFD700;
+    color: #d4af37;
 }
 
 /* Nav link */
 
 /* Begin_Dialog */
-.tzModal {
+/* .tzModal {
     height: auto !important;
-}
+} */
 
 /* End_Dialog */

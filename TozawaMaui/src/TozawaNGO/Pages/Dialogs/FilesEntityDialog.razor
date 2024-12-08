@@ -141,7 +141,7 @@
                         2))kb
                         </MudTd>
                         <MudTd DataLabel="@(GetLabel(SystemTextId.Delete, "Delete"))">
-                            <MudIconButton Disabled="@(_disabledPage || DisabledUploadFiles())"
+                            <MudIconButton Disabled="@(_disabledPage || DisabledDelete(context) || DisabledUploadFiles())"
                                 Icon="@Icons.Material.Filled.Delete" @onclick="() => Delete(context)"></MudIconButton>
                         </MudTd>
                     </RowTemplate>

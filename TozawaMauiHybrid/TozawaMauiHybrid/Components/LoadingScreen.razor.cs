@@ -40,7 +40,10 @@ namespace TozawaMauiHybrid.Component
                 //await Task.Delay(4000); // TODO actual initialization job
                 await _traslationService.EnsureTranslations();
                 isLoaded = true;
-                StateHasChanged();
+                await InvokeAsync(() =>
+         {
+             StateHasChanged();
+         });
             }
         }
     }

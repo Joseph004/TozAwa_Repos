@@ -83,8 +83,7 @@ builder.Services.AddSignalR(options =>
 });
 
 builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(Program).Assembly));
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("admin-member", policy => policy.RequireClaim("admin-member", "MemberIsAdmin"));
+builder.Services.AddAuthorizationBuilder();
 builder.Services.AddScoped<AuthStateProvider>();
 builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<AuthStateProvider>());
 

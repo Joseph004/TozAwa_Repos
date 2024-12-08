@@ -38,15 +38,15 @@ public partial class SystemText : BaseComponent<SystemText>
             StateHasChanged();
         });
     }
-    protected override Task OnAfterRenderAsync(bool firstRender)
+    protected async override Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
             _firstLoaded = true;
             StateHasChanged();
             FirstloadState.SetFirsLoad(true);
+            await base.OnAfterRenderAsync(firstRender);
         }
-        return base.OnAfterRenderAsync(firstRender);
     }
 
     public string Translate()

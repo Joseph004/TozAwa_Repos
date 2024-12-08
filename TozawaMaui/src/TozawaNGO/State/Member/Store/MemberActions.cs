@@ -27,7 +27,7 @@ public record MemberSelectedAction(MemberDto selectedItem)
     public MemberDto SelectedItem { get; } = selectedItem;
 }
 public record MemberPatchAfterAction(MemberDto member);
-public record HandleAttachments(List<FileAttachmentDto> AttachmentDtos, Guid ownerId, bool isDeleted);
+public record HandleAttachments(List<FileAttachmentDto> AttachmentDtos, Guid ownerId, bool isDeleted, AttachmentService attachmentService);
 public record MemberDeletedForeverAction(Guid id);
 public record UnSubscribeAction;
 public record MemberAddAction(

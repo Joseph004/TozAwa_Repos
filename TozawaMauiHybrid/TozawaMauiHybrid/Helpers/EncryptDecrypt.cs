@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
@@ -203,7 +202,6 @@ public static class Cryptography
             using ICryptoTransform encryptor = aes.CreateEncryptor();
             encryptedBytes = encryptor.TransformFinalBlock(plainBytes, 0, plainBytes.Length);
         }
-
         return encryptedBytes;
     }
 }

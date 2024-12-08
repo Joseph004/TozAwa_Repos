@@ -23,6 +23,7 @@ namespace TozawaMauiHybrid.Services
         private List<ActiveLanguageDto> _activeLanguages = null;
         private bool _translationLoaded = false;
         private string ActiveLanguageKey => "ActiveLanguageKey";
+        public bool TranslationLoaded() => _translationLoaded;
         private CultureInfo _selectedCulture = Thread.CurrentThread.CurrentCulture;
 
         public event EventHandler<EventArgs> LanguageChanged;
@@ -52,20 +53,20 @@ namespace TozawaMauiHybrid.Services
         }
         private async IAsyncEnumerable<LocalizedString> GetAllLocalizedStrings()
         {
-            var activeCulture = await GetActiveLanguage(); 
+            var activeCulture = await GetActiveLanguage();
 
             if (activeCulture != null && activeCulture.Culture != _selectedCulture.Name)
             {
                 var cultures = CultureInfo.GetCultures(CultureTypes.AllCultures);
                 var culture = cultures.FirstOrDefault(x => x.Name == activeCulture.Culture);
- 
+
                 if (culture != null)
                 {
                     _selectedCulture = culture;
-                } 
+                }
             }
 
-            ResourceManager rm = new(typeof(TozawaMauiHybrid.Resources.App)); 
+            ResourceManager rm = new(typeof(TozawaMauiHybrid.Resources.App));
             foreach (DictionaryEntry value in rm.GetResourceSet(_selectedCulture, true, true))
             {
                 yield return new LocalizedString((string)value.Key, (string)value.Value);

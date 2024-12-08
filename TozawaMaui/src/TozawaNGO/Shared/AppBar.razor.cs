@@ -12,7 +12,6 @@ namespace TozawaNGO.Shared
         [Inject] ILocalStorageService _localStorageService { get; set; }
         [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] private NavMenuTabState NavMenuTabState { get; set; }
-        public string _loginUrl { get; set; } = $"";
         private bool _showLogo = false;
 
         protected async override Task OnInitializedAsync()

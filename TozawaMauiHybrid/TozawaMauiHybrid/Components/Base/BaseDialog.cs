@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using TozawaMauiHybrid.Models.Dtos;
 using TozawaMauiHybrid.Services;
 
 namespace TozawaMauiHybrid.Component
 {
-    public partial class BaseDialog : ComponentBase, IDisposable
+    public partial class BaseDialog<T> : ComponentBase, IDisposable
     {
+        [Inject] ILogger<T> _logger { get; set; }
         [Inject] protected ITranslationService _translationService { get; set; }
         [Inject] private ICurrentUserService _currentUserService { get; set; }
 
@@ -15,7 +17,6 @@ namespace TozawaMauiHybrid.Component
         {
 
         }
-
         protected override void OnInitialized()
         {
             _translationService.LanguageChanged += _translationService_LanguageChanged;
@@ -23,7 +24,10 @@ namespace TozawaMauiHybrid.Component
         }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+          {
+              StateHasChanged();
+          });
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {
@@ -56,7 +60,6 @@ namespace TozawaMauiHybrid.Component
 
             return myRole;
         }
-
         public virtual void Dispose()
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;

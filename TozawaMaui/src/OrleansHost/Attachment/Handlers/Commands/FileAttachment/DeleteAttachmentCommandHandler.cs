@@ -11,15 +11,19 @@ using Microsoft.AspNetCore.SignalR;
 using Shared.SignalR;
 using Grains;
 using Grains.Auth.Models.Dtos.Backend;
+using Grains.Auth.Services;
+using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.AspNetCore.Http;
 
 namespace OrleansHost.Attachment.Handlers.Commands;
 
-public class DeleteAttachmentCommandHandler(TozawangoDbContext context, IGoogleService googleService, IGrainFactory factory,
+public class DeleteAttachmentCommandHandler(TozawangoDbContext context, ICurrentUserService currentUserService, IGoogleService googleService, IGrainFactory factory,
     IHubContext<ClientHub> hub, ILogger<DeleteAttachmentCommandHandler> logger) : IRequestHandler<DeleteAttachmentCommand, DeleteResponse>
 {
     private readonly IGrainFactory _factory = factory;
     private readonly IHubContext<ClientHub> _hub = hub;
     private readonly TozawangoDbContext _context = context;
+    private readonly ICurrentUserService _currentUserService = currentUserService;
     private readonly IGoogleService _googleService = googleService;
     private readonly ILogger<DeleteAttachmentCommandHandler> _logger = logger;
 
@@ -34,6 +38,12 @@ public class DeleteAttachmentCommandHandler(TozawangoDbContext context, IGoogleS
             {
                 return new DeleteResponse(false, UpdateMessages.Error, HttpStatusCode.InternalServerError);
             }
+
+            if (!_currentUserService.IsAdmin() && attachment.CreatedBy != _currentUserService.User.UserName)
+            {
+                throw new BadHttpRequestException("Cannot remove");
+            }
+
             var fileId = attachment.Id;
             await _googleService.DeleteFile(attachment.BlobId);
             if (!string.IsNullOrEmpty(attachment.MiniatureId))

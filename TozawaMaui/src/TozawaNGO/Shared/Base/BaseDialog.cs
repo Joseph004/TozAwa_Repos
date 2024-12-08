@@ -22,42 +22,6 @@ namespace TozawaNGO.Shared
         {
 
         }
-        public async Task ProcessError(Exception ex, string title, string body)
-        {
-            _logger.LogError("Error:ProcessError - Type: {Type} Message: {Message}",
-            ex.GetType(), ex.Message);
-
-            var options = new DialogOptionsEx
-            {
-                BackgroundClass = "tz-mud-overlay",
-                BackdropClick = false,
-                CloseButton = false,
-                MaxWidth = MaxWidth.Small,
-                MaximizeButton = true,
-                FullHeight = false,
-                FullWidth = true,
-                DragMode = MudDialogDragMode.Simple,
-                Animations = [AnimationType.Pulse],
-                Position = DialogPosition.Center
-            };
-
-            options.SetProperties(ex => ex.Resizeable = true);
-            options.DialogAppearance = MudExAppearance.FromStyle(b =>
-            {
-                b.WithBackgroundColor("gold")
-                .WithOpacity(0.9);
-            });
-
-
-            var parameters = new DialogParameters
-            {
-                ["body"] = body,
-                ["title"] = title
-            };
-
-            var dialog = await DialogService.ShowEx<ErrorHandlingDialog>(title, parameters, options);
-            var result = await dialog.Result;
-        }
         protected override void OnInitialized()
         {
             _translationService.LanguageChanged += _translationService_LanguageChanged;

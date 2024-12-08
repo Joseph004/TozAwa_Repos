@@ -1,5 +1,7 @@
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -23,85 +25,81 @@ namespace TozawaMauiHybrid.HttpClients
         private readonly AppSettings _appSettings;
         private readonly ILogger<AuthHttpClient> _logger;
         private readonly AuthenticationStateProvider _authProvider;
-        private readonly PreferencesStoreClone _storage;
-        //private readonly NavigationManager _navigationManager;
+        private readonly NavigationManager _navigationManager;
         private readonly HttpClient _client;
         private readonly FirstloadState _firstloadState;
+        private readonly AuthStateProvider _authStateProvider;
+        private readonly PreferencesStoreClone _storage;
 
-        public AuthHttpClient(HttpClient client, AppSettings appSettings, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authProvider, PreferencesStoreClone storage,
-           AuthenticationStateProvider authState, FirstloadState firstloadState)
+        public AuthHttpClient(HttpClient client, AppSettings appSettings, PreferencesStoreClone storage, AuthStateProvider authStateProvider, ILogger<AuthHttpClient> logger, AuthenticationStateProvider authProvider, NavigationManager navigationManager, FirstloadState firstloadState)
         {
             _client = client;
             _logger = logger;
             _appSettings = appSettings;
-            _storage = storage;
             _authProvider = authProvider;
             _firstloadState = firstloadState;
+            _authStateProvider = authStateProvider;
+            _storage = storage;
 
-            //_navigationManager = navigationManager;
-#if !DEBUG
+            client.BaseAddress = new Uri(appSettings.TozAwaNGOApiSettings.ApiUrl);
+            client.DefaultRequestHeaders.Add("Accept", "application/json");
+
+            _navigationManager = navigationManager;
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12 | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
-#endif
         }
         private async Task<string> TryRefreshToken()
         {
-            var authState = await _authProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-            var exp = user.FindFirst(c => c.Type.Equals("exp"))?.Value;
-            if (string.IsNullOrEmpty(exp)) return string.Empty;
-            var expTime = DateTimeOffset.FromUnixTimeSeconds(Convert.ToInt64(exp));
-            var timeUTC = DateTime.UtcNow;
-            var diff = expTime - timeUTC;
-
-            var token = _storage.Get<string>("authToken");
-            var refreshToken = _storage.Get<string>("refreshToken");
+            var token = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTToken;
+            var refreshToken = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTRefreshToken;
 
             var request = new RefreshTokenDto()
             {
                 Token = token,
                 RefreshToken = refreshToken
             };
-
-            if (diff.TotalMinutes <= 2)
+            if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken) && !_authStateProvider.ValidateCurrentToken(token))
             {
-                var response = await PostRefresh("token/refresh", request);
+                var response = await PostRefresh("token/refresh/", request);
                 if (response.Success)
                 {
                     var result = response.Entity ?? new LoginResponseDto();
                     return result.Token;
                 }
             }
+            else
+            {
+                if (!string.IsNullOrEmpty(request.Token))
+                {
+                    return request.Token;
+                }
+            }
             return string.Empty;
         }
-        private void Logout()
+        private async Task Logout()
         {
-            RemoveCurrentUser();
-            _storage.Delete("authToken");
-            _storage.Delete("refreshToken");
-            // ((AuthStateProvider)_authProvider).NotifyUserLogout();
-
-            _firstloadState.SetFirsLoad(true);
+            var token = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTToken;
+            var refreshToken = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.JWTRefreshToken;
+            var user = await ((AuthStateProvider)_authStateProvider).GetUserFromToken();
+            await PostLogout($"token/logout/{user.Id.ToString()}", token, refreshToken);
+            ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
         }
-        public void RemoveCurrentUser()
+        private async Task PostLogout(string url, string token, string refreshToken)
         {
-            if (_storage.Exists("currentUser"))
+            var request = PostRequest(url, null);
+
+            if (!string.IsNullOrEmpty(token))
             {
-                _storage.Exists("currentUser");
+                request.Headers.Add("tzuserauthentication", token);
             }
+            await _client.SendAsync(request);
         }
         public virtual async Task<HttpResponseMessage> Send(HttpRequestMessage request)
         {
-            if (Connectivity.Current.NetworkAccess != NetworkAccess.Internet)
-            {
-                await Application.Current.MainPage.DisplayAlert("Alert", "No internet access.", "Ok");
-                return new();
-            }
-
             var token = await TryRefreshToken();
             var context = await _authProvider.GetAuthenticationStateAsync();
             if (string.IsNullOrEmpty(token) && context.User.Identity != null && context.User.Identity.IsAuthenticated)
             {
-                Logout();
+                await Logout();
                 token = string.Empty;
             }
             request.Headers.Add("tzuserauthentication", token);
@@ -174,25 +172,21 @@ namespace TozawaMauiHybrid.HttpClients
                 request.Headers.Add("tzuserauthentication", value.Token);
             }
 
-            var activeLanguage = _storage.Get<ActiveLanguageDto>($"ActiveLanguageKey_activeLanguage");
-
-            if (activeLanguage != null && activeLanguage.Id != Guid.Empty)
-            {
-                request.Headers.Add("toza-active-language", activeLanguage.Id.ToString());
-            }
-
             var postResponse = await _client.SendAsync(request);
 
-            var postContent = postResponse.IsSuccessStatusCode ? await postResponse.Content.ReadAsJsonAsync<AddResponse<LoginResponseDto>>() :
+            var postContent = postResponse.IsSuccessStatusCode ? new AddResponse<LoginResponseDto>(postResponse.IsSuccessStatusCode, StatusTexts.GetHttpStatusText(postResponse.StatusCode), postResponse.StatusCode, await postResponse.Content.ReadAsJsonAsync<LoginResponseDto>()) :
                      new AddResponse<LoginResponseDto>(postResponse.IsSuccessStatusCode, StatusTexts.GetHttpStatusText(postResponse.StatusCode), postResponse.StatusCode, null);
 
             if (!postResponse.IsSuccessStatusCode || !postContent.Success)
+            {
+                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null);
                 return postContent;
+            }
 
             var result = postContent.Entity ?? new LoginResponseDto();
 
-            _storage.Set("authToken", result.Token);
-            _storage.Set("refreshToken", result.RefreshToken);
+            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, result.Token, result.RefreshToken);
+            await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(result.Token, result.RefreshToken);
 
             return postContent;
         }

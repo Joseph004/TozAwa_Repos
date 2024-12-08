@@ -94,7 +94,7 @@ namespace TozawaNGO.Shared
                     "PG=?1PowK<ai57:t%`Ro}L9~1q2&-i/H", "HK2nvSMadZRDeTbB");
                     if (!string.IsNullOrEmpty(Encoding.UTF8.GetString(idBytes)))
                     {
-                        var response = await AuthenticationService.GetLoggedIn(Guid.Parse(Encoding.UTF8.GetString(idBytes)));
+                        var response = await AuthenticationService.GetLoggedInMember(Guid.Parse(Encoding.UTF8.GetString(idBytes)));
                         if (response.Success && response.Entity != null)
                         {
                             userResponse = response.Entity;

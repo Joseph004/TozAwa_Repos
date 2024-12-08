@@ -57,7 +57,7 @@
                             IconColor="@(NavMenuTabState.ActiveTab == ActiveTab.Home ? Color.Warning : Color.Default)"
                             OnClick="@(()=>OnClickTab("/"))" Icon="@Icons.Material.Filled.Celebration">Party</MudNavLink>
                     </MudNavGroup>
-                    <AuthorizeView Policy="admin-member">
+                    <AuthorizeView Roles="@GetNavMudGroupRoles()">
                         <Authorized>
                             <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Settings ? "navlinkcolor" : "" )"
                                 Style="border-bottom: 0.1px solid;" OnClick="@(()=>OnClickTab("/settings"))"

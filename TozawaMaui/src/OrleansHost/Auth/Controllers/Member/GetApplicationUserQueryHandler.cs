@@ -12,7 +12,7 @@ namespace Grains.Auth.Controllers
         private readonly IGrainFactory _factory = factory;
 
         public async Task<ApplicationUser> Handle(GetApplicationUserQuery request, CancellationToken cancellationToken)
-        {
+        { 
             var member = new ApplicationUser();
 
             // get all item keys for this owner

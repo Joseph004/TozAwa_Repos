@@ -8,5 +8,6 @@ namespace TozawaMauiHybrid.Models.Dtos
         public string Name { get; set; }
         public byte[] Content { get; set; }
         public string MineType { get; set; }
+        public byte[] PdfConvertedContent { get; set; }
     }
 }

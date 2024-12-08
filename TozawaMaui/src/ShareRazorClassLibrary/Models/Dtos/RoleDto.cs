@@ -3,9 +3,13 @@ namespace ShareRazorClassLibrary.Models.Dtos
 {
     public enum RoleDto
     {
-        President = 0,
-        VicePresident = 1,
-        Cashier = 2,
-        Signatory = 3
+        None = 0,
+        President = 1,
+        VicePresident = 2,
+        Cashier = 3,
+        Signatory = 4,
+        LandLoard = 5,
+        Tenant = 6,
+        economist = 7
     }
 }

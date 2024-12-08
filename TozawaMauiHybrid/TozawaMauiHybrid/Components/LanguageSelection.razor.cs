@@ -6,7 +6,7 @@ using TozawaMauiHybrid.Services;
 
 namespace TozawaMauiHybrid.Component
 {
-    public partial class LanguageSelection : BaseComponent
+    public partial class LanguageSelection : BaseComponent<LanguageSelection>
     {
         [Inject] private AppSettings _appSettings { get; set; }
         [Inject] ISnackbar Snackbar { get; set; }
@@ -16,9 +16,10 @@ namespace TozawaMauiHybrid.Component
         [Inject] FirstloadState FirstloadState { get; set; }
         private string _dropArrowPosition = Icons.Material.Filled.KeyboardArrowDown;
         MudMenu _mudMenuRef = new();
-        public override void Dispose()
+        protected override void Dispose(bool disposed)
         {
             FirstloadState.OnChange -= FirsLoadChanged;
+            base.Dispose(disposed);
         }
         private void FirsLoadChanged()
         {
@@ -38,7 +39,10 @@ namespace TozawaMauiHybrid.Component
             {
                 _dropArrowPosition = Icons.Material.Filled.KeyboardArrowDown;
             }
-            StateHasChanged();
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
         }
 
         protected override void OnInitialized()
@@ -57,7 +61,10 @@ namespace TozawaMauiHybrid.Component
                 ActiveLanguage = await _translationService.GetActiveLanguage();
 
                 Language = GetShortName(ActiveLanguage);
-                StateHasChanged();
+                await InvokeAsync(() =>
+         {
+             StateHasChanged();
+         });
             }
         }
 
@@ -73,7 +80,10 @@ namespace TozawaMauiHybrid.Component
             {
                 Snackbar.Add("Could not change language", Severity.Error);
             }
-            StateHasChanged();
+            await InvokeAsync(() =>
+         {
+             StateHasChanged();
+         });
         }
 
         public string GetShortName(ActiveLanguageDto activeLanguage)

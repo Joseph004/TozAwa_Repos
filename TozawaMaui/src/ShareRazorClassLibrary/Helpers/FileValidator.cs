@@ -12,8 +12,6 @@ using Syncfusion.XlsIO;
 using Syncfusion.XlsIORenderer;
 using Spire.Presentation;
 using System;
-using System.Collections.Generic;
-using System.Windows.Forms;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.Rendering;
 using System.IO;
@@ -97,7 +95,7 @@ public static class FileValidator
         {
             UInt32 mimeType = default(UInt32);
             FindMimeFromData(0, null, bytes, 256, null, 0, ref mimeType, 0);
-            IntPtr mimeTypePtr = new IntPtr(mimeType);
+            IntPtr mimeTypePtr = new(mimeType);
             string mime = Marshal.PtrToStringUni(mimeTypePtr);
             Marshal.FreeCoTaskMem(mimeTypePtr);
             if (string.IsNullOrEmpty(mime))

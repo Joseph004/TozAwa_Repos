@@ -24,16 +24,19 @@ public class AttachmentService(ITozAwaBffHttpClient client, ISessionStorageServi
         OnDelete = onDelete;
         FileAttachmentDtos = attachmentDtos;
 
-        NotifyStateChanged();
+        if (attachmentDtos != null)
+        {
+            NotifyStateChanged();
+        }
     }
     private void NotifyStateChanged() => OnChange.Invoke();
 
     public async Task<AddResponse<TableData<FileAttachmentDto>>> GetAttachments(GetAttachments request) => await _client.SendPost02<TableData<FileAttachmentDto>>($"{_baseUriPath}", request);
-    public async Task<DeleteResponse> AttachmentDelete(Guid id, Guid ownerId, Guid blobId, string source)
+    public async Task<DeleteResponse> AttachmentDelete(Guid id, Guid ownerId, string source)
     {
-        if (await _sessionStorageService.ContainKeyAsync(blobId.ToString()))
+        if (await _sessionStorageService.ContainKeyAsync(id.ToString()))
         {
-            await _sessionStorageService.RemoveItemAsync(blobId.ToString());
+            await _sessionStorageService.RemoveItemAsync(id.ToString());
         }
         return await _client.SendDelete<AttachmentDownloadDto>($"{_baseUriPath}/{id}/{ownerId}/{source}");
     }

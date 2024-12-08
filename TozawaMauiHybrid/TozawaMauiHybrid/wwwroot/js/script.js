@@ -57,11 +57,6 @@ function saveAsFile(filename, bytesBase64) {
         document.body.removeChild(link);
     }
 }
-
-function getScreeenSize() {
-    var width = window.innerWidth;
-    return width;
-}
 window.DisabledCopyPasteToPasswordField = (message) => {
     $('.tz_password').bind("cut copy paste", function (e) {
         e.preventDefault();
@@ -71,6 +66,10 @@ window.DisabledCopyPasteToPasswordField = (message) => {
         });
     });
 };
+function getScreeenSize() {
+    var width = window.innerWidth;
+    return width;
+}
 function getWindowSize() {
     var element = document.getElementById("tzMainContainer");
     var width = window.innerWidth;
@@ -95,4 +94,4 @@ window.onload = function () {
     setTimeout(function () {
         getWindowSize();
     }, 700);
-}; 
+};

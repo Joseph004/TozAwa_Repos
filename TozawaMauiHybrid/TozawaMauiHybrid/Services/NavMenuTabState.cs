@@ -64,6 +64,7 @@ namespace TozawaMauiHybrid.Services
 	{
 		Home = 1,
 		Counter = 2,
-		Weather = 3
+		Weather = 3,
+        Settings = 4
 	}
 }

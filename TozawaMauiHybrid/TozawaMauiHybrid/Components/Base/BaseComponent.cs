@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using TozawaMauiHybrid.Helpers;
 using TozawaMauiHybrid.Models.Dtos;
 using TozawaMauiHybrid.Services;
 namespace TozawaMauiHybrid.Component
 {
-    public partial class BaseComponent : ComponentBase, IDisposable
+    public partial class BaseComponent<T> : Fluxor.Blazor.Web.Components.FluxorComponent, IDisposable
     {
+        [Inject] ILogger<T> _logger { get; set; }
         [Inject] protected ITranslationService _translationService { get; set; }
         [Inject] protected AuthStateProvider _authStateProvider { get; set; }
         [Inject] public ICurrentUserService _currentUserService { get; set; }
@@ -24,19 +26,25 @@ namespace TozawaMauiHybrid.Component
         }
         private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+          {
+              StateHasChanged();
+          });
         }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+          {
+              StateHasChanged();
+          });
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
                 _currentUser = await _currentUserService.GetCurrentUser();
-                await base.OnAfterRenderAsync(firstRender);
             }
+            await base.OnAfterRenderAsync(firstRender);
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {
@@ -66,10 +74,11 @@ namespace TozawaMauiHybrid.Component
 
             return myRole;
         }
-        public virtual void Dispose()
+        protected override void Dispose(bool disposed)
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
+            base.Dispose(disposed);
         }
     }
 }
