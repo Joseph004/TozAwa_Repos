@@ -280,20 +280,7 @@ namespace Grains.Auth.Controllers
                 response.Entity.ErrorMessageGuid = Helpers.SystemTextId.EmailOrPasswordWrong;
                 return Ok(response);
             }
-            /* var user1 = _context.TzUsers.First(x => x.Email == "josephluhandu@yahoo.com");
-            user1.Roles = [Role.President];
-            _context.Entry(user1).State = EntityState.Modified;
-            _context.SaveChanges(); */
-            /* var user1 = await userManager.FindByEmailAsync("bonheurluhandu@yahoo.com");
-            user1.Roles.Add(Role.LandLoard);
-            _context.SaveChanges();
-            user1.UserName = "BonheurLuhandu";
-            user1.PasswordHash = userManager.PasswordHasher.HashPassword(user, "Zairenumber02?");
-            var res = await userManager.UpdateAsync(user1);
-            if (res.Succeeded)
-            {
-                // change password has been succeeded
-            } */
+         
             if (user.Deleted)
             {
                 response.Success = false;

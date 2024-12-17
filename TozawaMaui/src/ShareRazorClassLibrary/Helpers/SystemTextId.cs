@@ -127,4 +127,6 @@ public static partial class SystemTextId
     public static Guid ViewAsPdf => Guid.Parse("d2232c5d-c73d-4714-87d6-c1e76c858090");
     public static Guid DownloadAsPdf => Guid.Parse("fe71f628-b733-4123-a7d3-81a32730fa75");
     public static Guid ReloadPage => Guid.Parse("970dcdc8-6d74-4c08-aa2f-e18c7f46e52b");
+    public static Guid CookieSetting => Guid.Parse("68eccf80-8989-4f2e-858b-e89fd8f208cf");
+    public static Guid DiscussWithUs => Guid.Parse("a65a7b8b-2def-4718-b98e-13e09ae14fba");
 }

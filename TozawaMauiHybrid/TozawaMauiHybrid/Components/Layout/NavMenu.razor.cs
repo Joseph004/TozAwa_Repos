@@ -11,6 +11,8 @@ namespace TozawaMauiHybrid.Components.Layout
     {
         [Inject] private NavMenuTabState NavMenuTabState { get; set; }
         [Inject] PreferencesStoreClone _storage { get; set; }
+        private Dictionary<string, string> _logos => new() { { "fr", "462577779_1085853349907518_967484155474395323_n.png" }, { "gb", "462580031_550604717852502_2939675846526858774_n.png" } };
+        private string _logo = "462577779_1085853349907518_967484155474395323_n.png";
         private bool _value;
         [Parameter]
         public bool SideBarOpen
@@ -29,7 +31,12 @@ namespace TozawaMauiHybrid.Components.Layout
         [Inject] NavigationManager NavManager { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
 
-
+        private void SetLogo()
+        {
+            var currentLanguage = _translationService.ActiveLanguage();
+            _logo = _logos.FirstOrDefault(x => x.Key == currentLanguage.ShortName).Value;
+            StateHasChanged();
+        }
         protected async override Task OnInitializedAsync()
         {
             FirstloadState.OnChange += FirsLoadChanged;
@@ -49,6 +56,7 @@ namespace TozawaMauiHybrid.Components.Layout
         {
             if (firstRender)
             {
+                SetLogo();
                 var currentTab = _storage.Get<ActiveTab?>(nameof(ActiveTab));
                 if (currentTab.HasValue)
                 {
@@ -89,6 +97,7 @@ namespace TozawaMauiHybrid.Components.Layout
         {
             InvokeAsync(() =>
         {
+            SetLogo();
             StateHasChanged();
         });
         }

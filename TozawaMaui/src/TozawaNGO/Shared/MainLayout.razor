@@ -14,26 +14,32 @@
     <LoadingScreen>
         @if (_firstLoaded)
         {
-            <AppBar OnSidebarToggled="ToggleSidebar" />
+            <RightSideMenu Settings="@_sideSettings">
+                @if (!_sidebarOpen)
+                {
+                    <LeftSideMenu Settings="@_sideSettings" />
+                }
+                <AppBar OnSidebarToggled="ToggleSidebar" />
 
-            <NavMenu @bind-SideBarOpen="_sidebarOpen" />
+                <NavMenu @bind-SideBarOpen="_sidebarOpen" @bind-Settings="@_sideSettings" />
 
-            <ErrorHandling TCategoryName="@typeof(MainLayout)">
-                <ChildContent>
-                    <MudMainContent id="tzMainContainer" Class="@_containerPaddingClass">
-                        <MudContainer
-                            Style="display: flex !important; flex-direction: column;font-size: 15px;font-family: lato, sans-serif; letter-spacing: 2px;"
-                            Class="mt-3 d-flex">
-                            @Body
-                            <Footer></Footer>
-                        </MudContainer>
-                    </MudMainContent>
-                    <ScrollToTop></ScrollToTop>
-                </ChildContent>
-                <ErrorContent Context="ex">
-                    @string.Empty
-                </ErrorContent>
-            </ErrorHandling>
+                <ErrorHandling TCategoryName="@typeof(MainLayout)">
+                    <ChildContent>
+                        <MudMainContent id="tzMainContainer" Class="@_containerPaddingClass">
+                            <MudContainer
+                                Style="display: flex !important; flex-direction: column;font-size: 15px;font-family: lato, sans-serif; letter-spacing: 2px;"
+                                Class="mt-3 d-flex">
+                                @Body
+                                <Footer></Footer>
+                            </MudContainer>
+                        </MudMainContent>
+                        <ScrollToTop></ScrollToTop>
+                    </ChildContent>
+                    <ErrorContent Context="ex">
+                        @string.Empty
+                    </ErrorContent>
+                </ErrorHandling>
+            </RightSideMenu>
         }
     </LoadingScreen>
 </MudLayout>

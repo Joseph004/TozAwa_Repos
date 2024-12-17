@@ -162,6 +162,9 @@ namespace OrleansHost.Migrations
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("LandLords")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("LastAttemptLogin")
                         .HasColumnType("datetime2");
 
@@ -228,6 +231,9 @@ namespace OrleansHost.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StationIds")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tenants")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")

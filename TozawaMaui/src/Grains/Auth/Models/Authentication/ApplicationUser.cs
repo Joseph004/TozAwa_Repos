@@ -20,6 +20,8 @@ namespace Grains.Auth.Models.Authentication
         public string Adress { get; set; }
         public string UserPasswordHash { get; set; }
         public List<Role> Roles { get; set; } = [Role.None];
+        public List<Guid> Tenants { get; set; } = [];
+        public List<Guid> LandLords { get; set; } = [];
         public DateTime LastAttemptLogin { get; set; }
         public string RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
@@ -42,6 +44,8 @@ namespace Grains.Auth.Models.Authentication
         public void Configure(EntityTypeBuilder<ApplicationUser> builder)
         {
             builder.Property(e => e.StationIds).HasConversion<ListOfGuidsCoverter, ListOfGuidsComparer>();
+            builder.Property(e => e.Tenants).HasConversion<ListOfGuidsCoverter, ListOfGuidsComparer>();
+            builder.Property(e => e.LandLords).HasConversion<ListOfGuidsCoverter, ListOfGuidsComparer>();
             builder.Property(e => e.Roles).HasConversion<ListOfRolesCoverter, ListOfRolesComparer>();
         }
     }

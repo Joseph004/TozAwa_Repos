@@ -35,6 +35,7 @@ namespace TozawaNGO.Shared
         [Inject] ILocalStorageService _localStorageService { get; set; }
         [Inject] AuthenticationService AuthenticationService { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+        private (bool isOpen, int leftSize, int rightSize) _sideSettings = new(true, 97, 97);
         public string _loginUrl { get; set; } = $"";
         private string _containerPaddingClass { get; set; } = "pt-16 px-16 flex-1 d-flex";
         private Timer _timer;
@@ -42,12 +43,28 @@ namespace TozawaNGO.Shared
         private bool _disabledPage = false;
         private string _disableAttrString = "";
         private ErrorBoundary _errorBoundary;
-        private bool _sidebarOpen = true;
+        private bool _value = true;
+        private bool _sidebarOpen
+        {
+            get => _value;
+            set
+            {
+                if (_value == value) return;
+                _value = value;
+                _sideSettings = new(_value, _value ? 97 : 95, _value ? 97 : 95);
+                if (NavMenuTabState.IsMenuOpen != _value)
+                {
+                    NavMenuTabState.SetMenuOpen(_sidebarOpen);
+                }
+                StateHasChanged();
+            }
+        }
         private bool _firstLoaded = false;
 
         private void ToggleSidebar()
         {
             _sidebarOpen = !_sidebarOpen;
+            _sideSettings = new(_sidebarOpen, _sidebarOpen ? 97 : 95, _sidebarOpen ? 97 : 95);
             NavMenuTabState.SetMenuOpen(_sidebarOpen);
             StateHasChanged();
         }
@@ -228,7 +245,6 @@ namespace TozawaNGO.Shared
         }
         private void RefreshTimer(EventArgs e)
         {
-            NavMenuTabState.SetMenuOpen(_sidebarOpen);
             if (_timer != null)
             {
                 _timer.Interval = _timerInterval;

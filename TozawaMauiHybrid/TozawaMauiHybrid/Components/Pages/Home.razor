@@ -1,6 +1,9 @@
 ﻿@page "/"
 @attribute [Authorize(Policy = "admin-member")]
+@using TozawaMauiHybrid.Component
 @using TozawaMauiHybrid.Services
+@inherits BasePage
+@implements IDisposable
 
 <h1>Hello, world!</h1>
 
@@ -888,9 +891,16 @@ Welcome to your new app.
         ScrollTopState.OnChange += SetScroll;
         await base.OnInitializedAsync();
     }
-    protected virtual void Dispose()
+    protected override void Dispose(bool disposed)
     {
-        ScrollTopState.OnChange -= SetScroll;
+        try
+        {
+            ScrollTopState.OnChange -= SetScroll;
+        }
+        catch
+        {
+        }
+        base.Dispose(disposed);
     }
     private void SetScroll()
     {

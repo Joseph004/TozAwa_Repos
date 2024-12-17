@@ -13,25 +13,14 @@
             {
                 <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start"
                     OnClick="ToggleSideBar" />
-                @if (_showLogo)
+                @if (_showLogo && DeviceInfo.Platform == DevicePlatform.WinUI)
                 {
                     <MudButton Href="/" Color="Color.Inherit">
-                        <img src="/images/TR_Mini.png" asp-append-version="true" height="60px" width="150px" />
+                        <img src="/images/466883443_1108754894587123_6862223349978612083_n.png" asp-append-version="true"
+                            height="60px" width="150px" />
                     </MudButton>
                 }
                 <MudSpacer />
-
-                @if (DeviceInfo.Platform == DevicePlatform.WinUI)
-                {
-                    <MudText Class="appbarTitle">
-                        <SystemText TextId=SystemTextId.ToZawaTitle Style="font-familly: cursive; font-size: max(1.2vw, 13px)"
-                            SystemTextTypo=Typo.h2
-                            FallbackText="Svensk Förening för internationella arbete inom teknik och informatik">
-                        </SystemText>
-                    </MudText>
-
-                    <MudSpacer />
-                }
                 <LanguageSelection />
                 <Login />
             }

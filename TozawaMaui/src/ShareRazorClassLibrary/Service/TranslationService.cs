@@ -20,6 +20,7 @@ namespace ShareRazorClassLibrary.Services
 
         private ConcurrentDictionary<Guid, string> _translations;
         private ActiveLanguageDto _activeLanguage = null;
+        public ActiveLanguageDto ActiveLanguage() => _activeLanguage;
         private List<ActiveLanguageDto> _activeLanguages = null;
         private bool _translationLoaded = false;
         public bool TranslationLoaded() => _translationLoaded;

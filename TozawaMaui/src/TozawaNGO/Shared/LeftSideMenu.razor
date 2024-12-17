@@ -1,0 +1,20 @@
+@namespace TozawaNGO.Shared
+@using ShareRazorClassLibrary.Helpers
+@inherits BaseComponent<RightSideMenu>
+
+<div class="leftSideMenu @_leftSideMenuOutside"
+    style="top: @(_top)%; padding: @(_padding)px; text-align: @_textAllign; position: @_position;">
+    <div class="socialicontooltip">
+        <span class="socialicontooltiptext">@Translate(SystemTextId.CookieSetting, "Settings for cookies")</span>
+        <a href="#">
+            <MudIcon Style="color: #FF4081;" Icon="@Icons.Material.Outlined.Cookie" Variant="Variant.Outlined">
+            </MudIcon>
+        </a>
+    </div>
+    <div class="socialicontooltip">
+        <span class="socialicontooltiptext">@Translate(SystemTextId.DiscussWithUs, "Chat with us")</span>
+        <a href="#">
+            <MudIcon Style="color: #4a59e2;" Icon="@Icons.Material.Outlined.Chat" Variant="Variant.Outlined"></MudIcon>
+        </a>
+    </div>
+</div>

@@ -33,7 +33,8 @@ namespace Grains.Auth.Controllers
             var member = await _context.TzUsers
                            .FirstOrDefaultAsync(x => x.UserId == request.Id, cancellationToken: cancellationToken);
 
-            if (member == null || (!_currentUserService.User.Roles.Any(x => x == RoleDto.VicePresident)) && member.AdminMember)
+
+            if (member == null || (!_currentUserService.User.Roles.Any(x => x == RoleDto.VicePresident) && member.AdminMember) || (member.UserId == _currentUserService.User.Id && !_currentUserService.User.Roles.Contains(RoleDto.President)))
             {
                 _logger.LogWarning("Member not found {id}", request.Id);
                 throw new Exception(nameof(request));
@@ -154,6 +155,8 @@ namespace Grains.Auth.Controllers
       member.Email,
       member.PasswordHash,
       attachmentsCount,
+      member.Tenants,
+      member.LandLords,
       SystemTextId.MemberOwnerId
             );
             var memberDto = MemberConverter.Convert(member);

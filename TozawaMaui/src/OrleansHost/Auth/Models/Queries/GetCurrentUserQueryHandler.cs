@@ -73,6 +73,8 @@ namespace OrleansHost.Auth.Models.Queries
       user.Email,
       user.PasswordHash,
       attachmentsCount,
+      user.Tenants,
+      user.LandLords,
       SystemTextId.MemberOwnerId
             ));
 

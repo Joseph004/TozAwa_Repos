@@ -13,5 +13,6 @@ public interface ITranslationService
     Task<ActiveLanguageDto> GetActiveLanguage();
     Task ChangeActiveLanguage(Guid languageId);
     string GetShortName(ActiveLanguageDto language);
+    ActiveLanguageDto ActiveLanguage();
     Task<string> GetHttpStatusText(HttpStatusCode code);
 }

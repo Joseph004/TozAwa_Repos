@@ -17,6 +17,8 @@ namespace Grains.Auth.Controllers
         {
             var memberItem = await _factory.GetGrain<IMemberGrain>(request.Id).GetAsync();
 
+            if (memberItem == null) return new MemberDto();
+
             var member = MemberConverter.Convert(new ApplicationUser
             {
                 UserId = memberItem.UserId,

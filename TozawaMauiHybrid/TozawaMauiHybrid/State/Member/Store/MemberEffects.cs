@@ -13,7 +13,7 @@ public class Effects(MemberService memberService, AttachmentService attachmentSe
 {
     [EffectMethod]
     public async Task HandleMemberDataAction(MemberDataAction action, Fluxor.IDispatcher dispatcher)
-    {
+    { 
         var members = new MemberKeyedCollection();
         var data = await memberService.GetItems(action.page, action.pageSize, action.includeDeleted, action.searchString, action.pageOfEmail, action.email);
 

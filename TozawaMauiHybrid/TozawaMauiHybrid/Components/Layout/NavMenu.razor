@@ -17,12 +17,13 @@
 
 <ErrorHandling TCategoryName="@typeof(NavMenu)">
     <ChildContent>
-        <MudDrawer Class="tznavmenu d-flex flex-column flex-grow-1 gap-4" Style="border: 0.5px outset"
-            @bind-Open="SideBarOpen" Elevation="1">
-            <MudDrawerHeader style="background-color: white; max-height: 150px; height: 150px;">
-                <img src="/images/TR_Max.png" asp-append-version="true" />
+        <MudDrawer Class="tznavmenu d-flex flex-column flex-grow-1 gap-4"
+            Style="border: 0.5px outset; overflow: hidden;" @bind-Open="SideBarOpen" Elevation="1">
+            <MudDrawerHeader style="background-color: white;">
+                <img src="/images/@_logo" asp-append-version="true"
+                    style="max-height: 100%; width: 100%; max-width: 100%; height: 100%;" />
             </MudDrawerHeader>
-            <MudNavMenu Class="mt-5 flex-1" Color="Color.Warning">
+            <MudNavMenu Style="overflow: auto;" Class="mt-5 flex-1" Color="Color.Warning">
                 <AuthorizeView Policy="admin-member">
                     <Authorized>
                         <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Home ? "navlinkcolor" : "" )"

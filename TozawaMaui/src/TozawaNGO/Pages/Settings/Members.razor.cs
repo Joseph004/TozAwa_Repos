@@ -106,7 +106,7 @@ namespace TozawaNGO.Pages
         }
         private void SetLoading()
         {
-            LoadingState.SetRequestInProgress(true);
+            LoadingState.SetRequestInProgress(MemberState.Value.IsLoading);
         }
         private int Count = 0;
         private async Task SetScrollJS()

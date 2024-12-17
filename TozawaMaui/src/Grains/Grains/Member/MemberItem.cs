@@ -36,6 +36,8 @@ namespace Grains
   string email,
    string passwordHash,
     int attachmentsCount,
+    List<Guid> tenants,
+    List<Guid> landLords,
     Guid ownerKey
     )
         : this(
@@ -67,6 +69,8 @@ namespace Grains
   email,
    passwordHash,
    attachmentsCount,
+   tenants,
+   landLords,
     ownerKey,
     DateTime.UtcNow)
     {
@@ -101,6 +105,8 @@ namespace Grains
   string email,
    string passwordHash,
    int attachmentsCount,
+   List<Guid> tenants,
+   List<Guid> landLords,
     Guid ownerKey
         , DateTime timeStamp)
     {
@@ -132,6 +138,8 @@ namespace Grains
       Email = email;
       PasswordHash = passwordHash;
       AttachmentsCount = attachmentsCount;
+      Tenants = tenants;
+      LandLords = landLords;
       OwnerKey = SystemTextId.MemberOwnerId;
       Timestamp = timeStamp;
     }
@@ -196,6 +204,10 @@ namespace Grains
     public DateTime Timestamp { get; }
     [Id(29)]
     public int AttachmentsCount { get; set; }
+    [Id(30)]
+    public List<Guid> Tenants { get; set; }
+    [Id(31)]
+    public List<Guid> LandLords { get; set; }
 
     public bool Equals(MemberItem memberItem)
     {

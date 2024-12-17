@@ -26,7 +26,7 @@ namespace Grains.Auth.Models.Converters
             Description = member.Description,
             DescriptionTextId = member.DescriptionTextId,
             LastName = member.LastName,
-            Roles = member.Roles.Select(x => (RoleDto)x).ToList(),
+            Roles = (member.Roles ?? []).Select(x => (RoleDto)x).ToList(),
             DeletedForever = isDeletedForever
         };
     }

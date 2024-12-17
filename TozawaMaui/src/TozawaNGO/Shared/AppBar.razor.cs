@@ -2,6 +2,8 @@ using System.Web;
 using Microsoft.AspNetCore.Components;
 using Blazored.LocalStorage;
 using ShareRazorClassLibrary.Services;
+using MudBlazor;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace TozawaNGO.Shared
 {
@@ -12,7 +14,10 @@ namespace TozawaNGO.Shared
         [Inject] ILocalStorageService _localStorageService { get; set; }
         [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] private NavMenuTabState NavMenuTabState { get; set; }
+        SearchCommand model = new();
+        private string[] _errors = [];
         private bool _showLogo = false;
+        private bool _isSearchOpen = false;
 
         protected async override Task OnInitializedAsync()
         {
@@ -23,7 +28,22 @@ namespace TozawaNGO.Shared
 
             await base.OnInitializedAsync();
         }
+        private async Task OnSearch()
+        {
+            _errors = [];
+            if (!string.IsNullOrEmpty(model.SearchString))
+            {
 
+            }
+        }
+        private async Task OpenSearch()
+        {
+            _isSearchOpen = !_isSearchOpen;
+            await InvokeAsync(() =>
+           { 
+               StateHasChanged();
+           });
+        }
         private void FirsLoadChanged()
         {
             InvokeAsync(() =>
@@ -33,7 +53,6 @@ namespace TozawaNGO.Shared
         }
         private async void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
-            await Task.FromResult(1);
             await InvokeAsync(() =>
            {
                StateHasChanged();
@@ -94,5 +113,9 @@ namespace TozawaNGO.Shared
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
             base.Dispose(disposed);
         }
+    }
+    public class SearchCommand
+    {
+        public string SearchString { get; set; } = "";
     }
 }
