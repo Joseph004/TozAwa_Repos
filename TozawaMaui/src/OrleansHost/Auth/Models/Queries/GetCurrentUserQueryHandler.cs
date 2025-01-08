@@ -1,22 +1,19 @@
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Grains.Context;
 using Grains.Auth.Models.Converters;
 using Grains.Auth.Models.Dtos;
 using Grains.Auth.Services;
 using Grains;
-using Grains.Helpers;
 
 namespace OrleansHost.Auth.Models.Queries
 {
-    public class GetCurrentUserQueryHandler(IGrainFactory factory, TozawangoDbContext context, ICurrentUserConverter currentUserConverter, ILookupNormalizer normalizer, ICurrentCountry currentCountry) : IRequestHandler<GetCurrentUserQuery, CurrentUserDto>
+    public class GetCurrentUserQueryHandler(IGrainFactory factory, TozawangoDbContext context, ICurrentUserConverter currentUserConverter, ICurrentCountry currentCountry) : IRequestHandler<GetCurrentUserQuery, CurrentUserDto>
     {
         private readonly IGrainFactory _factory = factory;
         private readonly TozawangoDbContext _context = context;
         private readonly ICurrentUserConverter _currentUserConverter = currentUserConverter;
         private readonly ICurrentCountry _currentCountry = currentCountry;
-        private readonly ILookupNormalizer _normalizer = normalizer;
 
         public async Task<CurrentUserDto> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
         {
@@ -57,7 +54,7 @@ namespace OrleansHost.Auth.Models.Queries
       user.LastLoginIPAdress,
       user.Adress,
       user.UserPasswordHash,
-      user.Roles,
+      user.Roles.Select(x => x.Role.RoleEnum).ToList(),
       user.LastAttemptLogin,
       user.RefreshToken,
       user.RefreshTokenExpiryTime,
@@ -75,7 +72,17 @@ namespace OrleansHost.Auth.Models.Queries
       attachmentsCount,
       user.Tenants,
       user.LandLords,
-      SystemTextId.MemberOwnerId
+      user.Organizations?.SelectMany(o => o.Features) != null
+            ? user.Organizations?.SelectMany(o => o.Features).Select(x => x.Feature).ToList()
+            : [],
+            user.Roles
+                .SelectMany(x => x.Role.Functions)
+                .Select(function => function.Functiontype)
+                .Distinct()
+                .ToList(),
+            user.Comment,
+            user.CommentTextId,
+            user.Organization.Id
             ));
 
             var response = _currentUserConverter.Convert(user);

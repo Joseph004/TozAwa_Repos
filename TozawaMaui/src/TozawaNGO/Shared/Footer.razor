@@ -20,8 +20,8 @@
                 </MudIconButton>
             </div>
             <div style="margin-left: -5px; margin-top: 5px;">
-                <SystemText Style="font-size: medium; color: white;" TextId=SystemTextId.Findus FallbackText="Find us"
-                    ></SystemText><br>
+                <SystemText Style="font-size: medium; color: white;" TextId=SystemTextId.Findus FallbackText="Find us"></SystemText>
+                <br>
                 <MudLink Style="font-size: small !important; color: #757575 !important;" Href="#">Tallrisvägen 15L, 702 34 Örebro
                 </MudLink>
             </div>
@@ -55,8 +55,8 @@
     <MudDivider DividerType="DividerType.Middle" Class="my-2" />
     <div class="footerMiddle">
         <div style="flex: 1">
-            <MudButton Style="margin-top: -20px;" Href="/" Color="Color.Inherit">
-                <img src="/images/466883443_1108754894587123_6862223349978612083_n.png" asp-append-version="true" height="60px" width="150px" />
+            <MudButton Style="margin-top: -20px;" Color="Color.Inherit">
+                <img @onclick="@(()=>GoToHome())" src="/images/466883443_1108754894587123_6862223349978612083_n.png" asp-append-version="true" height="60px" width="150px" />
             </MudButton>
             <div style="max-height: 90px; height: 90px; overflow:auto;">
                 <SystemText Style="font-size: small !important; color:#757575 !important;" TextId=SystemTextId.ShotNGODescription

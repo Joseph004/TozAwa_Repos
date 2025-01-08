@@ -60,7 +60,9 @@
     .mud-table-row.selected .mud-button-root.mud-icon-button.mud-error-text .mud-icon-root.mud-svg-icon {
         fill: var(--mud-palette-error-darken);
     }
-
+    .mud-table-row.selected .fileIcon .mud-icon-root.mud-svg-icon {
+      fill: #d4af37; 
+    }
     .memberTable>div:nth-child(1) {
        height: 60px;
        max-height: 60px;
@@ -85,7 +87,7 @@
 
 <style>
     .mud-tabs-panels{
-     background-color: #d4af37 !important;
+     background-color: #f2f2f2 !important;
     }
 </style>
 
@@ -97,7 +99,7 @@
 }
 else
 {
-    <MudTable Class="memberTable" Style="height: calc(100% - 40px); max-height: calc(100% - 40px); background-color: lightblue;" Items="@MemberState.Value.Members" Dense="true" Hover="true"
+    <MudTable Class="memberTable" Style="height: calc(100% - 40px); max-height: calc(100% - 40px); background-color: #f0f5f5;" Items="@MemberState.Value.Members" Dense="true" Hover="true"
         Striped="true" @ref="_table" Breakpoint="Breakpoint.Xs" CustomHeader="true" RowClassFunc="@SelectedRowClassFunc" T="MemberDto" RowsPerPage="20"
         OnRowClick="RowClickEvent" @bind-SelectedItem="_selectedItem" RowClass="cursor-pointer">
         <ToolBarContent>
@@ -173,7 +175,7 @@ else
                         </MudTooltip>
                 </div>
             </MudTd>
-            <MudTd DataLabel="@(GetLabel(SystemTextId.Files, "Files"))" onclick="event.stopPropagation()" @onmousedown="() => ToggleFiles(context)">
+            <MudTd Class="fileIcon" DataLabel="@(GetLabel(SystemTextId.Files, "Files"))" onclick="event.stopPropagation()" @onmousedown="() => ToggleFiles(context)">
                 <MudBadge Content="@context.AttachmentsCount" Overlap="true" Color="Color.Primary">
                     <MudIcon Icon="@Icons.Material.Filled.Folder" Style="height:24px;width:24px; color:#d4af37;" />
                 </MudBadge>                     

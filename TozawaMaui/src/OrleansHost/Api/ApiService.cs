@@ -30,6 +30,7 @@ using OrleansHost.Helpers;
 using OrleansHost.Validation;
 using OrleansHost.Auth.Controllers;
 using System.Text.Json.Serialization;
+using OrleansHost.Helpers.MiddlewareExceptions;
 
 namespace OrleansHost.Api
 {
@@ -73,6 +74,7 @@ namespace OrleansHost.Api
                     services.AddScoped<IFileAttachmentCreator, FileAttachmentCreator>();
                     services.AddScoped<IGoogleService, GoogleService>();
                     services.AddScoped<IPasswordHashService, PasswordHashService>();
+                    services.AddScoped<IEmailMessageService, EmailMessageService>();
                     services.AddScoped<IEncryptDecrypt, EncryptDecrypt>();
 
                     services.AddAuthentication(options =>
@@ -156,6 +158,7 @@ namespace OrleansHost.Api
                 {
                     app.UseForwardedHeaders();
                     app.UseRouting();
+                    app.UseHttpStatusCodeExceptionMiddleware();
                     app.UseCors(nameof(ApiService));
                     app.UseHttpsRedirection();
 

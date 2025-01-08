@@ -122,6 +122,24 @@ a,
 
 /* AppBar Ends */
 
+/* Home Bigins */
+
+.homePageDiv {
+    display: flex;
+    overflow: auto;
+    padding: 8px;
+}
+
+@media only screen and (max-width: 1059px) {
+    .homePageDiv {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* Home Ends */
+
+
 /* Footer Bigins */
 .footer {
     display: flex;
@@ -340,6 +358,51 @@ a,
     background: #4a59e2;
 }
 
+@media only screen and (max-width: 980px) {
+    .leftSideMenuOutside {
+        display: none !important;
+    }
+}
+
+@media only screen and (max-width: 980px) {
+    .leftSideMenuOutsideSetting {
+        visibility: visible !important;
+        animation: squareToCircle 2s 1s infinite alternate;
+    }
+}
+
+@keyframes squareToCircle {
+    0% {
+        border-radius: 0 0 0 0;
+        background: coral;
+        transform: rotate(0deg);
+    }
+
+    25% {
+        border-radius: 50% 0 0 0;
+        background: darksalmon;
+        transform: rotate(45deg);
+    }
+
+    50% {
+        border-radius: 50% 50% 0 0;
+        background: indianred;
+        transform: rotate(90deg);
+    }
+
+    75% {
+        border-radius: 50% 50% 50% 0;
+        background: lightcoral;
+        transform: rotate(135deg);
+    }
+
+    100% {
+        border-radius: 50% 50% 50% 50%;
+        background: darksalmon;
+        transform: rotate(180deg);
+    }
+}
+
 /* LeftSideMenu_Ends */
 
 /* RightSideMenu_Bigins */
@@ -463,10 +526,6 @@ a,
 
 @media only screen and (max-width: 980px) {
     .rightSideMenu {
-        display: none !important;
-    }
-
-    .leftSideMenuOutside {
         display: none !important;
     }
 }

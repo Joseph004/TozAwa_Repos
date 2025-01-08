@@ -19,6 +19,15 @@ namespace TozawaNGO.Shared
         private bool _showLogo = false;
         private bool _isSearchOpen = false;
 
+        private void GoToHome()
+        {
+            var homePage = NavManager.ToBaseRelativePath(NavManager.Uri);
+            var activePath = NavMenuTabState.GetActivePath();
+            if (!string.IsNullOrEmpty(homePage) && activePath != "/")
+            {
+                NavManager.NavigateTo("/");
+            }
+        }
         protected async override Task OnInitializedAsync()
         {
             NavMenuTabState.OnChange += HandleLogo;
@@ -40,7 +49,7 @@ namespace TozawaNGO.Shared
         {
             _isSearchOpen = !_isSearchOpen;
             await InvokeAsync(() =>
-           { 
+           {
                StateHasChanged();
            });
         }

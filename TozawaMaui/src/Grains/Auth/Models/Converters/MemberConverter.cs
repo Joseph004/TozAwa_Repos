@@ -5,19 +5,18 @@ namespace Grains.Auth.Models.Converters
 {
     public static class MemberConverter
     {
-        public static List<Models.Dtos.Backend.MemberDto> Convert(IEnumerable<ApplicationUser> members)
+        public static List<Models.Dtos.Backend.MemberDto> Convert(IEnumerable<ApplicationUser> members, Dictionary<Guid, List<AddressDto>> addresses)
         {
             var result = new List<Models.Dtos.Backend.MemberDto>();
             var enumerated = members as ApplicationUser[] ?? members.ToArray();
             for (var i = 0; i <= enumerated.Length - 1; i++)
             {
-                var Member = Convert(enumerated[i]);
+                var Member = Convert(enumerated[i], addresses.ContainsKey(enumerated[i].UserId) ? addresses[enumerated[i].UserId] : []);
                 result.Add(Member);
             }
             return result;
-
         }
-        public static Models.Dtos.Backend.MemberDto Convert(ApplicationUser member, bool isDeletedForever = false) => new()
+        public static Models.Dtos.Backend.MemberDto Convert(ApplicationUser member, List<AddressDto> addresses, bool isDeletedForever = false) => new()
         {
             Id = member.UserId,
             FirstName = member.FirstName,
@@ -25,8 +24,26 @@ namespace Grains.Auth.Models.Converters
             Email = member.Email,
             Description = member.Description,
             DescriptionTextId = member.DescriptionTextId,
+            Comment = member.Comment,
+            CommentTextId = member.CommentTextId,
             LastName = member.LastName,
-            Roles = (member.Roles ?? []).Select(x => (RoleDto)x).ToList(),
+            Features = member.Organizations?.SelectMany(o => o.Features) != null
+            ? member.Organizations?.SelectMany(o => o.Features).Select(x => x.Feature).ToList()
+            : [],
+            Roles = member.Roles != null
+            ? member.Roles.Select(x => new RoleDto
+            {
+                Id = x.Role.Id,
+                OrganizationId = x.Role.OrganizationId,
+                Functions = x.Role.Functions != null
+                    ? x.Role.Functions.Select(y => new FunctionDto
+                    {
+                        FunctionType = y.Functiontype
+                    }).ToList()
+                    : []
+            }).ToList()
+            : [],
+            Addresses = addresses,
             DeletedForever = isDeletedForever
         };
     }

@@ -89,10 +89,6 @@ namespace TozawaMauiHybrid.Components.Layout
              StateHasChanged();
          });
         }
-        private string GetNavMudGroupRoles()
-        {
-            return $"{nameof(RoleDto.President)},{nameof(RoleDto.VicePresident)}";
-        }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
             InvokeAsync(() =>

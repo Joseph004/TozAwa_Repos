@@ -4,6 +4,7 @@ using ShareRazorClassLibrary.Models.Dtos;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 using ShareRazorClassLibrary.Helpers;
+using ShareRazorClassLibrary.Models.Enums;
 
 namespace ShareRazorClassLibrary.Services;
 public class CurrentUserService(
@@ -39,22 +40,36 @@ public class CurrentUserService(
         return new CurrentUserDto();
     }
 
-    public async Task<bool> HasRole(string role)
+    public async Task<bool> HasAtLeastOneFeature(List<int> features)
     {
         var authState = await _authStateProvider.GetAuthenticationStateAsync();
-
         if (authState.User.Identity == null || !authState.User.Identity.IsAuthenticated)
         {
             return false;
         }
-
         var currentUser = await GetCurrentUser();
-        return currentUser.Roles.Any(r => r == GetRole(role));
+        return currentUser.Features.Any(f => features.Contains(f));
     }
-    private static RoleDto GetRole(string role)
-    {
-        Enum.TryParse(role, out RoleDto myRole);
 
-        return myRole;
+    public async Task<bool> HasFunctionType(string functionType)
+    {
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity == null || !authState.User.Identity.IsAuthenticated)
+        {
+            return false;
+        }
+        var currentUser = await GetCurrentUser();
+        return currentUser.Functions.Any(f => Enum.GetName(typeof(FunctionType), f.FunctionType).Equals(functionType, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public async Task<bool> HasFeature(int feature)
+    {
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity == null || !authState.User.Identity.IsAuthenticated)
+        {
+            return false;
+        }
+        var currentUser = await GetCurrentUser();
+        return currentUser.Features.Contains(feature);
     }
 }

@@ -1,5 +1,5 @@
 ﻿using Grains.Auth.Models.Authentication;
-using Grains.Helpers;
+using Grains.Models;
 
 namespace Grains
 {
@@ -20,7 +20,7 @@ namespace Grains
   string lastLoginIPAdress,
     string adress,
     string userPasswordHash,
-    List<Role> roles,
+    List<RoleEnum> roles,
     DateTime lastAttemptLogin,
    string refreshToken,
     DateTime refreshTokenExpiryTime,
@@ -38,6 +38,10 @@ namespace Grains
     int attachmentsCount,
     List<Guid> tenants,
     List<Guid> landLords,
+    List<int> features,
+    List<FunctionType> functions,
+    string comment,
+    Guid commentTextId,
     Guid ownerKey
     )
         : this(
@@ -71,6 +75,10 @@ namespace Grains
    attachmentsCount,
    tenants,
    landLords,
+   features,
+   functions,
+   comment,
+   commentTextId,
     ownerKey,
     DateTime.UtcNow)
     {
@@ -89,7 +97,7 @@ namespace Grains
   string lastLoginIPAdress,
     string adress,
     string userPasswordHash,
-    List<Role> roles,
+    List<RoleEnum> roles,
     DateTime lastAttemptLogin,
    string refreshToken,
     DateTime refreshTokenExpiryTime,
@@ -107,6 +115,10 @@ namespace Grains
    int attachmentsCount,
    List<Guid> tenants,
    List<Guid> landLords,
+   List<int> features,
+   List<FunctionType> functions,
+   string comment,
+   Guid commentTextId,
     Guid ownerKey
         , DateTime timeStamp)
     {
@@ -140,7 +152,11 @@ namespace Grains
       AttachmentsCount = attachmentsCount;
       Tenants = tenants;
       LandLords = landLords;
-      OwnerKey = SystemTextId.MemberOwnerId;
+      Features = features;
+      Functions = functions;
+      OwnerKey = ownerKey;
+      Comment = comment;
+      CommentTextId = commentTextId;
       Timestamp = timeStamp;
     }
 
@@ -169,7 +185,7 @@ namespace Grains
     [Id(11)]
     public string UserPasswordHash { get; }
     [Id(12)]
-    public List<Role> Roles { get; }
+    public List<RoleEnum> Roles { get; }
     [Id(13)]
     public DateTime LastAttemptLogin { get; }
     [Id(14)]
@@ -208,7 +224,14 @@ namespace Grains
     public List<Guid> Tenants { get; set; }
     [Id(31)]
     public List<Guid> LandLords { get; set; }
-
+    [Id(32)]
+    public List<int> Features { get; set; }
+    [Id(33)]
+    public List<FunctionType> Functions { get; set; }
+    [Id(34)]
+    public string Comment { get; }
+    [Id(35)]
+    public Guid CommentTextId { get; }
     public bool Equals(MemberItem memberItem)
     {
       if (memberItem == null) return false;
@@ -216,6 +239,10 @@ namespace Grains
       Email == memberItem.Email
       && PasswordHash == memberItem.PasswordHash
        && AttachmentsCount == memberItem.AttachmentsCount
+       && Tenants == memberItem.Tenants
+       && LandLords == memberItem.LandLords
+       && Features == memberItem.Features
+       && Functions == memberItem.Functions
      && UserId == memberItem.UserId
      && PartnerId == memberItem.PartnerId
        && Description == memberItem.Description
@@ -242,6 +269,8 @@ namespace Grains
       && ModifiedDate == memberItem.ModifiedDate
       && StationIds == memberItem.StationIds
       && OwnerKey == memberItem.OwnerKey
+      && Comment == memberItem.Comment
+      && CommentTextId == memberItem.CommentTextId
       && Timestamp == memberItem.Timestamp;
     }
   }

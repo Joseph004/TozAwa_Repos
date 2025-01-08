@@ -2,30 +2,37 @@
 @using ShareRazorClassLibrary.Helpers
 @inherits BaseComponent<RightSideMenu>
 
-@ChildContent
-<div class="rightSideMenu" style="left: @(_leftSize)%;">
-    <div class="socialicontooltip">
-        <span class="socialicontooltiptext">@Translate(SystemTextId.Followus, "Follow us")</span>
-        <a href="#">
-            <MudIcon Style="color: #3b5999;" Icon="@Icons.Custom.Brands.Facebook"></MudIcon>
-        </a>
-    </div>
-    <div class="socialicontooltip">
-        <span class="socialicontooltiptext">@Translate(SystemTextId.Followus, "Follow us")</span>
-        <a href="#">
-            <MudIcon Style="color: #e4405f;" Icon="@Icons.Custom.Brands.Instagram"></MudIcon>
-        </a>
-    </div>
-    <div class="socialicontooltip">
-        <span class="socialicontooltiptext">@Translate(SystemTextId.Followus, "Follow us")</span>
-        <a href="#">
-            <MudIcon Style="color: #000000;" Icon="@Icons.Custom.Brands.X"></MudIcon>
-        </a>
-    </div>
-    <div class="socialicontooltip">
-        <span class="socialicontooltiptext">@Translate(SystemTextId.Followus, "Follow us")</span>
-        <a href="#">
-            <MudIcon Style="color: #CD201F;" Icon="@Icons.Custom.Brands.YouTube"></MudIcon>
-        </a>
-    </div>
-</div>
+<ErrorHandling TCategoryName=@typeof(RightSideMenu)>
+    <ChildContent>
+        @ChildContent
+        <div class="rightSideMenu" style="left: @(_leftSize)%;">
+            <div class="socialicontooltip">
+                <span class="socialicontooltiptext">@Translate(SystemTextId.Followus, "Follow us")</span>
+                <a href="#">
+                    <MudIcon Style="color: #3b5999;" Icon="@Icons.Custom.Brands.Facebook"></MudIcon>
+                </a>
+            </div>
+            <div class="socialicontooltip">
+                <span class="socialicontooltiptext">@Translate(SystemTextId.Followus, "Follow us")</span>
+                <a href="#">
+                    <MudIcon Style="color: #e4405f;" Icon="@Icons.Custom.Brands.Instagram"></MudIcon>
+                </a>
+            </div>
+            <div class="socialicontooltip">
+                <span class="socialicontooltiptext">@Translate(SystemTextId.Followus, "Follow us")</span>
+                <a href="#">
+                    <MudIcon Style="color: #000000;" Icon="@Icons.Custom.Brands.X"></MudIcon>
+                </a>
+            </div>
+            <div class="socialicontooltip">
+                <span class="socialicontooltiptext">@Translate(SystemTextId.Followus, "Follow us")</span>
+                <a href="#">
+                    <MudIcon Style="color: #CD201F;" Icon="@Icons.Custom.Brands.YouTube"></MudIcon>
+                </a>
+            </div>
+        </div>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>

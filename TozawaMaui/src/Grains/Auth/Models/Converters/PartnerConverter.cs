@@ -1,5 +1,4 @@
 using Grains.Auth.Models.Authentication;
-using Grains.Auth.Models.Dtos;
 
 namespace Grains.Auth.Models.Converters
 {

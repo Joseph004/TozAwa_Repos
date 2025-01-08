@@ -21,6 +21,15 @@ namespace Grains.Context
             _currentUserService = currentUserService;
         }
 
+        public DbSet<Role> TzRoles { get; set; }
+        public DbSet<Organization> Organizations { get; set; }
+        public DbSet<Function> Functions { get; set; }
+        public DbSet<UserRole> TzUserRoles { get; set; }
+        public DbSet<UserAddress> UserAddresses { get; set; }
+        public DbSet<OrganizationAddress> OrganizationAddresses { get; set; }
+        public DbSet<StationAddress> StationAddresses { get; set; }
+        public DbSet<OrganizationFeature> OrganizationFeatures { get; set; }
+        public DbSet<TozawaFeature> TozawaFeatures { get; set; }
         public DbSet<ApplicationUser> TzUsers { get; set; }
         public DbSet<Translation> Translations { get; set; }
         public DbSet<Station> Stations { get; set; }
@@ -29,7 +38,6 @@ namespace Grains.Context
         public DbSet<Partner> Partners { get; set; }
         public DbSet<UserLog> UserLogs { get; set; }
         public DbSet<Audit> Audits { get; set; }
-        public DbSet<UserHashPwd> UserHashPwds { get; set; }
         public virtual DbSet<ConvertedOwner> ConvertedOwners { get; set; }
         public virtual DbSet<FileAttachment> FileAttachments { get; set; }
         public virtual DbSet<OwnerFileAttachment> OwnerFileAttachments { get; set; }
@@ -47,12 +55,6 @@ namespace Grains.Context
             builder.Entity<ApplicationUser>()
                 .HasIndex(u => new { u.Id, u.UserId, u.Email })
                 .IsUnique();
-
-            builder.Entity<UserHashPwd>()
-            .HasOne(t => t.ApplicationUser)
-            .WithOne(u => u.UserHashPwd)
-            .HasPrincipalKey<ApplicationUser>(y => y.UserId)
-            .HasForeignKey<UserHashPwd>(j => j.UserId);
 
             builder.Entity<ApplicationUser>()
                 .HasOne(p => p.Partner)
@@ -77,6 +79,66 @@ namespace Grains.Context
 
             builder.Entity<FileAttachment>()
                 .HasIndex(x => x.BlobId);
+
+            builder.Entity<Function>().HasKey(x => new
+            {
+                x.Functiontype,
+                x.RoleId
+            });
+            builder.Entity<UserRole>()
+                .HasKey(t => new { t.UserId, t.RoleId });
+
+            builder.Entity<UserRole>()
+                .HasOne(pt => pt.User)
+                .WithMany(p => p.Roles)
+                .HasForeignKey(pt => pt.UserId)
+                .HasPrincipalKey(k => k.UserId);
+
+            builder.Entity<UserRole>()
+                .HasOne(pt => pt.Role)
+                .WithMany(t => t.Users)
+                .HasForeignKey(pt => pt.RoleId)
+                .HasPrincipalKey(k => k.Id);
+
+            builder.Entity<ApplicationUser>()
+               .HasMany(p => p.Organizations)
+               .WithMany(p => p.OrganizationUsers)
+               .UsingEntity<UserOrganization>(
+               j => j
+                   .HasOne(pt => pt.Organization)
+                   .WithMany(t => t.UserOrganizations)
+                   .HasForeignKey(pt => pt.OrganizationId)
+                   .HasPrincipalKey(k => k.Id),
+               j => j
+                   .HasOne(pt => pt.User)
+                   .WithMany(p => p.UserOrganizations)
+                   .HasForeignKey(pt => pt.UserId)
+                   .HasPrincipalKey(k => k.UserId),
+               j =>
+               {
+                   j.HasKey(t => new { t.OrganizationId, t.UserId });
+               });
+
+            builder.Entity<ApplicationUser>()
+                .HasOne(p => p.Organization)
+                .WithMany(b => b.Users)
+                .HasForeignKey(p => p.OrganizationId);
+
+            builder.Entity<UserAddress>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.Addresses)
+            .HasForeignKey(x => x.UserId)
+            .HasPrincipalKey(k => k.UserId);
+
+            builder.Entity<TozawaFeature>().Property(p => p.Id).ValueGeneratedNever();
+            builder.Entity<TozawaFeature>().HasData(
+                new TozawaFeature
+                {
+                    Id = 1,
+                    TextId = Guid.Parse("acd1ef02-0da3-474b-95d3-8861fcc8e368"),
+                    DescriptionTextId = Guid.Parse("97617538-8931-43ee-bd4c-769726bdb6a4")
+                }
+            );
 
             builder.ApplyConfiguration(new TranslationEntityConfiguration());
             builder.ApplyConfiguration(new ApplicationUserEntityConfiguration());

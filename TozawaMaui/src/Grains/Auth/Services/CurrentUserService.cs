@@ -1,5 +1,6 @@
 using Grains.Extension;
 using Grains.Auth.Models.Dtos;
+using Grains.Models;
 
 namespace Grains.Auth.Services;
 public class CurrentUserService : ICurrentUserService
@@ -9,21 +10,23 @@ public class CurrentUserService : ICurrentUserService
     public CurrentUserService()
     {
     }
-    public bool IsAuthorizedFor(params RoleDto[] roles)
+    public bool IsAuthorizedFor(params FunctionType[] functions)
     {
+        var response = true;
         try
         {
             if (User == null)
             {
-                return false;
+                response = false;
             }
-            return User.Admin || User.Roles.ContainsAtLeastOne(roles);
+            return User.Admin || User.GetFunctions().ContainsAtLeastOne(functions);
         }
         catch (Exception ex)
         {
             ex.Message.ToString();
+            response = false;
         }
-        return true;
+        return response;
     }
 
     public bool IsAdmin()

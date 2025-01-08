@@ -90,7 +90,13 @@ namespace ShareRazorClassLibrary.HttpClients
 
             if (!string.IsNullOrEmpty(token))
             {
-                request.Headers.Add("tzuserauthentication", token);
+                var oid = (await _authStateProvider.GetUserFromToken())?.Id.ToString();
+                if (string.IsNullOrEmpty(oid))
+                {
+                    await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
+                    return;
+                }
+                request.Headers.Add("tzuserauthentication", oid);
             }
             await _client.SendAsync(request);
         }
@@ -103,7 +109,8 @@ namespace ShareRazorClassLibrary.HttpClients
                 await Logout();
                 token = string.Empty;
             }
-            request.Headers.Add("tzuserauthentication", token);
+            var oid = (await _authStateProvider.GetUserFromToken()).Id.ToString();
+            request.Headers.Add("tzuserauthentication", oid);
             var activeLanguage = await _sessionStorageService.GetItemAsync<ActiveLanguageDto>($"ActiveLanguageKey_activeLanguage");
 
             if (activeLanguage != null && activeLanguage.Id != Guid.Empty)
@@ -111,6 +118,11 @@ namespace ShareRazorClassLibrary.HttpClients
                 request.Headers.Add("toza-active-language", activeLanguage.Id.ToString());
             }
 
+            var workingOrganizationId = ((AuthStateProvider)_authStateProvider)?.UserLoginStateDto?.WorkOrganizationId.ToString();
+            if (!string.IsNullOrEmpty(workingOrganizationId))
+            {
+                request.Headers.Add("working-organization", workingOrganizationId);
+            }
             var result = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
             if (!result.IsSuccessStatusCode)
             {
@@ -170,7 +182,13 @@ namespace ShareRazorClassLibrary.HttpClients
 
             if (!string.IsNullOrEmpty(value.Token))
             {
-                request.Headers.Add("tzuserauthentication", value.Token);
+                var oid = (await _authStateProvider.GetUserFromToken())?.Id.ToString();
+                if (string.IsNullOrEmpty(oid))
+                {
+                    await Logout();
+                    return new AddResponse<LoginResponseDto>(false, "token missing", HttpStatusCode.Unauthorized, null);
+                }
+                request.Headers.Add("tzuserauthentication", oid);
             }
 
             var postResponse = await _client.SendAsync(request);
@@ -180,13 +198,13 @@ namespace ShareRazorClassLibrary.HttpClients
 
             if (!postResponse.IsSuccessStatusCode || !postContent.Success)
             {
-                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null);
+                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null, Guid.Empty);
                 return postContent;
             }
 
             var result = postContent.Entity ?? new LoginResponseDto();
 
-            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, result.Token, result.RefreshToken);
+            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, result.Token, result.RefreshToken, Guid.Empty);
             await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(result.Token, result.RefreshToken);
 
             return postContent;

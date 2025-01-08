@@ -60,6 +60,9 @@
     .mud-table-row.selected .mud-button-root.mud-icon-button.mud-error-text .mud-icon-root.mud-svg-icon {
         fill: var(--mud-palette-error-darken);
     }
+    .mud-table-row.selected .fileIcon .mud-icon-root.mud-svg-icon {
+      fill: #d4af37; 
+    }
 
     .memberTable>div:nth-child(1) {
         height: 60px;
@@ -87,7 +90,7 @@
 
 <style>
     .mud-tabs-panels {
-        background-color: #d4af37 !important;
+        background-color: #f2f2f2 !important;
     }
 </style>
 
@@ -100,7 +103,7 @@
         else
         {
             <MudTable Class="memberTable"
-                Style="height: calc(100% - 40px); max-height: calc(100% - 40px); background-color: lightblue;"
+                Style="height: calc(100% - 40px); max-height: calc(100% - 40px); background-color: #f0f5f5;"
                 Items="@MemberState.Value.Members" Dense="true" Hover="true" Striped="true" @ref="_table"
                 Breakpoint="Breakpoint.Xs" CustomHeader="true" RowClassFunc="@SelectedRowClassFunc" T="MemberDto"
                 RowsPerPage="20" OnRowClick="RowClickEvent" @bind-SelectedItem="_selectedItem" RowClass="cursor-pointer">
@@ -116,7 +119,7 @@
                     </MudTextField>
                     <MudSpacer />
                     <MudAvatar Color="Color.Primary" Rounded="true" Variant="Variant.Outlined">
-                        <MudMenu AnchorOrigin="@Origin.BottomRight" TransformOrigin="@Origin.TopRight" Dense="true"
+                        <MudMenu Disabled="true" AnchorOrigin="@Origin.BottomRight" TransformOrigin="@Origin.TopRight" Dense="true"
                             Icon="@Icons.Material.Filled.MoreVert" Color="Color.Secondary">
                             <MudMenuItem>
                             </MudMenuItem>
@@ -175,7 +178,7 @@
                             </MudTooltip>
                         </div>
                     </MudTd>
-                    <MudTd DataLabel="@(GetLabel(SystemTextId.Files, "Files"))" onclick="event.stopPropagation()"
+                    <MudTd Class="fileIcon" DataLabel="@(GetLabel(SystemTextId.Files, "Files"))" onclick="event.stopPropagation()"
                         @onmousedown="() => ToggleFiles(context)">
                         <MudBadge Content="@context.AttachmentsCount" Overlap="true" Color="Color.Primary">
                             <MudIcon Icon="@Icons.Material.Filled.Folder" Style="height:24px;width:24px; color:#d4af37;" />
@@ -198,7 +201,7 @@
                 </PagerContent>
             </MudTable>
             <div style="height: 40px; max-height: 50px;" @onclick:stopPropagation="true" @onclick:preventDefault="true">
-                <MudSwitch T="@bool" @bind-value="_includeDeleted" @onclick="@(() => ToggleIncludeDeleted())"
+                <MudSwitch Disabled="true" T="@bool" @bind-value="_includeDeleted" @onclick="@(() => ToggleIncludeDeleted())"
                     Color="Color.Primary" Label="@(Translate(SystemTextId.ShowDeletedItems))" />
             </div>
         }

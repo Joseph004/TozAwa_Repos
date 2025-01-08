@@ -89,7 +89,13 @@ namespace TozawaMauiHybrid.HttpClients
 
             if (!string.IsNullOrEmpty(token))
             {
-                request.Headers.Add("tzuserauthentication", token);
+                var oid = (await _authStateProvider.GetUserFromToken())?.Id.ToString();
+                if (string.IsNullOrEmpty(oid))
+                {
+                    ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
+                    return;
+                }
+                request.Headers.Add("tzuserauthentication", oid);
             }
             await _client.SendAsync(request);
         }
@@ -102,7 +108,8 @@ namespace TozawaMauiHybrid.HttpClients
                 await Logout();
                 token = string.Empty;
             }
-            request.Headers.Add("tzuserauthentication", token);
+            var oid = (await _authStateProvider.GetUserFromToken()).Id.ToString();
+            request.Headers.Add("tzuserauthentication", oid);
             var activeLanguage = _storage.Get<ActiveLanguageDto>($"ActiveLanguageKey_activeLanguage");
 
             if (activeLanguage != null && activeLanguage.Id != Guid.Empty)
@@ -169,7 +176,12 @@ namespace TozawaMauiHybrid.HttpClients
 
             if (!string.IsNullOrEmpty(value.Token))
             {
-                request.Headers.Add("tzuserauthentication", value.Token);
+                var oid = (await _authStateProvider.GetUserFromToken())?.Id.ToString();
+                if (string.IsNullOrEmpty(oid))
+                {
+                    await Logout();
+                }
+                request.Headers.Add("tzuserauthentication", oid);
             }
 
             var postResponse = await _client.SendAsync(request);

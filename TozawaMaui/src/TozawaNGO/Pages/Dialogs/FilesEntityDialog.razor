@@ -20,6 +20,20 @@
     }
 </style>
 
+@if (_RequestInProgress)
+{
+        <style>
+             .mud-dialog-actions {
+             opacity: 0.4 !important; 
+             pointer-events: none !important;
+            }
+             .mud-dialog-content {
+         opacity: 0.4 !important; 
+         pointer-events: none !important;
+        } 
+        </style>
+}
+
 <ErrorHandling  TCategoryName=@typeof(FilesEntityDialog)>
     <ChildContent>
         <div style="@($"{_disableAttrString}")">
@@ -35,7 +49,7 @@
                 <MudAlert Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="(() => CloseMe(false))"
                     Variant="Variant.Filled" Dense="true" Class="my-2">@_error</MudAlert>
             }
-                <MudTable RowStyleFunc="@_disableRowClick" RowsPerPage="20" Breakpoint="Breakpoint.Xs" Style="background-color: gold;overflow: auto; opacity: 0.9;"
+                <MudTable RowStyleFunc="@_disableRowClick" RowsPerPage="20" Breakpoint="Breakpoint.Xs" Style="background-color: #ffead8; overflow: auto; opacity: 0.9;"
                     T="FileAttachmentDto" ServerData="ServerReload" @ref="_table" Striped="true" RowClassFunc="@SelectedRowClassFunc" CustomHeader="true"
                     Dense="true" Hover="true" OnRowClick="RowClickEvent"
                     @bind-SelectedItem="_selectedItem" RowClass="cursor-pointer">

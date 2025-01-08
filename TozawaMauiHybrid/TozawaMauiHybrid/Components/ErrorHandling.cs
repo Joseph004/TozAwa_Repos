@@ -51,8 +51,11 @@ public class ErrorHandling<T> : ErrorBoundary
         options.SetProperties(ex => ex.Resizeable = true);
         options.DialogAppearance = MudExAppearance.FromStyle(b =>
         {
-            b.WithBackgroundColor("gold")
-            .WithOpacity(0.9);
+            b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
         });
 
         var parameters = new DialogParameters

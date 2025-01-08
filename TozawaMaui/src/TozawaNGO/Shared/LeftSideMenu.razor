@@ -2,6 +2,8 @@
 @using ShareRazorClassLibrary.Helpers
 @inherits BaseComponent<RightSideMenu>
 
+<ErrorHandling TCategoryName=@typeof(LeftSideMenu)>
+    <ChildContent>
 <div class="leftSideMenu @_leftSideMenuOutside"
     style="top: @(_top)%; padding: @(_padding)px; text-align: @_textAllign; position: @_position;">
     <div class="socialicontooltip">
@@ -18,3 +20,20 @@
         </a>
     </div>
 </div>
+@if (!_isMenuOpen)
+{
+    <div class="leftSideMenu leftSideMenuOutsideSetting"
+        style="top:92%; padding: 10px; position: fixed; left: 1px; visibility: hidden;">
+        @*  <span class="socialicontooltiptext">@(_ShowBtnsSettings ? Translate(SystemTextId.CloseMe, "Close me"): Translate(SystemTextId.ClickMe, "Clik here"))</span> *@
+        <MudIconButton Class="settingsBtn" @onclick="@(()=>HandleBtnsSettings())" Color="Color.Warning" Size="Size.Large"
+            Icon="@(_ShowBtnsSettings ? Icons.Material.Filled.Close : Icons.Material.Filled.SettingsSuggest)"
+            Variant="Variant.Filled">
+        </MudIconButton>
+    </div>
+}
+ </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>
+

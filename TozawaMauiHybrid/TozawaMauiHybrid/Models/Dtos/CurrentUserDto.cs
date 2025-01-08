@@ -1,5 +1,4 @@
-using System;
-using System.Collections.Generic;
+using TozawaMauiHybrid.Models.Enums;
 
 namespace TozawaMauiHybrid.Models.Dtos;
 
@@ -10,7 +9,19 @@ public class CurrentUserDto : BaseDto
     public bool Admin { get; init; }
     public string FirstName { get; set; } = "";
     public string LastName { get; set; } = "";
-    public List<RoleDto> Roles { get; init; } = [];
     public Guid PartnerId { get; init; }
     public string Partner { get; init; } = "";
+    public List<int> Features { get; set; }
+    public List<AddressDto> Addresses { get; set; }
+    public List<CurrentUserOrganizationDto> Organizations { get; set; }
+    public List<RoleDto> Roles { get; init; } = [];
+    public string Country { get; set; } = "";
+    public Guid WorkingOrganizationId { get; set; }
+    public List<CurrentUserFunctionDto> Functions { get; set; } = [];
+    public FunctionType[] GetFunctions()
+    {
+        return Roles != null
+            ? Roles.SelectMany(x => x.Functions).Distinct().Select(x => x.FunctionType).Distinct().ToArray()
+            : [];
+    }
 }

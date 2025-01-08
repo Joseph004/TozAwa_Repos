@@ -4,59 +4,33 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Newtonsoft.Json;
 using Microsoft.Extensions.Logging;
 using TozawaMauiHybrid.Helpers;
+using TozawaMauiHybrid.Models.Enums;
 
 namespace TozawaMauiHybrid.Services;
 public class CurrentUserService(
     IAuthHttpClient client,
-    PreferencesStoreClone storage,
+    AuthStateProvider authStateProvider,
     AuthenticationStateProvider authenticationStateProvider,
     ILogger<CurrentUserService> logger) : ICurrentUserService
 {
     private readonly IAuthHttpClient _client = client;
-    private readonly PreferencesStoreClone _storage = storage;
+    private readonly AuthStateProvider _authStateProvider = authStateProvider;
     private readonly AuthenticationStateProvider _authenticationStateProvider = authenticationStateProvider;
-
 
     private readonly ILogger<CurrentUserService> _logger = logger;
 
-    public void RemoveCurrentUser()
-    {
-        if (_storage.Exists("currentUser"))
-        {
-            _storage.Delete("currentUser");
-        }
-    }
-    public void SetCurrentUser(CurrentUserDto user)
-    {
-        if (_storage.Exists("currentUser"))
-        {
-            _storage.Delete("currentUser");
-        }
-        _storage.Set("currentUser", user);
-    }
     public async Task<CurrentUserDto> GetCurrentUser()
     {
         try
         {
-            if (_storage.Exists("currentUser"))
-            {
-                var response = _storage.Get<CurrentUserDto>("currentUser");
-                if (response != null && response.Id != Guid.Empty)
-                {
-                    return response;
-                }
-            }
+            var authState = await _authStateProvider.GetAuthenticationStateAsync();
 
-            var authState = await _authenticationStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-
-            if (user.Identity == null || !user.Identity.IsAuthenticated)
+            if (authState.User.Identity == null || !authState.User.Identity.IsAuthenticated)
             {
                 //_logger.LogError("User is not authenticated");
                 return new CurrentUserDto();
             }
-
-            var userString = user.Claims.Where(x => x.Type == nameof(CurrentUserDto)).Select(c => c.Value).SingleOrDefault();
+            var userString = authState.User.Claims.Where(x => x.Type == nameof(CurrentUserDto)).Select(c => c.Value).SingleOrDefault();
 
             return JsonConvert.DeserializeObject<CurrentUserDto>(userString);
         }
@@ -67,20 +41,36 @@ public class CurrentUserService(
         return new CurrentUserDto();
     }
 
-    public async Task<bool> HasRole(string role)
+    public async Task<bool> HasAtLeastOneFeature(List<int> features)
     {
-        if (!_storage.Exists("currentUser"))
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity == null || !authState.User.Identity.IsAuthenticated)
         {
-            await GetCurrentUser();
+            return false;
         }
-
-        var currentUser = _storage.Get<CurrentUserDto>("currentUser");
-        return currentUser.Roles.Any(r => r == GetRole(role));
+        var currentUser = await GetCurrentUser();
+        return currentUser.Features.Any(f => features.Contains(f));
     }
-    private static RoleDto GetRole(string role)
-    {
-        Enum.TryParse(role, out RoleDto myRole);
 
-        return myRole;
+    public async Task<bool> HasFunctionType(string functionType)
+    {
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity == null || !authState.User.Identity.IsAuthenticated)
+        {
+            return false;
+        }
+        var currentUser = await GetCurrentUser();
+        return currentUser.Functions.Any(f => Enum.GetName(typeof(FunctionType), f.FunctionType).Equals(functionType, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public async Task<bool> HasFeature(int feature)
+    {
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        if (authState.User.Identity == null || !authState.User.Identity.IsAuthenticated)
+        {
+            return false;
+        }
+        var currentUser = await GetCurrentUser();
+        return currentUser.Features.Contains(feature);
     }
 }

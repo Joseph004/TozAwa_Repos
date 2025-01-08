@@ -87,7 +87,7 @@ public static class FileValidator
                 mime = "application/octet-stream";
             return mime;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return "application/octet-stream";
         }

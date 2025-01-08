@@ -5,6 +5,7 @@ using Grains.Auth.Models.Converters;
 using Grains.Auth.Models.Authentication;
 using Grains.Auth.Models.Dtos.Backend;
 using Grains.Services;
+using Grains.Auth.Models.Dtos;
 
 namespace OrleansHost.Auth.Models.Commands
 {
@@ -24,7 +25,6 @@ namespace OrleansHost.Auth.Models.Commands
                 Email = request.Email,
                 FirstName = request.FirstName,
                 LastName = request.LastName,
-                Roles = request.Roles.Select(x => (Role)x).ToList(),
                 AdminMember = false,
                 LockoutEnabled = true,
                 PartnerId = partner.Id,
@@ -35,24 +35,20 @@ namespace OrleansHost.Auth.Models.Commands
             newuser.SecurityStamp = Guid.NewGuid().ToString();
             newuser.NormalizedUserName = _normalizer.NormalizeName(newuser.UserName);
             _context.TzUsers.Add(newuser);
-            if (!string.IsNullOrEmpty(request.Password))
-            {
-                var hash = _passwordHashService.HashPasword(request.Password, out var salt);
-                newuser.UserPasswordHash = hash;
-                var userSalt = Convert.ToHexString(salt);
-                var hashSalt = new UserHashPwd
-                {
-                    Id = Guid.NewGuid(),
-                    ApplicationUser = newuser,
-                    UserId = newuser.UserId,
-                    PasswordSalt = userSalt
-                };
-                _context.UserHashPwds.Add(hashSalt);
-            }
 
             _context.SaveChanges();
-
-            var response = MemberConverter.Convert(newuser);
+            var addressDto = newuser.Addresses.Select(x => new AddressDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Address = x.Address,
+                City = x.City,
+                State = x.State,
+                Country = x.Country,
+                ZipCode = x.ZipCode,
+                Active = x.Active
+            }).ToList();
+            var response = MemberConverter.Convert(newuser, addressDto);
 
             return await Task.FromResult(response);
 

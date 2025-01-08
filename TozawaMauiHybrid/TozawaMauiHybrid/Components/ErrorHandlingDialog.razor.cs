@@ -7,7 +7,6 @@ namespace TozawaMauiHybrid.Component
     public partial class ErrorHandlingDialog : BaseDialog<ErrorHandlingDialog>
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-        [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] NavigationManager NavManager { get; set; }
         [Parameter] public string title { get; set; }
         [Parameter] public string body { get; set; }
@@ -31,7 +30,6 @@ namespace TozawaMauiHybrid.Component
         {
             if (firstRender)
             {
-                await JSRuntime.InvokeVoidAsync($"setModalDraggableAndResizable");
                 await base.OnAfterRenderAsync(firstRender);
             }
         }

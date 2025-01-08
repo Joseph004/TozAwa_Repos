@@ -15,9 +15,9 @@
 
                     @if (_showLogo)
                     {
-                        <MudButton Class="appBaricon" Href="/" Color="Color.Inherit">
+                        <MudButton Class="appBaricon" Color="Color.Inherit">
                             <img src="/images/466883443_1108754894587123_6862223349978612083_n.png" asp-append-version="true"
-                                height="60px" width="150px" />
+                               @onclick="@(()=>GoToHome())" height="60px" width="150px" />
                         </MudButton>
                     }
                     <MudSpacer />

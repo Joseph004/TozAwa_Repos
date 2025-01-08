@@ -151,8 +151,11 @@ namespace TozawaMauiHybrid.Components.Layout
             options.SetProperties(ex => ex.Resizeable = true);
             options.DialogAppearance = MudExAppearance.FromStyle(b =>
             {
-                b.WithBackgroundColor("gold")
-                .WithOpacity(0.9);
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
             });
 
             var parameters = new DialogParameters
@@ -248,13 +251,24 @@ namespace TozawaMauiHybrid.Components.Layout
                           };
                           var options = new DialogOptionsEx
                           {
-                              Resizeable = true,
+                              BackgroundClass = "tz-mud-overlay",
                               BackdropClick = false,
+                              Resizeable = true,
                               DragMode = MudDialogDragMode.Simple,
                               Position = DialogPosition.Center,
                               CloseButton = false,
                               MaxWidth = MaxWidth.Small
                           };
+
+                          options.SetProperties(ex => ex.Resizeable = true);
+                          options.DialogAppearance = MudExAppearance.FromStyle(b =>
+                          {
+                              b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+                            .WithBackgroundSize("cover")
+                            .WithBackgroundPosition("center center")
+                            .WithBackgroundRepeat("no-repeat")
+                            .WithOpacity(0.9);
+                          });
                           var dialog = await DialogService.ShowEx<ExpireModal>("Logout", parameters, options);
                           var result = await dialog.Result;
 

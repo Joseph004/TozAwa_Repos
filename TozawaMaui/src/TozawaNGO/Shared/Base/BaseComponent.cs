@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Models.Enums;
 using ShareRazorClassLibrary.Services;
 namespace TozawaNGO.Shared
 {
@@ -60,19 +61,21 @@ namespace TozawaNGO.Shared
         {
             return _translationService.Translate(systemTextId, fallback, limit, toUpper).Text;
         }
-        public bool HasAtLeastOneRole(params string[] roles)
+        public bool HasAllFeaturesMatching(params int[] features)
         {
-            return _currentUser.Roles.Any(r => roles.Any(x => GetRole(x) == r)) || _currentUser.Admin;
+            return features.All(f => _currentUser.Features.Contains(f));
         }
-        public bool HasAllRolesMatching(params string[] roles)
+        public bool HasAtLeastOneFunctionType(params FunctionType[] functionTypes)
         {
-            return _currentUser.Roles.All(r => roles.All(x => GetRole(x) == r)) || _currentUser.Admin;
+            return _currentUser.Functions.Any(f => functionTypes.Any(x => x.Equals(f.FunctionType)));
         }
-        private static RoleDto GetRole(string role)
+        public bool HasAllFunctionTypesMatching(params FunctionType[] functionTypes)
         {
-            Enum.TryParse(role, out RoleDto myRole);
-
-            return myRole;
+            return functionTypes.All(f => _currentUser.Functions.Any(x => x.FunctionType.Equals(f)));
+        }
+        public bool HasAtLeastOneFeature(params int[] features)
+        {
+            return _currentUser.Features.Any(f => features.Contains(f));
         }
         protected override void Dispose(bool disposed)
         {

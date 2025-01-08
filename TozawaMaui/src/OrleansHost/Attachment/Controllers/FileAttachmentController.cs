@@ -13,7 +13,7 @@ namespace OrleansHost.Attachment.Controllers;
 [AuthorizeUserRequirement]
 [Produces("application/json")]
 [Route("api/[controller]")]
-public class FileAttachmentController(IMediator mediator, Grains.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : InitController(mediator, currentUserService, userTokenService)
+public class FileAttachmentController(IMediator mediator, Grains.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService, IGrainFactory factory) : InitController(mediator, currentUserService, userTokenService, factory)
 {
     [HttpPost, Route("{id}")]
     public async Task<IActionResult> AddAttachment(Guid id, [FromBody] AddAttachmentCommand request)

@@ -11,6 +11,8 @@ namespace Grains.Auth.Models.Authentication
         public Guid PartnerId { get; set; }
         public string Description { get; set; }
         public Guid DescriptionTextId { get; set; }
+        public string Comment { get; set; }
+        public Guid CommentTextId { get; set; }
         public string FirstName { get; set; } = "";
         public string LastName { get; set; } = "";
         public string LastLoginCountry { get; set; } = "XXXXXXXXXXX";
@@ -19,7 +21,12 @@ namespace Grains.Auth.Models.Authentication
         public string LastLoginIPAdress { get; set; } = "xxxxxxxxx";
         public string Adress { get; set; }
         public string UserPasswordHash { get; set; }
-        public List<Role> Roles { get; set; } = [Role.None];
+        public Guid OrganizationId { get; set; }
+        [ForeignKey("OrganizationId")]
+        public virtual Organization Organization { get; set; }
+        public virtual ICollection<UserRole> Roles { get; set; }
+        public ICollection<Organization> Organizations { get; set; }
+        public List<UserOrganization> UserOrganizations { get; set; }
         public List<Guid> Tenants { get; set; } = [];
         public List<Guid> LandLords { get; set; } = [];
         public DateTime LastAttemptLogin { get; set; }
@@ -35,8 +42,22 @@ namespace Grains.Auth.Models.Authentication
         public DateTime CreateDate { get; set; }
         public string ModifiedBy { get; set; } = "";
         public DateTime? ModifiedDate { get; set; }
-        public virtual UserHashPwd UserHashPwd { get; set; }
         public List<Guid> StationIds { get; set; }
+        public ICollection<UserAddress> Addresses { get; set; }
+    }
+
+    public class UserAddress : CreatedModified
+    {
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string Address { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string Country { get; set; }
+        public string ZipCode { get; set; }
+        public bool Active { get; set; }
+        public Guid UserId { get; set; }
+        public ApplicationUser User { get; set; }
     }
 
     internal class ApplicationUserEntityConfiguration : IEntityTypeConfiguration<ApplicationUser>
@@ -46,7 +67,6 @@ namespace Grains.Auth.Models.Authentication
             builder.Property(e => e.StationIds).HasConversion<ListOfGuidsCoverter, ListOfGuidsComparer>();
             builder.Property(e => e.Tenants).HasConversion<ListOfGuidsCoverter, ListOfGuidsComparer>();
             builder.Property(e => e.LandLords).HasConversion<ListOfGuidsCoverter, ListOfGuidsComparer>();
-            builder.Property(e => e.Roles).HasConversion<ListOfRolesCoverter, ListOfRolesComparer>();
         }
     }
 }

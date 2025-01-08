@@ -13,6 +13,7 @@ using TozawaMauiHybrid.Models.FormModels;
 using TozawaMauiHybrid.State.Member.Store;
 using TozawaMauiHybrid.Pages;
 using TozawaMauiHybrid.Helpers;
+using TozawaMauiHybrid.Models.Enums;
 
 namespace TozawaMauiHybrid.Components.Pages.Settings
 {
@@ -91,8 +92,11 @@ namespace TozawaMauiHybrid.Components.Pages.Settings
             options.SetProperties(ex => ex.Resizeable = true);
             options.DialogAppearance = MudExAppearance.FromStyle(b =>
             {
-                b.WithBackgroundColor("gold")
-                .WithOpacity(0.9);
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+               .WithBackgroundSize("cover")
+               .WithBackgroundPosition("center center")
+               .WithBackgroundRepeat("no-repeat")
+               .WithOpacity(0.9);
             });
 
             var parameters = new DialogParameters
@@ -170,8 +174,11 @@ namespace TozawaMauiHybrid.Components.Pages.Settings
             options.SetProperties(ex => ex.Resizeable = true);
             options.DialogAppearance = MudExAppearance.FromStyle(b =>
             {
-                b.WithBackgroundColor("gold")
-                .WithOpacity(0.9);
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
             });
 
             var parameters = new DialogParameters
@@ -223,14 +230,17 @@ namespace TozawaMauiHybrid.Components.Pages.Settings
             options.SetProperties(ex => ex.Resizeable = true);
             options.DialogAppearance = MudExAppearance.FromStyle(b =>
             {
-                b.WithBackgroundColor("gold")
-                .WithOpacity(0.9);
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
             });
 
             var parameters = new DialogParameters
             {
                 ["Entity"] = item,
-                ["HasPermission"] = HasAtLeastOneRole(RoleDto.President.ToString()),
+                ["HasPermission"] = HasAllFunctionTypesMatching(FunctionType.ReadPresident, FunctionType.WriteVicePresident),
                 ["Source"] = nameof(MemberDto)
             };
             var userName = item.Admin ? item.UserName : item.Email;
@@ -286,8 +296,11 @@ namespace TozawaMauiHybrid.Components.Pages.Settings
             options.SetProperties(ex => ex.Resizeable = true);
             options.DialogAppearance = MudExAppearance.FromStyle(b =>
             {
-                b.WithBackgroundColor("gold")
-                .WithOpacity(0.9);
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
             });
 
             var parameters = new DialogParameters
@@ -326,8 +339,11 @@ namespace TozawaMauiHybrid.Components.Pages.Settings
             options.SetProperties(ex => ex.Resizeable = true);
             options.DialogAppearance = MudExAppearance.FromStyle(b =>
             {
-                b.WithBackgroundColor("gold")
-                .WithOpacity(0.9);
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+               .WithBackgroundSize("cover")
+               .WithBackgroundPosition("center center")
+               .WithBackgroundRepeat("no-repeat")
+               .WithOpacity(0.9);
             });
 
             var data = new MemberDto

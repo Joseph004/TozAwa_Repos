@@ -14,6 +14,7 @@ using MudBlazor.Extensions.Options;
 using MudBlazor.Extensions;
 using Nextended.Core.Extensions;
 using MudBlazor.Extensions.Core;
+using ShareRazorClassLibrary.Models.Enums;
 
 namespace TozawaNGO.Pages
 {
@@ -92,8 +93,11 @@ namespace TozawaNGO.Pages
             options.SetProperties(ex => ex.Resizeable = true);
             options.DialogAppearance = MudExAppearance.FromStyle(b =>
             {
-                b.WithBackgroundColor("gold")
-                .WithOpacity(0.9);
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
             });
 
             var parameters = new DialogParameters
@@ -172,14 +176,17 @@ namespace TozawaNGO.Pages
             options.SetProperties(ex => ex.Resizeable = true);
             options.DialogAppearance = MudExAppearance.FromStyle(b =>
             {
-                b.WithBackgroundColor("gold")
-                .WithOpacity(0.9);
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
             });
 
             var parameters = new DialogParameters
             {
                 ["Entity"] = item,
-                ["HasPermission"] = HasAtLeastOneRole(RoleDto.President.ToString()),
+                ["HasPermission"] = HasAllFunctionTypesMatching(FunctionType.ReadAuthorization, FunctionType.WritePresident),
                 ["Source"] = nameof(MemberDto)
             };
             var userName = item.Admin ? item.UserName : item.Email;

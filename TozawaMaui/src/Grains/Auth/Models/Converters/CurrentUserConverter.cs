@@ -10,7 +10,6 @@ namespace Grains.Auth.Models.Converters
 
     public class CurrentUserConverter : ICurrentUserConverter
     {
-
         public CurrentUserConverter()
         {
         }
@@ -27,11 +26,51 @@ namespace Grains.Auth.Models.Converters
                 LastName = user.LastName,
                 Country = user.UserCountry,
                 Adress = user.Adress,
-                Roles = user.Roles.Select(x => (RoleDto)x).ToList(),
+                Features = user.Organizations?.SelectMany(o => o.Features) != null
+            ? user.Organizations?.SelectMany(o => o.Features).Select(x => x.Feature).ToList()
+            : [],
+                Organizations = user.Organizations
+                .Select(org => new Models.Dtos.CurrentUserOrganizationDto
+                {
+                    Id = org.Id,
+                    Name = org.Name,
+                    Features = org.Features != null
+                        ? org.Features.Select(x => x.Feature).ToList()
+                        : [],
+                    Active = true
+                })
+                .ToList(),
+                Addresses = user.Addresses.Select(x => new AddressDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Address = x.Address,
+                    City = x.City,
+                    State = x.State,
+                    Country = x.Country,
+                    ZipCode = x.ZipCode,
+                    Active = x.Active
+                }).ToList(),
+                Roles = user.Roles
+                .Select(userRole => new RoleDto
+                {
+                    Id = userRole.RoleId,
+                    OrganizationId = userRole.OrganizationId,
+                    Role = (Grains.Auth.Models.Dtos.Role)userRole.Role.RoleEnum
+                })
+                .ToList(),
+                Functions = user.Roles
+                .SelectMany(x => x.Role.Functions)
+                .Select(function => function.Functiontype)
+                .Distinct()
+                .Select(functionType => new CurrentUserFunctionDto
+                {
+                    FunctionType = functionType
+                })
+                .ToList(),
                 PartnerId = user.PartnerId,
                 Partner = user.Partner.Name
             };
-
         }
     }
 }

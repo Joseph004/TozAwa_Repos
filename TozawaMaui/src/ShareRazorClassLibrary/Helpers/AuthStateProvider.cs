@@ -62,7 +62,7 @@ public class AuthStateProvider(ILocalStorageService localStorageService, AppSett
             var token = claims.Where(x => x.Type == "auth_token").Select(c => c.Value).SingleOrDefault();
             var refreshToken = claims.Where(x => x.Type == "auth_refreshtoken").Select(c => c.Value).SingleOrDefault();
 
-            UserLoginStateDto.Set(true, token, refreshToken);
+            UserLoginStateDto.Set(true, token, refreshToken, Guid.Empty);
 
             authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "tzuserauthentication"));
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
@@ -74,7 +74,7 @@ public class AuthStateProvider(ILocalStorageService localStorageService, AppSett
         }
         else
         {
-            UserLoginStateDto.Set(false, null, null);
+            UserLoginStateDto.Set(false, null, null, Guid.Empty);
         }
     }
 
@@ -83,7 +83,7 @@ public class AuthStateProvider(ILocalStorageService localStorageService, AppSett
         var authenticatedUser = new ClaimsPrincipal();
         if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken))
         {
-            UserLoginStateDto.Set(true, token, refreshToken);
+            UserLoginStateDto.Set(true, token, refreshToken, Guid.Empty);
             var refreshAt = DateTimeOffset.UtcNow.AddSeconds(Convert.ToDouble(_appSettings.JWTSettings.ExpiryInMinutes)).ToString(CultureInfo.InvariantCulture);
             var user = await GetUserFromToken();
             var claims = new List<Claim>
@@ -101,7 +101,7 @@ public class AuthStateProvider(ILocalStorageService localStorageService, AppSett
             {
                 foreach (var role in user.Roles)
                 {
-                    claims.Add(new Claim(ClaimTypes.Role, Enum.GetName(typeof(RoleDto), role)));
+                    claims.Add(new Claim(ClaimTypes.Role, Enum.GetName(typeof(Role), role.Role)));
                 }
             }
             if (user.Admin)
@@ -116,7 +116,7 @@ public class AuthStateProvider(ILocalStorageService localStorageService, AppSett
         }
         else
         {
-            UserLoginStateDto.Set(false, null, null);
+            UserLoginStateDto.Set(false, null, null, Guid.Empty);
         }
     }
     public bool ValidateCurrentToken(string token)
@@ -147,7 +147,7 @@ public class AuthStateProvider(ILocalStorageService localStorageService, AppSett
     {
         var authState = Task.FromResult(_anonymous);
         NotifyAuthenticationStateChanged(authState);
-        UserLoginStateDto.Set(false, null, null);
+        UserLoginStateDto.Set(false, null, null, Guid.Empty);
         await _localStorageService.RemoveItemAsync("auth_loggedIn");
         UserAuthenticationChanged(this, new EventArgs());
     }

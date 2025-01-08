@@ -459,4 +459,20 @@
     <value>Discutez avec nous</value>
     <comment>.</comment>
   </data>
+  <data name="ebbaca4b-1ed8-4b37-89f4-55efaf18f37d" xml:space="preserve">
+    <value>Cliquer ici</value>
+    <comment>.</comment>
+  </data>
+   <data name="c0de5755-e1c6-4027-a079-fcb45c2ab83f" xml:space="preserve">
+    <value>Fermez</value>
+    <comment>.</comment>
+  </data>
+  <data name="26707fc9-f33d-44ac-a51f-d961602f202c" xml:space="preserve">
+    <value>Suivant</value>
+    <comment>.</comment>
+  </data>
+   <data name="7c8f888f-5f99-4391-ade0-d312ffea409d" xml:space="preserve">
+    <value>Precedent</value>
+    <comment>.</comment>
+  </data>
 </root>

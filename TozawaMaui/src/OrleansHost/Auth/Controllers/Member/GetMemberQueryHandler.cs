@@ -3,7 +3,7 @@ using MediatR;
 using Grains.Auth.Models.Authentication;
 using Grains.Auth.Models.Converters;
 using Grains.Auth.Models.Dtos.Backend;
-using OrleansHost.Attachment.Models.Queries;
+using OrleansHost.Auth.Models.Queries;
 
 namespace Grains.Auth.Controllers
 {
@@ -18,7 +18,8 @@ namespace Grains.Auth.Controllers
             var memberItem = await _factory.GetGrain<IMemberGrain>(request.Id).GetAsync();
 
             if (memberItem == null) return new MemberDto();
-
+            var roleDtos = await _mediator.Send(new GetRolesQuery(memberItem.UserId));
+            var addressesDtos = await _mediator.Send(new GetAddressesQuery(memberItem.UserId));
             var member = MemberConverter.Convert(new ApplicationUser
             {
                 UserId = memberItem.UserId,
@@ -34,7 +35,30 @@ namespace Grains.Auth.Controllers
                 LastLoginIPAdress = memberItem.LastLoginIPAdress,
                 Adress = memberItem.Adress,
                 UserPasswordHash = memberItem.UserPasswordHash,
-                Roles = memberItem.Roles,
+                Roles = roleDtos.Select(y => new UserRole
+                {
+                    UserId = memberItem.UserId,
+                    RoleId = y.Id,
+                    OrganizationId = y.OrganizationId,
+                    Role = new Role
+                    {
+                        Id = y.Id,
+                        RoleEnum = (RoleEnum)y.Role,
+                        Functions = y.Functions.Select(f => new Function
+                        {
+                            Functiontype = f.FunctionType,
+                            RoleId = f.RoleId,
+                            Role = new Role
+                            {
+                                OrganizationId = y.OrganizationId,
+                                Functions = y.Functions.Select(t => new Function
+                                {
+                                    Functiontype = t.FunctionType
+                                }).ToList()
+                            }
+                        }).ToList()
+                    }
+                }).ToList(),
                 LastAttemptLogin = memberItem.LastAttemptLogin,
                 RefreshToken = memberItem.RefreshToken,
                 RefreshTokenExpiryTime = memberItem.RefreshTokenExpiryTime,
@@ -47,11 +71,9 @@ namespace Grains.Auth.Controllers
                 ModifiedBy = memberItem.ModifiedBy,
                 ModifiedDate = memberItem.ModifiedDate,
                 StationIds = memberItem.StationIds
-            });
+            }, addressesDtos.ToList());
             member.Timestamp = memberItem.Timestamp;
-
             await SetTranslation(member);
-            await GetAttachments(member);
             return member;
         }
 
@@ -80,26 +102,6 @@ namespace Grains.Auth.Controllers
                     else
                     {
                         member.Description = "";
-                    }
-                }
-            }
-        }
-
-        private async Task GetAttachments(MemberDto member)
-        {
-            var request = new GetAttachmentsByOwnerIdsQuery
-            {
-                OwnerIds = [member.Id]
-            };
-            var ownerAttachments = await _mediator.Send(request);
-            if (ownerAttachments != null)
-            {
-                foreach (var ownerAttachment in ownerAttachments)
-                {
-                    member.Attachments.AddRange(ownerAttachment.Attachments);
-                    if (member.Attachments != null && member.Attachments.Any(x => !string.IsNullOrEmpty(x.MiniatureId) && !string.IsNullOrEmpty(x.Thumbnail)))
-                    {
-                        member.Thumbnail = member.Attachments.First(x => !string.IsNullOrEmpty(x.MiniatureId) && !string.IsNullOrEmpty(x.Thumbnail)).Thumbnail;
                     }
                 }
             }

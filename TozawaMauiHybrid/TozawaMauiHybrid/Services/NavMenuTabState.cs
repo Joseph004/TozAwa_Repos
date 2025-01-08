@@ -34,7 +34,8 @@ namespace TozawaMauiHybrid.Services
 				ActiveTab.Home => "/",
 				ActiveTab.Counter => "/counter",
 				ActiveTab.Weather => "/weather",
-				_ => "/",
+                ActiveTab.Settings => "/settings",
+                _ => "/",
 			};
 		}
 		public string GetTabPath(ActiveTab tab)
@@ -44,7 +45,8 @@ namespace TozawaMauiHybrid.Services
 				ActiveTab.Home => "/",
 				ActiveTab.Counter => "/counter",
 				ActiveTab.Weather => "/weather",
-				_ => "/",
+                ActiveTab.Settings => "/settings",
+                _ => "/",
 			};
 		}
 		public string GetActivePath()
@@ -54,7 +56,8 @@ namespace TozawaMauiHybrid.Services
 				ActiveTab.Home => "/",
 				ActiveTab.Counter => "/counter",
 				ActiveTab.Weather => "/weather",
-				_ => "/",
+                ActiveTab.Settings => "/settings",
+                _ => "/",
 			};
 		}
 		private void NotifyStateChanged() => OnChange.Invoke();

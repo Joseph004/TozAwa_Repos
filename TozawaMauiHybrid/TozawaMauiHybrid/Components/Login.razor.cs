@@ -64,8 +64,11 @@ namespace TozawaMauiHybrid.Components
             Options.SetProperties(ex => ex.Resizeable = true);
             Options.DialogAppearance = MudExAppearance.FromStyle(b =>
             {
-                b.WithBackgroundColor("gold")
-                .WithOpacity(0.9);
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
             });
         }
         private async Task LoginBtn()

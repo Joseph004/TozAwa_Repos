@@ -10,15 +10,41 @@
         background: repeating-linear-gradient(135deg, #ccc, #ccc 10px, #aaa 10px, #aaa 20px) !important;
         opacity: 0.7 !important;
     }
-
+    .mud-dialog 
+    .mud-focus-trap 
+    .mud-focus-trap-child-container 
+    .mud-dialog-content
+    .mud-ex-file-display-container 
+    .mud-ex-file-display
+    .mud-toolbar>div>div:nth-child(n+5) {
+    pointer-events: none !important;
+    opacity: 0.4 !important; 
+    }
     .mud-tooltip-root {
         margin-right: 5px;
     }
-
+    .mud-list-item:last-of-type {
+    pointer-events: none !important;
+    opacity: 0.4 !important; 
+     }
     .mud-select:has(.tzSelect) {
         max-width: 25%;
     }
 </style>
+
+@if (_RequestInProgress)
+{
+        <style>
+             .mud-dialog-actions {
+             opacity: 0.4 !important; 
+             pointer-events: none !important;
+            }
+             .mud-dialog-content {
+         opacity: 0.4 !important; 
+         pointer-events: none !important;
+        } 
+        </style>
+}
 
 <ErrorHandling  TCategoryName=@typeof(FilesEntityDialog)>
     <ChildContent>
@@ -26,16 +52,16 @@
     <MudDialog Style="max-height: 100%;" Class="@($"tzModal")">
         <TitleContent>
             <MudText Color=Color.Secondary>
-                @Entity.Email
+                        @Entity.Email
             </MudText>
         </TitleContent>
         <DialogContent>
-            @if (!string.IsNullOrEmpty(_error) && showAlert)
-            {
-                <MudAlert Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="(() => CloseMe(false))"
-                    Variant="Variant.Filled" Dense="true" Class="my-2">@_error</MudAlert>
-            }
-                <MudTable RowStyleFunc="@_disableRowClick" RowsPerPage="20" Breakpoint="Breakpoint.Xs" Style="background-color: gold;overflow: auto; opacity: 0.9;"
+                    @if (!string.IsNullOrEmpty(_error) && showAlert)
+                    {
+                                                                        <MudAlert Severity="Severity.Error" ShowCloseIcon="true" CloseIconClicked="(() => CloseMe(false))"
+                                                                            Variant="Variant.Filled" Dense="true" Class="my-2">@_error</MudAlert>
+                    }
+                <MudTable RowStyleFunc="@_disableRowClick" RowsPerPage="20" Breakpoint="Breakpoint.Xs" Style="background-color: #ffead8; overflow: auto; opacity: 0.9;"
                     T="FileAttachmentDto" ServerData="ServerReload" @ref="_table" Striped="true" RowClassFunc="@SelectedRowClassFunc" CustomHeader="true"
                     Dense="true" Hover="true" OnRowClick="RowClickEvent"
                     @bind-SelectedItem="_selectedItem" RowClass="cursor-pointer">
@@ -95,47 +121,47 @@
                                 </ChildContent>
                                 <TooltipContent>
                                     <MudText>
-                                        @Translate(SystemTextId.Download, "Download");
+                                            @Translate(SystemTextId.Download, "Download");
                                     </MudText>
                                 </TooltipContent>
                             </MudTooltip>
                         </MudTd>
                         <MudTd DataLabel="@(GetLabel(SystemTextId.File, "File"))">
-                            @if (!string.IsNullOrEmpty(context.MiniatureBlobUrl))
-                            {
-                                var thumb = "data:image/png;base64," + context.MiniatureBlobUrl;
-                                <MudTooltip Disabled="@(_disabledPage)">
-                                    <ChildContent>
-                                        <img @onclick="@(() => ShowDocumentInFrame(context))" src="@thumb"
-                                            height="@_thumbnailSize" width="@_thumbnailSize" />
-                                    </ChildContent>
-                                    <TooltipContent>
-                                        <img src="@thumb" />
-                                    </TooltipContent>
-                                </MudTooltip>
-                            }
-                            else
-                            {
-                                <MudIconButton Disabled="@(_disabledPage)" @onclick="@(() => ShowDocumentInFrame(context))"
-                                    Icon=@GetFileTypeIcon(context)>
-                                </MudIconButton>
-                                @if (showSelect.Count > 0 && showSelect.First().Key == context.Id && showSelect.First().Value)
+                                @if (!string.IsNullOrEmpty(context.MiniatureBlobUrl))
                                 {
-                                    <div class="d-flex flex-row flex-grow-1 gap-4">
-                                        <MudButton @onclick="@(() => ConvertToPdf(context, "view"))" Variant="Variant.Text"
-                                            Color="Color.Primary">@Translate(SystemTextId.ViewAsPdf)
-                                        </MudButton>
-
-                                        <MudButton @onclick="@(() => ConvertToPdf(context, "download"))" Variant="Variant.Text"
-                                            Color="Color.Secondary">
-                                            @Translate(SystemTextId.DownloadAsPdf)</MudButton>
-                                    </div>
+                                    var thumb = "data:image/png;base64," + context.MiniatureBlobUrl;
+                                                                                        <MudTooltip Disabled="@(_disabledPage)">
+                                                                                            <ChildContent>
+                                                                                                <img @onclick="@(() => ShowDocumentInFrame(context))" src="@thumb"
+                                                                                                    height="@_thumbnailSize" width="@_thumbnailSize" />
+                                                                                            </ChildContent>
+                                                                                            <TooltipContent>
+                                                                                                <img src="@thumb" />
+                                                                                            </TooltipContent>
+                                                                                        </MudTooltip>
                                 }
-                            }
+                                else
+                                {
+                                                                                        <MudIconButton Disabled="@(_disabledPage)" @onclick="@(() => ShowDocumentInFrame(context))"
+                                                                                            Icon=@GetFileTypeIcon(context)>
+                                                                                        </MudIconButton>
+                                    @if (showSelect.Count > 0 && showSelect.First().Key == context.Id && showSelect.First().Value)
+                                    {
+                                                                                                                                                    <div class="d-flex flex-row flex-grow-1 gap-4">
+                                                                                                                                                        <MudButton @onclick="@(() => ConvertToPdf(context, "view"))" Variant="Variant.Text"
+                                                                                                                                                            Color="Color.Primary">@Translate(SystemTextId.ViewAsPdf)
+                                                                                                                                                        </MudButton>
+
+                                                                                                                                                        <MudButton @onclick="@(() => ConvertToPdf(context, "download"))" Variant="Variant.Text"
+                                                                                                                                                            Color="Color.Secondary">
+                                                @Translate(SystemTextId.DownloadAsPdf)</MudButton>
+                                                                                                                                                    </div>
+                                    }
+                                }
                         </MudTd>
                         <MudTd DataLabel="@(GetLabel(SystemTextId.Name, "Name"))">@context.Name</MudTd>
                         <MudTd DataLabel="@(GetLabel(SystemTextId.AttachmentType, "File type"))">
-                            @context.FileAttachmentType
+                                @context.FileAttachmentType
                         </MudTd>
                         <MudTd DataLabel="@(GetLabel(SystemTextId.Filesize, "Size"))">@(Math.Round(context.Size / 1000,
                         2))kb
@@ -146,12 +172,12 @@
                         </MudTd>
                     </RowTemplate>
             <NoRecordsContent>
-                @if(!_RequestInProgress) 
-                    {
-                 <MudText>
-                <SystemText TextId=SystemTextId.NoMachingRecords FallbackText="No matching records found" />
-             </MudText>
-                    }
+                            @if (!_RequestInProgress)
+                            {
+                                                                         <MudText>
+                                                                        <SystemText TextId=SystemTextId.NoMachingRecords FallbackText="No matching records found" />
+                                                                     </MudText>
+                            }
         </NoRecordsContent>
         <LoadingContent>
             <MudText>
@@ -179,10 +205,10 @@
                 <MudSelect Variant="Variant.Filled" Disabled="@(_disabledPage)" Class="tzSelect"
                     @bind-Value="_attachmentType" AnchorOrigin="Origin.BottomCenter"
                     Placeholder="Select an attachment type">
-                    @foreach (AttachmentType item in Enum.GetValues(typeof(AttachmentType)))
-                    {
-                        <MudSelectItem Value="@item">@item</MudSelectItem>
-                    }
+                            @foreach (AttachmentType item in Enum.GetValues(typeof(AttachmentType)))
+                            {
+                                                                                <MudSelectItem Value="@item">@item</MudSelectItem>
+                            }
                 </MudSelect>
                 <InputFile id="fileInput" accept="@FileValidator._validContentTypes" OnChange="UploadFiles" hidden
                     multiple />
@@ -198,5 +224,5 @@
 
 @if (_RequestInProgress)
 {
-    <ModalLoading />
+                                                            <ModalLoading />
 }

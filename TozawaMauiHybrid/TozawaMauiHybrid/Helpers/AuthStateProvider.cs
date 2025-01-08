@@ -98,7 +98,7 @@ public class AuthStateProvider(PreferencesStoreClone storage, AppSettings appSet
             {
                 foreach (var role in user.Roles)
                 {
-                    claims.Add(new Claim(ClaimTypes.Role, Enum.GetName(typeof(RoleDto), role)));
+                    claims.Add(new Claim(ClaimTypes.Role, Enum.GetName(typeof(Role), role.Role)));
                 }
             }
             if (user.Admin)

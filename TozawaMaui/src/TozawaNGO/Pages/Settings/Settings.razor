@@ -20,12 +20,6 @@
             <Members />
         </MudItem>
     </MudTabPanel>
-    <MudTabPanel IconColor="Color.Secondary" Icon="@Icons.Material.Filled.GroupWork"
-        OnClick="() => Activate(ActiveTab.Organizations)" Text=@(Translate(SystemTextId.Partners))>
-        <MudItem xs="12" sm="12" md="12">
-            This is organization
-        </MudItem>
-    </MudTabPanel>
     <MudTabPanel BadgeData="0" BadgeColor="Color.Success" IconColor="Color.Secondary"
         Icon="@Icons.Material.Filled.AttachFile" OnClick="() => Activate(ActiveTab.Files)"
         Text=@(Translate(SystemTextId.Files))>

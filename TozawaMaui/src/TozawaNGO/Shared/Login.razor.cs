@@ -63,7 +63,10 @@ namespace TozawaNGO.Shared
             Options.SetProperties(ex => ex.Resizeable = true);
             Options.DialogAppearance = MudExAppearance.FromStyle(b =>
             {
-                b.WithBackgroundColor("gold")
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+                .WithBackgroundSize("cover")
+                .WithBackgroundPosition("center center")
+                .WithBackgroundRepeat("no-repeat")
                 .WithOpacity(0.9);
             });
         }
@@ -87,17 +90,17 @@ namespace TozawaNGO.Shared
                     if (userResponse.LoginSuccess)
                     {
                         LoadingState.SetRequestInProgress(false);
-                        ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, userResponse.Token, userResponse.RefreshToken);
+                        ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, userResponse.Token, userResponse.RefreshToken, Guid.Empty);
                         await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(userResponse.Token, userResponse.RefreshToken);
                     }
                 }
             }
         }
         private async Task Logout()
-        {    
+        {
             var user = await ((AuthStateProvider)_authStateProvider).GetUserFromToken();
             await AuthenticationService.PostLogout(user.Id);
-            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null);
+            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null, Guid.Empty);
             await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
         }
         private async Task Register()

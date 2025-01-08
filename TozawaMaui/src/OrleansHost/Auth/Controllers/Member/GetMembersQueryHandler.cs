@@ -6,6 +6,7 @@ using Grains.Auth.Models.Dtos.Backend;
 using Grains.Helpers;
 using System.Buffers;
 using System.Collections.Immutable;
+using OrleansHost.Auth.Models.Queries;
 
 namespace Grains.Auth.Controllers
 {
@@ -53,10 +54,12 @@ namespace Grains.Auth.Controllers
                     {
                         continue;
                     }
-                    if ((_currentUserService.User.Roles == null || !_currentUserService.User.Roles.Contains(Models.Dtos.RoleDto.President)) && _currentUserService.User.Id == memberItem.UserId)
+                    if ((_currentUserService.User.Roles == null || !_currentUserService.User.Roles.Any(x => x.Role == Models.Dtos.Role.President)) && _currentUserService.User.Id == memberItem.UserId)
                     {
                         continue;
                     }
+                    var roleDtos = await _mediator.Send(new GetRolesQuery(memberItem.UserId));
+                    var addressesDtos = await _mediator.Send(new GetAddressesQuery(memberItem.UserId));
                     var member = MemberConverter.Convert(new ApplicationUser
                     {
                         UserId = memberItem.UserId,
@@ -64,6 +67,8 @@ namespace Grains.Auth.Controllers
                         Email = memberItem.Email,
                         Description = memberItem.Description,
                         DescriptionTextId = memberItem.DescriptionTextId,
+                        Comment = memberItem.Comment,
+                        CommentTextId = memberItem.CommentTextId,
                         FirstName = memberItem.FirstName,
                         LastName = memberItem.LastName,
                         LastLoginCountry = memberItem.LastLoginCountry,
@@ -72,7 +77,30 @@ namespace Grains.Auth.Controllers
                         LastLoginIPAdress = memberItem.LastLoginIPAdress,
                         Adress = memberItem.Adress,
                         UserPasswordHash = memberItem.UserPasswordHash,
-                        Roles = memberItem.Roles,
+                        Roles = roleDtos.Select(y => new UserRole
+                        {
+                            UserId = memberItem.UserId,
+                            RoleId = y.Id,
+                            OrganizationId = y.OrganizationId,
+                            Role = new Role
+                            {
+                                Id = y.Id,
+                                RoleEnum = (RoleEnum)y.Role,
+                                Functions = y.Functions.Select(f => new Function
+                                {
+                                    Functiontype = f.FunctionType,
+                                    RoleId = f.RoleId,
+                                    Role = new Role
+                                    {
+                                        OrganizationId = y.OrganizationId,
+                                        Functions = y.Functions.Select(t => new Function
+                                        {
+                                            Functiontype = t.FunctionType
+                                        }).ToList()
+                                    }
+                                }).ToList()
+                            }
+                        }).ToList(),
                         LastAttemptLogin = memberItem.LastAttemptLogin,
                         RefreshToken = memberItem.RefreshToken,
                         RefreshTokenExpiryTime = memberItem.RefreshTokenExpiryTime,
@@ -85,10 +113,10 @@ namespace Grains.Auth.Controllers
                         ModifiedBy = memberItem.ModifiedBy,
                         ModifiedDate = memberItem.ModifiedDate,
                         StationIds = memberItem.StationIds
-                    });
+                    }, addressesDtos.ToList());
                     member.AttachmentsCount = memberItem.AttachmentsCount;
                     member.Timestamp = memberItem.Timestamp;
-
+                    await SetTranslation(member);
                     converted.Add(member);
                 }
 
@@ -100,7 +128,6 @@ namespace Grains.Auth.Controllers
                         var itemIndex = converted.IndexOf(itemWithEmail);
                         var itemPage = (int)Math.Floor((double)itemIndex / request.PageSize);
                         var pagedItems = converted.Skip(itemPage * request.PageSize).Take(request.PageSize);
-                        await SetTranslation(pagedItems);
                         return new TableDataDto<MemberDto> { Items = pagedItems, TotalItems = converted.Count, ItemPage = itemPage };
                     }
                 }
@@ -115,7 +142,6 @@ namespace Grains.Auth.Controllers
                     converted = converted.Where(Filtered(request.SearchString)).ToList();
                 }
                 var paged = converted.Skip(request.Page * request.PageSize).Take(request.PageSize);
-                await SetTranslation(paged);
                 return new TableDataDto<MemberDto> { Items = paged, TotalItems = converted.Count };
             }
             finally
@@ -126,36 +152,60 @@ namespace Grains.Auth.Controllers
         private static Func<MemberDto, bool> Filtered(string searchString) => x => x.Email.Contains(searchString, StringComparison.InvariantCultureIgnoreCase) ||
                                                                               (!string.IsNullOrEmpty(x.FirstName) && x.FirstName.Contains(searchString, StringComparison.InvariantCultureIgnoreCase)) ||
                                                                                (!string.IsNullOrEmpty(x.Description) && x.Description.Contains(searchString, StringComparison.InvariantCultureIgnoreCase)) ||
+                                                                                (!string.IsNullOrEmpty(x.Comment) && x.Comment.Contains(searchString, StringComparison.InvariantCultureIgnoreCase)) ||
                                                                                (!string.IsNullOrEmpty(x.LastName) && x.LastName.Contains(searchString, StringComparison.InvariantCultureIgnoreCase));
-
-        private async Task SetTranslation(IEnumerable<MemberDto> members)
+        private async Task SetTranslation(MemberDto member)
         {
-            foreach (var member in members)
+            if (member.DescriptionTextId != Guid.Empty)
             {
-                if (member.DescriptionTextId != Guid.Empty)
+                var translationItem = await _factory.GetGrain<ITranslationGrain>(member.DescriptionTextId).GetAsync();
+                var translation = translationItem != null ? new Translation
                 {
-                    var translationItem = await _factory.GetGrain<ITranslationGrain>(member.DescriptionTextId).GetAsync();
-                    var translation = translationItem != null ? new Translation
-                    {
-                        Id = translationItem.Id,
-                        TextId = translationItem.TextId,
-                        LanguageText = translationItem.LanguageText,
-                        CreateDate = translationItem.CreatedDate,
-                        CreatedBy = translationItem.CreatedBy,
-                        ModifiedBy = translationItem.ModifiedBy,
-                        ModifiedDate = translationItem.ModifiedDate
-                    } : new Translation();
+                    Id = translationItem.Id,
+                    TextId = translationItem.TextId,
+                    LanguageText = translationItem.LanguageText,
+                    CreateDate = translationItem.CreatedDate,
+                    CreatedBy = translationItem.CreatedBy,
+                    ModifiedBy = translationItem.ModifiedBy,
+                    ModifiedDate = translationItem.ModifiedDate
+                } : new Translation();
 
-                    if (translation != null && translation.TextId != Guid.Empty)
+                if (translation != null && translation.TextId != Guid.Empty)
+                {
+                    if (translation.LanguageText.TryGetValue(_currentUserService.LanguageId, out string value))
                     {
-                        if (translation.LanguageText.TryGetValue(_currentUserService.LanguageId, out string value))
-                        {
-                            member.Description = value;
-                        }
-                        else
-                        {
-                            member.Description = "";
-                        }
+                        member.Description = value;
+                    }
+                    else
+                    {
+                        member.Description = "";
+                    }
+                }
+            }
+
+            if (member.CommentTextId != Guid.Empty)
+            {
+                var translationItem = await _factory.GetGrain<ITranslationGrain>(member.CommentTextId).GetAsync();
+                var translation = translationItem != null ? new Translation
+                {
+                    Id = translationItem.Id,
+                    TextId = translationItem.TextId,
+                    LanguageText = translationItem.LanguageText,
+                    CreateDate = translationItem.CreatedDate,
+                    CreatedBy = translationItem.CreatedBy,
+                    ModifiedBy = translationItem.ModifiedBy,
+                    ModifiedDate = translationItem.ModifiedDate
+                } : new Translation();
+
+                if (translation != null && translation.TextId != Guid.Empty)
+                {
+                    if (translation.LanguageText.TryGetValue(_currentUserService.LanguageId, out string value))
+                    {
+                        member.Comment = value;
+                    }
+                    else
+                    {
+                        member.Comment = "";
                     }
                 }
             }

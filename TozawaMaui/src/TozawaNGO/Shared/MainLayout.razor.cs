@@ -118,7 +118,7 @@ namespace TozawaNGO.Shared
                             if (((AuthStateProvider)_authStateProvider).ValidateCurrentToken(response.Entity.Token))
                             {
                                 ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, response.Entity.Token,
-                                response.Entity.RefreshToken);
+                                response.Entity.RefreshToken, Guid.Empty);
                                 await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(response.Entity.Token, response.Entity.RefreshToken);
                             }
                             else
@@ -223,8 +223,11 @@ namespace TozawaNGO.Shared
                       options.SetProperties(ex => ex.Resizeable = true);
                       options.DialogAppearance = MudExAppearance.FromStyle(b =>
                       {
-                          b.WithBackgroundColor("gold")
-                          .WithOpacity(0.9);
+                          b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
                       });
 
                       var dialog = await DialogService.ShowEx<ExpireModal>("Logout", parameters, options);

@@ -26,6 +26,15 @@ namespace TozawaNGO.Shared
                 SettingsChanged.InvokeAsync(value);
             }
         }
+        private void GoToHome()
+        {
+            var homePage = NavManager.ToBaseRelativePath(NavManager.Uri);
+            var activePath = NavMenuTabState.GetActivePath();
+            if (!string.IsNullOrEmpty(homePage) && activePath != "/")
+            {
+                NavManager.NavigateTo("/");
+            }
+        }
         private bool _value;
         [Parameter]
         public bool SideBarOpen
@@ -98,7 +107,7 @@ namespace TozawaNGO.Shared
         }
         private string GetNavMudGroupRoles()
         {
-            return $"{Enum.GetName(typeof(RoleDto), RoleDto.LandLoard)}";
+            return $"{Enum.GetName(typeof(Role), Role.LandLoard)}";
         }
         private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {

@@ -20,9 +20,11 @@ public class StartupService(IServiceProvider services) : IHostedService
         var googleService = scope.ServiceProvider.GetRequiredService<IGoogleService>();
 
         await SetTodos(factory);
-        await SetUsers(factory, context);
+        await SetUsers(factory, context, googleService);
+        await SetOrganizations(factory, context, googleService);
         await SetTranslations(factory, context);
-        await SetAttachments(factory, context, googleService);
+        await SetFeatures(factory, context);
+        //await SetAttachments(factory, context, googleService);
 
         await Task.CompletedTask;
     }
@@ -40,50 +42,180 @@ public class StartupService(IServiceProvider services) : IHostedService
         }
     }
 
-    private async Task SetUsers(IGrainFactory factory, TozawangoDbContext context)
+    private async Task SetUsers(IGrainFactory factory, TozawangoDbContext context, IGoogleService googleService)
     {
-        var items = await context.TzUsers.ToListAsync();
+        var items = await context.TzUsers.Include(t => t.UserOrganizations)
+                    .Include(y => y.Organizations)
+                    .Include(w => w.Addresses)
+                    .Include(u => u.Roles).ToListAsync();
 
         foreach (var memberItem in items)
         {
             var attachmentsCount = await context.FileAttachments.Include(t => t.Owners).CountAsync(x => x.Owners.Any(y => y.OwnerId == memberItem.UserId));
             var item = new MemberItem(
-        memberItem.UserId,
-      memberItem.PartnerId,
-      memberItem.Description,
-     memberItem.DescriptionTextId,
-      memberItem.FirstName,
-      memberItem.LastName,
-      memberItem.LastLoginCountry,
-      memberItem.LastLoginCity,
-      memberItem.LastLoginState,
-      memberItem.LastLoginIPAdress,
-      memberItem.Adress,
-      memberItem.UserPasswordHash,
-      memberItem.Roles,
-      memberItem.LastAttemptLogin,
-      memberItem.RefreshToken,
-      memberItem.RefreshTokenExpiryTime,
-      memberItem.UserCountry,
-      memberItem.Deleted,
-      memberItem.AdminMember,
-      memberItem.LastLogin,
-      memberItem.CreatedBy,
-      memberItem.CreateDate,
-      memberItem.ModifiedBy,
-      memberItem.ModifiedDate,
-      memberItem.StationIds,
-      memberItem.Email,
-      memberItem.PasswordHash,
-      attachmentsCount,
-      memberItem.Tenants,
-      memberItem.LandLords,
-      SystemTextId.MemberOwnerId
+            memberItem.UserId,
+            memberItem.PartnerId,
+            memberItem.Description,
+            memberItem.DescriptionTextId,
+            memberItem.FirstName,
+            memberItem.LastName,
+            memberItem.LastLoginCountry,
+            memberItem.LastLoginCity,
+            memberItem.LastLoginState,
+            memberItem.LastLoginIPAdress,
+            memberItem.Adress,
+            memberItem.UserPasswordHash,
+            memberItem.Roles.Select(x => x.Role.RoleEnum).ToList(),
+            memberItem.LastAttemptLogin,
+            memberItem.RefreshToken,
+            memberItem.RefreshTokenExpiryTime,
+            memberItem.UserCountry,
+            memberItem.Deleted,
+            memberItem.AdminMember,
+            memberItem.LastLogin,
+            memberItem.CreatedBy,
+            memberItem.CreateDate,
+            memberItem.ModifiedBy,
+            memberItem.ModifiedDate,
+            memberItem.StationIds,
+            memberItem.Email,
+            memberItem.PasswordHash,
+            attachmentsCount,
+            memberItem.Tenants,
+            memberItem.LandLords,
+            memberItem.Organizations?.SelectMany(o => o.Features) != null
+            ? memberItem.Organizations?.SelectMany(o => o.Features).Select(x => x.Feature).ToList()
+            : [],
+            memberItem.Roles
+                .SelectMany(x => x.Role.Functions)
+                .Select(function => function.Functiontype)
+                .Distinct()
+                .ToList(),
+            memberItem.Comment,
+            memberItem.CommentTextId,
+            memberItem.Organization.Id
             );
             await factory.GetGrain<IMemberGrain>(item.UserId).ActivateAsync(item);
+            await SetUserAddresses(factory, context, item.UserId);
+            await SetAttachments(factory, context, googleService, memberItem.UserId);
+        }
+        await SetUserRoles(factory, context);
+    }
+    private async Task SetOrganizations(IGrainFactory factory, TozawangoDbContext context, IGoogleService googleService)
+    {
+        var items = await context.Organizations.Include(t => t.Addresses).Include(u => u.Roles).ToListAsync();
+        foreach (var organization in items)
+        {
+            var attachmentsCount = await context.FileAttachments.Include(t => t.Owners).CountAsync(x => x.Owners.Any(y => y.OwnerId == organization.Id));
+            var item = new OrganizationItem(
+            organization.Id,
+            organization.Name,
+            organization.City,
+            organization.Email,
+            organization.PhoneNumber,
+            organization.CreatedBy,
+            organization.CreateDate,
+            organization.ModifiedBy,
+            organization.ModifiedDate,
+            organization.Features.Select(x => x.Feature).ToList(),
+            attachmentsCount,
+            organization.Id,
+            organization.Comment,
+            organization.CommentTextId,
+            organization.Description,
+            organization.DescriptionTextId,
+            organization.Deleted
+            );
+            await factory.GetGrain<IOrganizationGrain>(item.Id).ActivateAsync(item);
+            await SetOrganizationAddresses(factory, context, item.Id);
+
+            organization.Roles?.Select(async y =>
+            {
+                var roleItem = new RoleItem
+                (
+                y.Id,
+                y.OrganizationId,
+                y.RoleEnum,
+                y.Functions.Select(x => x.Functiontype).ToList(),
+                organization.Id
+                );
+                await factory.GetGrain<IRoleGrain>(roleItem.Id).ActivateAsync(roleItem);
+            });
+
+            await SetAttachments(factory, context, googleService, organization.Id);
         }
     }
+    private async Task SetFeatures(IGrainFactory factory, TozawangoDbContext context)
+    {
+        var items = await context.TozawaFeatures.ToListAsync();
+        foreach (var feature in items)
+        {
+            var item = new FeatureItem(
+            feature.Id,
+            feature.TextId,
+            feature.DescriptionTextId,
+            feature.Deleted,
+            SystemTextId.FeatureOwnerId
+            );
+            await factory.GetGrain<IFeatureGrain>(item.TextId).ActivateAsync(item);
+        }
+    }
+    private async Task SetUserRoles(IGrainFactory factory, TozawangoDbContext context)
+    {
+        var items = await context.TzUserRoles.ToListAsync();
+        var roles = await context.TzRoles.ToListAsync();
+        foreach (var userRole in items)
+        {
+            var role = roles.First(x => x.Id == userRole.RoleId);
+            var item = new RoleItem(
+            role.Id,
+            role.OrganizationId,
+            role.RoleEnum,
+            role.Functions.Select(x => x.Functiontype).ToList(),
+            userRole.UserId
+            );
+            await factory.GetGrain<IRoleGrain>(item.Id).ActivateAsync(item);
+        }
+    }
+    private async Task SetUserAddresses(IGrainFactory factory, TozawangoDbContext context, Guid ownerId)
+    {
+        var items = await context.UserAddresses.ToListAsync();
+        foreach (var address in items)
+        {
+            var item = new AddressItem(
+            address.Id,
+            address.Name,
+            address.Address,
+            address.City,
+            address.State,
+            address.Country,
+            address.ZipCode,
+            address.Active,
+            ownerId
+            );
+            await factory.GetGrain<IAddressGrain>(item.Id).ActivateAsync(item);
+        }
+    }
+    private async Task SetOrganizationAddresses(IGrainFactory factory, TozawangoDbContext context, Guid ownerId)
+    {
+        var items = await context.OrganizationAddresses.ToListAsync();
 
+        foreach (var address in items)
+        {
+            var item = new AddressItem(
+            address.Id,
+            address.Name,
+            address.Address,
+            address.City,
+            address.State,
+            address.Country,
+            address.ZipCode,
+            address.Active,
+            ownerId
+            );
+            await factory.GetGrain<IAddressGrain>(item.Id).ActivateAsync(item);
+        }
+    }
     private async Task SetTranslations(IGrainFactory factory, TozawangoDbContext context)
     {
         var items = await context.Translations.ToListAsync();
@@ -96,10 +228,9 @@ public class StartupService(IServiceProvider services) : IHostedService
         }
     }
 
-    private async Task SetAttachments(IGrainFactory factory, TozawangoDbContext context, IGoogleService googleService)
+    private async Task SetAttachments(IGrainFactory factory, TozawangoDbContext context, IGoogleService googleService, Guid ownerId)
     {
-        var items = await context.FileAttachments.Include(x => x.Owners).ToListAsync();
-
+        var items = await context.FileAttachments.Include(x => x.Owners).Where(t => t.Owners.Any(y => y.OwnerId == ownerId)).ToListAsync();
         foreach (var item in items)
         {
             var thumbnail = string.Empty;
@@ -121,7 +252,7 @@ public class StartupService(IServiceProvider services) : IHostedService
                item.ModifiedDate,
                item.ModifiedBy,
                item.CreatedBy,
-               SystemTextId.AttachmentOwnerId,
+               ownerId,
                item.BlobId,
                item.MiniatureId,
                item.Name,

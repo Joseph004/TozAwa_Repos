@@ -4,15 +4,17 @@ using Grains.Auth.Models.Authentication;
 using Grains.Helpers;
 using System.Buffers;
 using System.Collections.Immutable;
+using OrleansHost.Auth.Models.Queries;
 
 namespace Grains.Auth.Controllers
 {
-    public class GetApplicationUserQueryHandler(IGrainFactory factory) : IRequestHandler<GetApplicationUserQuery, ApplicationUser>
+    public class GetApplicationUserQueryHandler(IGrainFactory factory, IMediator mediator) : IRequestHandler<GetApplicationUserQuery, ApplicationUser>
     {
         private readonly IGrainFactory _factory = factory;
+        public readonly IMediator _mediator = mediator;
 
         public async Task<ApplicationUser> Handle(GetApplicationUserQuery request, CancellationToken cancellationToken)
-        { 
+        {
             var member = new ApplicationUser();
 
             // get all item keys for this owner
@@ -46,7 +48,8 @@ namespace Grains.Auth.Controllers
                 var memberItem = result.FirstOrDefault(x => x.Email == request.Email);
 
                 if (memberItem == null) return null;
-
+                var roleDtos = await _mediator.Send(new GetRolesQuery(memberItem.UserId));
+                var addressesDtos = await _mediator.Send(new GetAddressesQuery(memberItem.UserId));
                 return new ApplicationUser
                 {
                     PasswordHash = memberItem.PasswordHash,
@@ -63,7 +66,30 @@ namespace Grains.Auth.Controllers
                     LastLoginIPAdress = memberItem.LastLoginIPAdress,
                     Adress = memberItem.Adress,
                     UserPasswordHash = memberItem.UserPasswordHash,
-                    Roles = memberItem.Roles,
+                    Roles = roleDtos.Select(y => new UserRole
+                    {
+                        UserId = memberItem.UserId,
+                        RoleId = y.Id,
+                        OrganizationId = y.OrganizationId,
+                        Role = new Role
+                        {
+                            Id = y.Id,
+                            RoleEnum = (RoleEnum)y.Role,
+                            Functions = y.Functions.Select(f => new Function
+                            {
+                                Functiontype = f.FunctionType,
+                                RoleId = f.RoleId,
+                                Role = new Role
+                                {
+                                    OrganizationId = y.OrganizationId,
+                                    Functions = y.Functions.Select(t => new Function
+                                    {
+                                        Functiontype = t.FunctionType
+                                    }).ToList()
+                                }
+                            }).ToList()
+                        }
+                    }).ToList(),
                     LastAttemptLogin = memberItem.LastAttemptLogin,
                     RefreshToken = memberItem.RefreshToken,
                     RefreshTokenExpiryTime = memberItem.RefreshTokenExpiryTime,

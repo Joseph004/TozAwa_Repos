@@ -129,4 +129,7 @@ public static partial class SystemTextId
     public static Guid ReloadPage => Guid.Parse("970dcdc8-6d74-4c08-aa2f-e18c7f46e52b");
     public static Guid CookieSetting => Guid.Parse("68eccf80-8989-4f2e-858b-e89fd8f208cf");
     public static Guid DiscussWithUs => Guid.Parse("a65a7b8b-2def-4718-b98e-13e09ae14fba");
+    public static Guid ClickMe => Guid.Parse("ebbaca4b-1ed8-4b37-89f4-55efaf18f37d");
+    public static Guid Next => Guid.Parse("26707fc9-f33d-44ac-a51f-d961602f202c");
+    public static Guid Previous => Guid.Parse("7c8f888f-5f99-4391-ade0-d312ffea409d");
 }

@@ -14,6 +14,7 @@ using TozawaNGO.Shared;
 using MudBlazor.Extensions;
 using MudBlazor.Extensions.Core;
 using Nextended.Core.Extensions;
+using MudBlazor.Extensions.Components;
 
 namespace TozawaNGO.Pages
 {
@@ -27,7 +28,24 @@ namespace TozawaNGO.Pages
         [Inject] protected AttachmentService AttachmentService { get; set; }
         [Inject] protected FileService FileService { get; set; }
         [Inject] public ISnackbar Snackbar { get; set; }
+        [Inject] private LoadingState LoadingState { get; set; }
         private AttachmentType _attachmentType { get; set; } = AttachmentType.Intern;
+        public Dictionary<Guid, AttachmentDownloadDto> Attachment { get; set; }
+        public IEnumerable<FileAttachmentDto> Attachments { get; set; }
+        private DialogParameters _parameters = [];
+        private Stream _fileStream = null;
+        private string _fileName = "";
+        private string _fileMimeType = "";
+        Action<DialogOptionsEx> _fileOptionsEx;
+        Action _DownloadFile;
+        public int? _currentFileIndex = null;
+        public List<Guid> AttachmentIds { get; set; }
+        private bool _disabledForwards = false;
+        private bool _disabledBackwards = false;
+        private string _textForwards = string.Empty;
+        private string _textBackwards = string.Empty;
+        private bool _disabledFileViewPage = false;
+        IMudExDialogReference<MudExFileDisplayDialog> _fileDialog;
         protected static Guid _areYouSureTranslation = Guid.Parse("c41187b6-6dc7-4e9a-a403-4982b34f21f8");
         protected int _thumbnailSize = 24;
         protected int[] _pageSizeOptions = [20, 50, 100];
@@ -86,8 +104,62 @@ namespace TozawaNGO.Pages
         }
         public override void Dispose()
         {
+            if (_fileStream != null)
+            {
+                _fileStream.Dispose();
+                _fileStream.Close();
+            }
+            if (_fileDialog != null)
+            {
+                _fileDialog.Dismiss(DialogResult.Cancel());
+                _fileDialog.DialogReference.Dismiss(DialogResult.Cancel());
+                _fileDialog.DialogComponent.Cancel();
+                _fileDialog.DialogComponent.DisposeAsync();
+            }
             AttachmentService.OnChange -= HandleAttachment;
+            _fileOptionsEx -= SetOptions;
             base.Dispose();
+        }
+        public void SetParameters()
+        {
+            _parameters = new DialogParameters
+            {
+                {
+                    nameof(MudExFileDisplay.StreamUrlHandling),
+                    StreamUrlHandling.DataUrl
+                    },
+                    {
+                        nameof(MudExFileDisplay.ContentStream),
+                        _fileStream
+                    },
+                      {
+                        nameof(MudExFileDisplay.Dense),
+                        true
+                      },
+                      {
+                        nameof(MudExFileDisplayDialog.Buttons),
+                        new MudExDialogResultAction[]{
+                        new(){
+                       Label = Translate(SystemTextId.Download, "Download"),
+                       Color = MudBlazor.Color.Secondary,
+                       Variant = Variant.Filled,
+                       OnClick = _DownloadFile
+                        },
+                        new() {
+                           Label = Translate(SystemTextId.Previous, "Previous"),
+                           Color = MudBlazor.Color.Primary,
+                           Variant = Variant.Filled,
+                           OnClick = Previous
+                         },
+                        new() {
+                           Label = Translate(SystemTextId.Next, "Next"),
+                           Color = MudBlazor.Color.Primary,
+                           Variant = Variant.Filled,
+                           OnClick = Next
+                        }
+                    }
+                }
+            };
         }
         protected override void OnInitialized()
         {
@@ -203,37 +275,17 @@ namespace TozawaNGO.Pages
             var name = (!FileValidator.IsPdf(item.MineType) && FileValidator.IsValiBytes(item.PdfConvertedContent)) ? item.Name.Split(".")[0] + ".pdf" : item.Name;
             if (command == "view")
             {
-                var options = new DialogOptionsEx
-                {
-                    BackgroundClass = "tz-mud-overlay",
-                    BackdropClick = false,
-                    CloseButton = false,
-                    MaxWidth = MaxWidth.ExtraLarge,
-                    MaximizeButton = true,
-                    FullHeight = true,
-                    FullWidth = true,
-                    DragMode = MudDialogDragMode.Simple,
-                    Animations = [AnimationType.Pulse],
-                    Position = DialogPosition.Center
-                };
-
-                options.SetProperties(ex => ex.Resizeable = true);
-                options.DialogAppearance = MudExAppearance.FromStyle(b =>
-                {
-                    b.WithBackgroundColor("gold")
-                    .WithOpacity(0.9);
-                });
-
-                var attachments = pagedData.Where(x => FileValidator.IsImage(x.MimeType) || FileValidator.IsPdf(x.MimeType) || (!FileValidator.IsPdf(x.MimeType) && FileValidator.IsValiBytes(x.PdfConvertedContent)));
-                var parameters = new DialogParameters
-                {
-                    ["Attachment"] = new Dictionary<Guid, AttachmentDownloadDto> { { attachment.Id, item } },
-                    ["Attachments"] = attachments
-                };
+                _fileOptionsEx = SetOptions;
+                _fileStream = GetStream(item.PdfConvertedContent);
+                SetParameters();
+                SetFileExAttachments(item, attachment.Id, true);
                 _RequestInProgress = false;
                 DisabledPage();
-                var dialog = await DialogService.ShowEx<ShowDocumentDialog>($"{name}", parameters, options);
-                var result = await dialog.Result;
+
+                _fileName = (!FileValidator.IsPdf(Attachment.First().Value.MineType) && FileValidator.IsValiBytes(Attachment.First().Value.PdfConvertedContent)) ? Attachment.First().Value.Name.Split(".")[0] + ".pdf" : Attachment.First().Value.Name;
+                _fileMimeType = (!FileValidator.IsPdf(Attachment.First().Value.MineType) && FileValidator.IsValiBytes(Attachment.First().Value.PdfConvertedContent)) ? FileValidator.pdf : Attachment.First().Value.MineType;
+                _fileDialog = await DialogService.ShowFileDisplayDialog(_fileStream, _fileName, _fileMimeType, HandleContentError, _fileOptionsEx, _parameters);
+                var result = await _fileDialog.Result;
             }
             else
             {
@@ -245,7 +297,25 @@ namespace TozawaNGO.Pages
             showSelect.Add(attachment.Id, showOptionButtonToPdf);
             _RequestInProgress = false;
             DisabledPage();
+            _fileDialog?.CallStateHasChanged();
             MudDialog.StateHasChanged();
+        }
+        private Stream GetStream(byte[] content)
+        {
+            return new MemoryStream(content);
+        }
+        public void SetOptions(DialogOptionsEx options)
+        {
+            options.BackgroundClass = "tz-mud-overlay";
+            options.Position = DialogPosition.Center;
+            options.DialogAppearance = MudExAppearance.FromStyle(b =>
+            {
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+                .WithBackgroundSize("cover")
+                .WithBackgroundPosition("center center")
+                .WithBackgroundRepeat("no-repeat")
+                .WithOpacity(0.9);
+            });
         }
         private async Task ShowDocumentInFrame(FileAttachmentDto attachment)
         {
@@ -258,41 +328,22 @@ namespace TozawaNGO.Pages
                 var item = await GetAttachmentDownloadDto(attachment);
                 if (FileValidator.IsValideImage(item.Content) || FileValidator.IsValidePdf(item.Content))
                 {
-                    var options = new DialogOptionsEx
-                    {
-                        BackgroundClass = "tz-mud-overlay",
-                        BackdropClick = false,
-                        CloseButton = false,
-                        MaxWidth = MaxWidth.ExtraLarge,
-                        MaximizeButton = true,
-                        FullHeight = true,
-                        FullWidth = true,
-                        DragMode = MudDialogDragMode.Simple,
-                        Animations = [AnimationType.Pulse],
-                        Position = DialogPosition.Center
-                    };
-
-                    options.SetProperties(ex => ex.Resizeable = true);
-                    options.DialogAppearance = MudExAppearance.FromStyle(b =>
-                    {
-                        b.WithBackgroundColor("gold")
-                        .WithOpacity(0.9);
-                    });
-
-                    var attachments = pagedData.Where(x => FileValidator.IsImage(x.MimeType) || FileValidator.IsPdf(x.MimeType) || FileValidator.IsTextplain(x.MimeType));
-                    var parameters = new DialogParameters
-                    {
-                        ["Attachment"] = new Dictionary<Guid, AttachmentDownloadDto> { { attachment.Id, item } },
-                        ["Attachments"] = attachments
-                    };
-                    var dialog = await DialogService.ShowEx<ShowDocumentDialog>($"{attachment.Name}", parameters, options);
-                    var result = await dialog.Result;
+                    _DownloadFile = DownloadFromFileView;
+                    _fileOptionsEx = SetOptions;
+                    _fileStream = GetStream(item.Content);
+                    SetParameters();
+                    SetFileExAttachments(item, attachment.Id);
+                    _fileName = attachment.Name;
+                    _fileMimeType = attachment.MimeType;
+                    _fileDialog = await DialogService.ShowFileDisplayDialog(_fileStream, _fileName, _fileMimeType, HandleContentError, _fileOptionsEx, _parameters);
+                    var result = await _fileDialog.Result;
                 }
                 else
                 {
                     _error = _translationService.Translate(SystemTextId.Error, "Error").Text;
                     showAlert = true;
                 }
+                _fileDialog?.CallStateHasChanged();
                 MudDialog.StateHasChanged();
             }
             else
@@ -301,12 +352,215 @@ namespace TozawaNGO.Pages
                 showAlert = !showAlert;
                 showSelect.Add(attachment.Id, showOptionButtonToPdf);
             }
+            _fileDialog?.CallStateHasChanged();
             MudDialog.StateHasChanged();
+        }
+        private Task<MudExFileDisplayContentErrorResult> HandleContentError(IMudExFileDisplayInfos arg)
+        {
+            if (!FileValidator.IsPdf(arg.ContentType) || !FileValidator.IsImage(arg.ContentType))
+            {
+                return Task.FromResult(MudExFileDisplayContentErrorResult
+                    .RedirectTo("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTiZiqnBKWS8NHcKbRH04UkYjrCgxUMz6sVNw&usqp=CAU", "image/png")
+                    .WithMessage("No word plugin found we display a sheep"));
+            }
+            return Task.FromResult(MudExFileDisplayContentErrorResult.Unhandled);
+        }
+        private void Previous()
+        {
+            Move(Direction.Backwards);
+            _fileDialog?.CallStateHasChanged();
+            MudDialog.StateHasChanged();
+        }
+        private void Next()
+        {
+            Move(Direction.Forwards);
+            _fileDialog?.CallStateHasChanged();
+            MudDialog.StateHasChanged();
+        }
+        private void SetFileExAttachments(AttachmentDownloadDto item, Guid id, bool isConvertedToPdf = false)
+        {
+            Attachment = new Dictionary<Guid, AttachmentDownloadDto> { { id, item } };
+
+            if (isConvertedToPdf)
+            {
+                Attachments = pagedData.Where(x => FileValidator.IsImage(x.MimeType) || FileValidator.IsPdf(x.MimeType) || (!FileValidator.IsPdf(x.MimeType) && FileValidator.IsValiBytes(x.PdfConvertedContent)));
+            }
+            else
+            {
+                Attachments = pagedData.Where(x => FileValidator.IsImage(x.MimeType) || FileValidator.IsPdf(x.MimeType) || FileValidator.IsTextplain(x.MimeType));
+            }
+            AttachmentIds = Attachments.Select(x => x.Id).ToList();
+            HandleDisabled();
+        }
+        private void HandleDisabled()
+        {
+            if (AttachmentIds.Count == 1)
+            {
+                _disabledForwards = true;
+                _disabledBackwards = true;
+                _textBackwards = "";
+                _textForwards = "";
+                return;
+            }
+
+            _disabledForwards = false;
+            _disabledBackwards = false;
+            _textBackwards = "";
+            _textForwards = "";
+            var currentId = Attachment.First().Key;
+            int index = AttachmentIds.FindIndex(a => a == currentId);
+            var lastItem = AttachmentIds.ElementAtOrDefault(index + 1);
+            if (lastItem == Guid.Empty)
+            {
+                _disabledForwards = true;
+                _textForwards = "";
+                _disabledBackwards = false;
+                _textBackwards = (!FileValidator.IsPdf(Attachments.ElementAt(index - 1).MimeType) && FileValidator.IsValiBytes(Attachments.ElementAt(index - 1).PdfConvertedContent)) ? Attachments.ElementAt(index - 1).Name.Split(".")[0] + ".pdf" : Attachments.ElementAt(index - 1).Name;
+                StateHasChanged();
+                _fileDialog?.CallStateHasChanged();
+                MudDialog.StateHasChanged();
+                return;
+            }
+
+            var FirstItem = AttachmentIds.ElementAtOrDefault(index - 1);
+            if (FirstItem == Guid.Empty)
+            {
+                _disabledForwards = false;
+                _disabledBackwards = true;
+                _textBackwards = "";
+                _textForwards = (!FileValidator.IsPdf(Attachments.ElementAt(index + 1).MimeType) && FileValidator.IsValiBytes(Attachments.ElementAt(index + 1).PdfConvertedContent)) ? Attachments.ElementAt(index + 1).Name.Split(".")[0] + ".pdf" : Attachments.ElementAt(index + 1).Name;
+                StateHasChanged();
+                _fileDialog?.CallStateHasChanged();
+                MudDialog.StateHasChanged();
+                return;
+            }
+            _textBackwards = (!FileValidator.IsPdf(Attachments.ElementAt(index - 1).MimeType) && FileValidator.IsValiBytes(Attachments.ElementAt(index - 1).PdfConvertedContent)) ? Attachments.ElementAt(index - 1).Name.Split(".")[0] + ".pdf" : Attachments.ElementAt(index - 1).Name;
+            _textForwards = (!FileValidator.IsPdf(Attachments.ElementAt(index + 1).MimeType) && FileValidator.IsValiBytes(Attachments.ElementAt(index + 1).PdfConvertedContent)) ? Attachments.ElementAt(index + 1).Name.Split(".")[0] + ".pdf" : Attachments.ElementAt(index + 1).Name;
+            StateHasChanged();
+            _fileDialog?.CallStateHasChanged();
+            MudDialog.StateHasChanged();
+        }
+        private async void Move(Direction direction, int? indexparam = null)
+        {
+            if (LoadingState.RequestInProgress || _RequestInProgress) return;
+            var currentId = Attachment.First().Key;
+            _currentFileIndex = indexparam ?? AttachmentIds.FindIndex(a => a == currentId);
+
+            var id = direction == Direction.Forwards ? AttachmentIds.ElementAtOrDefault(_currentFileIndex.Value + 1) : AttachmentIds.ElementAtOrDefault(_currentFileIndex.Value - 1);
+
+            if (id != Guid.Empty)
+            {
+                var attach = Attachments.First(x => x.Id == id);
+                var response = await GetAttachmentDownloadDtoFileView(id);
+                if (!string.IsNullOrEmpty(response.Name))
+                {
+                    if (FileValidator.IsValideImage(response.Content) || FileValidator.IsValidePdf(response.Content) || (!FileValidator.IsPdf(response.MineType) && FileValidator.IsValiBytes(response.PdfConvertedContent)))
+                    {
+                        Attachment = new Dictionary<Guid, AttachmentDownloadDto> { { id, response } };
+                    }
+                    else
+                    {
+                        Move(direction, direction == Direction.Forwards ? _currentFileIndex + 1 : _currentFileIndex - 1);
+                        return;
+                    }
+                }
+                SetFile();
+                HandleDisabled();
+            }
+        }
+        public async void DownloadFromFileView()
+        {
+            if (LoadingState.RequestInProgress || _RequestInProgress) return;
+            _RequestInProgress = true;
+            LoadingState.SetRequestInProgress(true);
+            _fileDialog?.CallStateHasChanged();
+            MudDialog.StateHasChanged();
+            if (!string.IsNullOrEmpty(Attachment.First().Value.Name))
+            {
+                if (FileValidator.IsValiBytes(Attachment.First().Value.PdfConvertedContent))
+                {
+                    var name = Attachment.First().Value.Name.Split(".")[0] + ".pdf";
+                    await FileService.Download(name, Attachment.First().Value.PdfConvertedContent);
+                }
+                else
+                {
+                    await FileService.Download(Attachment.First().Value.Name, Attachment.First().Value.Content);
+                }
+            }
+            _RequestInProgress = false;
+            LoadingState.SetRequestInProgress(false);
+            _fileDialog?.CallStateHasChanged();
+            MudDialog.StateHasChanged();
+        }
+        private async void SetFile()
+        {
+            _fileName = (!FileValidator.IsPdf(Attachment.First().Value.MineType) && FileValidator.IsValiBytes(Attachment.First().Value.PdfConvertedContent)) ? Attachment.First().Value.Name.Split(".")[0] + ".pdf" : Attachment.First().Value.Name;
+            _fileMimeType = (!FileValidator.IsPdf(Attachment.First().Value.MineType) && FileValidator.IsValiBytes(Attachment.First().Value.PdfConvertedContent)) ? FileValidator.pdf : Attachment.First().Value.MineType;
+
+            _fileDialog.Dismiss(DialogResult.Cancel());
+            _fileDialog.DialogReference.Dismiss(DialogResult.Cancel());
+            _fileDialog.DialogComponent.Cancel();
+            _fileDialog.CallStateHasChanged();
+
+            _fileStream.Dispose();
+            _fileStream.Close();
+            var fileAttach = pagedData.First(x => x.Id == Attachment.First().Key);
+            await ShowDocumentInFrame(fileAttach);
+        }
+        private async Task<AttachmentDownloadDto> GetAttachmentDownloadDtoFileView(Guid id)
+        {
+            AttachmentDownloadDto item = new();
+            if (FileValidator.IsValiBytes(Attachments.First(x => x.Id == id).Content))
+            {
+                if (!FileValidator.IsPdf(Attachments.First(x => x.Id == id).MimeType) && FileValidator.IsValiBytes(Attachments.First(x => x.Id == id).PdfConvertedContent))
+                {
+                    item = new AttachmentDownloadDto
+                    {
+                        Name = Attachments.First(x => x.Id == id).Name.Split(".")[0] + ".pdf",
+                        Content = Attachments.First(x => x.Id == id).PdfConvertedContent,
+                        PdfConvertedContent = Attachments.First(x => x.Id == id).PdfConvertedContent,
+                        MineType = FileValidator.pdf
+                    };
+                }
+                else
+                {
+                    item = new AttachmentDownloadDto
+                    {
+                        Name = Attachments.First(x => x.Id == id).Name,
+                        Content = Attachments.First(x => x.Id == id).Content,
+                        MineType = Attachments.First(x => x.Id == id).MimeType
+                    };
+                }
+            }
+            else
+            {
+                LoadingState.SetRequestInProgress(true);
+                _RequestInProgress = true;
+                _fileDialog?.CallStateHasChanged();
+                MudDialog.StateHasChanged();
+                var attachmentResponse = await AttachmentService.AttachmentDownload(id);
+                if (attachmentResponse.Success)
+                {
+                    item = attachmentResponse.Entity ?? new AttachmentDownloadDto();
+                    Attachments.First(x => x.Id == id).Content = item.Content;
+                }
+                else
+                {
+                    Snackbar.Add(attachmentResponse.Message, Severity.Error);
+                }
+                LoadingState.SetRequestInProgress(false);
+                _RequestInProgress = false;
+                _fileDialog?.CallStateHasChanged();
+                MudDialog.StateHasChanged();
+            }
+            return item;
         }
         private async Task<AttachmentDownloadDto> GetAttachmentDownloadDto(FileAttachmentDto attachment)
         {
             AttachmentDownloadDto item = new();
             _RequestInProgress = true;
+            _fileDialog?.CallStateHasChanged();
+            MudDialog.StateHasChanged();
             DisabledPage();
 
             if (FileValidator.IsValiBytes(attachment.Content))
@@ -332,6 +586,8 @@ namespace TozawaNGO.Pages
                 }
             }
             _RequestInProgress = false;
+            _fileDialog?.CallStateHasChanged();
+            MudDialog.StateHasChanged();
             DisabledPage();
             return item;
         }
@@ -378,8 +634,11 @@ namespace TozawaNGO.Pages
             options.SetProperties(ex => ex.Resizeable = true);
             options.DialogAppearance = MudExAppearance.FromStyle(b =>
             {
-                b.WithBackgroundColor("gold")
-                .WithOpacity(0.9);
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
             });
 
             var dialog = await DialogService.ShowEx<DeleteEntityDialog>(Translate(SystemTextId.Delete), parameters, options);
@@ -423,6 +682,7 @@ namespace TozawaNGO.Pages
                 }
                 _RequestInProgress = true;
                 DisabledPage();
+                _fileDialog?.CallStateHasChanged();
                 MudDialog.StateHasChanged();
                 foreach (var file in e.GetMultipleFiles())
                 {
@@ -460,6 +720,7 @@ namespace TozawaNGO.Pages
                         showAlert = true;
                         _RequestInProgress = false;
                         DisabledPage();
+                        _fileDialog?.CallStateHasChanged();
                         MudDialog.StateHasChanged();
 
                         return;
@@ -508,5 +769,11 @@ namespace TozawaNGO.Pages
                 _files.Clear();
             }
         }
+    }
+    public enum Direction
+    {
+        None = 0,
+        Forwards = 1,
+        Backwards = 2
     }
 }

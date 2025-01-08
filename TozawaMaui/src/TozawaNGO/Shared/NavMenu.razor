@@ -24,10 +24,8 @@
             Elevation="1">
             <MudDrawerHeader
                 style="background-color: white; height: 20%; max-height: 20%; width: 100%; max-width: 100%;">
-                <MudButton Href="/" Color="Color.Inherit">
-                    <img src="/images/@_logo" asp-append-version="true"
-                        style="max-height: 100%; width: 100%; max-width: 100%; height: 100%;" />
-                </MudButton>
+                <img src="/images/@_logo" asp-append-version="true" @onclick="@(()=>GoToHome())"
+                    style="max-height: 100%; width: 100%; max-width: 100%; height: 100%; cursor: pointer;" />
             </MudDrawerHeader>
             <MudNavMenu Style="overflow: auto; width: 100%; max-width: 100%; flex: 1;" Class="mt-5"
                 Color="Color.Warning">

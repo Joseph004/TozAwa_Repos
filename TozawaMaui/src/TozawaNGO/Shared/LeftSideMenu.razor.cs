@@ -23,7 +23,7 @@ namespace TozawaNGO.Shared
                 _isMenuOpen = _value.isOpen;
                 if (!_isMenuOpen)
                 {
-                    _top = 75;
+                    _top = 70;
                     _padding = 0;
                     _position = "fixed";
                     _leftSideMenuOutside = "leftSideMenuOutside";
@@ -33,17 +33,24 @@ namespace TozawaNGO.Shared
         }
         private int _rightSize = 97;
         private bool _isMenuOpen = true;
+        private bool _ShowBtnsSettings = false;
         protected override async Task OnInitializedAsync()
         {
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             await base.OnInitializedAsync();
         }
-        private async void _translationService_LanguageChanged(object sender, EventArgs e)
+        private void HandleBtnsSettings()
         {
-            await InvokeAsync(() =>
-           {
-               StateHasChanged();
-           });
+            _ShowBtnsSettings = !_ShowBtnsSettings;
+            _leftSideMenuOutside = _ShowBtnsSettings ? "" : "leftSideMenuOutside";
+            StateHasChanged();
+        }
+        private void _translationService_LanguageChanged(object sender, EventArgs e)
+        {
+            InvokeAsync(() =>
+          {
+              StateHasChanged();
+          });
         }
 
         protected override void Dispose(bool disposed)

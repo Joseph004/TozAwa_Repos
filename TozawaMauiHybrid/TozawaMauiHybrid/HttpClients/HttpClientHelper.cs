@@ -40,7 +40,13 @@ namespace TozawaMauiHybrid.HttpClients
 
             if (!string.IsNullOrEmpty(token))
             {
-                request.Headers.Add("tzuserauthentication", token);
+                var oid = (await _authStateProvider.GetUserFromToken())?.Id.ToString();
+                if (string.IsNullOrEmpty(oid))
+                {
+                    ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
+                    return;
+                }
+                request.Headers.Add("tzuserauthentication", oid);
             }
             await _client.SendAsync(request);
         }
@@ -50,7 +56,13 @@ namespace TozawaMauiHybrid.HttpClients
 
             if (!string.IsNullOrEmpty(value.Token))
             {
-                request.Headers.Add("tzuserauthentication", value.Token);
+                var oid = (await _authStateProvider.GetUserFromToken())?.Id.ToString();
+                if (string.IsNullOrEmpty(oid))
+                {
+                    ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
+                    return new AddResponse<LoginResponseDto>(false, "token missing", HttpStatusCode.Unauthorized, null);
+                }
+                request.Headers.Add("tzuserauthentication", oid);
             }
 
             var postResponse = await _client.SendAsync(request);
@@ -273,18 +285,18 @@ namespace TozawaMauiHybrid.HttpClients
             }
         }
 
-       /*  protected static HttpContent CreateMultiPartContent(IFormFile file)
-        {
-            if (file == null) return null;
-            return new StreamContent(file.OpenReadStream())
-            {
-                Headers =
-                {
-                    ContentLength = file.Length,
-                    ContentType = new MediaTypeHeaderValue(file.ContentType)
-                }
-            };
-        } */
+        /*  protected static HttpContent CreateMultiPartContent(IFormFile file)
+         {
+             if (file == null) return null;
+             return new StreamContent(file.OpenReadStream())
+             {
+                 Headers =
+                 {
+                     ContentLength = file.Length,
+                     ContentType = new MediaTypeHeaderValue(file.ContentType)
+                 }
+             };
+         } */
 
         protected static HttpContent CreateHttpContent(object content, string mediaTypeHeader = "application/json")
         {
@@ -385,7 +397,8 @@ namespace TozawaMauiHybrid.HttpClients
                 token = string.Empty;
             }
 
-            request.Headers.Add("tzuserauthentication", token);
+            var oid = (await _authStateProvider.GetUserFromToken()).Id.ToString();
+            request.Headers.Add("tzuserauthentication", oid);
 
             request.Headers.Add("toza-active-language", activeLanguage.Id.ToString());
             var response = await _client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ConfigureAwait(false);
@@ -418,7 +431,13 @@ namespace TozawaMauiHybrid.HttpClients
                 await Logout();
                 token = string.Empty;
             }
-            request.Headers.Add("tzuserauthentication", token);
+            var oid = (await _authStateProvider.GetUserFromToken())?.Id.ToString();
+            if (string.IsNullOrEmpty(oid))
+            {
+                await Logout();
+                return new HttpResponseMessage();
+            }
+            request.Headers.Add("tzuserauthentication", oid);
             var response = await _client.PostAsync(url, request).ConfigureAwait(false);
 
             return response;
