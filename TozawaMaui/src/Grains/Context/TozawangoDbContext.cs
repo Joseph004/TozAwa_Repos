@@ -35,7 +35,6 @@ namespace Grains.Context
         public DbSet<Station> Stations { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<Establishment> Establishments { get; set; }
-        public DbSet<Partner> Partners { get; set; }
         public DbSet<UserLog> UserLogs { get; set; }
         public DbSet<Audit> Audits { get; set; }
         public virtual DbSet<ConvertedOwner> ConvertedOwners { get; set; }
@@ -55,11 +54,6 @@ namespace Grains.Context
             builder.Entity<ApplicationUser>()
                 .HasIndex(u => new { u.Id, u.UserId, u.Email })
                 .IsUnique();
-
-            builder.Entity<ApplicationUser>()
-                .HasOne(p => p.Partner)
-                .WithMany(b => b.Users)
-                .HasForeignKey(p => p.PartnerId);
 
             builder.Entity<OwnerFileAttachment>().HasKey(x => new
             {
@@ -119,11 +113,6 @@ namespace Grains.Context
                    j.HasKey(t => new { t.OrganizationId, t.UserId });
                });
 
-            builder.Entity<ApplicationUser>()
-                .HasOne(p => p.Organization)
-                .WithMany(b => b.Users)
-                .HasForeignKey(p => p.OrganizationId);
-
             builder.Entity<UserAddress>()
             .HasOne(x => x.User)
             .WithMany(x => x.Addresses)
@@ -139,7 +128,17 @@ namespace Grains.Context
                     DescriptionTextId = Guid.Parse("97617538-8931-43ee-bd4c-769726bdb6a4")
                 }
             );
-
+            builder.Entity<Organization>().HasData(
+                new Organization
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "NoOrganization",
+                    Email = "NoOrganization",
+                    City = "World",
+                    Country = "World",
+                    Addresses = []
+                }
+            );
             builder.ApplyConfiguration(new TranslationEntityConfiguration());
             builder.ApplyConfiguration(new ApplicationUserEntityConfiguration());
         }
@@ -307,7 +306,6 @@ namespace Grains.Context
                 var audit = new Audit
                 {
                     Id = Guid.NewGuid(),
-                    PartnerId = _currentUserService.User != null ? _currentUserService.User.PartnerId : Guid.NewGuid(),
                     InloggedEmail = _currentUserService.User != null ? _currentUserService.User.Email : "None",
                     TableName = TableName,
                     DateTime = DateTime.UtcNow,
@@ -321,7 +319,6 @@ namespace Grains.Context
         public class Audit
         {
             public Guid Id { get; set; }
-            public Guid PartnerId { get; set; }
             public string InloggedEmail { get; set; }
             public string TableName { get; set; } = "";
             public DateTime DateTime { get; set; }

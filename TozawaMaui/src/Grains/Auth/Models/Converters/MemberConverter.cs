@@ -44,7 +44,19 @@ namespace Grains.Auth.Models.Converters
             }).ToList()
             : [],
             Addresses = addresses,
-            DeletedForever = isDeletedForever
+            DeletedForever = isDeletedForever,
+            Organizations = member.Organizations
+                .Select(org => new Models.Dtos.CurrentUserOrganizationDto
+                {
+                    Id = org.Id,
+                    Name = org.Name,
+                    Features = org.Features != null
+                        ? org.Features.Select(x => x.Feature).ToList()
+                        : [],
+                    Active = true,
+                    PrimaryOrganization = member.UserOrganizations.First(u => u.OrganizationId == org.Id).PrimaryOrganization
+                })
+                .ToList()
         };
     }
 }

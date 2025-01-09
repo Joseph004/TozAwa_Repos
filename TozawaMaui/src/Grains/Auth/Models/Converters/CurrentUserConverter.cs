@@ -25,7 +25,6 @@ namespace Grains.Auth.Models.Converters
                 FirstName = user.FirstName,
                 LastName = user.LastName,
                 Country = user.UserCountry,
-                Adress = user.Adress,
                 Features = user.Organizations?.SelectMany(o => o.Features) != null
             ? user.Organizations?.SelectMany(o => o.Features).Select(x => x.Feature).ToList()
             : [],
@@ -37,7 +36,8 @@ namespace Grains.Auth.Models.Converters
                     Features = org.Features != null
                         ? org.Features.Select(x => x.Feature).ToList()
                         : [],
-                    Active = true
+                    Active = true,
+                    PrimaryOrganization = user.UserOrganizations.First(u => u.OrganizationId == org.Id).PrimaryOrganization
                 })
                 .ToList(),
                 Addresses = user.Addresses.Select(x => new AddressDto
@@ -67,9 +67,7 @@ namespace Grains.Auth.Models.Converters
                 {
                     FunctionType = functionType
                 })
-                .ToList(),
-                PartnerId = user.PartnerId,
-                Partner = user.Partner.Name
+                .ToList()
             };
         }
     }

@@ -156,7 +156,6 @@ namespace Grains.Auth.Controllers
             var attachmentsCount = await context.FileAttachments.Include(t => t.Owners).CountAsync(x => x.Owners.Any(y => y.OwnerId == member.UserId), cancellationToken);
             var item = new MemberItem(
                 member.UserId,
-      member.PartnerId,
       member.Description,
      member.DescriptionTextId,
       member.FirstName,
@@ -165,8 +164,6 @@ namespace Grains.Auth.Controllers
       member.LastLoginCity,
       member.LastLoginState,
       member.LastLoginIPAdress,
-      member.Adress,
-      member.UserPasswordHash,
       member.Roles.Select(r => r.Role.RoleEnum).ToList(),
       member.LastAttemptLogin,
       member.RefreshToken,

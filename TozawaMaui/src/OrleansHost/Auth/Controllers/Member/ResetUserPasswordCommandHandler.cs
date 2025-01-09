@@ -58,7 +58,7 @@ public class ResetUserPasswordCommandHandler(TozawangoDbContext context, UserMan
 
     public async Task<ResetPasswordResponse> Handle(ResetUserPasswordCommand request, CancellationToken cancellationToken)
     {
-        var user = _context.TzUsers.Include(x => x.Organizations).Include(x => x.Organization).FirstOrDefault(x => x.UserId == request.UserId) ?? throw new NotFoundStatusCodeException(nameof(request.UserId));
+        var user = _context.TzUsers.Include(x => x.Organizations).Include(x => x.UserOrganizations).FirstOrDefault(x => x.UserId == request.UserId) ?? throw new NotFoundStatusCodeException(nameof(request.UserId));
         if (!_currentUserService.IsAdmin() && user.AdminMember)
         {
             throw new ForbiddenStatusCodeException("Can not modify admin accounts");

@@ -9,7 +9,6 @@ namespace Grains
   {
     public MemberItem(
     Guid userId,
-    Guid partnerId,
     string description,
     Guid descriptionTextId,
      string firstName,
@@ -18,8 +17,6 @@ namespace Grains
    string lastLoginCity,
     string lastLoginState,
   string lastLoginIPAdress,
-    string adress,
-    string userPasswordHash,
     List<RoleEnum> roles,
     DateTime lastAttemptLogin,
    string refreshToken,
@@ -46,7 +43,6 @@ namespace Grains
     )
         : this(
             userId,
-    partnerId,
     description,
     descriptionTextId,
      firstName,
@@ -55,8 +51,6 @@ namespace Grains
    lastLoginCity,
     lastLoginState,
   lastLoginIPAdress,
-    adress,
-    userPasswordHash,
     roles,
     lastAttemptLogin,
    refreshToken,
@@ -86,7 +80,6 @@ namespace Grains
 
     protected MemberItem(
         Guid userId,
-    Guid partnerId,
     string description,
     Guid descriptionTextId,
      string firstName,
@@ -95,8 +88,6 @@ namespace Grains
    string lastLoginCity,
     string lastLoginState,
   string lastLoginIPAdress,
-    string adress,
-    string userPasswordHash,
     List<RoleEnum> roles,
     DateTime lastAttemptLogin,
    string refreshToken,
@@ -123,7 +114,6 @@ namespace Grains
         , DateTime timeStamp)
     {
       UserId = userId;
-      PartnerId = partnerId;
       Description = description;
       DescriptionTextId = descriptionTextId;
       FirstName = firstName;
@@ -132,8 +122,6 @@ namespace Grains
       LastLoginCity = lastLoginCity;
       LastLoginState = lastLoginState;
       LastLoginIPAdress = lastLoginIPAdress;
-      Adress = adress;
-      UserPasswordHash = userPasswordHash;
       Roles = roles;
       LastAttemptLogin = lastAttemptLogin;
       RefreshToken = refreshToken;
@@ -163,74 +151,68 @@ namespace Grains
     [Id(0)]
     public Guid UserId { get; }
     [Id(1)]
-    public Guid PartnerId { get; }
-    [Id(2)]
     public string Description { get; }
-    [Id(3)]
+    [Id(2)]
     public Guid DescriptionTextId { get; }
-    [Id(4)]
+    [Id(3)]
     public string FirstName { get; }
-    [Id(5)]
+    [Id(4)]
     public string LastName { get; }
-    [Id(6)]
+    [Id(5)]
     public string LastLoginCountry { get; }
-    [Id(7)]
+    [Id(6)]
     public string LastLoginCity { get; }
-    [Id(8)]
+    [Id(7)]
     public string LastLoginState { get; }
-    [Id(9)]
+    [Id(8)]
     public string LastLoginIPAdress { get; }
-    [Id(10)]
-    public string Adress { get; }
-    [Id(11)]
-    public string UserPasswordHash { get; }
-    [Id(12)]
+    [Id(9)]
     public List<RoleEnum> Roles { get; }
-    [Id(13)]
+    [Id(10)]
     public DateTime LastAttemptLogin { get; }
-    [Id(14)]
+    [Id(11)]
     public string RefreshToken { get; }
-    [Id(15)]
+    [Id(12)]
     public DateTime RefreshTokenExpiryTime { get; }
-    [Id(16)]
+    [Id(13)]
     public string UserCountry { get; }
-    [Id(17)]
+    [Id(14)]
     public bool Deleted { get; }
-    [Id(18)]
+    [Id(15)]
     public bool AdminMember { get; }
-    [Id(19)]
+    [Id(16)]
     public DateTime? LastLogin { get; }
-    [Id(20)]
+    [Id(17)]
     public string CreatedBy { get; }
-    [Id(21)]
+    [Id(18)]
     public DateTime CreateDate { get; }
-    [Id(22)]
+    [Id(19)]
     public string ModifiedBy { get; }
-    [Id(23)]
+    [Id(20)]
     public DateTime? ModifiedDate { get; }
-    [Id(24)]
+    [Id(21)]
     public List<Guid> StationIds { get; }
-    [Id(25)]
+    [Id(22)]
     public string Email { get; }
-    [Id(26)]
+    [Id(23)]
     public string PasswordHash { get; }
-    [Id(27)]
+    [Id(24)]
     public Guid OwnerKey { get; }
-    [Id(28)]
+    [Id(25)]
     public DateTime Timestamp { get; }
-    [Id(29)]
+    [Id(26)]
     public int AttachmentsCount { get; set; }
-    [Id(30)]
+    [Id(27)]
     public List<Guid> Tenants { get; set; }
-    [Id(31)]
+    [Id(28)]
     public List<Guid> LandLords { get; set; }
-    [Id(32)]
+    [Id(29)]
     public List<int> Features { get; set; }
-    [Id(33)]
+    [Id(30)]
     public List<FunctionType> Functions { get; set; }
-    [Id(34)]
+    [Id(31)]
     public string Comment { get; }
-    [Id(35)]
+    [Id(32)]
     public Guid CommentTextId { get; }
     public bool Equals(MemberItem memberItem)
     {
@@ -244,7 +226,6 @@ namespace Grains
        && Features == memberItem.Features
        && Functions == memberItem.Functions
      && UserId == memberItem.UserId
-     && PartnerId == memberItem.PartnerId
        && Description == memberItem.Description
        && DescriptionTextId == memberItem.DescriptionTextId
        && FirstName == memberItem.FirstName
@@ -253,8 +234,6 @@ namespace Grains
       && LastLoginCity == memberItem.LastLoginCity
       && LastLoginState == memberItem.LastLoginState
        && LastLoginIPAdress == memberItem.LastLoginIPAdress
-      && Adress == memberItem.Adress
-      && UserPasswordHash == memberItem.UserPasswordHash
       && Roles == memberItem.Roles
       && LastAttemptLogin == memberItem.LastAttemptLogin
       && RefreshToken == memberItem.RefreshToken

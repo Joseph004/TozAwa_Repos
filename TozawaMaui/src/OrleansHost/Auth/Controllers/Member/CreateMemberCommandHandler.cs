@@ -43,7 +43,6 @@ namespace Grains.Auth.Controllers
                 _logger.LogWarning("Member email already existing request {email}", request.Email);
                 throw new ArgumentException("Member email already existing");
             }
-            var partner = _context.Partners.First(x => x.Email == "tozawango@gmail.com");
             var newuser = new ApplicationUser
             {
                 UserId = Guid.NewGuid(),
@@ -53,8 +52,6 @@ namespace Grains.Auth.Controllers
                 LastName = request.LastName,
                 AdminMember = false,
                 UserCountry = request.Country,
-                PartnerId = partner.Id,
-                Partner = partner,
                 Addresses = request.Addresses.Select(x => new UserAddress
                 {
                     Id = Guid.NewGuid(),
@@ -113,7 +110,6 @@ namespace Grains.Auth.Controllers
 
             var item = new MemberItem(
                 newuser.UserId,
-      newuser.PartnerId,
       newuser.Description,
      newuser.DescriptionTextId,
       newuser.FirstName,
@@ -122,8 +118,6 @@ namespace Grains.Auth.Controllers
       newuser.LastLoginCity,
       newuser.LastLoginState,
       newuser.LastLoginIPAdress,
-      newuser.Adress,
-      newuser.UserPasswordHash,
       request.Roles,
       newuser.LastAttemptLogin,
       newuser.RefreshToken,
@@ -146,7 +140,7 @@ namespace Grains.Auth.Controllers
       request.Functions,
       newuser.Comment,
       newuser.CommentTextId,
-      SystemTextId.MemberOwnerId
+      newuser.UserOrganizations.First(u => u.PrimaryOrganization).OrganizationId
             );
             await _factory.GetGrain<IMemberGrain>(newuser.UserId).SetAsync(item);
             await _hub.Clients.All.SendAsync("MemberAdded", newuser.UserId, cancellationToken: cancellationToken);

@@ -17,7 +17,6 @@ namespace OrleansHost.Auth.Models.Commands
 
         public async Task<MemberDto> Handle(CreateUserCommand request, CancellationToken cancellationToken)
         {
-            var partner = _context.Partners.First(x => x.Email == "tozawango@gmail.com");
             var newuser = new ApplicationUser
             {
                 UserId = Guid.NewGuid(),
@@ -26,9 +25,7 @@ namespace OrleansHost.Auth.Models.Commands
                 FirstName = request.FirstName,
                 LastName = request.LastName,
                 AdminMember = false,
-                LockoutEnabled = true,
-                PartnerId = partner.Id,
-                Partner = partner
+                LockoutEnabled = true
             };
             newuser.NormalizedEmail = _normalizer.NormalizeEmail(newuser.Email);
             newuser.EmailConfirmed = true;

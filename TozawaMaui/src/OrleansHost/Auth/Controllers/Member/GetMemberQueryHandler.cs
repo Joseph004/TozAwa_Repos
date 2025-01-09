@@ -23,7 +23,6 @@ namespace Grains.Auth.Controllers
             var member = MemberConverter.Convert(new ApplicationUser
             {
                 UserId = memberItem.UserId,
-                PartnerId = memberItem.PartnerId,
                 Email = memberItem.Email,
                 Description = memberItem.Description,
                 DescriptionTextId = memberItem.DescriptionTextId,
@@ -33,8 +32,6 @@ namespace Grains.Auth.Controllers
                 LastLoginCity = memberItem.LastLoginCity,
                 LastLoginState = memberItem.LastLoginState,
                 LastLoginIPAdress = memberItem.LastLoginIPAdress,
-                Adress = memberItem.Adress,
-                UserPasswordHash = memberItem.UserPasswordHash,
                 Roles = roleDtos.Select(y => new UserRole
                 {
                     UserId = memberItem.UserId,

@@ -7,4 +7,5 @@ public class CurrentUserOrganizationDto
     public List<int> Features { get; set; }
     public string Name { get; set; }
     public bool Active { get; set; }
+    public bool PrimaryOrganization { get; set; }
 }

@@ -24,7 +24,7 @@ namespace Grains.Auth.Controllers
             }
 
             // get all item keys for this owner
-            var keys = await _factory.GetGrain<IMemberManagerGrain>(SystemTextId.MemberOwnerId).GetAllAsync();
+            var keys = await _factory.GetGrain<IMemberManagerGrain>(_currentUserService.User.Organizations.First(x => x.PrimaryOrganization).Id).GetAllAsync();
 
             // fast path for empty owner
             if (keys.Length == 0) return new TableDataDto<MemberDto> { Items = [], TotalItems = 0, ItemPage = 0 };
@@ -63,7 +63,6 @@ namespace Grains.Auth.Controllers
                     var member = MemberConverter.Convert(new ApplicationUser
                     {
                         UserId = memberItem.UserId,
-                        PartnerId = memberItem.PartnerId,
                         Email = memberItem.Email,
                         Description = memberItem.Description,
                         DescriptionTextId = memberItem.DescriptionTextId,
@@ -75,8 +74,6 @@ namespace Grains.Auth.Controllers
                         LastLoginCity = memberItem.LastLoginCity,
                         LastLoginState = memberItem.LastLoginState,
                         LastLoginIPAdress = memberItem.LastLoginIPAdress,
-                        Adress = memberItem.Adress,
-                        UserPasswordHash = memberItem.UserPasswordHash,
                         Roles = roleDtos.Select(y => new UserRole
                         {
                             UserId = memberItem.UserId,

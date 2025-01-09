@@ -130,9 +130,6 @@ namespace OrleansHost.Migrations
                     b.Property<bool>("AdminMember")
                         .HasColumnType("bit");
 
-                    b.Property<string>("Adress")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("Comment")
                         .HasColumnType("nvarchar(max)");
 
@@ -212,12 +209,6 @@ namespace OrleansHost.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<Guid>("OrganizationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PartnerId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
@@ -245,6 +236,9 @@ namespace OrleansHost.Migrations
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
 
+                    b.Property<string>("UserCity")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("UserCountry")
                         .HasColumnType("nvarchar(max)");
 
@@ -255,9 +249,6 @@ namespace OrleansHost.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<string>("UserPasswordHash")
-                        .HasColumnType("nvarchar(max)");
-
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -267,10 +258,6 @@ namespace OrleansHost.Migrations
                         .IsUnique()
                         .HasDatabaseName("UserNameIndex")
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                    b.HasIndex("OrganizationId");
-
-                    b.HasIndex("PartnerId");
 
                     b.HasIndex("Id", "UserId", "Email")
                         .IsUnique()
@@ -408,6 +395,22 @@ namespace OrleansHost.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Organizations", "Authorization");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("c235beb3-fc79-414d-8faf-3db71e78da6e"),
+                            City = "World",
+                            CommentTextId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            Country = "World",
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = "",
+                            Deleted = false,
+                            DescriptionTextId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            Email = "NoOrganization",
+                            ModifiedBy = "",
+                            Name = "NoOrganization"
+                        });
                 });
 
             modelBuilder.Entity("Grains.Auth.Models.Authentication.OrganizationAddress", b =>
@@ -488,56 +491,6 @@ namespace OrleansHost.Migrations
                     b.HasIndex("OrganizationId");
 
                     b.ToTable("OrganizationFeatures", "Authorization");
-                });
-
-            modelBuilder.Entity("Grains.Auth.Models.Authentication.Partner", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Adress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("CommentTextId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Deleted")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasMaxLength(200)
-                        .HasColumnType("nvarchar(200)");
-
-                    b.Property<string>("PhoneNumber")
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Partners", "Authorization");
                 });
 
             modelBuilder.Entity("Grains.Auth.Models.Authentication.Report", b =>
@@ -797,38 +750,6 @@ namespace OrleansHost.Migrations
                     b.ToTable("UserAddresses", "Authorization");
                 });
 
-            modelBuilder.Entity("Grains.Auth.Models.Authentication.UserHashPwd", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreateDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("CreatedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("ModifiedBy")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PasswordSalt")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("UserHashPwds", "Authorization");
-                });
-
             modelBuilder.Entity("Grains.Auth.Models.Authentication.UserLog", b =>
                 {
                     b.Property<Guid>("Id")
@@ -880,6 +801,9 @@ namespace OrleansHost.Migrations
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("PrimaryOrganization")
+                        .HasColumnType("bit");
 
                     b.HasKey("OrganizationId", "UserId");
 
@@ -938,9 +862,6 @@ namespace OrleansHost.Migrations
 
                     b.Property<string>("OldValues")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("PartnerId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("TableName")
                         .HasColumnType("nvarchar(max)");
@@ -1094,25 +1015,6 @@ namespace OrleansHost.Migrations
                     b.Navigation("FileAttachment");
                 });
 
-            modelBuilder.Entity("Grains.Auth.Models.Authentication.ApplicationUser", b =>
-                {
-                    b.HasOne("Grains.Auth.Models.Authentication.Organization", "Organization")
-                        .WithMany("Users")
-                        .HasForeignKey("OrganizationId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Grains.Auth.Models.Authentication.Partner", "Partner")
-                        .WithMany("Users")
-                        .HasForeignKey("PartnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("Organization");
-
-                    b.Navigation("Partner");
-                });
-
             modelBuilder.Entity("Grains.Auth.Models.Authentication.Establishment", b =>
                 {
                     b.HasOne("Grains.Auth.Models.Authentication.Station", "Station")
@@ -1211,18 +1113,6 @@ namespace OrleansHost.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Grains.Auth.Models.Authentication.UserHashPwd", b =>
-                {
-                    b.HasOne("Grains.Auth.Models.Authentication.ApplicationUser", "ApplicationUser")
-                        .WithOne("UserHashPwd")
-                        .HasForeignKey("Grains.Auth.Models.Authentication.UserHashPwd", "UserId")
-                        .HasPrincipalKey("Grains.Auth.Models.Authentication.ApplicationUser", "UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ApplicationUser");
                 });
 
             modelBuilder.Entity("Grains.Auth.Models.Authentication.UserOrganization", b =>
@@ -1327,8 +1217,6 @@ namespace OrleansHost.Migrations
 
                     b.Navigation("Roles");
 
-                    b.Navigation("UserHashPwd");
-
                     b.Navigation("UserOrganizations");
                 });
 
@@ -1343,13 +1231,6 @@ namespace OrleansHost.Migrations
                     b.Navigation("Stations");
 
                     b.Navigation("UserOrganizations");
-
-                    b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("Grains.Auth.Models.Authentication.Partner", b =>
-                {
-                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Grains.Auth.Models.Authentication.Role", b =>

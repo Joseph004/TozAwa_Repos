@@ -54,7 +54,6 @@ public class StartupService(IServiceProvider services) : IHostedService
             var attachmentsCount = await context.FileAttachments.Include(t => t.Owners).CountAsync(x => x.Owners.Any(y => y.OwnerId == memberItem.UserId));
             var item = new MemberItem(
             memberItem.UserId,
-            memberItem.PartnerId,
             memberItem.Description,
             memberItem.DescriptionTextId,
             memberItem.FirstName,
@@ -63,8 +62,6 @@ public class StartupService(IServiceProvider services) : IHostedService
             memberItem.LastLoginCity,
             memberItem.LastLoginState,
             memberItem.LastLoginIPAdress,
-            memberItem.Adress,
-            memberItem.UserPasswordHash,
             memberItem.Roles.Select(x => x.Role.RoleEnum).ToList(),
             memberItem.LastAttemptLogin,
             memberItem.RefreshToken,
@@ -93,7 +90,7 @@ public class StartupService(IServiceProvider services) : IHostedService
                 .ToList(),
             memberItem.Comment,
             memberItem.CommentTextId,
-            memberItem.Organization.Id
+            memberItem.UserOrganizations.First(o => o.PrimaryOrganization).OrganizationId
             );
             await factory.GetGrain<IMemberGrain>(item.UserId).ActivateAsync(item);
             await SetUserAddresses(factory, context, item.UserId);

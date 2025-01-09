@@ -22,7 +22,6 @@ public class Organization : CreatedModified
     public string State { get; set; }
     public string Country { get; set; }
     public virtual ICollection<OrganizationFeature> Features { get; set; }
-    public ICollection<ApplicationUser> Users { get; set; }
     public ICollection<ApplicationUser> OrganizationUsers { get; set; }
     public List<UserOrganization> UserOrganizations { get; set; }
     public virtual ICollection<Role> Roles { get; set; }
@@ -50,4 +49,5 @@ public class UserOrganization
     public ApplicationUser User { get; set; }
     public Guid OrganizationId { get; set; }
     public Organization Organization { get; set; }
+    public bool PrimaryOrganization { get; set; }
 }

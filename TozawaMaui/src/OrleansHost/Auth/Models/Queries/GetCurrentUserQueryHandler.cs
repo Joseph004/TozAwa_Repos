@@ -18,7 +18,8 @@ namespace OrleansHost.Auth.Models.Queries
         public async Task<CurrentUserDto> Handle(GetCurrentUserQuery request, CancellationToken cancellationToken)
         {
             var user = await _context.TzUsers
-                           .Include(x => x.Partner)
+                           .Include(x => x.Organizations)
+                           .Include(x => x.UserOrganizations)
                            .FirstOrDefaultAsync(x => x.UserId == request.Oid, cancellationToken: cancellationToken) ?? throw new ArgumentNullException();
             var currentCountry = await _currentCountry.GetUserCountryByIp();
 
@@ -43,7 +44,6 @@ namespace OrleansHost.Auth.Models.Queries
             var attachmentsCount = await context.FileAttachments.Include(t => t.Owners).CountAsync(x => x.Owners.Any(y => y.OwnerId == user.UserId));
             await _factory.GetGrain<IMemberGrain>(user.UserId).SetAsync(new MemberItem(
                 user.UserId,
-      user.PartnerId,
       user.Description,
      user.DescriptionTextId,
       user.FirstName,
@@ -52,8 +52,6 @@ namespace OrleansHost.Auth.Models.Queries
       user.LastLoginCity,
       user.LastLoginState,
       user.LastLoginIPAdress,
-      user.Adress,
-      user.UserPasswordHash,
       user.Roles.Select(x => x.Role.RoleEnum).ToList(),
       user.LastAttemptLogin,
       user.RefreshToken,
@@ -82,7 +80,7 @@ namespace OrleansHost.Auth.Models.Queries
                 .ToList(),
             user.Comment,
             user.CommentTextId,
-            user.Organization.Id
+            user.UserOrganizations.First(u => u.PrimaryOrganization).OrganizationId
             ));
 
             var response = _currentUserConverter.Convert(user);

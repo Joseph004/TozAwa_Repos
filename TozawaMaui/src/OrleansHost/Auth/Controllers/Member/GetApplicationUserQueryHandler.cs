@@ -55,7 +55,6 @@ namespace Grains.Auth.Controllers
                     PasswordHash = memberItem.PasswordHash,
                     Email = memberItem.Email,
                     UserId = memberItem.UserId,
-                    PartnerId = memberItem.PartnerId,
                     Description = memberItem.Description,
                     DescriptionTextId = memberItem.DescriptionTextId,
                     FirstName = memberItem.FirstName,
@@ -64,8 +63,6 @@ namespace Grains.Auth.Controllers
                     LastLoginCity = memberItem.LastLoginCity,
                     LastLoginState = memberItem.LastLoginState,
                     LastLoginIPAdress = memberItem.LastLoginIPAdress,
-                    Adress = memberItem.Adress,
-                    UserPasswordHash = memberItem.UserPasswordHash,
                     Roles = roleDtos.Select(y => new UserRole
                     {
                         UserId = memberItem.UserId,

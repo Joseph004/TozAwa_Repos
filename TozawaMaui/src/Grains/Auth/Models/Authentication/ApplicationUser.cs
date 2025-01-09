@@ -8,7 +8,6 @@ namespace Grains.Auth.Models.Authentication
     public class ApplicationUser : IdentityUser
     {
         public Guid UserId { get; set; }
-        public Guid PartnerId { get; set; }
         public string Description { get; set; }
         public Guid DescriptionTextId { get; set; }
         public string Comment { get; set; }
@@ -19,11 +18,6 @@ namespace Grains.Auth.Models.Authentication
         public string LastLoginCity { get; set; } = "XXXXXXXXXXX";
         public string LastLoginState { get; set; } = "XXXXXXXXXXX";
         public string LastLoginIPAdress { get; set; } = "xxxxxxxxx";
-        public string Adress { get; set; }
-        public string UserPasswordHash { get; set; }
-        public Guid OrganizationId { get; set; }
-        [ForeignKey("OrganizationId")]
-        public virtual Organization Organization { get; set; }
         public virtual ICollection<UserRole> Roles { get; set; }
         public ICollection<Organization> Organizations { get; set; }
         public List<UserOrganization> UserOrganizations { get; set; }
@@ -33,10 +27,9 @@ namespace Grains.Auth.Models.Authentication
         public string RefreshToken { get; set; }
         public DateTime RefreshTokenExpiryTime { get; set; }
         public string UserCountry { get; set; }
+        public string UserCity { get; set; }
         public bool Deleted { get; set; }
         public bool AdminMember { get; set; }
-        [ForeignKey("PartnerId")]
-        public virtual Partner Partner { get; set; }
         public DateTime? LastLogin { get; set; }
         public string CreatedBy { get; set; } = "";
         public DateTime CreateDate { get; set; }
