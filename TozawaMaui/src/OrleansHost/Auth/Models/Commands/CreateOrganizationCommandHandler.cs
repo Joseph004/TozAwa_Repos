@@ -14,6 +14,7 @@ using Grains.Auth.Models.Dtos;
 using Grains.Models;
 using FluentValidation;
 using Grains;
+using OrleansHost.Auth.Models.Queries;
 
 namespace OrleansHost.Auth.Models.Commands
 {
@@ -71,11 +72,12 @@ namespace OrleansHost.Auth.Models.Commands
         public string Text { get; set; }
     }
     public class CreateOrganizationCommandHandler(TozawangoDbContext context, ICurrentUserService currentUserService, ILookupNormalizer normalizer,
-    IGrainFactory factory, IHubContext<ClientHub> hub, ILogger<CreateOrganizationCommandHandler> logger) : IRequestHandler<CreateOrganizationCommand, OrganizationDto>
+    IGrainFactory factory, IHubContext<ClientHub> hub, IMediator mediator, ILogger<CreateOrganizationCommandHandler> logger) : IRequestHandler<CreateOrganizationCommand, OrganizationDto>
     {
         private readonly IGrainFactory _factory = factory;
         private readonly IHubContext<ClientHub> _hub = hub;
         private readonly TozawangoDbContext _context = context;
+        public readonly IMediator _mediator = mediator;
         private readonly ILogger<CreateOrganizationCommandHandler> _logger = logger;
         private readonly ILookupNormalizer _normalizer = normalizer;
         private readonly ICurrentUserService _currentUserService = currentUserService;
@@ -171,6 +173,10 @@ namespace OrleansHost.Auth.Models.Commands
             newOrganization.CommentTextId,
             newOrganization.Description,
             newOrganization.DescriptionTextId,
+            newOrganization.OrganizationUsers.Select(x => x.UserId).ToList(),
+            newOrganization.CityCode,
+            newOrganization.CountryCode,
+            newOrganization.City,
             newOrganization.Deleted
             );
             await _factory.GetGrain<IOrganizationGrain>(newOrganization.Id).SetAsync(item);
@@ -184,17 +190,21 @@ namespace OrleansHost.Auth.Models.Commands
             });
             _context.SaveChanges();
 
-            return OrganizationConverter.Convert(newOrganization, newOrganization.Addresses.Select(a => new AddressDto
+            var addressDtos = newOrganization.Addresses.Select(x => new AddressDto
             {
-                Id = a.Id,
-                Name = a.Name,
-                Address = a.Address,
-                City = a.City,
-                State = a.State,
-                Country = a.Country,
-                ZipCode = a.ZipCode,
-                Active = a.Active
-            }).ToList());
+                Id = x.Id,
+                Name = x.Name,
+                Address = x.Address,
+                City = x.City,
+                State = x.State,
+                Country = x.Country,
+                ZipCode = x.ZipCode,
+                Active = x.Active
+            }).ToList();
+            var organizationItem = await _factory.GetGrain<IOrganizationGrain>(newOrganization.Id).GetAsync();
+            var roleDtos = await _mediator.Send(new GetRolesQuery(newOrganization.Id));
+
+            return OrganizationConverter.Convert(organizationItem, addressDtos, roleDtos?.ToList());
         }
 
         private static void AddTranslation(string text, Guid languageId, Organization newOrganization, Grains.Auth.Models.Authentication.Translation translation)

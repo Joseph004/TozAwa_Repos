@@ -9,6 +9,7 @@ namespace TozawaNGO.Shared
     public partial class BasePage : Fluxor.Blazor.Web.Components.FluxorComponent, IDisposable
     {
         [Inject] protected ITranslationService _translationService { get; set; }
+        [Inject] protected ICountryCityService _countryCityService { get; set; }
         [Inject] protected AuthStateProvider _authStateProvider { get; set; }
         [Inject] private ICurrentUserService _currentUserService { get; set; }
 

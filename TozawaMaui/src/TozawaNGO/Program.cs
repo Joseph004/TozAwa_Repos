@@ -149,6 +149,7 @@ builder.Services.AddScoped<BlazorServerAuthStateCache>();
 builder.Services.AddScoped<FileService>();
 builder.Services.AddScoped<LoadingState>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
+builder.Services.AddScoped<ICountryCityService, CountryCityService>();
 builder.Services.AddScoped<FirstloadState>();
 builder.Services.AddScoped<NavMenuTabState>();
 

@@ -69,6 +69,7 @@ namespace TozawaMauiHybrid
             builder.Services.AddScoped<LoadingState>();
             builder.Services.AddScoped<FirstloadState>();
             builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
+            builder.Services.AddScoped<ICountryCityService, CountryCityService>();
             builder.Services.AddHttpClient();
             builder.Services.AddScoped<HttpClient>();
             builder.Services.RegisterHttpClients(appSettings);

@@ -1,18 +1,21 @@
-using Grains.Auth.Models.Authentication;
 using Grains.Auth.Models.Dtos;
 
 namespace Grains.Auth.Models.Converters;
 
 public static class OrganizationConverter
 {
-    public static OrganizationDto Convert(Organization organization, List<AddressDto> addresses)
+    public static OrganizationDto Convert(OrganizationItem organization,
+        List<AddressDto> addresses,
+        List<RoleDto> roles)
     {
-        var converted = ConvertSingle(organization, addresses);
+        var converted = ConvertSingle(organization, addresses, roles);
 
         return converted;
     }
 
-    private static OrganizationDto ConvertSingle(Organization organization, List<AddressDto> addresses)
+    private static OrganizationDto ConvertSingle(OrganizationItem organization,
+        List<AddressDto> addresses,
+        List<RoleDto> roles)
     {
         return new OrganizationDto
         {
@@ -21,17 +24,17 @@ public static class OrganizationConverter
             Description = organization.Description,
             DescriptionTextId = organization.DescriptionTextId,
             Comment = organization.Comment,
+            City = organization.City,
+            Country = organization.CountryCode,
             CommentTextId = organization.CommentTextId,
-            Features = organization.Features != null
-                        ? organization.Features.Select(x => x.Feature).ToList()
-                        : [],
+            Features = organization.Features,
             CreateDate = organization.CreateDate,
             CreatedBy = organization.CreatedBy,
             Email = organization.Email,
             ModifiedBy = organization.ModifiedBy,
             ModifiedDate = organization.ModifiedDate,
             Name = organization.Name,
-            Roles = organization.Roles != null ? organization.Roles.Select(RoleConverter.Convert).ToList() : [],
+            Roles = roles,
             Addresses = addresses
         };
     }

@@ -125,4 +125,5 @@ public static partial class SystemTextId
     public static Guid RoleOwnerId => Guid.Parse("15459754-9a70-4fdc-b64b-97ae7b804749");
     public static Guid OrganizationOwnerId => Guid.Parse("b30492e3-d63c-4f13-b800-2424f2a4902d");
     public static Guid AddressOwnerId => Guid.Parse("9ba8917a-eddc-4e4e-af16-b977df9963de");
+    public static Guid EmailOwnerId => Guid.Parse("3aad2163-f07f-4412-98ff-25ec8e192d20");
 }

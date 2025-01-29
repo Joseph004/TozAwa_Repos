@@ -3,10 +3,10 @@ using MediatR;
 using Grains.Auth.Models.Authentication;
 using Grains.Auth.Models.Converters;
 using Grains.Auth.Models.Dtos.Backend;
-using Grains.Helpers;
 using System.Buffers;
 using System.Collections.Immutable;
 using OrleansHost.Auth.Models.Queries;
+using Grains.Auth.Models.Dtos;
 
 namespace Grains.Auth.Controllers
 {
@@ -23,14 +23,26 @@ namespace Grains.Auth.Controllers
                 return new TableDataDto<MemberDto> { Items = [], TotalItems = 0, ItemPage = 0 };
             }
 
-            // get all item keys for this owner
-            var keys = await _factory.GetGrain<IMemberManagerGrain>(_currentUserService.User.Organizations.First(x => x.PrimaryOrganization).Id).GetAllAsync();
+            ImmutableArray<Guid> keys = [];
+            if (request.ByPassOrganization)
+            {
+                // get all item keys for this owner
+                keys = await _factory.GetGrain<IMemberManagerGrain>(_currentUserService.User.Organizations.First(x => x.PrimaryOrganization).Id).GetAllAsync();
 
-            // fast path for empty owner
-            if (keys.Length == 0) return new TableDataDto<MemberDto> { Items = [], TotalItems = 0, ItemPage = 0 };
-
+                // fast path for empty owner
+                if (keys.Length == 0) return new TableDataDto<MemberDto> { Items = [], TotalItems = 0, ItemPage = 0 };
+            }
+            else
+            {
+                var workingOrganization = await _factory.GetGrain<IOrganizationGrain>(_currentUserService.User.WorkingOrganizationId).GetAsync();
+                foreach (var item in workingOrganization.UserIds)
+                {
+                    keys = keys.Add(item);
+                }
+            }
             // fan out and get all individual items in parallel
             var tasks = ArrayPool<Task<MemberItem>>.Shared.Rent(keys.Length);
+
             try
             {
                 // issue all requests at the same time
@@ -58,59 +70,28 @@ namespace Grains.Auth.Controllers
                     {
                         continue;
                     }
-                    var roleDtos = await _mediator.Send(new GetRolesQuery(memberItem.UserId));
-                    var addressesDtos = await _mediator.Send(new GetAddressesQuery(memberItem.UserId));
-                    var member = MemberConverter.Convert(new ApplicationUser
+                    var organizations = new List<CurrentUserOrganizationDto>();
+                    foreach (var orgItem in memberItem.OrganizationIds)
                     {
-                        UserId = memberItem.UserId,
-                        Email = memberItem.Email,
-                        Description = memberItem.Description,
-                        DescriptionTextId = memberItem.DescriptionTextId,
-                        Comment = memberItem.Comment,
-                        CommentTextId = memberItem.CommentTextId,
-                        FirstName = memberItem.FirstName,
-                        LastName = memberItem.LastName,
-                        LastLoginCountry = memberItem.LastLoginCountry,
-                        LastLoginCity = memberItem.LastLoginCity,
-                        LastLoginState = memberItem.LastLoginState,
-                        LastLoginIPAdress = memberItem.LastLoginIPAdress,
-                        Roles = roleDtos.Select(y => new UserRole
+                        var org = (await _mediator.Send(new GetOrganizationQuery { Id = orgItem }, cancellationToken)) ?? new();
+                        organizations.Add(new CurrentUserOrganizationDto
                         {
-                            UserId = memberItem.UserId,
-                            RoleId = y.Id,
-                            OrganizationId = y.OrganizationId,
-                            Role = new Role
-                            {
-                                Id = y.Id,
-                                RoleEnum = (RoleEnum)y.Role,
-                                Functions = y.Functions.Select(f => new Function
-                                {
-                                    Functiontype = f.FunctionType,
-                                    RoleId = f.RoleId,
-                                    Role = new Role
-                                    {
-                                        OrganizationId = y.OrganizationId,
-                                        Functions = y.Functions.Select(t => new Function
-                                        {
-                                            Functiontype = t.FunctionType
-                                        }).ToList()
-                                    }
-                                }).ToList()
-                            }
-                        }).ToList(),
-                        LastAttemptLogin = memberItem.LastAttemptLogin,
-                        RefreshToken = memberItem.RefreshToken,
-                        RefreshTokenExpiryTime = memberItem.RefreshTokenExpiryTime,
-                        UserCountry = memberItem.UserCountry,
-                        Deleted = memberItem.Deleted,
-                        AdminMember = memberItem.AdminMember,
-                        LastLogin = memberItem.LastLogin,
-                        CreatedBy = memberItem.CreatedBy,
-                        CreateDate = memberItem.CreateDate,
-                        ModifiedBy = memberItem.ModifiedBy,
-                        ModifiedDate = memberItem.ModifiedDate,
-                        StationIds = memberItem.StationIds
-                    }, addressesDtos.ToList());
+                            Id = org.Id,
+                            Addresses = org.Addresses,
+                            Features = org.Features,
+                            Name = org.Name,
+                            Active = true,
+                            PrimaryOrganization = org.Id == memberItem.OwnerKey
+                        });
+                    }
+                    var primaryOrganization = organizations.First(x => x.PrimaryOrganization);
+                    var roleDtos = ((await _mediator.Send(new GetRolesQuery(memberItem.UserId), cancellationToken)) ?? []).Where(x => x.OrganizationId == primaryOrganization.Id);
+                    var addressesDtos = await _mediator.Send(new GetAddressesQuery(memberItem.UserId), cancellationToken);
+                    var functions = roleDtos.SelectMany(x => x.Functions).Select(y => new CurrentUserFunctionDto
+                    {
+                        FunctionType = y.FunctionType
+                    }).Distinct().ToList();
+                    var member = MemberConverter.Convert(memberItem, organizations, addressesDtos.ToList(), roleDtos.ToList(), functions);
                     member.AttachmentsCount = memberItem.AttachmentsCount;
                     member.Timestamp = memberItem.Timestamp;
                     await SetTranslation(member);
@@ -136,7 +117,7 @@ namespace Grains.Auth.Controllers
                 }
                 if (!string.IsNullOrEmpty(request.SearchString))
                 {
-                    converted = converted.Where(Filtered(request.SearchString)).ToList();
+                    converted = [.. converted.Where(Filtered(request.SearchString))];
                 }
                 var paged = converted.Skip(request.Page * request.PageSize).Take(request.PageSize);
                 return new TableDataDto<MemberDto> { Items = paged, TotalItems = converted.Count };

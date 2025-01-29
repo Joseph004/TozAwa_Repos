@@ -18,7 +18,7 @@ namespace OrleansHost.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("Authorization")
-                .HasAnnotation("ProductVersion", "8.0.11")
+                .HasAnnotation("ProductVersion", "8.0.12")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -130,6 +130,9 @@ namespace OrleansHost.Migrations
                     b.Property<bool>("AdminMember")
                         .HasColumnType("bit");
 
+                    b.Property<string>("CityCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Comment")
                         .HasColumnType("nvarchar(max)");
 
@@ -138,6 +141,9 @@ namespace OrleansHost.Migrations
 
                     b.Property<string>("ConcurrencyStamp")
                         .IsConcurrencyToken()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CountryCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
@@ -165,8 +171,8 @@ namespace OrleansHost.Migrations
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("LandLords")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Gender")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("LastAttemptLogin")
                         .HasColumnType("datetime2");
@@ -228,9 +234,6 @@ namespace OrleansHost.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("StationIds")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Tenants")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("TwoFactorEnabled")
@@ -311,7 +314,7 @@ namespace OrleansHost.Migrations
 
             modelBuilder.Entity("Grains.Auth.Models.Authentication.Function", b =>
                 {
-                    b.Property<int>("Functiontype")
+                    b.Property<int>("FunctionType")
                         .HasColumnType("int")
                         .HasColumnOrder(1);
 
@@ -331,11 +334,61 @@ namespace OrleansHost.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
-                    b.HasKey("Functiontype", "RoleId");
+                    b.HasKey("FunctionType", "RoleId");
 
                     b.HasIndex("RoleId");
 
                     b.ToTable("Functions", "Authorization");
+
+                    b.HasData(
+                        new
+                        {
+                            FunctionType = 3,
+                            RoleId = new Guid("bbe43765-633f-4d11-a8f8-3076b8e6a5ad"),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = "",
+                            ModifiedBy = ""
+                        },
+                        new
+                        {
+                            FunctionType = 4,
+                            RoleId = new Guid("bbe43765-633f-4d11-a8f8-3076b8e6a5ad"),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = "",
+                            ModifiedBy = ""
+                        },
+                        new
+                        {
+                            FunctionType = 7,
+                            RoleId = new Guid("8f65da8e-7cde-473d-9d3a-c05efd756af9"),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = "",
+                            ModifiedBy = ""
+                        },
+                        new
+                        {
+                            FunctionType = 8,
+                            RoleId = new Guid("8f65da8e-7cde-473d-9d3a-c05efd756af9"),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = "",
+                            ModifiedBy = ""
+                        },
+                        new
+                        {
+                            FunctionType = 9,
+                            RoleId = new Guid("d8afcfeb-31b9-4134-80fa-94819274ff98"),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = "",
+                            ModifiedBy = ""
+                        },
+                        new
+                        {
+                            FunctionType = 10,
+                            RoleId = new Guid("d8afcfeb-31b9-4134-80fa-94819274ff98"),
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = "",
+                            ModifiedBy = ""
+                        });
                 });
 
             modelBuilder.Entity("Grains.Auth.Models.Authentication.Organization", b =>
@@ -347,6 +400,9 @@ namespace OrleansHost.Migrations
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CityCode")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Comment")
                         .HasColumnType("nvarchar(max)");
 
@@ -354,6 +410,9 @@ namespace OrleansHost.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CountryCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
@@ -399,7 +458,7 @@ namespace OrleansHost.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("c235beb3-fc79-414d-8faf-3db71e78da6e"),
+                            Id = new Guid("05962aa0-90bf-4090-964b-8edf26ba250b"),
                             City = "World",
                             CommentTextId = new Guid("00000000-0000-0000-0000-000000000000"),
                             Country = "World",
@@ -410,6 +469,20 @@ namespace OrleansHost.Migrations
                             Email = "NoOrganization",
                             ModifiedBy = "",
                             Name = "NoOrganization"
+                        },
+                        new
+                        {
+                            Id = new Guid("5b13a92e-58ff-462c-b173-1076cbc9ecf2"),
+                            City = "Kinshasa",
+                            CommentTextId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            Country = "COD",
+                            CreateDate = new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            CreatedBy = "",
+                            Deleted = false,
+                            DescriptionTextId = new Guid("00000000-0000-0000-0000-000000000000"),
+                            Email = "tozawa_kinlabelle@gmail.com",
+                            ModifiedBy = "",
+                            Name = "KinLaBelle"
                         });
                 });
 
@@ -428,7 +501,16 @@ namespace OrleansHost.Migrations
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CityCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Commun")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CountryCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
@@ -544,6 +626,26 @@ namespace OrleansHost.Migrations
                     b.HasIndex("OrganizationId");
 
                     b.ToTable("TzRoles", "Authorization");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("8f65da8e-7cde-473d-9d3a-c05efd756af9"),
+                            OrganizationId = new Guid("5b13a92e-58ff-462c-b173-1076cbc9ecf2"),
+                            RoleEnum = 1
+                        },
+                        new
+                        {
+                            Id = new Guid("d8afcfeb-31b9-4134-80fa-94819274ff98"),
+                            OrganizationId = new Guid("5b13a92e-58ff-462c-b173-1076cbc9ecf2"),
+                            RoleEnum = 2
+                        },
+                        new
+                        {
+                            Id = new Guid("bbe43765-633f-4d11-a8f8-3076b8e6a5ad"),
+                            OrganizationId = new Guid("5b13a92e-58ff-462c-b173-1076cbc9ecf2"),
+                            RoleEnum = 5
+                        });
                 });
 
             modelBuilder.Entity("Grains.Auth.Models.Authentication.Station", b =>
@@ -556,6 +658,9 @@ namespace OrleansHost.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Commun")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Country")
@@ -610,7 +715,16 @@ namespace OrleansHost.Migrations
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CityCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Commun")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CountryCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
@@ -716,7 +830,16 @@ namespace OrleansHost.Migrations
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("CityCode")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Commun")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("CountryCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreateDate")
@@ -748,6 +871,39 @@ namespace OrleansHost.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserAddresses", "Authorization");
+                });
+
+            modelBuilder.Entity("Grains.Auth.Models.Authentication.UserLandLord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserLandLord_LandLordUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<Guid>("UserLandLord_TenantUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserLandLord_LandLordUserId");
+
+                    b.HasIndex("UserLandLord_TenantUserId");
+
+                    b.ToTable("UserLandLords", "Authorization");
                 });
 
             modelBuilder.Entity("Grains.Auth.Models.Authentication.UserLog", b =>
@@ -840,6 +996,39 @@ namespace OrleansHost.Migrations
                     b.HasIndex("RoleId");
 
                     b.ToTable("TzUserRoles", "Authorization");
+                });
+
+            modelBuilder.Entity("Grains.Auth.Models.Authentication.UserTenant", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifiedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserTenant_LandLordUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserTenant_TenantUserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserTenant_LandLordUserId");
+
+                    b.HasIndex("UserTenant_TenantUserId");
+
+                    b.ToTable("UserTenants", "Authorization");
                 });
 
             modelBuilder.Entity("Grains.Context.TozawangoDbContext+Audit", b =>
@@ -1115,6 +1304,24 @@ namespace OrleansHost.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Grains.Auth.Models.Authentication.UserLandLord", b =>
+                {
+                    b.HasOne("Grains.Auth.Models.Authentication.ApplicationUser", "UserLandLord_LandLordUser")
+                        .WithMany()
+                        .HasForeignKey("UserLandLord_LandLordUserId");
+
+                    b.HasOne("Grains.Auth.Models.Authentication.ApplicationUser", "UserLandLord_TenantUser")
+                        .WithMany("LandLords")
+                        .HasForeignKey("UserLandLord_TenantUserId")
+                        .HasPrincipalKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("UserLandLord_LandLordUser");
+
+                    b.Navigation("UserLandLord_TenantUser");
+                });
+
             modelBuilder.Entity("Grains.Auth.Models.Authentication.UserOrganization", b =>
                 {
                     b.HasOne("Grains.Auth.Models.Authentication.Organization", "Organization")
@@ -1153,6 +1360,24 @@ namespace OrleansHost.Migrations
                     b.Navigation("Role");
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Grains.Auth.Models.Authentication.UserTenant", b =>
+                {
+                    b.HasOne("Grains.Auth.Models.Authentication.ApplicationUser", "UserTenant_LandLordUser")
+                        .WithMany("Tenants")
+                        .HasForeignKey("UserTenant_LandLordUserId")
+                        .HasPrincipalKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Grains.Auth.Models.Authentication.ApplicationUser", "UserTenant_TenantUser")
+                        .WithMany()
+                        .HasForeignKey("UserTenant_TenantUserId");
+
+                    b.Navigation("UserTenant_LandLordUser");
+
+                    b.Navigation("UserTenant_TenantUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -1215,7 +1440,11 @@ namespace OrleansHost.Migrations
                 {
                     b.Navigation("Addresses");
 
+                    b.Navigation("LandLords");
+
                     b.Navigation("Roles");
+
+                    b.Navigation("Tenants");
 
                     b.Navigation("UserOrganizations");
                 });

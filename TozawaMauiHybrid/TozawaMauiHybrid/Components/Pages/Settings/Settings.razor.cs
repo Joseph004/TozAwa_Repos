@@ -26,6 +26,6 @@ namespace TozawaMauiHybrid.Components.Pages.Settings
     {
         Members = 1,
         Organizations = 2,
-        Files = 3
+        Features = 3
     }
 }

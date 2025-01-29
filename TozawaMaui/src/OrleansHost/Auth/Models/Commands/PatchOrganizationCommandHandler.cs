@@ -14,6 +14,7 @@ using Microsoft.AspNetCore.JsonPatch;
 using Grains.Auth.Controllers;
 using Grains;
 using Grains.Auth.Models.Authentication;
+using OrleansHost.Auth.Models.Queries;
 
 namespace OrleansHost.Auth.Models.Commands
 {
@@ -40,6 +41,7 @@ namespace OrleansHost.Auth.Models.Commands
             }
 
             var organization = await _context.Organizations.Include(u => u.Addresses)
+                           .Include(u => u.OrganizationUsers)
                            .FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken: cancellationToken);
 
 
@@ -48,7 +50,7 @@ namespace OrleansHost.Auth.Models.Commands
                 _logger.LogWarning("Organization not found {id}", request.Id);
                 throw new Exception(nameof(request));
             }
-
+            var organizationItem = await _factory.GetGrain<IOrganizationGrain>(organization.Id).GetAsync();
             if (request.PatchModel.GetPatchValue<bool>("DeleteForever"))
             {
                 var translationId = organization.DescriptionTextId;
@@ -90,17 +92,7 @@ namespace OrleansHost.Auth.Models.Commands
 
                 await _factory.GetGrain<IOrganizationGrain>(organizationId).ClearAsync();
                 await _hub.Clients.All.SendAsync("OrganizationUpdated", organizationId, true, cancellationToken: cancellationToken);
-                return OrganizationConverter.Convert(organization, organization.Addresses.Select(a => new AddressDto
-                {
-                    Id = a.Id,
-                    Name = a.Name,
-                    Address = a.Address,
-                    City = a.City,
-                    State = a.State,
-                    Country = a.Country,
-                    ZipCode = a.ZipCode,
-                    Active = a.Active
-                }).ToList());
+                return OrganizationConverter.Convert(organizationItem, [], []);
             }
 
             if (request.PatchModel.GetPatchValue<string>("Description") != null)
@@ -168,19 +160,25 @@ namespace OrleansHost.Auth.Models.Commands
             organization.CommentTextId,
             organization.Description,
             organization.DescriptionTextId,
+            organization.OrganizationUsers.Select(x => x.UserId).ToList(),
+            organization.CityCode,
+            organization.CountryCode,
+            organization.City,
             organization.Deleted
             );
-            var OrganizationDto = OrganizationConverter.Convert(organization, organization.Addresses.Select(a => new AddressDto
+            var addressDtos = organization.Addresses.Select(x => new AddressDto
             {
-                Id = a.Id,
-                Name = a.Name,
-                Address = a.Address,
-                City = a.City,
-                State = a.State,
-                Country = a.Country,
-                ZipCode = a.ZipCode,
-                Active = a.Active
-            }).ToList());
+                Id = x.Id,
+                Name = x.Name,
+                Address = x.Address,
+                City = x.City,
+                State = x.State,
+                Country = x.Country,
+                ZipCode = x.ZipCode,
+                Active = x.Active
+            }).ToList();
+            var roleDtos = await _mediator.Send(new GetRolesQuery(organization.Id));
+            var OrganizationDto = OrganizationConverter.Convert(organizationItem, addressDtos, roleDtos?.ToList());
             OrganizationDto.AttachmentsCount = attachmentsCount;
             await _factory.GetGrain<IOrganizationGrain>(organization.Id).SetAsync(item);
             await _hub.Clients.All.SendAsync("OrganizationUpdated", organization.Id, false, cancellationToken: cancellationToken);

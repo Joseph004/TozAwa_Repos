@@ -34,6 +34,9 @@ namespace Grains.Auth.Controllers
         [HttpPost, Route(""), CheckRole(FunctionType.ReadAuthorization, FunctionType.WriteAuthorization)]
         public async Task<IActionResult> Post([FromBody] CreateMemberCommand request) => Ok(await _mediator.Send(request));
 
+        [HttpPost, Route("switch")]
+        public async Task<IActionResult> SwitchOrganization([FromBody] SwitchOrganizationCommand request) => Ok(await _mediator.Send(request));
+
         [HttpPost, Route("reset"), CheckRole(FunctionType.WriteAuthorization)]
         public async Task<IActionResult> ResetPassword([FromBody] ResetUserPasswordCommand request) => Ok(await _mediator.Send(request));
 

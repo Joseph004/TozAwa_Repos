@@ -13,7 +13,7 @@ namespace TozawaNGO.Shared
     public partial class BaseDialog<T> : ComponentBase, IDisposable
     {
         [Inject] ILogger<T> _logger { get; set; }
-        [Inject] IDialogService DialogService { get; set; }
+        [Inject] protected ICountryCityService _countryCityService { get; set; }
         [Inject] protected ITranslationService _translationService { get; set; }
         [Inject] private ICurrentUserService _currentUserService { get; set; }
 

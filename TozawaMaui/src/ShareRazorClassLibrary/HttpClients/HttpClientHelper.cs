@@ -374,6 +374,8 @@ namespace ShareRazorClassLibrary.HttpClients
                 if (response.Success)
                 {
                     var result = response.Entity ?? new LoginResponseDto();
+                    ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, result.Token, result.RefreshToken, _authStateProvider.UserLoginStateDto.WorkOrganizationId);
+                    await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(result.Token, result.RefreshToken);
                     return result.Token;
                 }
             }

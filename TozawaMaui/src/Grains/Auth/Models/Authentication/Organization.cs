@@ -19,6 +19,8 @@ public class Organization : CreatedModified
     public Guid CommentTextId { get; set; }
     public bool Deleted { get; set; }
     public string City { get; set; }
+    public string CityCode { get; set; }
+    public string CountryCode { get; set; }
     public string State { get; set; }
     public string Country { get; set; }
     public virtual ICollection<OrganizationFeature> Features { get; set; }
@@ -34,8 +36,11 @@ public class OrganizationAddress : CreatedModified
     public string Name { get; set; }
     public string Address { get; set; }
     public string City { get; set; }
+    public string Commun { get; set; }
     public string State { get; set; }
     public string Country { get; set; }
+    public string CityCode { get; set; }
+    public string CountryCode { get; set; }
     public string ZipCode { get; set; }
     public bool Active { get; set; }
     public Guid OrganizationId { get; set; }

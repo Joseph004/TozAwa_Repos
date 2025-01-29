@@ -60,7 +60,7 @@ public class AuthStateProvider(PreferencesStoreClone storage, AppSettings appSet
             var token = claims.Where(x => x.Type == "auth_token").Select(c => c.Value).SingleOrDefault();
             var refreshToken = claims.Where(x => x.Type == "auth_refreshtoken").Select(c => c.Value).SingleOrDefault();
 
-            UserLoginStateDto.Set(true, token, refreshToken);
+            UserLoginStateDto.Set(true, token, refreshToken, UserLoginStateDto.WorkOrganizationId);
 
             authenticatedUser = new ClaimsPrincipal(new ClaimsIdentity(claims, "tzuserauthentication"));
             var authState = Task.FromResult(new AuthenticationState(authenticatedUser));
@@ -72,7 +72,7 @@ public class AuthStateProvider(PreferencesStoreClone storage, AppSettings appSet
         }
         else
         {
-            UserLoginStateDto.Set(false, null, null);
+            UserLoginStateDto.Set(false, null, null, Guid.Empty);
         }
     }
     public async Task NotifyUserAuthentication(string token, string refreshToken)
@@ -80,7 +80,7 @@ public class AuthStateProvider(PreferencesStoreClone storage, AppSettings appSet
         var authenticatedUser = new ClaimsPrincipal();
         if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken))
         {
-            UserLoginStateDto.Set(true, token, refreshToken);
+            UserLoginStateDto.Set(true, token, refreshToken, UserLoginStateDto.WorkOrganizationId);
             var refreshAt = DateTimeOffset.UtcNow.AddSeconds(Convert.ToDouble(_appSettings.JWTSettings.ExpiryInMinutes)).ToString(CultureInfo.InvariantCulture);
             var user = await GetUserFromToken();
             var claims = new List<Claim>
@@ -113,7 +113,7 @@ public class AuthStateProvider(PreferencesStoreClone storage, AppSettings appSet
         }
         else
         {
-            UserLoginStateDto.Set(false, null, null);
+            UserLoginStateDto.Set(false, null, null, Guid.Empty);
         }
     }
     public bool ValidateCurrentToken(string token)
@@ -144,7 +144,7 @@ public class AuthStateProvider(PreferencesStoreClone storage, AppSettings appSet
     {
         var authState = Task.FromResult(_anonymous);
         NotifyAuthenticationStateChanged(authState);
-        UserLoginStateDto.Set(false, null, null);
+        UserLoginStateDto.Set(false, null, null, Guid.Empty);
         _storage.Delete("auth_loggedIn");
         UserAuthenticationChanged(this, new EventArgs());
     }

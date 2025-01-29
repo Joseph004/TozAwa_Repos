@@ -12,6 +12,7 @@ public partial class AuthenticationService(IAuthHttpClient authHttpClient)
 
     public async Task<AddResponse<LoginResponseDto>> GetLoggedInMember(Guid id) => await _authHttpClient.SendPost<LoginResponseDto>($"authenticate/loggedin/{id}", null);
     public async Task<AddResponse<LoginResponseDto>> PostLoginMember(LoginRequest command) => await _authHttpClient.SendPost<LoginResponseDto>("authenticate/member/login", command);
+    public async Task<AddResponse<RegisterResponseDto>> PostRegisterMember(RegisterCommand command) => await _authHttpClient.SendPost<RegisterResponseDto>("authenticate/member/register", command);
     public async Task<AddResponse<LoginResponseDto>> PostLogout(Guid id) => await _authHttpClient.SendPost<LoginResponseDto>($"token/logout/{id.ToString()}", null);
     public async Task<AddResponse<LoginResponseDto>> CheckLockout(string userName) => await _authHttpClient.SendPost<LoginResponseDto>($"authenticate/root/{userName}", new object());
 }

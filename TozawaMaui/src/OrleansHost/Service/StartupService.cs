@@ -1,4 +1,5 @@
 using Grains;
+using Grains.Auth.Models.Authentication;
 using Grains.Context;
 using Grains.Helpers;
 using Grains.Services;
@@ -44,10 +45,18 @@ public class StartupService(IServiceProvider services) : IHostedService
 
     private async Task SetUsers(IGrainFactory factory, TozawangoDbContext context, IGoogleService googleService)
     {
-        var items = await context.TzUsers.Include(t => t.UserOrganizations)
+        var items = await context.TzUsers
+                    .Include(t => t.UserOrganizations)
                     .Include(y => y.Organizations)
+                    .ThenInclude(u => u.OrganizationUsers)
+                    .Include(y => y.Organizations)
+                    .ThenInclude(u => u.Features)
                     .Include(w => w.Addresses)
-                    .Include(u => u.Roles).ToListAsync();
+                    .Include(u => u.Roles)
+                    .ThenInclude(y => y.Role)
+                    .Include(u => u.Roles)
+                    .ThenInclude(y => y.Role.Functions)
+                    .ToListAsync();
 
         foreach (var memberItem in items)
         {
@@ -62,7 +71,7 @@ public class StartupService(IServiceProvider services) : IHostedService
             memberItem.LastLoginCity,
             memberItem.LastLoginState,
             memberItem.LastLoginIPAdress,
-            memberItem.Roles.Select(x => x.Role.RoleEnum).ToList(),
+            memberItem.Roles.Select(x => x.Role != null ? x.Role.RoleEnum : RoleEnum.None).ToList(),
             memberItem.LastAttemptLogin,
             memberItem.RefreshToken,
             memberItem.RefreshTokenExpiryTime,
@@ -78,21 +87,33 @@ public class StartupService(IServiceProvider services) : IHostedService
             memberItem.Email,
             memberItem.PasswordHash,
             attachmentsCount,
-            memberItem.Tenants,
-            memberItem.LandLords,
+            memberItem.Tenants != null ?
+             memberItem.Tenants.Select(x => x.UserTenant_TenantUser.UserId).ToList() : [],
+            memberItem.LandLords != null ?
+             memberItem.LandLords?.Select(x => x.UserLandLord_LandLordUser.UserId).ToList() : [],
             memberItem.Organizations?.SelectMany(o => o.Features) != null
             ? memberItem.Organizations?.SelectMany(o => o.Features).Select(x => x.Feature).ToList()
             : [],
             memberItem.Roles
                 .SelectMany(x => x.Role.Functions)
-                .Select(function => function.Functiontype)
+                .Select(function => function.FunctionType)
                 .Distinct()
                 .ToList(),
             memberItem.Comment,
             memberItem.CommentTextId,
+            memberItem.UserOrganizations.Select(x => x.OrganizationId).ToList(),
+            memberItem.CityCode,
+            memberItem.CountryCode,
+            memberItem.Gender,
             memberItem.UserOrganizations.First(o => o.PrimaryOrganization).OrganizationId
             );
+            var emailGuid = new EmailGuidItem(
+            memberItem.UserId,
+            memberItem.Email,
+            SystemTextId.EmailOwnerId
+            );
             await factory.GetGrain<IMemberGrain>(item.UserId).ActivateAsync(item);
+            await factory.GetGrain<IEmailGuidGrain>(emailGuid.Email).ActivateAsync(emailGuid);
             await SetUserAddresses(factory, context, item.UserId);
             await SetAttachments(factory, context, googleService, memberItem.UserId);
         }
@@ -100,7 +121,7 @@ public class StartupService(IServiceProvider services) : IHostedService
     }
     private async Task SetOrganizations(IGrainFactory factory, TozawangoDbContext context, IGoogleService googleService)
     {
-        var items = await context.Organizations.Include(t => t.Addresses).Include(u => u.Roles).ToListAsync();
+        var items = await context.Organizations.Include(u => u.Features).Include(t => t.Addresses).Include(u => u.OrganizationUsers).Include(t => t.Addresses).Include(u => u.Roles).ToListAsync();
         foreach (var organization in items)
         {
             var attachmentsCount = await context.FileAttachments.Include(t => t.Owners).CountAsync(x => x.Owners.Any(y => y.OwnerId == organization.Id));
@@ -116,11 +137,15 @@ public class StartupService(IServiceProvider services) : IHostedService
             organization.ModifiedDate,
             organization.Features.Select(x => x.Feature).ToList(),
             attachmentsCount,
-            organization.Id,
+            SystemTextId.OrganizationOwnerId,
             organization.Comment,
             organization.CommentTextId,
             organization.Description,
             organization.DescriptionTextId,
+            organization.OrganizationUsers.Select(x => x.UserId).ToList(),
+            organization.CityCode,
+            organization.CountryCode,
+            organization.City,
             organization.Deleted
             );
             await factory.GetGrain<IOrganizationGrain>(item.Id).ActivateAsync(item);
@@ -133,7 +158,7 @@ public class StartupService(IServiceProvider services) : IHostedService
                 y.Id,
                 y.OrganizationId,
                 y.RoleEnum,
-                y.Functions.Select(x => x.Functiontype).ToList(),
+                y.Functions.Select(x => x.FunctionType).ToList(),
                 organization.Id
                 );
                 await factory.GetGrain<IRoleGrain>(roleItem.Id).ActivateAsync(roleItem);
@@ -168,7 +193,7 @@ public class StartupService(IServiceProvider services) : IHostedService
             role.Id,
             role.OrganizationId,
             role.RoleEnum,
-            role.Functions.Select(x => x.Functiontype).ToList(),
+            role.Functions.Select(x => x.FunctionType).ToList(),
             userRole.UserId
             );
             await factory.GetGrain<IRoleGrain>(item.Id).ActivateAsync(item);

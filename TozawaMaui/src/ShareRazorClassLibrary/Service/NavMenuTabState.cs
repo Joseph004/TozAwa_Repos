@@ -35,6 +35,7 @@ namespace ShareRazorClassLibrary.Services
 				ActiveTab.Counter => "/fetchdata1",
 				ActiveTab.Settings => "/settings",
 				ActiveTab.Weather => "/fetchdata",
+				ActiveTab.Register => "/register",
 				_ => "/",
 			};
 		}
@@ -46,6 +47,7 @@ namespace ShareRazorClassLibrary.Services
 				ActiveTab.Counter => "/fetchdata1",
 				ActiveTab.Settings => "/settings",
 				ActiveTab.Weather => "/fetchdata",
+				ActiveTab.Register => "/register",
 				_ => "/",
 			};
 		}
@@ -57,6 +59,7 @@ namespace ShareRazorClassLibrary.Services
 				ActiveTab.Counter => "/fetchdata1",
 				ActiveTab.Settings => "/settings",
 				ActiveTab.Weather => "/fetchdata",
+				ActiveTab.Register => "/register",
 				_ => "/",
 			};
 		}
@@ -68,6 +71,7 @@ namespace ShareRazorClassLibrary.Services
 		Home = 1,
 		Counter = 2,
 		Weather = 3,
-		Settings = 4
+		Settings = 4,
+		Register = 5
 	}
 }

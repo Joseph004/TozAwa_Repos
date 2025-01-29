@@ -6,6 +6,7 @@ using Grains.Attachment.Models;
 using Grains.Auth.Models;
 using Grains.Auth.Models.Authentication;
 using Grains.Auth.Services;
+using Grains.Models;
 
 namespace Grains.Context
 {
@@ -26,6 +27,8 @@ namespace Grains.Context
         public DbSet<Function> Functions { get; set; }
         public DbSet<UserRole> TzUserRoles { get; set; }
         public DbSet<UserAddress> UserAddresses { get; set; }
+        public DbSet<UserLandLord> UserLandLords { get; set; }
+        public DbSet<UserTenant> UserTenants { get; set; }
         public DbSet<OrganizationAddress> OrganizationAddresses { get; set; }
         public DbSet<StationAddress> StationAddresses { get; set; }
         public DbSet<OrganizationFeature> OrganizationFeatures { get; set; }
@@ -76,7 +79,7 @@ namespace Grains.Context
 
             builder.Entity<Function>().HasKey(x => new
             {
-                x.Functiontype,
+                x.FunctionType,
                 x.RoleId
             });
             builder.Entity<UserRole>()
@@ -119,6 +122,18 @@ namespace Grains.Context
             .HasForeignKey(x => x.UserId)
             .HasPrincipalKey(k => k.UserId);
 
+            builder.Entity<UserLandLord>()
+            .HasOne(x => x.UserLandLord_TenantUser)
+            .WithMany(x => x.LandLords)
+            .HasForeignKey(x => x.UserLandLord_TenantUserId)
+            .HasPrincipalKey(k => k.UserId);
+
+            builder.Entity<UserTenant>()
+            .HasOne(x => x.UserTenant_LandLordUser)
+            .WithMany(x => x.Tenants)
+            .HasForeignKey(x => x.UserTenant_LandLordUserId)
+            .HasPrincipalKey(k => k.UserId);
+
             builder.Entity<TozawaFeature>().Property(p => p.Id).ValueGeneratedNever();
             builder.Entity<TozawaFeature>().HasData(
                 new TozawaFeature
@@ -128,6 +143,10 @@ namespace Grains.Context
                     DescriptionTextId = Guid.Parse("97617538-8931-43ee-bd4c-769726bdb6a4")
                 }
             );
+            var orgId = Guid.NewGuid();
+            var RolePresident = Guid.NewGuid();
+            var RoleVicePresident = Guid.NewGuid();
+            var RoleLandLoard = Guid.NewGuid();
             builder.Entity<Organization>().HasData(
                 new Organization
                 {
@@ -137,7 +156,72 @@ namespace Grains.Context
                     City = "World",
                     Country = "World",
                     Addresses = []
+                },
+                new Organization
+                {
+                    Id = orgId,
+                    Name = "KinLaBelle",
+                    Email = "tozawa_kinlabelle@gmail.com",
+                    City = "Kinshasa",
+                    Country = "COD",
+                    Addresses = [],
+                    Roles = []
                 }
+            );
+            builder.Entity<Role>().HasData(
+               new Role
+               {
+                   Id = RolePresident,
+                   RoleEnum = RoleEnum.President,
+                   OrganizationId = orgId,
+                   Functions = []
+               },
+                new Role
+                {
+                    Id = RoleVicePresident,
+                    RoleEnum = RoleEnum.VicePresident,
+                    OrganizationId = orgId,
+                    Functions = []
+                },
+                        new Role
+                        {
+                            Id = RoleLandLoard,
+                            RoleEnum = RoleEnum.LandLoard,
+                            OrganizationId = orgId,
+                            Functions = []
+                        }
+            );
+            builder.Entity<Function>().HasData(
+                    new Function
+                    {
+                        RoleId = RoleLandLoard,
+                        FunctionType = FunctionType.ReadLandLoard
+                    },
+                    new Function
+                    {
+                        RoleId = RoleLandLoard,
+                        FunctionType = FunctionType.WriteLandLoard
+                    },
+                    new Function
+                    {
+                        RoleId = RolePresident,
+                        FunctionType = FunctionType.ReadPresident
+                    },
+                    new Function
+                    {
+                        RoleId = RolePresident,
+                        FunctionType = FunctionType.WritePresident
+                    },
+                    new Function
+                    {
+                        RoleId = RoleVicePresident,
+                        FunctionType = FunctionType.ReadVicePresident
+                    },
+                    new Function
+                    {
+                        RoleId = RoleVicePresident,
+                        FunctionType = FunctionType.WriteVicePresident
+                    }
             );
             builder.ApplyConfiguration(new TranslationEntityConfiguration());
             builder.ApplyConfiguration(new ApplicationUserEntityConfiguration());

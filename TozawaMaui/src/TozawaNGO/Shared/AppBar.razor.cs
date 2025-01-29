@@ -95,11 +95,6 @@ namespace TozawaNGO.Shared
         {
             return HttpUtility.UrlDecode(param);
         }
-
-        private async Task Register()
-        {
-            await Task.FromResult(1);
-        }
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)

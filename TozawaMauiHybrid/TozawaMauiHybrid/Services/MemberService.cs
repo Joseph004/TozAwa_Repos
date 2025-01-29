@@ -34,4 +34,8 @@ public class MemberService(ITozAwaBffHttpClient client)
     {
         return await _client.SendPost<MemberDto>(_baseUriPath, request);
     }
+    public async Task<AddResponse<LoginResponseDto>> SwitchOrganization(Guid organizationId)
+    {
+        return await _client.SendPost<LoginResponseDto>($"{_baseUriPath}/switch", new { Id = organizationId });
+    }
 }

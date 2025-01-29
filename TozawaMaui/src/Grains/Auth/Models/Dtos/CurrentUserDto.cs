@@ -1,4 +1,5 @@
 
+using Grains.Auth.Models.Authentication;
 using Grains.Models;
 
 namespace Grains.Auth.Models.Dtos;
@@ -17,6 +18,7 @@ public class CurrentUserDto
     public List<CurrentUserOrganizationDto> Organizations { get; set; }
     public List<RoleDto> Roles { get; init; } = [];
     public string Country { get; set; } = "";
+    public Gender Gender { get; set; }
     public Guid Id { get; init; }
     public Guid WorkingOrganizationId { get; set; }
     public List<CurrentUserFunctionDto> Functions { get; set; } = [];

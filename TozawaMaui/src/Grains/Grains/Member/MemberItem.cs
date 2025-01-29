@@ -39,6 +39,10 @@ namespace Grains
     List<FunctionType> functions,
     string comment,
     Guid commentTextId,
+   List<Guid> organizationIds,
+   string cityCode,
+   string countryCode,
+   Gender gender,
     Guid ownerKey
     )
         : this(
@@ -73,6 +77,10 @@ namespace Grains
    functions,
    comment,
    commentTextId,
+  organizationIds,
+   cityCode,
+   countryCode,
+   gender,
     ownerKey,
     DateTime.UtcNow)
     {
@@ -110,6 +118,10 @@ namespace Grains
    List<FunctionType> functions,
    string comment,
    Guid commentTextId,
+   List<Guid> organizationIds,
+   string cityCode,
+   string countryCode,
+   Gender gender,
     Guid ownerKey
         , DateTime timeStamp)
     {
@@ -145,6 +157,10 @@ namespace Grains
       OwnerKey = ownerKey;
       Comment = comment;
       CommentTextId = commentTextId;
+      OrganizationIds = organizationIds;
+      CityCode = cityCode;
+      CountryCode = countryCode;
+      Gender = gender;
       Timestamp = timeStamp;
     }
 
@@ -214,6 +230,14 @@ namespace Grains
     public string Comment { get; }
     [Id(32)]
     public Guid CommentTextId { get; }
+    [Id(33)]
+    public List<Guid> OrganizationIds { get; }
+    [Id(34)]
+    public string CityCode { get; }
+    [Id(35)]
+    public string CountryCode { get; }
+    [Id(36)]
+    public Gender Gender { get; set; }
     public bool Equals(MemberItem memberItem)
     {
       if (memberItem == null) return false;
@@ -226,6 +250,7 @@ namespace Grains
        && Features == memberItem.Features
        && Functions == memberItem.Functions
      && UserId == memberItem.UserId
+      && OrganizationIds == memberItem.OrganizationIds
        && Description == memberItem.Description
        && DescriptionTextId == memberItem.DescriptionTextId
        && FirstName == memberItem.FirstName
@@ -250,6 +275,8 @@ namespace Grains
       && OwnerKey == memberItem.OwnerKey
       && Comment == memberItem.Comment
       && CommentTextId == memberItem.CommentTextId
+      && CityCode == memberItem.CityCode
+      && CountryCode == memberItem.CountryCode
       && Timestamp == memberItem.Timestamp;
     }
   }

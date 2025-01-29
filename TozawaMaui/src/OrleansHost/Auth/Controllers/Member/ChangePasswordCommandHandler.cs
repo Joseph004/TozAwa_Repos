@@ -52,7 +52,18 @@ public class ChangePasswordCommandHandler(TozawangoDbContext context, UserManage
 
     public async Task<ResetPasswordResponse> Handle(ChangePasswordCommand request, CancellationToken cancellationToken)
     {
-        var user = await _context.TzUsers.FirstOrDefaultAsync(x => x.UserId == _currentUserService.User.Id, cancellationToken);
+        var user = await _context.TzUsers
+                    .Include(t => t.UserOrganizations)
+                    .Include(y => y.Organizations)
+                    .ThenInclude(u => u.OrganizationUsers)
+                    .Include(y => y.Organizations)
+                    .ThenInclude(u => u.Features)
+                    .Include(w => w.Addresses)
+                    .Include(u => u.Roles)
+                    .ThenInclude(y => y.Role)
+                    .Include(u => u.Roles)
+                    .ThenInclude(y => y.Role.Functions)
+                    .FirstOrDefaultAsync(x => x.UserId == _currentUserService.User.Id, cancellationToken);
         if (user == null || user.Deleted)
         {
             throw new HttpStatusCodeException(429, "user not found");

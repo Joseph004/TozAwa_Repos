@@ -14,10 +14,12 @@ public class CurrentUserDto : BaseDto
     public List<RoleDto> Roles { get; init; } = [];
     public List<int> Features { get; set; }
     public List<AddressDto> Addresses { get; set; }
+    public string City { get; set; }
+    public string Country { get; set; }
     public List<CurrentUserOrganizationDto> Organizations { get; set; }
     public Guid PartnerId { get; init; }
     public string Partner { get; init; } = "";
-    public string Country { get; set; } = "";
+    public Gender Gender { get; set; }
     public List<CurrentUserFunctionDto> Functions { get; set; } = [];
     public FunctionType[] GetFunctions()
     {

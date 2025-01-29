@@ -13,6 +13,7 @@ namespace Grains.Auth.Models.Authentication
         public bool Deleted { get; set; }
         public string Adresse { get; set; }
         public string City { get; set; }
+        public string Commun { get; set; }
         public string Country { get; set; } = "Congo-Kinshasa";
         public Guid OrganizationId { get; set; }
         [ForeignKey("OrganizationId")]
@@ -26,7 +27,10 @@ namespace Grains.Auth.Models.Authentication
         public Guid Id { get; set; }
         public string Name { get; set; }
         public string Address { get; set; }
+        public string CityCode { get; set; }
+        public string CountryCode { get; set; }
         public string City { get; set; }
+        public string Commun { get; set; }
         public string State { get; set; }
         public string Country { get; set; }
         public string ZipCode { get; set; }

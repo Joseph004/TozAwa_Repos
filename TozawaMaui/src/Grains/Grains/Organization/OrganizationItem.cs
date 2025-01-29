@@ -1,4 +1,6 @@
-﻿namespace Grains
+﻿using Grains.Models;
+
+namespace Grains
 {
   [GenerateSerializer]
   [Immutable]
@@ -21,6 +23,10 @@
    Guid commentTextId,
    string description,
    Guid descriptionTextId,
+   List<Guid> userIds,
+   string cityCode,
+   string countryCode,
+   string city,
    bool deleted
     )
         : this(
@@ -40,6 +46,10 @@
     commentTextId,
     description,
     descriptionTextId,
+    userIds,
+    cityCode,
+    countryCode,
+    city,
     deleted,
     DateTime.UtcNow)
     {
@@ -62,6 +72,10 @@
    Guid commentTextId,
    string description,
    Guid descriptionTextId,
+   List<Guid> userIds,
+   string cityCode,
+   string countryCode,
+   string city,
    bool deleted
         , DateTime timeStamp)
     {
@@ -82,6 +96,10 @@
       Description = description;
       Comment = comment;
       DescriptionTextId = descriptionTextId;
+      UserIds = userIds;
+      CityCode = cityCode;
+      CountryCode = countryCode;
+      City = city;
       CommentTextId = commentTextId;
     }
 
@@ -121,6 +139,14 @@
     public string Description { get; }
     [Id(17)]
     public Guid DescriptionTextId { get; }
+    [Id(18)]
+    public List<Guid> UserIds { get; }
+    [Id(19)]
+    public string CityCode { get; }
+    [Id(20)]
+    public string CountryCode { get; }
+    [Id(21)]
+    public string City { get; }
 
     public bool Equals(OrganizationItem OrganizationItem)
     {
@@ -135,13 +161,17 @@
        && Description == OrganizationItem.Description
        && Comment == OrganizationItem.Comment
        && DescriptionTextId == OrganizationItem.DescriptionTextId
+      && UserIds == OrganizationItem.UserIds
        && CommentTextId == OrganizationItem.CommentTextId
      && CreateDate == OrganizationItem.CreateDate
      && ModifiedBy == OrganizationItem.ModifiedBy
        && ModifiedDate == OrganizationItem.ModifiedDate
        && Features == OrganizationItem.Features
        && OwnerKey == OrganizationItem.OwnerKey
-       && Timestamp == OrganizationItem.Timestamp;
+       && Timestamp == OrganizationItem.Timestamp
+       && CityCode == OrganizationItem.CityCode
+       && CountryCode == OrganizationItem.CountryCode
+       && City == OrganizationItem.City;
     }
   }
 }

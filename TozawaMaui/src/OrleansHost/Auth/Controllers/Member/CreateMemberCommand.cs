@@ -13,7 +13,8 @@ namespace Grains.Auth.Controllers
         public string Email { get; set; } = "";
         public string FirstName { get; set; } = "";
         public string LastName { get; set; } = "";
-        public string Country { get; set; } = "Sweden";
+        public string Country { get; set; }
+        public string City { get; set; }
         public Guid DescriptionId { get; set; }
         public string Description { get; set; } = "";
         public string Comment { get; set; } = "";

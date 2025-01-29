@@ -107,7 +107,7 @@ namespace TozawaMauiHybrid.Components.Layout
                             if (((AuthStateProvider)_authStateProvider).ValidateCurrentToken(response.Entity.Token))
                             {
                                 ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, response.Entity.Token,
-                                response.Entity.RefreshToken);
+                                response.Entity.RefreshToken, _authStateProvider.UserLoginStateDto.WorkOrganizationId);
                                 await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(response.Entity.Token, response.Entity.RefreshToken);
                             }
                             else
@@ -173,7 +173,7 @@ namespace TozawaMauiHybrid.Components.Layout
                 if (userResponse.LoginSuccess)
                 {
                     LoadingState.SetRequestInProgress(false);
-                    ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, userResponse.Token, userResponse.RefreshToken);
+                    ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, userResponse.Token, userResponse.RefreshToken, _authStateProvider.UserLoginStateDto.WorkOrganizationId);
                     await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(userResponse.Token, userResponse.RefreshToken);
                 }
             }

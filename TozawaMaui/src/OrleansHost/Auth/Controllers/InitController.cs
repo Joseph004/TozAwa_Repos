@@ -66,7 +66,11 @@ namespace Grains.Auth.Controllers
                 }
                 if (!string.IsNullOrEmpty(c.Request.GetWorkingOrganizationHeader()))
                 {
-                    c._currentUserService.User.WorkingOrganizationId = Guid.Parse(c.Request.GetWorkingOrganizationHeader());
+                    var orgId = Guid.Parse(c.Request.GetWorkingOrganizationHeader());
+                    if (orgId != Guid.Empty)
+                    {
+                        c._currentUserService.User.WorkingOrganizationId = orgId;
+                    }
                 }
             }
             catch (Exception)
@@ -119,7 +123,11 @@ namespace Grains.Auth.Controllers
                 }
                 if (!string.IsNullOrEmpty(context.HttpContext.Request.GetWorkingOrganizationHeader()))
                 {
-                    currentUserService.User.WorkingOrganizationId = Guid.Parse(context.HttpContext.Request.GetWorkingOrganizationHeader());
+                    var orgId = Guid.Parse(context.HttpContext.Request.GetWorkingOrganizationHeader());
+                    if (orgId != Guid.Empty)
+                    {
+                        currentUserService.User.WorkingOrganizationId = orgId;
+                    }
                 }
                 if (!currentUserService.IsAuthorizedFor(Functions))
                 {
@@ -167,7 +175,11 @@ namespace Grains.Auth.Controllers
                 }
                 if (!string.IsNullOrEmpty(context.HttpContext.Request.GetWorkingOrganizationHeader()))
                 {
-                    currentUserService.User.WorkingOrganizationId = Guid.Parse(context.HttpContext.Request.GetWorkingOrganizationHeader());
+                    var orgId = Guid.Parse(context.HttpContext.Request.GetWorkingOrganizationHeader());
+                    if (orgId != Guid.Empty)
+                    {
+                        currentUserService.User.WorkingOrganizationId = orgId;
+                    }
                 }
             }
             catch (Exception)

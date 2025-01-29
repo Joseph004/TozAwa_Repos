@@ -5,6 +5,7 @@ using Grains.Auth.Controllers;
 using Grains.Auth.Models.Authentication;
 using Grains.Auth.Models.Converters;
 using Grains.Auth.Models.Dtos;
+using Grains.Helpers;
 using MediatR;
 using Microsoft.Extensions.Primitives;
 
@@ -23,95 +24,55 @@ public class GetOrganizationsQueryHandler(IMediator mediator, IGrainFactory fact
     public async Task<TableDataDto<OrganizationDto>> Handle(GetOrganizationsQuery request, CancellationToken cancellationToken)
     {
         var converted = new List<OrganizationDto>();
-        foreach (var organization in _currentUserService.User.Organizations)
+        // get all item keys for this owner
+        var keys = await _factory.GetGrain<IOrganizationManagerGrain>(SystemTextId.OrganizationOwnerId).GetAllAsync();
+
+        // fast path for empty owner
+        if (keys.Length == 0) return new TableDataDto<OrganizationDto> { Items = [], TotalItems = 0, ItemPage = 0 };
+
+        // fan out and get all individual items in parallel
+        var tasks = ArrayPool<Task<OrganizationItem>>.Shared.Rent(keys.Length);
+        try
         {
-            // get all item keys for this owner
-            var keys = await _factory.GetGrain<IOrganizationManagerGrain>(organization.Id).GetAllAsync();
-
-            // fast path for empty owner
-            if (keys.Length == 0) return new TableDataDto<OrganizationDto> { Items = [], TotalItems = 0, ItemPage = 0 };
-
-            // fan out and get all individual items in parallel
-            var tasks = ArrayPool<Task<OrganizationItem>>.Shared.Rent(keys.Length);
-            try
+            // issue all requests at the same time
+            for (var i = 0; i < keys.Length; ++i)
             {
-                // issue all requests at the same time
-                for (var i = 0; i < keys.Length; ++i)
-                {
-                    tasks[i] = _factory.GetGrain<IOrganizationGrain>(keys[i]).GetAsync();
-                }
-
-                // compose the result as requests complete
-                var result = ImmutableArray.CreateBuilder<OrganizationItem>(tasks.Length);
-                for (var i = 0; i < keys.Length; ++i)
-                {
-                    result.Add(await tasks[i]);
-                }
-                foreach (var organizationItem in result)
-                {
-                    if (!request.IncludeDeleted && organizationItem.Deleted) continue;
-                    var roleDtos = await _mediator.Send(new GetRolesQuery(organizationItem.Id));
-                    var addressesDtos = await _mediator.Send(new GetAddressesQuery(organizationItem.Id));
-                    var convertedOrganization = OrganizationConverter.Convert(new Organization
-                    {
-                        Id = organizationItem.Id,
-                        Name = organizationItem.Name,
-                        Email = organizationItem.Email,
-                        PhoneNumber = organizationItem.PhoneNumber,
-                        Deleted = organizationItem.Deleted,
-                        Description = organizationItem.Description,
-                        DescriptionTextId = organizationItem.DescriptionTextId,
-                        Comment = organizationItem.Comment,
-                        CommentTextId = organizationItem.CommentTextId,
-                        City = organizationItem.Code,
-                        State = "",
-                        Country = "",
-                        Features = organizationItem.Features.Select(x => new OrganizationFeature
-                        {
-                            Feature = x
-                        }).ToList(),
-                        Roles = roleDtos.Select(y => new Grains.Auth.Models.Authentication.Role
-                        {
-                            Id = y.Id,
-                            RoleEnum = (RoleEnum)y.Role,
-                            Functions = y.Functions.Select(f => new Function
-                            {
-                                Functiontype = f.FunctionType,
-                                RoleId = f.RoleId,
-                                Role = new Grains.Auth.Models.Authentication.Role
-                                {
-                                    OrganizationId = y.OrganizationId,
-                                    Functions = y.Functions.Select(t => new Function
-                                    {
-                                        Functiontype = t.FunctionType
-                                    }).ToList()
-                                }
-                            }).ToList()
-                        }).ToList()
-                    }, addressesDtos.ToList());
-                    convertedOrganization.AttachmentsCount = organizationItem.AttachmentsCount;
-                    await SetTranslation(convertedOrganization);
-                    converted.Add(convertedOrganization);
-                }
-
-                if (!string.IsNullOrEmpty(request.Email))
-                {
-                    converted = converted.Where(x => x.Email.Equals(request.Email, StringComparison.InvariantCultureIgnoreCase)).ToList();
-                    return new TableDataDto<OrganizationDto> { Items = converted, TotalItems = converted.Count };
-                }
-                if (!string.IsNullOrEmpty(request.SearchString))
-                {
-                    converted = converted.Where(Filtered(request.SearchString)).ToList();
-                }
-                var paged = converted.Skip(request.Page * request.PageSize).Take(request.PageSize);
-                return new TableDataDto<OrganizationDto> { Items = paged, TotalItems = converted.Count };
+                tasks[i] = _factory.GetGrain<IOrganizationGrain>(keys[i]).GetAsync();
             }
-            finally
+
+            // compose the result as requests complete
+            var result = ImmutableArray.CreateBuilder<OrganizationItem>(tasks.Length);
+            for (var i = 0; i < keys.Length; ++i)
             {
-                ArrayPool<Task<OrganizationItem>>.Shared.Return(tasks);
+                result.Add(await tasks[i]);
             }
+            foreach (var organizationItem in result)
+            {
+                if (!request.IncludeDeleted && organizationItem.Deleted) continue;
+                var roleDtos = await _mediator.Send(new GetRolesQuery(organizationItem.Id));
+                var addressesDtos = await _mediator.Send(new GetAddressesQuery(organizationItem.Id));
+                var convertedOrganization = OrganizationConverter.Convert(organizationItem, addressesDtos.ToList(), roleDtos.ToList());
+                convertedOrganization.AttachmentsCount = organizationItem.AttachmentsCount;
+                await SetTranslation(convertedOrganization);
+                converted.Add(convertedOrganization);
+            }
+
+            if (!string.IsNullOrEmpty(request.Email))
+            {
+                converted = converted.Where(x => x.Email.Equals(request.Email, StringComparison.InvariantCultureIgnoreCase)).ToList();
+                return new TableDataDto<OrganizationDto> { Items = converted, TotalItems = converted.Count };
+            }
+            if (!string.IsNullOrEmpty(request.SearchString))
+            {
+                converted = converted.Where(Filtered(request.SearchString)).ToList();
+            }
+            var paged = converted.Skip(request.Page * request.PageSize).Take(request.PageSize);
+            return new TableDataDto<OrganizationDto> { Items = paged, TotalItems = converted.Count };
         }
-        return new TableDataDto<OrganizationDto> { Items = converted, TotalItems = converted.Count }; ;
+        finally
+        {
+            ArrayPool<Task<OrganizationItem>>.Shared.Return(tasks);
+        }
     }
 
     private static Func<OrganizationDto, bool> Filtered(string searchString) => x => x.Email.Contains(searchString, StringComparison.InvariantCultureIgnoreCase) ||

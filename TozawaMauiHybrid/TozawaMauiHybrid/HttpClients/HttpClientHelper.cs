@@ -72,13 +72,13 @@ namespace TozawaMauiHybrid.HttpClients
 
             if (!postResponse.IsSuccessStatusCode || !postContent.Success)
             {
-                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null);
+                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null, Guid.Empty);
                 return postContent;
             }
 
             var result = postContent.Entity ?? new LoginResponseDto();
 
-            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, result.Token, result.RefreshToken);
+            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, result.Token, result.RefreshToken, _authStateProvider.UserLoginStateDto.WorkOrganizationId);
             await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(result.Token, result.RefreshToken);
 
             return postContent;
@@ -373,6 +373,8 @@ namespace TozawaMauiHybrid.HttpClients
                 if (response.Success)
                 {
                     var result = response.Entity ?? new LoginResponseDto();
+                    ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, result.Token, result.RefreshToken, _authStateProvider.UserLoginStateDto.WorkOrganizationId);
+                    await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(result.Token, result.RefreshToken);
                     return result.Token;
                 }
             }
@@ -398,6 +400,8 @@ namespace TozawaMauiHybrid.HttpClients
             }
 
             var oid = (await _authStateProvider.GetUserFromToken()).Id.ToString();
+            var workingOrganizationId = ((AuthStateProvider)_authStateProvider).UserLoginStateDto.WorkOrganizationId.ToString();
+            request.Headers.Add("working-organization", workingOrganizationId);
             request.Headers.Add("tzuserauthentication", oid);
 
             request.Headers.Add("toza-active-language", activeLanguage.Id.ToString());

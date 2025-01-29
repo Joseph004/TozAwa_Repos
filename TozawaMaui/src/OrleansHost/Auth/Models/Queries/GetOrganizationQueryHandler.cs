@@ -33,45 +33,9 @@ namespace OrleansHost.Auth.Models.Queries
 
             if (organizationItem == null) return new OrganizationDto();
 
-            var roleDtos = await _mediator.Send(new GetRolesQuery(organizationItem.Id));
-            var addressesDtos = await _mediator.Send(new GetAddressesQuery(organizationItem.Id));
-            var convertedOrganization = OrganizationConverter.Convert(new Organization
-            {
-                Id = organizationItem.Id,
-                Name = organizationItem.Name,
-                Email = organizationItem.Email,
-                PhoneNumber = organizationItem.PhoneNumber,
-                Deleted = organizationItem.Deleted,
-                Description = organizationItem.Description,
-                DescriptionTextId = organizationItem.DescriptionTextId,
-                Comment = organizationItem.Comment,
-                CommentTextId = organizationItem.CommentTextId,
-                City = organizationItem.Code,
-                State = "",
-                Country = "",
-                Features = organizationItem.Features.Select(x => new OrganizationFeature
-                {
-                    Feature = x
-                }).ToList(),
-                Roles = roleDtos.Select(y => new Grains.Auth.Models.Authentication.Role
-                {
-                    Id = y.Id,
-                    RoleEnum = (RoleEnum)y.Role,
-                    Functions = y.Functions.Select(f => new Function
-                    {
-                        Functiontype = f.FunctionType,
-                        RoleId = f.RoleId,
-                        Role = new Grains.Auth.Models.Authentication.Role
-                        {
-                            OrganizationId = y.OrganizationId,
-                            Functions = y.Functions.Select(t => new Function
-                            {
-                                Functiontype = t.FunctionType
-                            }).ToList()
-                        }
-                    }).ToList()
-                }).ToList()
-            }, addressesDtos.ToList());
+            var roleDtos = await _mediator.Send(new GetRolesQuery(organizationItem.Id), cancellationToken);
+            var addressesDtos = await _mediator.Send(new GetAddressesQuery(organizationItem.Id), cancellationToken);
+            var convertedOrganization = OrganizationConverter.Convert(organizationItem, [.. addressesDtos], [.. roleDtos]);
             convertedOrganization.AttachmentsCount = organizationItem.AttachmentsCount;
 
             await SetTranslation(convertedOrganization);

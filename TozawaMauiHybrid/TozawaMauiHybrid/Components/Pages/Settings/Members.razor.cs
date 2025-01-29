@@ -20,8 +20,6 @@ namespace TozawaMauiHybrid.Components.Pages.Settings
     public partial class Members : BasePage
     {
         [Inject] IDialogService DialogService { get; set; }
-        [Inject] private ISnackbar SnackBar { get; set; }
-        [Inject] private ISnackBarService snackBarService { get; set; }
         [Inject] MemberService memberService { get; set; }
         [Inject] private LoadingState LoadingState { get; set; }
         [Inject] FirstloadState FirstloadState { get; set; }
@@ -54,6 +52,7 @@ namespace TozawaMauiHybrid.Components.Pages.Settings
             ScrollTopState.OnChange += SetScroll;
             LoadingState.SetRequestInProgress(true);
 
+            _includeDeleted = MemberState.Value.IncludeDeleted;
             ScrollTopState.ScrollTop.TryGetValue(ScrollTopState.Source, out double scroll);
             scrollTop = scroll;
 
@@ -175,10 +174,10 @@ namespace TozawaMauiHybrid.Components.Pages.Settings
             options.DialogAppearance = MudExAppearance.FromStyle(b =>
             {
                 b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
-              .WithBackgroundSize("cover")
-              .WithBackgroundPosition("center center")
-              .WithBackgroundRepeat("no-repeat")
-              .WithOpacity(0.9);
+                .WithBackgroundSize("cover")
+                .WithBackgroundPosition("center center")
+                .WithBackgroundRepeat("no-repeat")
+                .WithOpacity(0.9);
             });
 
             var parameters = new DialogParameters

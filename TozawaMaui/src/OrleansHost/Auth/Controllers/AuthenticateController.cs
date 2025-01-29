@@ -22,7 +22,6 @@ using Grains.Helpers;
 using OrleansHost.Auth.Controllers;
 using System.Buffers;
 using System.Collections.Immutable;
-using Microsoft.EntityFrameworkCore;
 
 namespace Grains.Auth.Controllers
 {
@@ -267,7 +266,7 @@ namespace Grains.Auth.Controllers
                 response.Entity.ErrorMessage = requestValidate.Errors.Where(x => !string.IsNullOrEmpty(x.ErrorMessage)).FirstOrDefault().ErrorMessage;
                 return Ok(response);
             }
-
+          
             var user = await _mediator.Send(new GetApplicationUserQuery(command.Email));
 
             if (user == null)
@@ -311,7 +310,7 @@ namespace Grains.Auth.Controllers
                 response.Entity.LoginSuccess = false;
                 response.Entity.ErrorMessageGuid = Helpers.SystemTextId.EmailOrPasswordWrong;
                 return Ok(response);
-            }
+            } 
 
             var userDto = await _mediator.Send(new GetCurrentUserQuery(user.UserId));
 

@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Components;
 using MudBlazor;
-using Microsoft.JSInterop;
 using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Services;
@@ -8,6 +7,8 @@ using MudBlazor.Extensions.Options;
 using MudBlazor.Extensions;
 using MudBlazor.Extensions.Core;
 using Nextended.Core.Extensions;
+using TozawaNGO.Services;
+using System.Threading.Tasks;
 
 namespace TozawaNGO.Shared
 {
@@ -16,12 +17,18 @@ namespace TozawaNGO.Shared
         [Parameter]
         public EventCallback OnSidebarToggled { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
+        [Inject] private MemberService MemberService { get; set; }
+        [Inject] private NavMenuTabState NavMenuTabState { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
-        [Inject] IJSRuntime JSRuntime { get; set; }
+        [Inject] public ISnackbar Snackbar { get; set; }
         [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] AuthenticationService AuthenticationService { get; set; }
         public DialogOptionsEx Options { get; set; }
-
+        public CurrentUserOrganizationDto SelectedOrganization = new();
+        public List<CurrentUserOrganizationDto> CurrentUserOrganizations = [];
+        public SelectionMode SelectionMode = SelectionMode.SingleSelection;
+        public bool _disabledMenu = false;
+        MudMenu _mudMenuRef = new();
         protected async override Task OnInitializedAsync()
         {
             _translationService.LanguageChanged += _translationService_LanguageChanged;
@@ -32,10 +39,19 @@ namespace TozawaNGO.Shared
         private async void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
             await Task.FromResult(1);
-            await InvokeAsync(() =>
+            await InvokeAsync(async () =>
            {
+               await SetCurrentUser(SelectedOrganization?.Id == Guid.Empty ? null : SelectedOrganization?.Id);
+               RedirectPage();
                StateHasChanged();
            });
+        }
+        private void RedirectPage()
+        {
+            if (NavMenuTabState.ActiveTab == ActiveTab.Register)
+            {
+                NavManager.NavigateTo(NavMenuTabState.GetTabPath(ActiveTab.Home));
+            }
         }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
@@ -92,6 +108,7 @@ namespace TozawaNGO.Shared
                         LoadingState.SetRequestInProgress(false);
                         ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, userResponse.Token, userResponse.RefreshToken, Guid.Empty);
                         await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(userResponse.Token, userResponse.RefreshToken);
+                        await SetCurrentUser();
                     }
                 }
             }
@@ -103,14 +120,55 @@ namespace TozawaNGO.Shared
             ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null, Guid.Empty);
             await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
         }
-        private async Task Register()
+        private async Task OnClickTab(string link)
         {
-            await Task.FromResult(1);
+            var previousTab = NavMenuTabState.ActiveTab;
+            if (NavMenuTabState.GetTabPath(previousTab) != link)
+            {
+                NavMenuTabState.SetPreviousTab(previousTab);
+                NavManager.NavigateTo(link);
+            }
+            await Task.CompletedTask;
+        }
+        private async Task SetCurrentUser(Guid? orgId = null)
+        {
+            var user = await _currentUserService.GetCurrentUser();
+            CurrentUserOrganizations = user.Organizations;
+            SelectedOrganization = CurrentUserOrganizations?.FirstOrDefault(x => (orgId.HasValue ? x.Id == orgId : x.PrimaryOrganization));
+            if (user != null && user.Id != Guid.Empty)
+            {
+                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, _authStateProvider.UserLoginStateDto?.JWTToken, _authStateProvider.UserLoginStateDto?.JWTRefreshToken, SelectedOrganization.Id);
+            }
+        }
+        private async Task SetWorkingOrganization(CurrentUserOrganizationDto org)
+        {
+            LoadingState.SetRequestInProgress(true);
+            _disabledMenu = true;
+            StateHasChanged();
+            var response = await MemberService.SwitchOrganization(org.Id);
+            if (response != null && response.Entity != null)
+            {
+                SelectedOrganization = org;
+                var userResponse = response.Entity;
+                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, userResponse.Token, userResponse.RefreshToken, SelectedOrganization.Id);
+                await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(userResponse.Token, userResponse.RefreshToken);
+                await SetCurrentUser(SelectedOrganization.Id);
+                await _mudMenuRef.CloseMenuAsync();
+                Snackbar.Add("Your organization has been switched.", Severity.Info);
+            }
+            else
+            {
+                Snackbar.Add(Translate(SystemTextId.Error, "Error"), Severity.Info);
+            }
+            LoadingState.SetRequestInProgress(false);
+            _disabledMenu = false;
+            StateHasChanged();
         }
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
+                await SetCurrentUser();
                 CreateOptions();
                 await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.1))).ContinueWith(o =>
                 {

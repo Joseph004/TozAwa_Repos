@@ -16,5 +16,10 @@ namespace TozawaNGO.Services
             var uri = new GetItemsQueryParameters(page, pageSize, includeDeleted, searchString, email, pageOfEmail).ToQueryString($"{_baseUriPath}/members");
             return await _client.SendGet<TableData<MemberDto>>(uri);
         }
+
+        public async Task<AddResponse<LoginResponseDto>> SwitchOrganization(Guid organizationId)
+        {
+            return await _client.SendPost<LoginResponseDto>($"{_baseUriPath}/switch", new { Id = organizationId });
+        }
     }
 }

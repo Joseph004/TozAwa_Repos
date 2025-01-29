@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using ShareRazorClassLibrary.Models.Dtos;
 
 namespace ShareRazorClassLibrary.Models

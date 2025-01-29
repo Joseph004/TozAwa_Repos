@@ -17,11 +17,18 @@ namespace TozawaMauiHybrid.Components
         [Parameter]
         public EventCallback OnSidebarToggled { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
+        [Inject] public ISnackbar Snackbar { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
+        [Inject] private MemberService MemberService { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
         [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] AuthenticationService AuthenticationService { get; set; }
+        public CurrentUserOrganizationDto SelectedOrganization = new();
+        public List<CurrentUserOrganizationDto> CurrentUserOrganizations = [];
+        public MudBlazor.SelectionMode SelectionMode = MudBlazor.SelectionMode.SingleSelection;
         public DialogOptionsEx Options { get; set; }
+        public bool _disabledMenu = false;
+        MudMenu _mudMenuRef = new();
 
         protected async override Task OnInitializedAsync()
         {
@@ -30,11 +37,47 @@ namespace TozawaMauiHybrid.Components
 
             await base.OnInitializedAsync();
         }
+
+        private async Task SetCurrentUser(Guid? orgId = null)
+        {
+            var user = await _currentUserService.GetCurrentUser();
+            CurrentUserOrganizations = user.Organizations;
+            SelectedOrganization = CurrentUserOrganizations?.FirstOrDefault(x => (orgId.HasValue ? x.Id == orgId : x.PrimaryOrganization));
+            if (user != null && user.Id != Guid.Empty)
+            {
+                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, _authStateProvider.UserLoginStateDto?.JWTToken, _authStateProvider.UserLoginStateDto?.JWTRefreshToken, SelectedOrganization.Id);
+            }
+        }
+        private async Task SetWorkingOrganization(CurrentUserOrganizationDto org)
+        {
+            LoadingState.SetRequestInProgress(true);
+            _disabledMenu = true;
+            StateHasChanged();
+            var response = await MemberService.SwitchOrganization(org.Id);
+            if (response != null && response.Entity != null)
+            {
+                SelectedOrganization = org;
+                var userResponse = response.Entity;
+                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, userResponse.Token, userResponse.RefreshToken, SelectedOrganization.Id);
+                await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(userResponse.Token, userResponse.RefreshToken);
+                await SetCurrentUser(SelectedOrganization.Id);
+                await _mudMenuRef.CloseMenuAsync();
+                Snackbar.Add("Your organization has been switched.", Severity.Info);
+            }
+            else
+            {
+                Snackbar.Add(Translate(SystemTextId.Error, "Error"), Severity.Error);
+            }
+            LoadingState.SetRequestInProgress(false);
+            _disabledMenu = false;
+            StateHasChanged();
+        }
         private async void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
             await Task.FromResult(1);
-            await InvokeAsync(() =>
+            await InvokeAsync(async () =>
            {
+               await SetCurrentUser(SelectedOrganization?.Id == Guid.Empty ? null : SelectedOrganization?.Id);
                StateHasChanged();
            });
         }
@@ -91,8 +134,9 @@ namespace TozawaMauiHybrid.Components
                     if (userResponse.LoginSuccess)
                     {
                         LoadingState.SetRequestInProgress(false);
-                        ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, userResponse.Token, userResponse.RefreshToken);
+                        ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, userResponse.Token, userResponse.RefreshToken, _authStateProvider.UserLoginStateDto.WorkOrganizationId);
                         await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(userResponse.Token, userResponse.RefreshToken);
+                        await SetCurrentUser();
                     }
                 }
             }
@@ -101,7 +145,7 @@ namespace TozawaMauiHybrid.Components
         {
             var user = await ((AuthStateProvider)_authStateProvider).GetUserFromToken();
             await AuthenticationService.PostLogout(user.Id);
-            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null);
+            ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(false, null, null, Guid.Empty);
             ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
         }
         private async Task Register()
@@ -112,6 +156,7 @@ namespace TozawaMauiHybrid.Components
         {
             if (firstRender)
             {
+                await SetCurrentUser();
                 CreateOptions();
                 await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.1))).ContinueWith(o =>
                 {

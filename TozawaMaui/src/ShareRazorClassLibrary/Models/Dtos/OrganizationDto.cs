@@ -18,6 +18,8 @@ public class OrganizationDto
     public string ModifiedBy { get; set; }
     public DateTime? ModifiedDate { get; set; }
     public List<int> Features { get; set; }
+    public string City { get; set; }
+    public string Country { get; set; }
     public bool Deleted { get; set; }
     public List<RoleDto> Roles { get; set; }
 }

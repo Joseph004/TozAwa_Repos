@@ -10,6 +10,8 @@ public class OrganizationDto
     public Guid CommentTextId { get; set; }
     public List<AddressDto> Addresses { get; set; }
     public string Code { get; set; }
+    public string City { get; set; }
+    public string Country { get; set; }
     public string Email { get; set; }
     public string PhoneNumber { get; set; }
     public string CreatedBy { get; set; }
