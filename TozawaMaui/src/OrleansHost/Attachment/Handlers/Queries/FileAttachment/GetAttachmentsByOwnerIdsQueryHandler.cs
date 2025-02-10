@@ -13,7 +13,7 @@ public class GetAttachmentsByOwnerIdsQueryHandler(IMediator mediator) : IRequest
 
         foreach (var item in request.OwnerIds)
         {
-            var response = (await _mediator.Send(new GetAttachmentsQuery { OwnerId = item }, cancellationToken)).ToList();
+            var response = (await _mediator.Send(new GetAttachmentsQuery { OwnerId = item }, cancellationToken)).Items.ToList();
 
             result.Add(new OwnerAttachments
             {

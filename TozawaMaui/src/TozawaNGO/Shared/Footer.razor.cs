@@ -8,10 +8,13 @@ using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared
 {
-    public partial class Footer : BaseComponent
+    public partial class Footer : BaseComponent<Footer>
     {
         [Inject] IJSRuntime JS { get; set; }
+        [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] public ISnackbar Snackbar { get; set; }
+        [Inject] NavigationManager NavManager { get; set; }
+        [Inject] private NavMenuTabState NavMenuTabState { get; set; }
         public string _email { get; set; }
         SubscribeCommand model = new();
         MudForm form;
@@ -67,6 +70,7 @@ namespace TozawaNGO.Shared
         }
         protected async override Task OnInitializedAsync()
         {
+            FirstloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
 
@@ -77,7 +81,10 @@ namespace TozawaNGO.Shared
         }
         private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+         {
+             StateHasChanged();
+         });
         }
         private async void _translationService_LanguageChanged(object sender, EventArgs e)
         {
@@ -90,11 +97,13 @@ namespace TozawaNGO.Shared
             }
             _email = _translationService.Translate(SystemTextId.Email, "Email").Text;
 
-            StateHasChanged();
+            await InvokeAsync(() =>
+           {
+               StateHasChanged();
+           });
         }
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            IsFirstLoaded = true;
             _errors = [];
             await Task.FromResult(1);
             /*  await JS.InvokeAsync<string>("FooterResized", DotNetObjectReference.Create(this)); */
@@ -104,6 +113,15 @@ namespace TozawaNGO.Shared
             if (e.Code == "Enter" || e.Code == "NumpadEnter")
             {
                 await SendEmailClick();
+            }
+        }
+        private void GoToHome()
+        {
+            var homePage = NavManager.ToBaseRelativePath(NavManager.Uri);
+            var activePath = NavMenuTabState.GetActivePath();
+            if (!string.IsNullOrEmpty(homePage) && activePath != "/")
+            {
+                NavManager.NavigateTo("/");
             }
         }
         protected async Task ToggleSocialIcon()
@@ -119,9 +137,16 @@ namespace TozawaNGO.Shared
             var index = (text[..(text.Length / 2)]).Length;
             return text[index..];
         }
-
+        private void FirsLoadChanged()
+        {
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        }
         protected override void Dispose(bool disposed)
         {
+            FirstloadState.OnChange -= FirsLoadChanged;
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
             base.Dispose(disposed);

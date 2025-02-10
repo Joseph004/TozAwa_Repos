@@ -28,6 +28,9 @@ using Shared.SignalR;
 using Grains.Helpers;
 using OrleansHost.Helpers;
 using OrleansHost.Validation;
+using OrleansHost.Auth.Controllers;
+using System.Text.Json.Serialization;
+using OrleansHost.Helpers.MiddlewareExceptions;
 
 namespace OrleansHost.Api
 {
@@ -71,6 +74,7 @@ namespace OrleansHost.Api
                     services.AddScoped<IFileAttachmentCreator, FileAttachmentCreator>();
                     services.AddScoped<IGoogleService, GoogleService>();
                     services.AddScoped<IPasswordHashService, PasswordHashService>();
+                    services.AddScoped<IEmailMessageService, EmailMessageService>();
                     services.AddScoped<IEncryptDecrypt, EncryptDecrypt>();
 
                     services.AddAuthentication(options =>
@@ -118,6 +122,12 @@ namespace OrleansHost.Api
                     services.AddSignalR();
 
                     services.AddControllers()
+                        .AddNewtonsoftJson()
+                        .AddJsonOptions(o =>
+                        {
+                            o.JsonSerializerOptions.Converters.Add(new SystemTextJsonExceptionConverter());
+                            o.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                        })
                         .AddApplicationPart(typeof(WeatherController).Assembly)
                         .AddControllersAsServices();
 
@@ -148,6 +158,7 @@ namespace OrleansHost.Api
                 {
                     app.UseForwardedHeaders();
                     app.UseRouting();
+                    app.UseHttpStatusCodeExceptionMiddleware();
                     app.UseCors(nameof(ApiService));
                     app.UseHttpsRedirection();
 

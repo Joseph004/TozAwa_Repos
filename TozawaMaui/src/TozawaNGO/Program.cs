@@ -8,26 +8,30 @@ using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using MudBlazor;
-using MudBlazor.Services;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
-using Orleans.Configuration;
-using TozawaNGO;
 using TozawaNGO.Services;
 using TozawaNGO.Shared;
 using Fluxor;
-using Shared.SignalR;
 using Blazored.LocalStorage;
 using Blazored.SessionStorage;
 using ShareRazorClassLibrary.Configurations;
 using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.Services;
+using MudBlazor.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
 ConfigurationManager configuration = builder.Configuration; // allows both to access and to set up the config
 IWebHostEnvironment environment = builder.Environment;
 
+// Load appsettings.json
+var config = new ConfigurationBuilder()
+    .AddJsonFile("appsettings.json", false)
+    .AddJsonFile("appsettings.Development.json", true)
+    .Build();
+
+configuration.AddConfiguration(config);
 var appSettings = builder.Services.ConfigureAppSettings<AppSettings>(configuration.GetSection("AppSettings"));
 
 builder.Services.AddRazorPages();
@@ -59,19 +63,13 @@ builder.Services.AddDataProtection();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddMudServices(config =>
+builder.Services.AddMudServicesWithExtensions(c =>
 {
-    config.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.TopRight;
-    config.SnackbarConfiguration.PreventDuplicates = false;
-    config.SnackbarConfiguration.NewestOnTop = false;
-    config.SnackbarConfiguration.ShowCloseIcon = true;
-    config.SnackbarConfiguration.VisibleStateDuration = 5000;
-    config.SnackbarConfiguration.HideTransitionDuration = 500;
-    config.SnackbarConfiguration.ShowTransitionDuration = 500;
-    config.SnackbarConfiguration.SnackbarVariant = Variant.Filled;
-}
-);
-builder.Services.AddMudBlazorDialog();
+    c.WithDefaultDialogOptions(ex =>
+    {
+        ex.Position = DialogPosition.BottomRight;
+    });
+});
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
@@ -79,27 +77,15 @@ builder.Services.Configure<CookiePolicyOptions>(options =>
     options.MinimumSameSitePolicy = SameSiteMode.None;
 });
 
-builder.Host.UseOrleansClient(client =>
-{
-    client.UseSignalR(configure: null);
-    client.UseLocalhostClustering();
-    client.AddMemoryStreams("SMS");
-    client.Configure<ClusterOptions>(options =>
-    {
-        options.ClusterId = "dev";
-        options.ServiceId = "OrleansBasics";
-    });
-});
-
 builder.Services.AddSignalR(options =>
 {
     options.EnableDetailedErrors = true;
-}).AddOrleans();
+});
 
 builder.Services.AddFluxor(options => options.ScanAssemblies(typeof(Program).Assembly));
-builder.Services.AddAuthorizationBuilder()
-    .AddPolicy("admin-member", policy => policy.RequireClaim("admin-member", "MemberIsAdmin"));
-builder.Services.AddScoped<AuthenticationStateProvider, ShareRazorClassLibrary.Helpers.AuthStateProvider>();
+builder.Services.AddAuthorizationBuilder();
+builder.Services.AddScoped<AuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<AuthStateProvider>());
 
 
 builder.Services.AddMvcCore(options =>
@@ -116,8 +102,6 @@ builder.Services.AddMvcCore(options =>
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<Program>();
-
-builder.Services.AddMudServices();
 
 // ******
 // BLAZOR COOKIE Auth Code (begin)
@@ -150,17 +134,12 @@ builder.Services.AddBlazoredSessionStorage(config =>
 
 builder.Services.RegisterHttpClients();
 
-builder.Services.AddScoped<AuthStateProvider>();
-
-builder.Services.AddSingleton<WeatherForecastService>();
-builder.Services.AddSingleton<TodoService>();
+builder.Services.AddScoped<WeatherForecastService>();
 builder.Services.AddScoped<ICookie, Cookie>();
 builder.Services.AddScoped<TozawaNGO.StateHandler.UserState>();
 builder.Services.AddScoped<TozawaNGO.StateHandler.ScrollTopState>();
 builder.Services.AddScoped<AuthenticationService>();
 builder.Services.AddAuthorizationCore();
-//builder.Services.AddScoped<AuthenticationStateProvider>();
-//.Services.AddScoped<ILocalStorageService>();
 builder.Services.AddScoped<ITranslationService, TranslationService>();
 builder.Services.AddScoped<ICurrentUserService, CurrentUserService>();
 builder.Services.AddScoped<ISnackBarService, SnackBarService>();
@@ -170,7 +149,9 @@ builder.Services.AddScoped<BlazorServerAuthStateCache>();
 builder.Services.AddScoped<FileService>();
 builder.Services.AddScoped<LoadingState>();
 builder.Services.AddScoped<IPasswordHashService, PasswordHashService>();
-builder.Services.AddScoped<IEncryptDecrypt, EncryptDecrypt>();
+builder.Services.AddScoped<ICountryCityService, CountryCityService>();
+builder.Services.AddScoped<FirstloadState>();
+builder.Services.AddScoped<NavMenuTabState>();
 
 builder.Services.AddControllers();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -181,7 +162,7 @@ var app = builder.Build();
 app.UseForwardedHeaders();
 if (!app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandler("/error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
@@ -211,7 +192,7 @@ app.UseAuthorization();
 app.UseRequestLocalization(GetLocalizationOptions());
 
 app.MapControllers();
-app.MapHub<ClientHub>("/hubs/clienthub");
+/* app.MapHub<ClientHub>("/hubs/clienthub"); */
 app.Use(async (context, next) =>
 {
     context.Features.Get<IHttpMaxRequestBodySizeFeature>().MaxRequestBodySize = null;
@@ -223,6 +204,7 @@ app.MapBlazorHub(configureOptions: options =>
     options.TransportMaxBufferSize = 131072;
     options.ApplicationMaxBufferSize = 131072;
 });
+
 app.MapFallbackToPage("/_Host");
 
 app.Run();

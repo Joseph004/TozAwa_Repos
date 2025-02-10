@@ -4,9 +4,10 @@ using Grains.Auth.Models.Dtos;
 
 namespace OrleansHost.Auth.Models.Queries
 {
-    public class GetCurrentUserQuery(Guid oid) : IRequest<CurrentUserDto>
+    public class GetCurrentUserQuery(Guid oid, Guid? organizationId = null) : IRequest<CurrentUserDto>
     {
         public Guid Oid { get; set; } = oid;
+        public Guid? OrganizationId { get; set; } = organizationId;
     }
 
 

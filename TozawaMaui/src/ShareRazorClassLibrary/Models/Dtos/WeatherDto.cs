@@ -4,13 +4,13 @@ namespace ShareRazorClassLibrary.Models.Dtos
 {
     public class WeatherDto
     {
-        public DateTime Date { get; }
+        public DateTime Date { get; set; }
 
-        public int TemperatureC { get; }
+        public int TemperatureC { get; set; }
 
-        public string Summary { get; }
+        public string Summary { get; set; }
 
-        public int TemperatureF { get; }
+        public int TemperatureF { get; set; }
     }
 
 }

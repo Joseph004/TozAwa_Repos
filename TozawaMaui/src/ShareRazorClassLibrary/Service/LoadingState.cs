@@ -17,6 +17,6 @@ namespace ShareRazorClassLibrary.Services
 			RequestInProgress = requestInProgress;
 			NotifyStateChanged();
 		}
-		private void NotifyStateChanged() => OnChange.Invoke();
+		private void NotifyStateChanged() => OnChange?.Invoke();
 	}
 }

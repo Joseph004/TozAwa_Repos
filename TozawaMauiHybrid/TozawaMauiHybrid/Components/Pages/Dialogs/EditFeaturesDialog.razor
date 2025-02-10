@@ -1,0 +1,72 @@
+@namespace TozawaMauiHybrid.Pages
+@using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Models.Dtos
+@using TozawaMauiHybrid.Component
+@inherits BaseDialog<EditFeaturesDialog>
+
+<style>
+    .tz-mud-overlay {
+        background: repeating-linear-gradient(135deg, #ccc, #ccc 10px, #aaa 10px, #aaa 20px) !important;
+        opacity: 0.7 !important;
+    }
+</style>
+
+<ErrorHandling TCategoryName=@typeof(EditFeaturesDialog)>
+    <ChildContent>
+        <div style="@($"{_disableAttrString}")">
+            <MudDialog Class="@($"tzModal")">
+                <TitleContent>
+                    <MudText Color=Color.Secondary>
+                        @Feature.Id
+                    </MudText>
+                </TitleContent>
+                <DialogContent>
+                    <MudForm Class="d-flex flex-column flex-grow-1 gap-4" Style="overflow: auto; max-height: 800px;"
+                        @ref="_editForm" @bind-IsValid="@_success" @bind-Errors="@_errors" Model="@Feature">
+                        <MudTextField Style="width: 98%;" Immediate="true" Margin="Margin.Dense" T="string"
+                            @bind-Value="Feature.Text" Label="@(Translate(SystemTextId.Name))" Required="true"
+                            DebounceInterval="100" Lines="5"
+                            OnDebounceIntervalElapsed="@(() => HandleTextField(nameof(FeatureDto.Text)))"
+                            Adornment="Adornment.End" AdornmentIcon="@(RestoreInputIcon[nameof(FeatureDto.Text)])"
+                            OnAdornmentClick="@(() => RestoreText(nameof(FeatureDto.Text)))"
+                            @onkeydown="@((KeyboardEventArgs e) => SaveItemByKeyBoard(e))"
+                            RequiredError="@(Translate(SystemTextId.EmailIsRequired))" />
+                        <MudTextField Style="width: 98%;" Immediate="true" Margin="Margin.Dense" T="string" Lines="5"
+                            @bind-Value="Feature.Description" Label="@(Translate(SystemTextId.Description))"
+                            DebounceInterval="100"
+                            Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateDescName))"
+                            OnDebounceIntervalElapsed="@(() => HandleTextField(nameof(FeatureDto.Description)))"
+                            Adornment="Adornment.End"
+                            AdornmentIcon="@(RestoreInputIcon[nameof(FeatureDto.Description)])"
+                            OnAdornmentClick="@(() => RestoreText(nameof(FeatureDto.Description)))"
+                            Required="@_descriptionIsRequired"
+                            RequiredError="@(Translate(SystemTextId.DescriptionIsRequired))" />
+                    </MudForm>
+                </DialogContent>
+                <DialogActions>
+                    <div class="d-flex flex-row-reverse flex-grow-1 gap-4">
+                        <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled"
+                            Color="Color.Primary" Disabled="@(_disabledPage)" OnClick="Cancel">
+                            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" />
+                        </MudButton>
+                        <MudButton Color="Color.Success" StartIcon="@Icons.Material.Filled.Save"
+                            Variant="Variant.Filled" Disabled="@(_disabledPage || DisabledAddButton())"
+                            OnClick="SaveItem">
+                            <MudText>
+                                <SystemText TextId=SystemTextId.Update FallbackText="Edit" />
+                            </MudText>
+                        </MudButton>
+                    </div>
+                </DialogActions>
+            </MudDialog>
+        </div>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>
+
+@if (_RequestInProgress)
+{
+    <ModalLoading />
+}

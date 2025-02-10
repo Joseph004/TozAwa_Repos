@@ -1,33 +1,75 @@
+@page "/StatusCode/{responseCode}"
+
+@using Blazored.SessionStorage
 @using ShareRazorClassLibrary.Helpers
 @using ShareRazorClassLibrary.Services
 @using TozawaNGO.Shared
+@implements IDisposable
+@inject NavigationManager NavManager
+@inject ITranslationService TranslationService
 
-<p>
-    <SystemText TextId=SystemTextId.ThereIsNothingAtThisAdress FallbackText="Sorry, there's nothing at this address."
-        IsFirstLoaded="@IsFirstLoaded">
-    </SystemText>
-</p>
+<MudPopoverProvider />
+
+<MudText Typo="Typo.h3">StatusCode @ResponseCode</MudText>
+
+<MudPaper Class="d-flex flex-column flex-grow-1 gap-4" Elevation="0">
+    <MudPaper Style="margin-top: 5px;" Class="mud-theme-primary" Width="100%" Height="25px">
+        <SystemText TextId=SystemTextId.ThereIsNothingAtThisAdress
+            FallbackText="Sorry, there's nothing at this address.">
+        </SystemText>
+    </MudPaper>
+    <MudPaper Class="mud-theme-secondary" Width="100%" Height="25px">
+        <MudButton Variant="Variant.Filled" OnClick="ReturnHome" StartIcon="@Icons.Material.Filled.ArrowBack"
+            Color="Color.Warning">
+            <SystemText TextId=SystemTextId.Home FallbackText="Home">
+            </SystemText>
+        </MudButton>
+    </MudPaper>
+</MudPaper>
 
 @code {
-    [Inject] protected ITranslationService _translationService { get; set; }
-    public bool IsFirstLoaded { get; set; }
+    [Parameter]
+    public string ResponseCode { get; set; }
+    [Inject] public NavMenuTabState NavMenuTabState { get; set; }
+    [Inject] FirstloadState FirstloadState { get; set; }
+    [Inject] ISessionStorageService SessionStorageService { get; set; }
+
+    private ActiveTab? PreviousTab { get; set; }
     protected override void OnInitialized()
     {
-        IsFirstLoaded = false;
-        _translationService.LanguageChanged += _translationService_LanguageChanged;
+        FirstloadState.OnChange += FirsLoadChanged;
         base.OnInitialized();
     }
-
-    private void _translationService_LanguageChanged(object sender, EventArgs e)
+    private void FirsLoadChanged()
     {
-        StateHasChanged();
+        InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+    private void ReturnHome()
+    {
+        if (PreviousTab.HasValue)
+        {
+            NavManager.NavigateTo(NavMenuTabState.GetTabPath(PreviousTab.Value));
+        }
+        else
+        {
+            NavManager.NavigateTo(NavMenuTabState.GetPreviousPath());
+        }
     }
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            IsFirstLoaded = true;
+            PreviousTab = await SessionStorageService.GetItemAsync<ActiveTab?>(nameof(ActiveTab));
+            await TranslationService.EnsureTranslations();
+            FirstloadState.SetFirsLoad(true);
         }
         await base.OnAfterRenderAsync(firstRender);
+    }
+    public virtual void Dispose()
+    {
+        FirstloadState.OnChange -= FirsLoadChanged;
     }
 }

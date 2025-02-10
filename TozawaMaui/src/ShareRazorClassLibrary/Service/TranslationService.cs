@@ -6,7 +6,6 @@ using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Configurations;
 using Microsoft.Extensions.Localization;
-using Nextended.Core.Extensions;
 using System.Resources;
 using System.Collections;
 using Microsoft.Extensions.Logging;
@@ -21,8 +20,10 @@ namespace ShareRazorClassLibrary.Services
 
         private ConcurrentDictionary<Guid, string> _translations;
         private ActiveLanguageDto _activeLanguage = null;
+        public ActiveLanguageDto ActiveLanguage() => _activeLanguage;
         private List<ActiveLanguageDto> _activeLanguages = null;
         private bool _translationLoaded = false;
+        public bool TranslationLoaded() => _translationLoaded;
         private string ActiveLanguageKey => "ActiveLanguageKey";
         private CultureInfo _selectedCulture = Thread.CurrentThread.CurrentCulture;
 
@@ -48,7 +49,7 @@ namespace ShareRazorClassLibrary.Services
 
                 _translationLoaded = true;
 
-                LanguageChanged(this, new EventArgs());
+                LanguageChanged?.Invoke(this, new EventArgs());
             }
         }
         private async IAsyncEnumerable<LocalizedString> GetAllLocalizedStrings()
@@ -174,7 +175,7 @@ namespace ShareRazorClassLibrary.Services
                 _activeLanguage = null;
                 await LoadTranslations();
 
-                LanguageChanged(this, new EventArgs());
+                LanguageChanged?.Invoke(this, new EventArgs());
             }
         }
 

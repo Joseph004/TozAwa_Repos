@@ -1,0 +1,44 @@
+@page "/accessdenied"
+
+@using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Services
+@using TozawaMauiHybrid.Component
+
+<h1>
+    <SystemText TextId=SystemTextId.Sorry FallbackText="Sorry"></SystemText>
+</h1>
+<p>
+    <SystemText TextId=SystemTextId.YoureNotAuthorizedToReachThisPage
+        FallbackText="You are not authorized to reach this page."></SystemText>
+</p>
+<p>
+    <SystemText TextId=SystemTextId.YouMayNeedToLogInAsADifferentUser
+        FallbackText="You may need to log in as a different user."></SystemText>
+</p>
+
+@code {
+    [Inject] protected ITranslationService _translationService { get; set; }
+    public bool IsFirstLoaded { get; set; }
+    protected override void OnInitialized()
+    {
+        IsFirstLoaded = false;
+        _translationService.LanguageChanged += _translationService_LanguageChanged;
+        base.OnInitialized();
+    }
+
+    private void _translationService_LanguageChanged(object sender, EventArgs e)
+    {
+        InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            IsFirstLoaded = true;
+            await base.OnAfterRenderAsync(firstRender);
+        }
+    }
+}

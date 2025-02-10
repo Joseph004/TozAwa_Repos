@@ -6,6 +6,7 @@ using Grains.Attachment.Models;
 using Grains.Auth.Models;
 using Grains.Auth.Models.Authentication;
 using Grains.Auth.Services;
+using Grains.Models;
 
 namespace Grains.Context
 {
@@ -21,15 +22,24 @@ namespace Grains.Context
             _currentUserService = currentUserService;
         }
 
+        public DbSet<Role> TzRoles { get; set; }
+        public DbSet<Organization> Organizations { get; set; }
+        public DbSet<Function> Functions { get; set; }
+        public DbSet<UserRole> TzUserRoles { get; set; }
+        public DbSet<UserAddress> UserAddresses { get; set; }
+        public DbSet<UserLandLord> UserLandLords { get; set; }
+        public DbSet<UserTenant> UserTenants { get; set; }
+        public DbSet<OrganizationAddress> OrganizationAddresses { get; set; }
+        public DbSet<StationAddress> StationAddresses { get; set; }
+        public DbSet<OrganizationFeature> OrganizationFeatures { get; set; }
+        public DbSet<TozawaFeature> TozawaFeatures { get; set; }
         public DbSet<ApplicationUser> TzUsers { get; set; }
         public DbSet<Translation> Translations { get; set; }
         public DbSet<Station> Stations { get; set; }
         public DbSet<Report> Reports { get; set; }
         public DbSet<Establishment> Establishments { get; set; }
-        public DbSet<Partner> Partners { get; set; }
         public DbSet<UserLog> UserLogs { get; set; }
         public DbSet<Audit> Audits { get; set; }
-        public DbSet<UserHashPwd> UserHashPwds { get; set; }
         public virtual DbSet<ConvertedOwner> ConvertedOwners { get; set; }
         public virtual DbSet<FileAttachment> FileAttachments { get; set; }
         public virtual DbSet<OwnerFileAttachment> OwnerFileAttachments { get; set; }
@@ -47,17 +57,6 @@ namespace Grains.Context
             builder.Entity<ApplicationUser>()
                 .HasIndex(u => new { u.Id, u.UserId, u.Email })
                 .IsUnique();
-
-            builder.Entity<UserHashPwd>()
-            .HasOne(t => t.ApplicationUser)
-            .WithOne(u => u.UserHashPwd)
-            .HasPrincipalKey<ApplicationUser>(y => y.UserId)
-            .HasForeignKey<UserHashPwd>(j => j.UserId);
-
-            builder.Entity<ApplicationUser>()
-                .HasOne(p => p.Partner)
-                .WithMany(b => b.Users)
-                .HasForeignKey(p => p.PartnerId);
 
             builder.Entity<OwnerFileAttachment>().HasKey(x => new
             {
@@ -78,6 +77,152 @@ namespace Grains.Context
             builder.Entity<FileAttachment>()
                 .HasIndex(x => x.BlobId);
 
+            builder.Entity<Function>().HasKey(x => new
+            {
+                x.FunctionType,
+                x.RoleId
+            });
+            builder.Entity<UserRole>()
+                .HasKey(t => new { t.UserId, t.RoleId });
+
+            builder.Entity<UserRole>()
+                .HasOne(pt => pt.User)
+                .WithMany(p => p.Roles)
+                .HasForeignKey(pt => pt.UserId)
+                .HasPrincipalKey(k => k.UserId);
+
+            builder.Entity<UserRole>()
+                .HasOne(pt => pt.Role)
+                .WithMany(t => t.Users)
+                .HasForeignKey(pt => pt.RoleId)
+                .HasPrincipalKey(k => k.Id);
+
+            builder.Entity<ApplicationUser>()
+               .HasMany(p => p.Organizations)
+               .WithMany(p => p.OrganizationUsers)
+               .UsingEntity<UserOrganization>(
+               j => j
+                   .HasOne(pt => pt.Organization)
+                   .WithMany(t => t.UserOrganizations)
+                   .HasForeignKey(pt => pt.OrganizationId)
+                   .HasPrincipalKey(k => k.Id),
+               j => j
+                   .HasOne(pt => pt.User)
+                   .WithMany(p => p.UserOrganizations)
+                   .HasForeignKey(pt => pt.UserId)
+                   .HasPrincipalKey(k => k.UserId),
+               j =>
+               {
+                   j.HasKey(t => new { t.OrganizationId, t.UserId });
+               });
+
+            builder.Entity<UserAddress>()
+            .HasOne(x => x.User)
+            .WithMany(x => x.Addresses)
+            .HasForeignKey(x => x.UserId)
+            .HasPrincipalKey(k => k.UserId);
+
+            builder.Entity<UserLandLord>()
+            .HasOne(x => x.UserLandLord_TenantUser)
+            .WithMany(x => x.LandLords)
+            .HasForeignKey(x => x.UserLandLord_TenantUserId)
+            .HasPrincipalKey(k => k.UserId);
+
+            builder.Entity<UserTenant>()
+            .HasOne(x => x.UserTenant_LandLordUser)
+            .WithMany(x => x.Tenants)
+            .HasForeignKey(x => x.UserTenant_LandLordUserId)
+            .HasPrincipalKey(k => k.UserId);
+
+            builder.Entity<TozawaFeature>().Property(p => p.Id).ValueGeneratedNever();
+            builder.Entity<TozawaFeature>().HasData(
+                new TozawaFeature
+                {
+                    Id = 1,
+                    TextId = Guid.Parse("acd1ef02-0da3-474b-95d3-8861fcc8e368"),
+                    DescriptionTextId = Guid.Parse("97617538-8931-43ee-bd4c-769726bdb6a4")
+                }
+            );
+            var orgId = Guid.NewGuid();
+            var RolePresident = Guid.NewGuid();
+            var RoleVicePresident = Guid.NewGuid();
+            var RoleLandLoard = Guid.NewGuid();
+            builder.Entity<Organization>().HasData(
+                new Organization
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "NoOrganization",
+                    Email = "NoOrganization",
+                    City = "World",
+                    Country = "World",
+                    Addresses = []
+                },
+                new Organization
+                {
+                    Id = orgId,
+                    Name = "KinLaBelle",
+                    Email = "tozawa_kinlabelle@gmail.com",
+                    City = "Kinshasa",
+                    Country = "COD",
+                    Addresses = [],
+                    Roles = []
+                }
+            );
+            builder.Entity<Role>().HasData(
+               new Role
+               {
+                   Id = RolePresident,
+                   RoleEnum = RoleEnum.President,
+                   OrganizationId = orgId,
+                   Functions = []
+               },
+                new Role
+                {
+                    Id = RoleVicePresident,
+                    RoleEnum = RoleEnum.VicePresident,
+                    OrganizationId = orgId,
+                    Functions = []
+                },
+                        new Role
+                        {
+                            Id = RoleLandLoard,
+                            RoleEnum = RoleEnum.LandLoard,
+                            OrganizationId = orgId,
+                            Functions = []
+                        }
+            );
+            builder.Entity<Function>().HasData(
+                    new Function
+                    {
+                        RoleId = RoleLandLoard,
+                        FunctionType = FunctionType.ReadLandLoard
+                    },
+                    new Function
+                    {
+                        RoleId = RoleLandLoard,
+                        FunctionType = FunctionType.WriteLandLoard
+                    },
+                    new Function
+                    {
+                        RoleId = RolePresident,
+                        FunctionType = FunctionType.ReadPresident
+                    },
+                    new Function
+                    {
+                        RoleId = RolePresident,
+                        FunctionType = FunctionType.WritePresident
+                    },
+                    new Function
+                    {
+                        RoleId = RoleVicePresident,
+                        FunctionType = FunctionType.ReadVicePresident
+                    },
+                    new Function
+                    {
+                        RoleId = RoleVicePresident,
+                        FunctionType = FunctionType.WriteVicePresident
+                    }
+            );
             builder.ApplyConfiguration(new TranslationEntityConfiguration());
             builder.ApplyConfiguration(new ApplicationUserEntityConfiguration());
         }
@@ -245,7 +390,6 @@ namespace Grains.Context
                 var audit = new Audit
                 {
                     Id = Guid.NewGuid(),
-                    PartnerId = _currentUserService.User != null ? _currentUserService.User.PartnerId : Guid.NewGuid(),
                     InloggedEmail = _currentUserService.User != null ? _currentUserService.User.Email : "None",
                     TableName = TableName,
                     DateTime = DateTime.UtcNow,
@@ -259,7 +403,6 @@ namespace Grains.Context
         public class Audit
         {
             public Guid Id { get; set; }
-            public Guid PartnerId { get; set; }
             public string InloggedEmail { get; set; }
             public string TableName { get; set; } = "";
             public DateTime DateTime { get; set; }

@@ -1,18 +1,24 @@
 @namespace TozawaNGO.Shared
 @using ShareRazorClassLibrary.Helpers
-@inherits BaseDialog
+@inherits BaseDialog<LoginViewModal>
 @implements IDisposable
 
-<MudDialog>
-    <TitleContent>
-        <MudText Typo="Typo.h6">
-            <MudIcon Icon="@Icons.Material.Filled.Login" Class="mr-3 mb-n1" />
-            <span>Toz'Awa</span>
-        </MudText>
-    </TitleContent>
-    <DialogContent>
-        <ErrorBoundary>
-            <ChildContent>
+<style>
+    .tz-mud-overlay {
+        background: repeating-linear-gradient(135deg, #ccc, #ccc 10px, #aaa 10px, #aaa 20px) !important;
+        opacity: 0.7 !important;
+    }
+</style>
+
+<ErrorHandling TCategoryName=@typeof(LoginViewModal)>
+    <ChildContent>
+        <MudDialog Class="tzModal">
+            <TitleContent>
+                <div style="max-width: fit-content; margin-left: auto; margin-right: auto;">
+                    <img src="/images/avatarprofile.png" asp-append-version="true" height="60px" width="60px" />
+                </div>
+            </TitleContent>
+            <DialogContent>
                 <MudForm Model="@model" @ref="@form" @bind-IsValid="@_success" @bind-Errors="@_errors"
                     ValidationDelay="0">
                     <MudCardContent>
@@ -40,21 +46,25 @@
                             "Password")) InputType="InputType.Password" />
                     </MudCardContent>
                 </MudForm>
-            </ChildContent>
-            <ErrorContent>
-                Sorry, I can't show because of an internal error.
-            </ErrorContent>
-        </ErrorBoundary>
-    </DialogContent>
-    <DialogActions>
-        <MudButton Disabled="@_processing" Variant="Variant.Filled" OnClick="Cancel">
-            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" IsFirstLoaded="@IsFirstLoaded"></SystemText>
-        </MudButton>
-        <MudButton Disabled="@DisabledLoginButton()" OnClick="@((MouseEventArgs e)=>LoginByClick(@loginButton, e))"
-            Color="Color.Primary" Variant="Variant.Filled" Class="ml-auto" Target="_top">
-            <MudText>
-                <SystemText TextId=SystemTextId.Login FallbackText="Login" IsFirstLoaded="@IsFirstLoaded"></SystemText>
-            </MudText>
-        </MudButton>
-    </DialogActions>
-</MudDialog>
+            </DialogContent>
+            <DialogActions>
+                <div class="d-flex flex-row-reverse flex-grow-1 gap-4">
+                    <MudButton Color="Color.Success" StartIcon="@Icons.Material.Filled.Login"
+                        Disabled="@DisabledLoginButton()" OnClick="@((MouseEventArgs e)=>LoginByClick(@loginButton, e))"
+                        Variant="Variant.Filled" Target="_top">
+                        <MudText>
+                            <SystemText TextId=SystemTextId.Login FallbackText="Login"></SystemText>
+                        </MudText>
+                    </MudButton>
+                    <MudButton StartIcon="@Icons.Material.Filled.Close" Disabled="@_processing" Color="Color.Primary"
+                        Variant="Variant.Filled" OnClick="Cancel">
+                        <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel"></SystemText>
+                    </MudButton>
+                </div>
+            </DialogActions>
+        </MudDialog>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>

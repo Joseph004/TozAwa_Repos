@@ -11,6 +11,15 @@ internal class ListOfGuidsComparer : ValueComparer<List<Guid>>
     { }
 }
 
+internal class ListOfRolesComparer : ValueComparer<List<Role>>
+{
+    public ListOfRolesComparer()
+        : base((c1, c2) => (c1 == null && c2 == null) || (c1 != null && c2 != null && c1.SequenceEqual(c2)),
+        c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+        c => c.ToList())
+    { }
+}
+
 internal class DictionaryGuidStringComparer : ValueComparer<Dictionary<Guid, string>>
 {
     public DictionaryGuidStringComparer()

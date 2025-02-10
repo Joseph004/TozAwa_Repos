@@ -1,20 +1,20 @@
 using Microsoft.AspNetCore.Components;
 using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Models.Enums;
 using ShareRazorClassLibrary.Services;
-using TozawaNGO.Services;
 
 namespace TozawaNGO.Shared
 {
     public partial class BasePage : Fluxor.Blazor.Web.Components.FluxorComponent, IDisposable
     {
         [Inject] protected ITranslationService _translationService { get; set; }
+        [Inject] protected ICountryCityService _countryCityService { get; set; }
         [Inject] protected AuthStateProvider _authStateProvider { get; set; }
         [Inject] private ICurrentUserService _currentUserService { get; set; }
 
         public CurrentUserDto _currentUser { get; set; } = new();
         public List<ActiveLanguageDto> ActiveLanguages { get; set; } = [];
-        public bool IsFirstLoaded { get; set; }
 
         public BasePage()
         {
@@ -23,7 +23,6 @@ namespace TozawaNGO.Shared
 
         protected override void OnInitialized()
         {
-            IsFirstLoaded = false;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
             base.OnInitialized();
@@ -31,11 +30,17 @@ namespace TozawaNGO.Shared
 
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+           {
+               StateHasChanged();
+           });
         }
         private void _authStateProvider_UserAuthChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+           {
+               StateHasChanged();
+           });
         }
 
         protected override async Task OnInitializedAsync()
@@ -46,8 +51,6 @@ namespace TozawaNGO.Shared
         {
             if (firstRender)
             {
-                IsFirstLoaded = true;
-                StateHasChanged();
             }
             await base.OnAfterRenderAsync(firstRender);
         }
@@ -65,20 +68,21 @@ namespace TozawaNGO.Shared
         {
             return _translationService.Translate(systemTextId, fallback, limit, toUpper).Text;
         }
-
-        public bool HasAtLeastOneRole(params string[] roles)
+        public bool HasAllFeaturesMatching(params int[] features)
         {
-            return _currentUser.Roles.Any(r => roles.Any(x => GetRole(x) == r)) || _currentUser.Admin;
+            return features.All(f => _currentUser.Features.Contains(f));
         }
-        public bool HasAllRolesMatching(params string[] roles)
+        public bool HasAtLeastOneFunctionType(params FunctionType[] functionTypes)
         {
-            return _currentUser.Roles.All(r => roles.All(x => GetRole(x) == r)) || _currentUser.Admin;
+            return _currentUser.Functions.Any(f => functionTypes.Any(x => x.Equals(f.FunctionType)));
         }
-        private static RoleDto GetRole(string role)
+        public bool HasAllFunctionTypesMatching(params FunctionType[] functionTypes)
         {
-            Enum.TryParse(role, out RoleDto myRole);
-
-            return myRole;
+            return functionTypes.All(f => _currentUser.Functions.Any(x => x.FunctionType.Equals(f)));
+        }
+        public bool HasAtLeastOneFeature(params int[] features)
+        {
+            return _currentUser.Features.Any(f => features.Contains(f));
         }
         protected override void Dispose(bool disposed)
         {

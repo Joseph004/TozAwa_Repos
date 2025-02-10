@@ -1,3 +1,6 @@
 ﻿@page "/fetchdata"
+@attribute [Authorize(Roles = "LandLoard")]
 
-<Tozawa.Components.WeatherComponent />
+@using ShareRazorClassLibrary.Components
+
+<ShareRazorClassLibrary.Components.WeatherComponent />

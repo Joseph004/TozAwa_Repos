@@ -1,0 +1,193 @@
+@page "/register"
+@attribute [Microsoft.AspNetCore.Authorization.AllowAnonymous]
+
+@namespace TozawaNGO.Pages.Register
+@using ShareRazorClassLibrary.Helpers
+@using ShareRazorClassLibrary.Models
+@using TozawaNGO.Shared
+@inherits BasePage
+@implements IDisposable
+
+ @if(_selectedCountry != null && !string.IsNullOrEmpty(_selectedCountry.Code)) {
+   <style>
+    .country-auto-complete>div:first-child {
+max-width: 40px; 
+width: 40px; 
+margin-top: 16px;
+    }
+    .registerForm>div:nth-of-type(3)>div:nth-of-type(1) {
+    width: 75px;
+    max-width: 75px;
+}
+</style> 
+ }
+ <style>
+.register-body {
+        margin: 0;
+        padding: 0;
+        background: url('/images/plain-white-background.jpg') no-repeat center top;
+        background-size: cover;
+        font-family: sans-serif;
+}
+.registerInput  {
+  caret-color: red;
+}
+.mycontainer {
+  width: 60%;
+  margin: 0% auto;
+  top: 20px;
+  border-radius: 20px;
+  padding: 40px;
+  box-sizing: border-box;
+  background: #ecf0f3;
+  box-shadow: 14px 14px 20px #cbced1, -14px -14px 20px white;
+}
+.brand-logo {
+  height: 150px;
+  width: 150px;
+  background: url("/images/Tozawa_avatar2.jpg");
+  background-size: cover;
+  background-position: center center;
+  background-repeat: no-repeat;
+  margin: auto;
+  border-radius: 50%;
+  box-sizing: border-box;
+  box-shadow: 7px 7px 10px #cbced1, -7px -7px 10px white;
+}
+.inputs {
+  text-align: left;
+  margin-top: 30px;
+}
+.registerInput, .registerBtn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  outline: none;
+  box-sizing: border-box;
+}
+.brand-logo .registerInput::placeholder {
+  color: gray;
+}
+.registerInput {
+  background: #ecf0f3;
+  padding: 10px;
+  padding-left: 20px;
+  font-size: 14px;
+  border-radius: 50px;
+  box-shadow: inset 6px 6px 6px #cbced1, inset -6px -6px 6px white;
+}
+.registerBtn {
+  color: white;
+  margin-top: 20px;
+  background: #1DA1F2;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 900;
+  box-shadow: 6px 6px 6px #cbced1, -6px -6px 6px white;
+  transition: 0.5s;
+}
+.registerBtn:hover {
+  box-shadow: none;
+}
+.registerForm>div:nth-of-type(3)>div:nth-of-type(2){
+    flex: 1;
+}
+ </style>
+
+<ErrorHandling TCategoryName=@typeof(RegisterMember)>
+    <ChildContent>
+  <div class="mycontainer">
+  <div class="brand-logo"></div>
+  <div class="inputs d-flex flex-column flex-grow-1 gap-6">
+  <MudForm Spacing="6" Class="registerForm" Model="@model" @ref="@form" @bind-IsValid="@_success" @bind-Errors="@_errors"
+    ValidationDelay="0">
+    <MudTextField Class="tz_admin tz_loginAsAdmin registerInput" Disabled="@_processing"
+                        Validation="RegisterValidator().ValidateValue" Required="true"
+                        RequiredError="@Translate(SystemTextId.EmailIsRequired, "Email is required")"
+                        @onkeydown="@((KeyboardEventArgs e)=>RegisterByKeyBoard(e))" @bind-Value="model.Email"
+                        For="@(() => model.Email)" Immediate="true" Label=@(Translate(SystemTextId.Email, "Email")) />
+                    <MudTextField Disabled="@_processing" Class="tz_password registerInput"
+                        Validation="RegisterValidator().ValidateValue" Required="true"
+                        RequiredError="@Translate(SystemTextId.YourPasswordCannotBeEmpty, "Password is required")"
+                        @onkeydown="@((KeyboardEventArgs e)=>RegisterByKeyBoard(e))" @bind-Value="model.Password"
+                        For="@(() => model.Password)" Immediate="true" Label=@(Translate(SystemTextId.Password,
+                        "Password")) InputType="InputType.Password" />
+        <div class="d-flex flex-row gap-2 flex-grow-1 country-auto-complete">
+                    @if(_selectedCountry != null && !string.IsNullOrEmpty(_selectedCountry.Code)) {
+                        <MudSelect Class="registerInput" AdornmentIcon="null" @bind-Value="_selectedCountry" Disabled="true" T="@Country">
+                <MudSelectItem Value="@(_selectedCountry)">
+        <i class="flag-icon flag-icon-@_selectedCountry.Code.ToLower()"></i>
+    </MudSelectItem>
+           </MudSelect>   
+                    }
+                    <MudAutocomplete Class="registerInput" Style="flex: 1;" MaxItems=15 ToStringFunc="@_convertedCountry" @ref="_countryAutocompleteRef" T="@Country" 
+                    Label="My country" @bind-Value="_selectedCountry"
+                    Required="true" SearchFunc="@SearchCountries" ProgressIndicatorColor="SelectedColor"
+                    Immediate="true" CoerceValue="false" ResetValueOnEmptyText="true"
+                    OpenIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Secondary"
+                    Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateCountry))">
+                     <ProgressIndicatorInPopoverTemplate>
+                <MudList T="string" ReadOnly>
+                    <MudListItem>
+                        @Translate(SystemTextId.Loading, "Loading...")
+                    </MudListItem>
+                </MudList>
+                </ProgressIndicatorInPopoverTemplate>
+                <ItemTemplate Context="e">
+                    <MudText>
+                        <i class="flag-icon flag-icon-@e.Code.ToLower()"></i>
+                         &nbsp;
+                        @if(string.IsNullOrEmpty(_searchCountry)) 
+                        {
+                          @($"{e.Name}")
+                        }else 
+                        {
+                           <MudHighlighter Class="mud-secondary-text"
+                             Style="background-color:transparent;font-weight:bold"
+                             Text="@e.Name"
+                             HighlightedText="@_searchCountry" />
+                        }
+                    </MudText>                          
+                </ItemTemplate>
+                </MudAutocomplete>
+                        </div>
+                <MudAutocomplete Class="registerInput" Disabled=@(_selectedCountry == null || string.IsNullOrEmpty(_selectedCountry.Code)) MaxItems=15 ToStringFunc="@_convertedCity" @ref="_cityAutocompleteRef" T="@City" 
+                    Label="My city" @bind-Value="_selectedCity"
+                    Required="true" SearchFunc="@SearchCities" ProgressIndicatorColor="SelectedColor"
+                    Immediate="true" CoerceValue="false" ResetValueOnEmptyText="true"
+                    OpenIcon="@Icons.Material.Filled.Search" AdornmentColor="Color.Secondary"
+                    Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateCity))">
+                     <ProgressIndicatorInPopoverTemplate>
+                <MudList T="string" ReadOnly>
+                    <MudListItem>
+                        @Translate(SystemTextId.Loading, "Loading...")
+                    </MudListItem>
+                </MudList>
+                </ProgressIndicatorInPopoverTemplate>
+                <ItemTemplate Context="e">
+                    <MudText>
+                    <MudHighlighter Class="mud-secondary-text"
+                    Style="background-color:transparent;font-weight:bold"
+                    Text="@e.Name"
+                    HighlightedText="@_searchCity" />
+                    </MudText>                          
+                </ItemTemplate>
+                </MudAutocomplete>
+                </MudForm>
+            <MudButton Color="Color.Success" StartIcon="@Icons.Material.Filled.PersonAddAlt1"
+                    Class="registerBtn" Style="display: flex;padding: 10px;"
+                    Disabled="@DisabledRegisterButton()"
+                    OnClick="@((MouseEventArgs e)=>RegisterByClick(@RegisterButton, e))" Variant="Variant.Filled"
+                    Target="_top">
+                    <MudText>
+                        <SystemText TextId=SystemTextId.Register FallbackText="Register"></SystemText>
+                    </MudText>
+            </MudButton> 
+  </div>
+</div>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>

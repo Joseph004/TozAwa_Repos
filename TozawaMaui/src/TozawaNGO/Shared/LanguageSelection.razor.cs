@@ -2,24 +2,25 @@ using Microsoft.AspNetCore.Components;
 using MudBlazor;
 using ShareRazorClassLibrary.Configurations;
 using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared
 {
-    public partial class LanguageSelection : BaseComponent
+    public partial class LanguageSelection : BaseComponent<LanguageSelection>
     {
         [Inject] private AppSettings _appSettings { get; set; }
         [Inject] ISnackbar Snackbar { get; set; }
         public List<ShareRazorClassLibrary.Models.Dtos.ActiveLanguageDto> ActiveLanguages { get; set; }
         public ActiveLanguageDto ActiveLanguage { get; set; }
         private Dictionary<string, string> _cultures;
+        [Inject] FirstloadState FirstloadState { get; set; }
         private string _dropArrowPosition = Icons.Material.Filled.KeyboardArrowDown;
         MudMenu _mudMenuRef = new();
-        private bool _isFirstLoaded { get; set; } = false;
 
         public string Language = "";
         private void IsOpen()
         {
-            if (_mudMenuRef.IsOpen)
+            if (_mudMenuRef.Open)
             {
                 _dropArrowPosition = Icons.Material.Filled.KeyboardArrowUp;
             }
@@ -32,23 +33,33 @@ namespace TozawaNGO.Shared
 
         protected override void OnInitialized()
         {
+            FirstloadState.OnChange += FirsLoadChanged;
             _cultures = _appSettings.Languages.ToDictionary(x => x.Culture, x => x.LongName);
 
             base.OnInitialized();
         }
-
+        protected override void Dispose(bool disposed)
+        {
+            FirstloadState.OnChange -= FirsLoadChanged;
+            base.Dispose(disposed);
+        }
+        private void FirsLoadChanged()
+        {
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        }
         protected override async Task OnAfterRenderAsync(bool isFirstLoaded)
         {
             if (isFirstLoaded)
             {
-                _isFirstLoaded = true;
-
                 ActiveLanguages = await _translationService.GetActiveLanguages();
                 ActiveLanguage = await _translationService.GetActiveLanguage();
 
                 Language = GetShortName(ActiveLanguage);
+                StateHasChanged();
             }
-            StateHasChanged();
         }
 
         public async Task ChangeActiveLanguage(Guid languageId)

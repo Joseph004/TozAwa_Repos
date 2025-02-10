@@ -9,6 +9,7 @@ using Grains.Auth.Models.Dtos;
 using Grains.Auth.Services;
 using Grains.Context;
 using Grains.Services;
+using Grains.Models;
 
 namespace OrleansHost.Attachment.Controllers
 {
@@ -17,9 +18,9 @@ namespace OrleansHost.Attachment.Controllers
     [Produces("application/json")]
     [Route("api/[controller]")]
 
-    public class OwnerController(IMediator mediator, Grains.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService) : InitController(mediator, currentUserService, userTokenService)
+    public class OwnerController(IMediator mediator, Grains.Auth.Services.ICurrentUserService currentUserService, IUserTokenService userTokenService, IGrainFactory factory) : InitController(mediator, currentUserService, userTokenService, factory)
     {
-        [HttpGet, Route("{fromOwnerId}/copyTo/{toOwnerId}"), CheckRole(RoleDto.President, RoleDto.VicePresident)]
+        [HttpGet, Route("{fromOwnerId}/copyTo/{toOwnerId}"), CheckRole(FunctionType.WriteAttachment, FunctionType.WriteAdmin, FunctionType.WriteLandLoard)]
         public async Task<IActionResult> AddCopy(Guid fromOwnerId, Guid toOwnerId) =>
             Ok(await _mediator.Send(new CopyOwnerAttachmentsCommand { FromOwnerId = fromOwnerId, ToOwnerId = toOwnerId }));
     }

@@ -1,0 +1,52 @@
+/* You can add global styles to this file, and also import other style files */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 15px;
+}
+
+body {
+    position: relative;
+    font-family: "Roboto", sans-serif;
+    background: #f4f7fa;
+}
+
+.flag-icon-background {
+    background-size: contain;
+    background-position: 50%;
+    background-repeat: no-repeat;
+}
+
+.flag-icon {
+    background-size: contain;
+    background-position: 50%;
+    background-repeat: no-repeat;
+    position: relative;
+    display: inline-block;
+    width: 1.33333333em;
+    line-height: 1em;
+
+    &:before {
+        content: "\00a0";
+    }
+}
+
+.flag-icon-fr {
+    background-image: url("/assets/images/flags/svg/4x3/fr.svg");
+}
+
+.flag-icon-fr.flag-icon-squared {
+    background-image: url("/assets/images/flags/svg/1x1/fr.svg");
+}
+
+.flag-icon-us {
+    background-image: url("/assets/images/flags/svg/4x3/us.svg");
+}
+
+.flag-icon-us.flag-icon-squared {
+    background-image: url("/assets/images/flags/svg/1x1/us.svg");
+}

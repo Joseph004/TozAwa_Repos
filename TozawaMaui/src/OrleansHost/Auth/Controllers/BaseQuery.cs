@@ -12,42 +12,47 @@ namespace Grains.Auth.Controllers
         public string PageOfEmail { get; } = null;
         public string Email { get; } = null;
         public bool IncludeDeleted { get; }
+        public bool ByPassOrganization { get; } = false;
 
         public BaseQuery(Dictionary<string, StringValues> queryParameters = null)
         {
             if (queryParameters == null) return;
-            if (queryParameters.ContainsKey(nameof(Page)) && int.TryParse(queryParameters[nameof(Page)], out var page))
+            if (queryParameters.TryGetValue(nameof(Page), out StringValues pageValue) && int.TryParse(pageValue, out var page))
             {
                 Page = page;
             }
 
-            if (queryParameters.ContainsKey(nameof(PageSize)) && int.TryParse(queryParameters[nameof(PageSize)], out var pageSize))
+            if (queryParameters.TryGetValue(nameof(PageSize), out StringValues valueSize) && int.TryParse(valueSize, out var pageSize))
             {
                 PageSize = pageSize;
             }
-            if (queryParameters.ContainsKey(nameof(SearchString)) && !string.IsNullOrEmpty(queryParameters[nameof(SearchString)]))
+            if (queryParameters.TryGetValue(nameof(SearchString), out StringValues searchString) && !string.IsNullOrEmpty(searchString))
             {
-                SearchString = queryParameters[nameof(SearchString)];
+                SearchString = searchString;
             }
-            if (queryParameters.ContainsKey(nameof(PageOfCode)) && !string.IsNullOrEmpty(queryParameters[nameof(PageOfCode)]))
+            if (queryParameters.TryGetValue(nameof(PageOfCode), out StringValues pageOfCode) && !string.IsNullOrEmpty(pageOfCode))
             {
-                PageOfCode = queryParameters[nameof(PageOfCode)];
+                PageOfCode = pageOfCode;
             }
-            if (queryParameters.ContainsKey(nameof(Code)) && !string.IsNullOrEmpty(queryParameters[nameof(Code)]))
+            if (queryParameters.TryGetValue(nameof(Code), out StringValues code) && !string.IsNullOrEmpty(code))
             {
-                Code = queryParameters[nameof(Code)];
+                Code = code;
             }
-            if (queryParameters.ContainsKey(nameof(PageOfEmail)) && !string.IsNullOrEmpty(queryParameters[nameof(PageOfEmail)]))
+            if (queryParameters.TryGetValue(nameof(PageOfEmail), out StringValues pageOfEmail) && !string.IsNullOrEmpty(pageOfEmail))
             {
-                PageOfEmail = queryParameters[nameof(PageOfEmail)];
+                PageOfEmail = pageOfEmail;
             }
-            if (queryParameters.ContainsKey(nameof(Email)) && !string.IsNullOrEmpty(queryParameters[nameof(Email)]))
+            if (queryParameters.TryGetValue(nameof(Email), out StringValues email) && !string.IsNullOrEmpty(email))
             {
-                Email = queryParameters[nameof(Email)];
+                Email = email;
             }
-            if (queryParameters.ContainsKey(nameof(IncludeDeleted)) && bool.TryParse(queryParameters[nameof(IncludeDeleted)], out var includeDeleted))
+            if (queryParameters.TryGetValue(nameof(IncludeDeleted), out StringValues valueIncludeDeleted) && bool.TryParse(valueIncludeDeleted, out var includeDeleted))
             {
                 IncludeDeleted = includeDeleted;
+            }
+            if (queryParameters.TryGetValue(nameof(ByPassOrganization), out StringValues valueByPass) && bool.TryParse(valueByPass, out var byPassOrganization))
+            {
+                ByPassOrganization = byPassOrganization;
             }
         }
     }

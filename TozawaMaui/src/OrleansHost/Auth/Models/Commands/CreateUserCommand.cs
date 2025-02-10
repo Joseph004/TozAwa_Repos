@@ -1,6 +1,8 @@
 using FluentValidation;
 using MediatR;
 using Grains.Auth.Models.Dtos.Backend;
+using Grains.Auth.Models.Authentication;
+using Grains.Models;
 
 namespace OrleansHost.Auth.Models.Commands
 {
@@ -9,11 +11,15 @@ namespace OrleansHost.Auth.Models.Commands
         public string UserName { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
-        public List<int> Roles { get; set; } = [0];
+        public List<string> Organizations { get; set; } = [];
         public string Email { get; set; }
         public string Adress { get; set; }
         public string Password { get; set; }
         public string PhoneNumber { get; set; }
+        public List<int> Features { get; set; } = [];
+        public List<AddressCommand> Addresses { get; set; } = [];
+        public List<RoleEnum> Roles { get; set; } = [];
+        public List<FunctionType> Functions { get; set; } = [];
     }
     public class CreateUserCommandFluentValidator : AbstractValidator<CreateUserCommand>
     {

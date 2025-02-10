@@ -62,7 +62,7 @@ public class UserTokenService(AppSettings appSettings) : IUserTokenService
     private List<Claim> GetClaims(CurrentUserDto user)
     {
         var refreshAt = DateTimeOffset.UtcNow.AddSeconds(Convert.ToDouble(_appSettings.JWTSettings.ExpiryInMinutes)).ToString(CultureInfo.InvariantCulture);
-
+        var exp = DateTime.UtcNow.AddMinutes(_appSettings.JWTSettings.LogoutUserOn).ToString("dd/MM/yyyy hh:mm:ss");
         var claims = new List<Claim>
     {
         new(nameof(CurrentUserDto), JsonConvert.SerializeObject(user)),
@@ -72,8 +72,15 @@ public class UserTokenService(AppSettings appSettings) : IUserTokenService
         new("refresh_at", refreshAt),
         new(ClaimTypes.NameIdentifier, user.Id.ToString()),
         new("exp", _appSettings.JWTSettings.ExpiryInMinutes),
-        new("logoutexpat", DateTime.UtcNow.AddMinutes(_appSettings.JWTSettings.LogoutUserOn).ToString())
+        new("logoutexpat", exp)
     };
+        if (user.Roles.Count >= 1)
+        {
+            foreach (var role in user.Roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, Enum.GetName(typeof(Role), role.Role)));
+            }
+        }
         if (user.Admin)
         {
             claims.Add(new Claim("admin-member", "MemberIsAdmin"));

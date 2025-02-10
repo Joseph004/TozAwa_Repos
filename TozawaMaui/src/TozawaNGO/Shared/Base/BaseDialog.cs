@@ -1,15 +1,21 @@
 using Microsoft.AspNetCore.Components;
+using MudBlazor;
+using MudBlazor.Extensions;
+using MudBlazor.Extensions.Core;
+using MudBlazor.Extensions.Options;
+using Nextended.Core.Extensions;
 using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Models.Enums;
 using ShareRazorClassLibrary.Services;
-using TozawaNGO.Services;
 
 namespace TozawaNGO.Shared
 {
-    public partial class BaseDialog : ComponentBase, IDisposable
+    public partial class BaseDialog<T> : ComponentBase, IDisposable
     {
+        [Inject] ILogger<T> _logger { get; set; }
+        [Inject] protected ICountryCityService _countryCityService { get; set; }
         [Inject] protected ITranslationService _translationService { get; set; }
         [Inject] private ICurrentUserService _currentUserService { get; set; }
-        public bool IsFirstLoaded { get; set; }
 
         public CurrentUserDto _currentUser { get; set; } = new();
 
@@ -17,16 +23,17 @@ namespace TozawaNGO.Shared
         {
 
         }
-
         protected override void OnInitialized()
         {
-            IsFirstLoaded = true;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             base.OnInitialized();
         }
         private void _translationService_LanguageChanged(object sender, EventArgs e)
         {
-            StateHasChanged();
+            InvokeAsync(() =>
+          {
+              StateHasChanged();
+          });
         }
         public override async Task SetParametersAsync(ParameterView parameters)
         {
@@ -37,7 +44,6 @@ namespace TozawaNGO.Shared
         }
         protected override async Task OnInitializedAsync()
         {
-            IsFirstLoaded = true;
             await base.OnInitializedAsync();
         }
 
@@ -45,25 +51,23 @@ namespace TozawaNGO.Shared
         {
             return _translationService.Translate(systemTextId, fallback, limit, toUpper).Text;
         }
-
-        public bool HasAtLeastOneRole(params string[] roles)
+        public bool HasAllFeaturesMatching(params int[] features)
         {
-            return _currentUser.Roles.Any(r => roles.Any(x => GetRole(x) == r)) || _currentUser.Admin;
+            return features.All(f => _currentUser.Features.Contains(f));
         }
-        public bool HasAllRolesMatching(params string[] roles)
+        public bool HasAtLeastOneFunctionType(params FunctionType[] functionTypes)
         {
-            return _currentUser.Roles.All(r => roles.All(x => GetRole(x) == r)) || _currentUser.Admin;
+            return _currentUser.Functions.Any(f => functionTypes.Any(x => x.Equals(f.FunctionType)));
         }
-        private static RoleDto GetRole(string role)
+        public bool HasAllFunctionTypesMatching(params FunctionType[] functionTypes)
         {
-            Enum.TryParse(role, out RoleDto myRole);
-
-            return myRole;
+            return functionTypes.All(f => _currentUser.Functions.Any(x => x.FunctionType.Equals(f)));
         }
-
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+        public bool HasAtLeastOneFeature(params int[] features)
+        {
+            return _currentUser.Features.Any(f => features.Contains(f));
+        }
         public virtual void Dispose()
-#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
         }

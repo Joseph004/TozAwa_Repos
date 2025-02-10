@@ -1,5 +1,4 @@
 using Fluxor;
-using Grains.Helpers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using MudBlazor;
@@ -10,6 +9,12 @@ using TozawaNGO.StateHandler;
 using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Services;
 using ShareRazorClassLibrary.Models.FormModels;
+using ShareRazorClassLibrary.Helpers;
+using MudBlazor.Extensions.Options;
+using MudBlazor.Extensions;
+using Nextended.Core.Extensions;
+using MudBlazor.Extensions.Core;
+using ShareRazorClassLibrary.Models.Enums;
 
 namespace TozawaNGO.Pages
 {
@@ -17,10 +22,10 @@ namespace TozawaNGO.Pages
     {
         [Inject] IDialogService DialogService { get; set; }
         [Inject] private ISnackbar SnackBar { get; set; }
-        [Inject] private AttachmentService AttachmentService { get; set; }
         [Inject] private ISnackBarService snackBarService { get; set; }
         [Inject] MemberService memberService { get; set; }
         [Inject] private LoadingState LoadingState { get; set; }
+        [Inject] FirstloadState FirstloadState { get; set; }
         [Inject] IState<TozawaNGO.State.Member.Store.MemberState> MemberState { get; set; }
         [Inject] IDispatcher Dispatcher { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
@@ -39,15 +44,14 @@ namespace TozawaNGO.Pages
         protected PatchMemberRequest _patchMemberRequest = new();
         public int ThumbnailSize = 24;
         protected int[] _pageSizeOptions = [20, 50, 100];
-        private bool firstLoaded;
         private double scrollTop;
 
         protected override async Task OnInitializedAsync()
         {
             ScrollTopState.SetSource("memberPage");
+            FirstloadState.OnChange += FirsLoadChanged;
             _translationService.LanguageChanged += LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
-            AttachmentService.OnChange += UpdateMemberAttachments;
             ScrollTopState.OnChange += SetScroll;
             LoadingState.SetRequestInProgress(true);
 
@@ -57,6 +61,14 @@ namespace TozawaNGO.Pages
             Dispatcher.Dispatch(new MemberDataAction(_page, _pageSize, _searchString, MemberState.Value.IncludeDeleted, MemberState.Value.PageOfEmail, MemberState.Value.Email, ScrollTopState.ScrollTop.TryGetValue(ScrollTopState.Source, out double value) ? value : 0, LoadingState, JSRuntime));
             await base.OnInitializedAsync();
         }
+        private void FirsLoadChanged()
+        {
+            InvokeAsync(() =>
+            {
+                StateHasChanged();
+            });
+        }
+
         private string GetDescColor(MemberDto member)
         {
             return string.IsNullOrEmpty(member.Description) ? $"color: #c4c4c4;" : "";
@@ -64,22 +76,41 @@ namespace TozawaNGO.Pages
         private async Task ShowLongText(MemberDto member)
         {
             if (string.IsNullOrEmpty(member.Description)) return;
-            var options = new DialogOptions
+            var options = new DialogOptionsEx
             {
-                DisableBackdropClick = true,
+                BackgroundClass = "tz-mud-overlay",
+                BackdropClick = false,
+                CloseButton = false,
                 MaxWidth = MaxWidth.Medium,
-                CloseButton = true
+                MaximizeButton = true,
+                FullHeight = false,
+                FullWidth = true,
+                DragMode = MudDialogDragMode.Simple,
+                Animations = [AnimationType.Pulse],
+                Position = DialogPosition.Center
             };
+
+            options.SetProperties(ex => ex.Resizeable = true);
+            options.DialogAppearance = MudExAppearance.FromStyle(b =>
+            {
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
+            });
+
             var parameters = new DialogParameters
             {
-                ["Entity"] = member
+                ["Entity"] = member,
+                ["Title"] = member.FirstName + " " + member.LastName
             };
-            var dialog = DialogService.Show<DescriptionMemberDialog>(member.FirstName + " " + member.LastName, parameters, options);
+            var dialog = await DialogService.ShowEx<DescriptionMemberDialog>(member.FirstName + " " + member.LastName, parameters, options);
             var result = await dialog.Result;
         }
         private void SetLoading()
         {
-            LoadingState.SetRequestInProgress(true);
+            LoadingState.SetRequestInProgress(MemberState.Value.IsLoading);
         }
         private int Count = 0;
         private async Task SetScrollJS()
@@ -92,54 +123,15 @@ namespace TozawaNGO.Pages
                 await JSRuntime.InvokeAsync<object>("SetScroll", (-1) * scrollTop);
             }
         }
-        /* private async Task SetDescriptionIcon()
-        {
-            foreach (var textField in MemberState.Value.MudTextField)
-            {
-                DescriptionIcon.TryAdd(textField.Key, "");
-                var dotNetReference = DotNetObjectReference.Create(this);
-                var isOverflowed = await JSRuntime.InvokeAsync<bool>("checkOverflow", textField.Key, dotNetReference);
-                if (isOverflowed)
-                {
-                    DescriptionIcon[textField.Key] = Icons.Material.Outlined.Info;
-                }
-            }
-            StateHasChanged();
-        } 
-        [JSInvokable("AddDescIcon")]
-        public void SetDescriptionIcon(string id, bool isRemoved = false)
-        {
-            Guid.TryParse(id, out Guid guid);
-            if (guid == Guid.Empty) return;
-            var member = MemberState.Value.Members.First(x => x.Id == guid);
-            if (DescriptionIcon.ContainsKey(guid))
-            {
-                if (isRemoved)
-                {
-                    DescriptionIcon[guid] = "";
-                    StateHasChanged();
-                    return;
-                }
-
-                if (!string.IsNullOrEmpty(member.Description) && member.Description.Length > 5)
-                {
-                    DescriptionIcon[guid] = Icons.Material.Outlined.Info;
-
-                    StateHasChanged();
-                }
-            }
-        }*/
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
-                firstLoaded = true;
                 LoadingState.SetRequestInProgress(true);
             }
-            if (!MemberState.Value.IsLoading && MemberState.Value.Members.Count > 0 && firstLoaded)
+            if (!MemberState.Value.IsLoading && MemberState.Value.Members.Count > 0 && FirstloadState.IsFirstLoaded)
             {
                 //await SetDescriptionIcon();
-                firstLoaded = false;
                 LoadingState.SetRequestInProgress(false);
                 await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.5))).ContinueWith(async o => { await SetScrollJS(); });
             }
@@ -156,15 +148,6 @@ namespace TozawaNGO.Pages
             scrollTop = scroll;
             Dispatcher.Dispatch(new MemberDataAction(_page, _pageSize, _searchString, _includeDeleted, MemberState.Value.PageOfEmail, MemberState.Value.Email, scrollTop, LoadingState, JSRuntime));
         }
-        private bool DisabledEditRow()
-        {
-            var entity = _selectedItem ?? new MemberDto();
-            return entity.Deleted;
-        }
-        private void UpdateMemberAttachments()
-        {
-            ReloadData();
-        }
         private void LanguageChanged(object sender, EventArgs e)
         {
             ReloadData();
@@ -173,60 +156,41 @@ namespace TozawaNGO.Pages
         {
             ReloadData();
         }
-        protected async Task ToggleDeleted(MemberDto item, bool hardDelete = false)
-        {
-            var options = new DialogOptions
-            {
-                MaxWidth = MaxWidth.Small,
-                CloseButton = false
-            };
-
-            var parameters = new DialogParameters
-            {
-                ["hardDelete"] = hardDelete,
-                ["body"] = Translate(SystemTextId.AreYouSure),
-                ["item"] = item,
-                ["title"] = item.Deleted ? hardDelete ? Translate(SystemTextId.Delete) : Translate(SystemTextId.Restore) : Translate(SystemTextId.Delete)
-            };
-
-            var dialog = DialogService.Show<DeleteEntityDialog>(item.Deleted ? Translate(SystemTextId.Restore) : Translate(SystemTextId.Delete), parameters, options);
-            var result = await dialog.Result;
-
-            if (!result.Canceled)
-            {
-                var modalResponse = (DeleteRequest)result.Data;
-                var patchRequest = new PatchMemberRequest
-                {
-                    Deleted = modalResponse.SoftDeleted
-                };
-
-                if (modalResponse.HardDeleted)
-                {
-                    patchRequest.Deleted = null;
-                    patchRequest.DeleteForever = modalResponse.HardDeleted;
-                }
-
-                LoadingState.SetRequestInProgress(true);
-                Dispatcher.Dispatch(new MemberPatchAction(item.Id, patchRequest, item));
-            }
-        }
         protected async Task ToggleFiles(MemberDto item)
         {
             await Task.FromResult(1);
-            var options = new DialogOptions
+            var options = new DialogOptionsEx
             {
-                DisableBackdropClick = true,
+                BackgroundClass = "tz-mud-overlay",
+                BackdropClick = false,
+                CloseButton = false,
                 MaxWidth = MaxWidth.Large,
-                CloseButton = false
+                MaximizeButton = true,
+                FullHeight = false,
+                FullWidth = true,
+                DragMode = MudDialogDragMode.Simple,
+                Animations = [AnimationType.Pulse],
+                Position = DialogPosition.Center
             };
+
+            options.SetProperties(ex => ex.Resizeable = true);
+            options.DialogAppearance = MudExAppearance.FromStyle(b =>
+            {
+                b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
+            });
+
             var parameters = new DialogParameters
             {
                 ["Entity"] = item,
-                ["HasPermission"] = HasAtLeastOneRole(RoleDto.President.ToString()),
+                ["HasPermission"] = HasAllFunctionTypesMatching(FunctionType.ReadAuthorization, FunctionType.WritePresident),
                 ["Source"] = nameof(MemberDto)
             };
             var userName = item.Admin ? item.UserName : item.Email;
-            DialogService.Show<FilesEntityDialog>($"{userName}", parameters, options);
+            await DialogService.ShowEx<FilesEntityDialog>($"{userName}", parameters, options);
         }
         protected async Task ToggleIncludeDeleted()
         {
@@ -238,12 +202,6 @@ namespace TozawaNGO.Pages
         {
             if (!string.IsNullOrEmpty(context.Description) && !context.Description.Equals("Not Translated"))
             {
-                /* if (context.Description.Length > 20)
-                {
-                    return context.Description[..19];
-                }
-                else
-                { } */
                 return context.Description;
             }
 
@@ -265,51 +223,9 @@ namespace TozawaNGO.Pages
         {
             Dispatcher.Dispatch(new MemberSelectedAction(tableRowClickEventArgs.Item));
         }
-        private async Task OpenDialog()
+        private string GetLabel(Guid labelId, string label)
         {
-            var options = new DialogOptions
-            {
-                DisableBackdropClick = true,
-                MaxWidth = MaxWidth.ExtraLarge,
-                CloseButton = false
-            };
-            var parameters = new DialogParameters
-            {
-                ["_activeLanguages"] = ActiveLanguages
-            };
-            var dialog = DialogService.Show<AddMembersDialog>($"{Translate(SystemTextId.Add)} {Translate(SystemTextId.Member)}", parameters, options);
-            var result = await dialog.Result;
-            if (!result.Canceled)
-            {
-                if (result.Data is AddMemberRequest model)
-                {
-                    var added = await memberService.AddMember(model);
-                }
-            }
-        }
-        private async Task ToggleEdit(MemberDto member)
-        {
-            var options = new DialogOptions
-            {
-                DisableBackdropClick = true,
-                MaxWidth = MaxWidth.Medium,
-                CloseButton = false
-            };
-            var data = new MemberDto
-            {
-                Id = member.Id,
-                Deleted = member.Deleted,
-                FirstName = member.FirstName,
-                LastName = member.LastName,
-                Email = member.Email,
-                Description = member.Description,
-            };
-            var parameters = new DialogParameters
-            {
-                ["Member"] = data
-            };
-            var dialog = DialogService.Show<EditMembersDialog>($"Edit", parameters, options);
-            var result = await dialog.Result;
+            return Translate(labelId, label);
         }
         protected string SelectedRowClassFunc(MemberDto element, int rowNumber)
         {
@@ -327,9 +243,9 @@ namespace TozawaNGO.Pages
         {
             try
             {
+                FirstloadState.OnChange -= FirsLoadChanged;
                 _translationService.LanguageChanged -= LanguageChanged;
                 _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;
-                AttachmentService.OnChange -= UpdateMemberAttachments;
                 ScrollTopState.OnChange -= SetScroll;
                 Dispatcher.Dispatch(new UnSubscribeAction());
             }

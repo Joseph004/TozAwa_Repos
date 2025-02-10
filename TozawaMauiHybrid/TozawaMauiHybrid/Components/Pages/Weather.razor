@@ -1,0 +1,60 @@
+﻿@page "/weather"
+@attribute [Authorize(Policy = "admin-member")]
+@attribute [Authorize(Roles = "President, VicePresident")]
+@using System.Security.Cryptography.X509Certificates
+@using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Models.Dtos
+@using TozawaMauiHybrid.Services
+@inject WeatherForecastService ForecastService
+
+<h1>Weather</h1>
+
+<p>This component demonstrates showing data.</p>
+
+@if (forecasts == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <MudTable Items="@forecasts" Hover="true" Breakpoint="Breakpoint.Sm" Loading="@_loading"
+        LoadingProgressColor="Color.Info">
+        <HeaderContent>
+            <MudTh>Date</MudTh>
+            <MudTh>Temp. (C)</MudTh>
+            <MudTh>Temp. (F)</MudTh>
+            <MudTh>Summary</MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Date">@context.Date.ToShortDateString()</MudTd>
+            <MudTd DataLabel="Temp. (C)">@context.TemperatureC</MudTd>
+            <MudTd DataLabel="Temp. (F)">@context.TemperatureF</MudTd>
+            <MudTd DataLabel="Summary">@context.Summary</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    [Inject]
+    private PreferencesStoreClone Storage { get; set; }
+    IEnumerable<WeatherDto> forecasts;
+    private bool _loading;
+    [Inject] ScrollTopState ScrollTopState { get; set; }
+    [Inject] NavMenuTabState NavMenuTabState { get; set; }
+    protected virtual void Dispose()
+    {
+        ScrollTopState.OnChange -= SetScroll;
+    }
+    private void SetScroll()
+    {
+    }
+    protected override async Task OnInitializedAsync()
+    { 
+        NavMenuTabState.SetActiveTab(TozawaMauiHybrid.Services.ActiveTab.Weather);
+        ScrollTopState.SetSource("Weather");
+        ScrollTopState.OnChange += SetScroll;
+        var getResponse = await ForecastService.GetItems();
+        forecasts = getResponse.Entity ?? [];
+        await base.OnInitializedAsync();
+    }
+}

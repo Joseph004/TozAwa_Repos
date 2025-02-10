@@ -1,0 +1,33 @@
+@page "/settings"
+@attribute [Authorize(Policy = "admin-member")]
+
+@namespace TozawaMauiHybrid.Components.Pages.Settings
+@using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Component
+@inherits BasePage
+
+<style>
+    .mud-tabs-tabbar {
+        background-color: #000 !important;
+        color: white;
+    }
+
+    .mud-tab-active {
+        color: #e59866 !important;
+    }
+</style>
+
+<MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
+    <MudTabPanel IconColor="Color.Secondary" Icon="@Icons.Material.Filled.Groups"
+        OnClick="() => Activate(ActiveTab.Members)" Text=@(Translate(SystemTextId.Members, "Members"))>
+        <MudItem xs="12" sm="12" md="12">
+            <Members />
+        </MudItem>
+    </MudTabPanel>
+    <MudTabPanel IconColor="Color.Secondary" Icon="@Icons.Material.Filled.DesktopAccessDisabled"
+        OnClick="() => Activate(ActiveTab.Features)" Text="Features">
+        <MudItem xs="12" sm="12" md="12">
+            <Features />
+        </MudItem>
+    </MudTabPanel>
+</MudTabs>

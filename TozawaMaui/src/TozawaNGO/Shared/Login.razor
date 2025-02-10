@@ -1,0 +1,156 @@
+@namespace TozawaNGO.Shared
+@using ShareRazorClassLibrary.Helpers
+@using ShareRazorClassLibrary.Models.Dtos
+@inject NavigationManager NavManager
+@inherits BaseComponent<Login>
+
+<style>
+    .organizationsItems>div:first-child {
+    overflow-x: auto;
+    }
+</style>
+
+<ErrorHandling TCategoryName=@typeof(Login)>
+    <ChildContent>
+        <AuthorizeView>
+    <Authorized>
+        <MudMenu @ref="_mudMenuRef" TransformOrigin="@Origin.TopLeft" AnchorOrigin="Origin.BottomCenter">
+            <ActivatorContent>
+                <MudImage Src="/images/profile_avatar.jpg" Alt="Profil avatar" Height="35" Width="35" Elevation="30"
+                    Class="rounded-lg" />
+            </ActivatorContent>
+            <ChildContent>
+                <MudMenuItem Disabled="@_disabledMenu">
+                    <MudText>
+                        <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Person" Size="Size.Small"
+                            Color="Color.Warning">
+                        </MudIcon>
+                        <SystemText TextId=SystemTextId.Hello FallbackText="Hello">
+                        </SystemText>
+                        <b>@context.User.Identity.Name!</b>
+                    </MudText>
+                </MudMenuItem>
+                <MudDivider />
+    @if(CurrentUserOrganizations != null && CurrentUserOrganizations.Count > 0)
+    {
+        <MudMenuItem Disabled="@_disabledMenu">
+        <MudPaper Width="300px"> 
+        <MudList T="@CurrentUserOrganizationDto" SelectionMode="@SelectionMode" ReadOnly="false" Color="@Color.Info">
+        <MudListSubheader Style="background-color: #40FF40;
+        height: 85px;
+        max-height: 85px;
+        overflow: auto;
+        white-space: nowrap;">
+        <MudAvatar>
+        @if(string.IsNullOrEmpty(SelectedOrganization.Country)) 
+        {
+         <MudIcon Icon="@Icons.Material.Rounded.Language"></MudIcon>
+        } else {
+         <i class="flag-icon flag-icon-@SelectedOrganization.Country.ToLower()"></i>
+        } </MudAvatar>
+        - 
+        <MudChip Color="@Color.Secondary">
+        <MudTooltip ShowOnHover=@(!string.IsNullOrEmpty(SelectedOrganization.City))
+        Placement="Placement.Left" Arrow="true" Color="Color.Primary">
+        <ChildContent>
+            @(SelectedOrganization.City ?? "Error")
+        </ChildContent>
+        <TooltipContent>
+            <MudText>
+            @SelectedOrganization.City
+            </MudText>
+            </TooltipContent>
+        </MudTooltip>
+        </MudChip> -
+        <MudChip Color="@Color.Info">
+        <MudTooltip ShowOnHover=@(!string.IsNullOrEmpty(SelectedOrganization.Name))
+        Placement="Placement.Left" Arrow="true" Color="Color.Primary">
+        <ChildContent>
+            @(SelectedOrganization.Name ?? "Error")
+        </ChildContent>
+        <TooltipContent>
+            <MudText>
+            @SelectedOrganization.Name
+            </MudText>
+            </TooltipContent>
+        </MudTooltip>
+        </MudChip>
+        </MudListSubheader>
+         @if(CurrentUserOrganizations.Count > 1)
+        {
+            <div style="max-height: 350px; overflow: auto;"> @* in Model.Select((value, i) => new { i, value }) *@
+            @foreach(var org in CurrentUserOrganizations.Where(x => x.Id != SelectedOrganization.Id)) 
+        {
+          <MudListItem OnClick="@(()=> SetWorkingOrganization(org))" Class="organizationsItems" Style="
+        height: 85px;
+        max-height: 85px;
+        white-space: nowrap;">
+        <MudAvatar>
+        @if(string.IsNullOrEmpty(org.Country)) 
+        {
+         <MudIcon Icon="@Icons.Material.Rounded.Language"></MudIcon>
+        } else {
+         <i class="flag-icon flag-icon-@org.Country.ToLower()"></i>
+        } </MudAvatar>
+        - 
+        <MudChip Color="@Color.Secondary">
+        <MudTooltip ShowOnHover=@(!string.IsNullOrEmpty(org.City))
+        Placement="Placement.Left" Arrow="true" Color="Color.Primary">
+        <ChildContent>
+            @(org.City ?? "Error")
+        </ChildContent>
+        <TooltipContent>
+            <MudText>
+            @org.City
+            </MudText>
+            </TooltipContent>
+        </MudTooltip>
+        </MudChip> -
+        <MudChip Color="@Color.Info">
+            <MudTooltip ShowOnHover=@(!string.IsNullOrEmpty(org.Name))
+        Placement="Placement.Left" Arrow="true" Color="Color.Primary">
+        <ChildContent>
+            @(org.Name ?? "Error")
+        </ChildContent>
+        <TooltipContent>
+            <MudText>
+            @org.Name
+            </MudText>
+            </TooltipContent>
+        </MudTooltip>
+        </MudChip>
+          </MudListItem>
+        }     
+            </div>
+        }
+      </MudList>
+      </MudPaper>
+        </MudMenuItem>
+    }
+                <MudDivider />
+                <MudMenuItem Disabled="@_disabledMenu">
+                    <MudButton OnClick="@(()=>Logout())" Color="Color.Inherit">
+                        <MudText>
+                            <MudIcon class="text-icon" Icon="@Icons.Material.Filled.Logout" Size="Size.Small">
+                            </MudIcon>
+                            <SystemText TextId=SystemTextId.Logout FallbackText="Logout"></SystemText>
+                        </MudText>
+                    </MudButton>
+                </MudMenuItem>
+            </ChildContent>
+        </MudMenu>
+    </Authorized>
+    <NotAuthorized>
+        <MudIconButton Class="mr-3 mb-1" OnClick="@(()=>LoginBtn())" Size="Size.Small"
+            Icon="@Icons.Material.Filled.Login" Color="Color.Inherit">
+        </MudIconButton>
+        <MudIconButton OnClick="@(()=>OnClickTab("/register"))" Icon="@Icons.Material.Filled.PersonAddAlt1" Size="Size.Small"
+            Color="Color.Inherit">
+        </MudIconButton>
+    </NotAuthorized>
+</AuthorizeView>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>

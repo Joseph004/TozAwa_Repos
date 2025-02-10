@@ -13,6 +13,7 @@ namespace Grains.Attachment.Models.Dtos
         public List<Guid> OwnerIds { get; set; } = [];
         public string MiniatureId { get; set; }
         public string BlobUrl { get; set; } = "";
+        public byte[] Content { get; set; }
         public string ImageClass { get; set; } = "";
         public string MiniatureBlobUrl { get; set; } = "";
     }

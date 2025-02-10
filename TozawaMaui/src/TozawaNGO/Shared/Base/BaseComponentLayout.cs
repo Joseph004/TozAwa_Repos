@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using ShareRazorClassLibrary.Helpers;
 using ShareRazorClassLibrary.Models.Dtos;
+using ShareRazorClassLibrary.Models.Enums;
 using ShareRazorClassLibrary.Services;
 
 namespace TozawaNGO.Shared
@@ -8,11 +9,11 @@ namespace TozawaNGO.Shared
     public partial class BaseComponentLayout : LayoutComponentBase, IDisposable
     {
         [Inject] protected ITranslationService _translationService { get; set; }
+        [Inject] protected ICountryCityService _countryCityService { get; set; }
         [Inject] protected AuthStateProvider _authStateProvider { get; set; }
         [Inject] private ICurrentUserService _currentUserService { get; set; }
 
         public CurrentUserDto _currentUser { get; set; } = new();
-        public bool IsFirstLoaded { get; set; }
 
         public BaseComponentLayout()
         {
@@ -21,7 +22,6 @@ namespace TozawaNGO.Shared
 
         protected override void OnInitialized()
         {
-            IsFirstLoaded = false;
             _translationService.LanguageChanged += _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged += _authStateProvider_UserAuthChanged;
             base.OnInitialized();
@@ -49,7 +49,6 @@ namespace TozawaNGO.Shared
         {
             if (firstRender)
             {
-                IsFirstLoaded = true;
                 await _translationService.EnsureTranslations();
                 _currentUser = await _currentUserService.GetCurrentUser();
                 StateHasChanged();
@@ -64,23 +63,23 @@ namespace TozawaNGO.Shared
         {
             return _translationService.Translate(systemTextId, fallback, limit, toUpper).Text;
         }
-        public bool HasAtLeastOneRole(params string[] roles)
+        public bool HasAllFeaturesMatching(params int[] features)
         {
-            return _currentUser.Roles.Any(r => roles.Any(x => GetRole(x) == r)) || _currentUser.Admin;
+            return features.All(f => _currentUser.Features.Contains(f));
         }
-        public bool HasAllRolesMatching(params string[] roles)
+        public bool HasAtLeastOneFunctionType(params FunctionType[] functionTypes)
         {
-            return _currentUser.Roles.All(r => roles.All(x => GetRole(x) == r)) || _currentUser.Admin;
+            return _currentUser.Functions.Any(f => functionTypes.Any(x => x.Equals(f.FunctionType)));
         }
-        private static RoleDto GetRole(string role)
+        public bool HasAllFunctionTypesMatching(params FunctionType[] functionTypes)
         {
-            Enum.TryParse(role, out RoleDto myRole);
-
-            return myRole;
+            return functionTypes.All(f => _currentUser.Functions.Any(x => x.FunctionType.Equals(f)));
         }
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+        public bool HasAtLeastOneFeature(params int[] features)
+        {
+            return _currentUser.Features.Any(f => features.Contains(f));
+        }
         public virtual void Dispose()
-#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
             _translationService.LanguageChanged -= _translationService_LanguageChanged;
             _authStateProvider.UserAuthenticationChanged -= _authStateProvider_UserAuthChanged;

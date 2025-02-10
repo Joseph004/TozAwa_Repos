@@ -1,0 +1,96 @@
+@namespace TozawaMauiHybrid.Pages
+@using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Component
+@inherits BaseDialog<AddMembersDialog>
+
+<style>
+    .tz-mud-overlay {
+        background: repeating-linear-gradient(135deg, #ccc, #ccc 10px, #aaa 10px, #aaa 20px) !important;
+        opacity: 0.7 !important;
+    }
+</style>
+
+<ErrorHandling  TCategoryName=@typeof(AddMembersDialog)>
+    <ChildContent>
+        <div style="@($"{_disableAttrString}")">
+ <MudDialog Class="@($"tzModal")">
+    <TitleContent>
+            <MudText Color=Color.Secondary>
+                @Title
+            </MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm Style="max-height: 1200px; overflow: scroll;" @ref="_addForm" @bind-IsValid="@_success" @bind-Errors="@_errors" Model="@_addFormModel">
+                <div class="d-flex align-center">
+                    <MudTextField Immediate="true" Margin="Margin.Dense" T="string" @bind-Value="_addFormModel.FirstName"
+                        Label="@(Translate(SystemTextId.FirstName))" Required="true"
+                        @onkeydown="AddItemByKeyBoard"
+                        Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateFstName))"
+                        RequiredError="@(Translate(SystemTextId.FirstNameIsRequired))" />
+                    <MudTextField Class="ml-3" Immediate="true" Margin="Margin.Dense" T="string" @bind-Value="_addFormModel.LastName"
+                        Label="@(Translate(SystemTextId.LastName))" Required="true"
+                        @onkeydown="AddItemByKeyBoard"
+                        Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateLastName))"
+                        RequiredError="@(Translate(SystemTextId.LastNameIsRequired))" />
+                    <MudTextField Class="ml-3" Immediate="true" Margin="Margin.Dense" T="string" @bind-Value="_addFormModel.Email"
+                        Label="@(Translate(SystemTextId.Email))" Required="true"
+                        @onkeydown="AddItemByKeyBoard"
+                        RequiredError="@(Translate(SystemTextId.EmailIsRequired))" 
+                        Validation="@(new Func<string, Task<IEnumerable<string>>>(EmailExists))" />
+                    <MudTextField Class="ml-3" Immediate="true" Margin="Margin.Dense" T="string"
+                        Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateDescName))"
+                        @bind-Value="_addFormModel.Description" Label="@(Translate(SystemTextId.Description))" Required="true"
+                        RequiredError="@(Translate(SystemTextId.DescriptionIsRequired))" Lines="5" />
+                </div>
+                @foreach (var item in _activeLanguages.Where(l => l.Id != _currentCulture.Id).Select((value, i) => new
+                {
+                    i,
+                    value
+                }))
+                {
+                    var culture = item.value;
+                    var index = item.i;
+                    <div class="d-flex align-center">
+                        <MudTextField Immediate="true" Disabled="true" Margin="Margin.Dense" T="string"
+                        @bind-Value="_addFormModel.FirstName"
+                        Label="@GetLabelText(Translate(SystemTextId.FirstName), culture)" />
+                        <MudTextField Class="ml-3" Immediate="true" Disabled="true" Margin="Margin.Dense" T="string"
+                        @bind-Value="_addFormModel.LastName"
+                        Label="@GetLabelText(Translate(SystemTextId.LastName), culture)" />
+                        <MudTextField Class="ml-3" Immediate="true" Disabled="true" Margin="Margin.Dense" T="string"
+                        @bind-Value="_addFormModel.Email"
+                        Label="@GetLabelText(Translate(SystemTextId.Email), culture)" />
+                        <MudTextField Immediate="true" Margin="Margin.Dense" T="string" Class="ml-3"
+                        Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateDescName))"
+                        Required="true" RequiredError="@Translate(SystemTextId.DescriptionIsRequired)"
+                        @bind-Value="_addFormModel.DescriptionTranslations[index].Text"
+                        Label="@Translate(SystemTextId.Description)" Lines="5" />
+                    </div>
+                }
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+ <div class="d-flex flex-row-reverse flex-grow-1 gap-4">
+        <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled" Color="Color.Primary" Disabled="@(_disabledPage)" OnClick="Cancel">
+            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel"  />
+        </MudButton>
+        <MudButton Variant="Variant.Filled" Disabled="@(_disabledPage || DisabledAddButton())" Color="Color.Success" StartIcon="@Icons.Material.Filled.Save" OnClick="AddItem">
+            <MudText>
+                <SystemText TextId=SystemTextId.Add FallbackText="Add"  />
+            </MudText>
+        </MudButton>
+    </div>
+    </DialogActions>
+</MudDialog>
+</div>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>
+
+
+@if (_RequestInProgress)
+{
+    <ModalLoading />
+}

@@ -1,0 +1,68 @@
+@using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Services
+@implements IDisposable
+@using TozawaMauiHybrid.Component
+@inject ITranslationService TranslationService
+@inject NavigationManager NavManager
+
+<MudPopoverProvider />
+
+<p>
+    <SystemText TextId=SystemTextId.ThereIsNothingAtThisAdress FallbackText="Sorry, there's nothing at this address.">
+    </SystemText>
+</p>
+<MudButton Variant="Variant.Filled" OnClick="ReturnHome" StartIcon="@Icons.Material.Filled.ArrowBack" Color="Color.Warning">
+    <SystemText TextId=SystemTextId.Home FallbackText="Home">
+    </SystemText>
+</MudButton>
+@code {
+    [Inject] public NavMenuTabState NavMenuTabState { get; set; }
+    [Inject] public PreferencesStoreClone Storage { get; set; }
+    [Inject] FirstloadState FirstloadState { get; set; }
+
+    private ActiveTab? PreviousTab { get; set; }
+    protected override void OnInitialized()
+    {
+        FirstloadState.OnChange += FirsLoadChanged;
+        base.OnInitialized();
+    }
+    private void FirsLoadChanged()
+    {
+        InvokeAsync(() =>
+        {
+            StateHasChanged();
+        });
+    }
+    private void ReturnHome()
+    {
+        if (PreviousTab.HasValue)
+        {
+            NavManager.NavigateTo(NavMenuTabState.GetTabPath(PreviousTab.Value));
+        }
+        else
+        {
+            NavManager.NavigateTo(NavMenuTabState.GetPreviousPath());
+        }
+    }
+    private void _translationService_LanguageChanged(object sender, EventArgs e)
+    {
+        InvokeAsync(() =>
+         {
+             StateHasChanged();
+         });
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            PreviousTab = Storage.Get<ActiveTab?>(nameof(ActiveTab));
+            await TranslationService.EnsureTranslations();
+            FirstloadState.SetFirsLoad(true);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
+    public virtual void Dispose()
+    {
+        FirstloadState.OnChange -= FirsLoadChanged;
+    }
+}

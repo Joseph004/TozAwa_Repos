@@ -1,87 +1,96 @@
 
 using MediatR;
 using Grains.Auth.Models.Authentication;
-using Grains.Helpers;
-using System.Buffers;
-using System.Collections.Immutable;
+using OrleansHost.Auth.Models.Queries;
+using Grains.Auth.Models.Dtos;
 
 namespace Grains.Auth.Controllers
 {
-    public class GetApplicationUserQueryHandler(IGrainFactory factory) : IRequestHandler<GetApplicationUserQuery, ApplicationUser>
+    public class GetApplicationUserQueryHandler(IGrainFactory factory, IMediator mediator) : IRequestHandler<GetApplicationUserQuery, ApplicationUser>
     {
         private readonly IGrainFactory _factory = factory;
+        public readonly IMediator _mediator = mediator;
 
         public async Task<ApplicationUser> Handle(GetApplicationUserQuery request, CancellationToken cancellationToken)
         {
-            var member = new ApplicationUser();
+            var item = await _factory.GetGrain<IEmailGuidGrain>(request.Email).GetAsync();
+            if (item == null) return new ApplicationUser();
 
-            // get all item keys for this owner
-            var keys = await _factory.GetGrain<IMemberManagerGrain>(SystemTextId.MemberOwnerId).GetAllAsync();
+            var memberItem = await _factory.GetGrain<IMemberGrain>(item.Id).GetAsync();
 
-            // fast path for empty owner
-            if (keys.Length == 0) return new ApplicationUser();
+            if (memberItem == null) return new ApplicationUser();
 
-            // fan out and get all individual items in parallel
-            var tasks = ArrayPool<Task<MemberItem>>.Shared.Rent(keys.Length);
-            try
+            var organizations = new List<CurrentUserOrganizationDto>();
+            foreach (var orgItem in memberItem.OrganizationIds)
             {
-                // issue all requests at the same time
-                for (var i = 0; i < keys.Length; ++i)
+                var org = (await _mediator.Send(new GetOrganizationQuery { Id = orgItem }, cancellationToken)) ?? new();
+                organizations.Add(new CurrentUserOrganizationDto
                 {
-                    tasks[i] = _factory.GetGrain<IMemberGrain>(keys[i]).GetAsync();
-                }
-
-                // compose the result as requests complete
-                var result = ImmutableArray.CreateBuilder<MemberItem>(tasks.Length);
-                for (var i = 0; i < keys.Length; ++i)
+                    Id = org.Id,
+                    Addresses = org.Addresses,
+                    Features = org.Features,
+                    Name = org.Name,
+                    Active = true,
+                    PrimaryOrganization = org.Id == memberItem.OwnerKey
+                });
+            }
+            var primaryOrganization = organizations.First(x => x.PrimaryOrganization);
+            var roleDtos = ((await _mediator.Send(new GetRolesQuery(memberItem.UserId), cancellationToken)) ?? []).Where(x => x.OrganizationId == primaryOrganization.Id);
+            var addressesDtos = await _mediator.Send(new GetAddressesQuery(memberItem.UserId), cancellationToken);
+            var functions = roleDtos.SelectMany(x => x.Functions).Select(y => new CurrentUserFunctionDto
+            {
+                FunctionType = y.FunctionType
+            }).Distinct().ToList();
+            return new ApplicationUser
+            {
+                PasswordHash = memberItem.PasswordHash,
+                Email = memberItem.Email,
+                UserId = memberItem.UserId,
+                Description = memberItem.Description,
+                DescriptionTextId = memberItem.DescriptionTextId,
+                FirstName = memberItem.FirstName,
+                LastName = memberItem.LastName,
+                LastLoginCountry = memberItem.LastLoginCountry,
+                LastLoginCity = memberItem.LastLoginCity,
+                LastLoginState = memberItem.LastLoginState,
+                LastLoginIPAdress = memberItem.LastLoginIPAdress,
+                Roles = roleDtos.Select(y => new UserRole
                 {
-                    var item = await tasks[i];
-                    if (item == null)
-                    {
-                        await _factory.GetGrain<IMemberManagerGrain>(SystemTextId.MemberOwnerId).UnregisterAsync(keys[i]);
-                    }
-                    result.Add(item);
-                }
-
-                var memberItem = result.FirstOrDefault(x => x.Email == request.Email);
-
-                if (memberItem == null) return null;
-
-                return new ApplicationUser
-                {
-                    PasswordHash = memberItem.PasswordHash,
-                    Email = memberItem.Email,
                     UserId = memberItem.UserId,
-                    PartnerId = memberItem.PartnerId,
-                    Description = memberItem.Description,
-                    DescriptionTextId = memberItem.DescriptionTextId,
-                    FirstName = memberItem.FirstName,
-                    LastName = memberItem.LastName,
-                    LastLoginCountry = memberItem.LastLoginCountry,
-                    LastLoginCity = memberItem.LastLoginCity,
-                    LastLoginState = memberItem.LastLoginState,
-                    LastLoginIPAdress = memberItem.LastLoginIPAdress,
-                    Adress = memberItem.Adress,
-                    UserPasswordHash = memberItem.UserPasswordHash,
-                    Roles = memberItem.Roles,
-                    LastAttemptLogin = memberItem.LastAttemptLogin,
-                    RefreshToken = memberItem.RefreshToken,
-                    RefreshTokenExpiryTime = memberItem.RefreshTokenExpiryTime,
-                    UserCountry = memberItem.UserCountry,
-                    Deleted = memberItem.Deleted,
-                    AdminMember = memberItem.AdminMember,
-                    LastLogin = memberItem.LastLogin,
-                    CreatedBy = memberItem.CreatedBy,
-                    CreateDate = memberItem.CreateDate,
-                    ModifiedBy = memberItem.ModifiedBy,
-                    ModifiedDate = memberItem.ModifiedDate,
-                    StationIds = memberItem.StationIds
-                };
-            }
-            finally
-            {
-                ArrayPool<Task<MemberItem>>.Shared.Return(tasks);
-            }
+                    RoleId = y.Id,
+                    OrganizationId = y.OrganizationId,
+                    Role = new Grains.Auth.Models.Authentication.Role
+                    {
+                        Id = y.Id,
+                        RoleEnum = (RoleEnum)y.Role,
+                        Functions = y.Functions.Select(f => new Function
+                        {
+                            FunctionType = f.FunctionType,
+                            RoleId = f.RoleId,
+                            Role = new Grains.Auth.Models.Authentication.Role
+                            {
+                                OrganizationId = y.OrganizationId,
+                                Functions = y.Functions.Select(t => new Function
+                                {
+                                    FunctionType = t.FunctionType
+                                }).ToList()
+                            }
+                        }).ToList()
+                    }
+                }).ToList(),
+                LastAttemptLogin = memberItem.LastAttemptLogin,
+                RefreshToken = memberItem.RefreshToken,
+                RefreshTokenExpiryTime = memberItem.RefreshTokenExpiryTime,
+                UserCountry = memberItem.UserCountry,
+                Deleted = memberItem.Deleted,
+                AdminMember = memberItem.AdminMember,
+                LastLogin = memberItem.LastLogin,
+                CreatedBy = memberItem.CreatedBy,
+                CreateDate = memberItem.CreateDate,
+                ModifiedBy = memberItem.ModifiedBy,
+                ModifiedDate = memberItem.ModifiedDate,
+                StationIds = memberItem.StationIds
+            };
         }
     }
 }

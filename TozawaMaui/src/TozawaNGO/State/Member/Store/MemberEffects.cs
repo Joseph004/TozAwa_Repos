@@ -1,13 +1,10 @@
 using Fluxor;
-using Grains;
 using TozawaNGO.Services;
 using Microsoft.AspNetCore.SignalR.Client;
 using MudBlazor;
 using ShareRazorClassLibrary.Services;
 using ShareRazorClassLibrary.Models.Dtos;
 using ShareRazorClassLibrary.Models.Requests;
-using ShareRazorClassLibrary.Models.FormModels;
-using Grains.Helpers;
 
 namespace TozawaNGO.State.Member.Store;
 
@@ -15,11 +12,7 @@ public class Effects(MemberService memberService, AttachmentService attachmentSe
 {
     [EffectMethod]
     public async Task HandleMemberDataAction(MemberDataAction action, IDispatcher dispatcher)
-    {
-        List<MemberNotification> notifications = [];
-        var subscription = await memberService.SubscribeAsync(SystemTextId.MemberOwnerId, notification => Task.Run(() =>
-             HandleNotificationAsync(notifications, notification)));
-
+    { 
         var members = new Models.MemberKeyedCollection();
         var data = await memberService.GetItems(action.page, action.pageSize, action.includeDeleted, action.searchString, action.pageOfEmail, action.email);
 
@@ -36,7 +29,7 @@ public class Effects(MemberService memberService, AttachmentService attachmentSe
         UpdateMemberDataListener(hubConnection, dispatcher);
         AddAttachmentDataListener(hubConnection, dispatcher);
         DeletedAttachmentDataListener(hubConnection, dispatcher);
-        dispatcher.Dispatch(new MemberDataFechedAction(members, subscription, notifications, entity.TotalItems, hubConnection));
+        dispatcher.Dispatch(new MemberDataFechedAction(members, entity.TotalItems, hubConnection));
         await Task.Delay(new TimeSpan(0, 0, Convert.ToInt32(0.5))).ContinueWith(async o =>
         {
             if (action.scrollTop != 0)
@@ -49,7 +42,7 @@ public class Effects(MemberService memberService, AttachmentService attachmentSe
             }
         });
     }
-    [EffectMethod]
+    /* [EffectMethod]
     public async Task HandlePatchAction(MemberPatchAction action, IDispatcher dispatcher)
     {
         var updateResponse = await memberService.PatchMember(action.Id, action.Request);
@@ -57,7 +50,7 @@ public class Effects(MemberService memberService, AttachmentService attachmentSe
         {
             /// Handle feedback message
         }
-    }
+    } */
     private static async Task<HubConnection> StartHubConnection()
     {
         var hubConnection = new HubConnectionBuilder()
@@ -95,7 +88,7 @@ public class Effects(MemberService memberService, AttachmentService attachmentSe
         dispatcher.Dispatch(new LoadItemAction(id, true, isDeletedForever)));
     }
 
-    [EffectMethod]
+    /* [EffectMethod]
     public async Task OnLoadItem(LoadItemAction action, IDispatcher dispatcher)
     {
         if (action.IsDeletedForever)
@@ -118,7 +111,7 @@ public class Effects(MemberService memberService, AttachmentService attachmentSe
                 dispatcher.Dispatch(new MemberAddAfterAction(memberResponse.Entity ?? new MemberDto()));
             }
         }
-    }
+    } */
 
     [EffectMethod]
     public async Task OnAttachmentHandled(AttachmentHandleAction action, IDispatcher dispatcher)
@@ -140,14 +133,13 @@ public class Effects(MemberService memberService, AttachmentService attachmentSe
                 {
                     return;
                 }
-                attachments = attachResponse.Entity ?? [];
+                attachments = attachResponse.Entity.Items?.ToList() ?? [];
             }
-
-            dispatcher.Dispatch(new HandleAttachments(attachments, action.OwnerId, action.IsDeleted));
+            dispatcher.Dispatch(new HandleAttachments(attachments, action.OwnerId, action.IsDeleted, attachmentService));
         }
     }
 
-    [EffectMethod]
+    /* [EffectMethod]
     public async Task HandleMemberAddAction(MemberAddAction action, IDispatcher dispatcher)
     {
         var request = new ShareRazorClassLibrary.Models.FormModels.AddMemberRequest
@@ -163,14 +155,5 @@ public class Effects(MemberService memberService, AttachmentService attachmentSe
         {
         }
         dispatcher.Dispatch(new MemberAddAfterAction(memberResponse.Entity ?? new MemberDto()));
-    }
-
-    private static Task HandleNotificationAsync(List<MemberNotification> notifications, MemberNotification notification)
-    {
-        if (!notifications.Any(x => x.ItemKey == notification.ItemKey))
-        {
-            notifications.Add(notification);
-        }
-        return Task.CompletedTask;
-    }
+    } */
 }

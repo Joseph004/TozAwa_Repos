@@ -1,0 +1,89 @@
+@namespace TozawaMauiHybrid.Pages
+@using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Models.Dtos
+@using TozawaMauiHybrid.Component
+@inherits BaseDialog<EditMembersDialog>
+
+<style>
+    .tz-mud-overlay {
+        background: repeating-linear-gradient(135deg, #ccc, #ccc 10px, #aaa 10px, #aaa 20px) !important;
+        opacity: 0.7 !important;
+    }
+</style>
+
+<ErrorHandling TCategoryName=@typeof(EditMembersDialog)>
+    <ChildContent>
+        <div style="@($"{_disableAttrString}")">
+            <MudDialog Class="@($"tzModal")">
+                <TitleContent>
+                    <MudText Color=Color.Secondary>
+                        @Member.Email
+                    </MudText>
+                </TitleContent>
+                <DialogContent>
+                    <MudForm Class="d-flex flex-column flex-grow-1 gap-4" Style="overflow: auto; max-height: 800px;"
+                        @ref="_editForm" @bind-IsValid="@_success" @bind-Errors="@_errors" Model="@Member">
+                        <MudTextField Style="width: 98%;" Immediate="true" Margin="Margin.Dense" T="string"
+                            @onkeydown="@((KeyboardEventArgs e)=> SaveItemByKeyBoard(e))" @bind-Value="Member.FirstName"
+                            Label="@(Translate(SystemTextId.FirstName))" Adornment="Adornment.End"
+                            AdornmentIcon="@(RestoreInputIcon[nameof(MemberDto.FirstName)])"
+                            OnAdornmentClick="@(() => RestoreText(nameof(MemberDto.FirstName)))" DebounceInterval="100"
+                            OnDebounceIntervalElapsed="@(() => HandleTextField(nameof(MemberDto.FirstName)))"
+                            Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateFstName))" Required="true"
+                            RequiredError="@(Translate(SystemTextId.FirstNameIsRequired))" />
+                        <MudTextField Style="width: 98%;" Immediate="true" Margin="Margin.Dense" T="string"
+                            @bind-Value="Member.LastName" Adornment="Adornment.End"
+                            @onkeydown="@((KeyboardEventArgs e)=> SaveItemByKeyBoard(e))"
+                            AdornmentIcon="@(RestoreInputIcon[nameof(MemberDto.LastName)])"
+                            Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateLastName))"
+                            OnAdornmentClick="@(() => RestoreText(nameof(MemberDto.LastName)))" DebounceInterval="100"
+                            OnDebounceIntervalElapsed="@(() => HandleTextField(nameof(MemberDto.LastName)))"
+                            Label="@(Translate(SystemTextId.LastName))" Required="true"
+                            RequiredError="@(Translate(SystemTextId.LastNameIsRequired))" />
+                        <MudTextField Style="width: 98%;" Immediate="true" Margin="Margin.Dense" T="string"
+                            @bind-Value="Member.Email" Label="@(Translate(SystemTextId.Email))" Required="true"
+                            DebounceInterval="100"
+                            OnDebounceIntervalElapsed="@(() => HandleTextField(nameof(MemberDto.Email)))"
+                            Adornment="Adornment.End" AdornmentIcon="@(RestoreInputIcon[nameof(MemberDto.Email)])"
+                            OnAdornmentClick="@(() => RestoreText(nameof(MemberDto.Email)))"
+                            @onkeydown="@((KeyboardEventArgs e)=> SaveItemByKeyBoard(e))"
+                            RequiredError="@(Translate(SystemTextId.EmailIsRequired))"
+                            Validation="@(new Func<string, Task<IEnumerable<string>>>(EmailExists))" />
+                        <MudTextField Style="width: 98%;" Immediate="true" Margin="Margin.Dense" T="string" Lines="5"
+                            @bind-Value="Member.Description" Label="@(Translate(SystemTextId.Description))"
+                            DebounceInterval="100"
+                            Validation="@(new Func<string, Task<IEnumerable<string>>>(ValidateDescName))"
+                            OnDebounceIntervalElapsed="@(() => HandleTextField(nameof(MemberDto.Description)))"
+                            Adornment="Adornment.End" AdornmentIcon="@(RestoreInputIcon[nameof(MemberDto.Description)])"
+                            OnAdornmentClick="@(() => RestoreText(nameof(MemberDto.Description)))"
+                            Required="@_descriptionIsRequired"
+                            RequiredError="@(Translate(SystemTextId.DescriptionIsRequired))" />
+                    </MudForm>
+                </DialogContent>
+                <DialogActions>
+                    <div class="d-flex flex-row-reverse flex-grow-1 gap-4">
+                        <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled"
+                            Color="Color.Primary" Disabled="@(_disabledPage)" OnClick="Cancel">
+                            <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel" />
+                        </MudButton>
+                        <MudButton Color="Color.Success" StartIcon="@Icons.Material.Filled.Save"
+                            Variant="Variant.Filled" Disabled="@(_disabledPage || DisabledAddButton())"
+                            OnClick="SaveItem">
+                            <MudText>
+                                <SystemText TextId=SystemTextId.Update FallbackText="Edit" />
+                            </MudText>
+                        </MudButton>
+                    </div>
+                </DialogActions>
+            </MudDialog>
+        </div>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>
+
+@if (_RequestInProgress)
+{
+    <ModalLoading />
+}

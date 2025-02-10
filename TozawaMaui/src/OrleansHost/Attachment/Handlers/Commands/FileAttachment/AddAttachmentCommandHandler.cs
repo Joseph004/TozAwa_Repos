@@ -12,6 +12,7 @@ using Grains.Services;
 using Microsoft.AspNetCore.SignalR;
 using Shared.SignalR;
 using Grains;
+using Grains.Auth.Models.Dtos.Backend;
 
 namespace OrleansHost.Attachment.Handlers.Commands;
 
@@ -107,6 +108,12 @@ public class AddAttachmentCommandHandler(TozawangoDbContext context, IGoogleServ
                converted.MiniatureBlobUrl
                 );
                 await _factory.GetGrain<IAttachmentGrain>(item.Id).SetAsync(item);
+            }
+            if (request.Source == nameof(MemberDto))
+            {
+                var memberItem = await _factory.GetGrain<IMemberGrain>(request.Id).GetAsync();
+                memberItem.AttachmentsCount++;
+                await _factory.GetGrain<IMemberGrain>(request.Id).SetAsync(memberItem);
             }
             await _hub.Clients.All.SendAsync("AttachmentAdded", string.Join(",", attachments.Select(x => x.Id)), request.Id, request.Source, cancellationToken: cancellationToken);
             return new AddResponse<IEnumerable<FileAttachmentDto>>(true, UpdateMessages.EntityCreatedSuccess, HttpStatusCode.OK, attachments);

@@ -1,0 +1,70 @@
+@namespace TozawaMauiHybrid.Components
+@using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Component
+@inherits BaseDialog<LoginViewModal>
+@implements IDisposable
+
+<style>
+    .tz-mud-overlay {
+        backdrop-filter: blur(10px);
+    }
+</style>
+
+<ErrorHandling TCategoryName=@typeof(LoginViewModal)>
+    <ChildContent>
+        <MudDialog Class="tzModal">
+            <TitleContent>
+                <div style="max-width: fit-content; margin-left: auto; margin-right: auto;">
+                    <img src="/images/avatarprofile.png" asp-append-version="true" height="60px" width="60px" />
+                </div>
+            </TitleContent>
+            <DialogContent>
+                <MudForm Model="@model" @ref="@form" @bind-IsValid="@_success" @bind-Errors="@_errors"
+                    ValidationDelay="0">
+                    <MudCardContent>
+                        @if (_errors.Any() && model.LoginAsRoot && _currentErrorView == model.LoginAsRoot)
+                        {
+                            @foreach (var item in _errors)
+                            {
+                                <MudText Color=Color.Error>
+                                    @item
+                                </MudText>
+                            }
+                        }
+                        <MudTextField Class="tz_admin tz_loginAsAdmin" Disabled="@_processing"
+                            Validation="@LoginValidator().ValidateValue" Required="true"
+                            RequiredError="@Translate(SystemTextId.EmailIsRequired, "Email is required")"
+                            @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Email"
+                            For="@(() => model.Email)" Immediate="true" Label=@(Translate(SystemTextId.Email,
+                            "Email")) />
+
+                        <MudTextField Disabled="@_processing" Class="tz_password"
+                            Validation="@LoginValidator().ValidateValue" Required="true"
+                            RequiredError="@Translate(SystemTextId.YourPasswordCannotBeEmpty, "Password is required")"
+                            @onkeydown="@((KeyboardEventArgs e)=>LoginByKeyBoard(e))" @bind-Value="model.Password"
+                            For="@(() => model.Password)" Immediate="true" Label=@(Translate(SystemTextId.Password,
+                            "Password")) InputType="InputType.Password" />
+                    </MudCardContent>
+                </MudForm>
+            </DialogContent>
+            <DialogActions>
+                <div class="d-flex flex-row-reverse flex-grow-1 gap-4">
+                    <MudButton Color="Color.Success" StartIcon="@Icons.Material.Filled.Login"
+                        Disabled="@DisabledLoginButton()" OnClick="@((MouseEventArgs e)=>LoginByClick(@loginButton, e))"
+                        Variant="Variant.Filled" Target="_top">
+                        <MudText>
+                            <SystemText TextId=SystemTextId.Login FallbackText="Login"></SystemText>
+                        </MudText>
+                    </MudButton>
+                    <MudButton StartIcon="@Icons.Material.Filled.Close" Disabled="@_processing" Color="Color.Primary"
+                        Variant="Variant.Filled" OnClick="Cancel">
+                        <SystemText TextId=SystemTextId.Cancel FallbackText="Cancel"></SystemText>
+                    </MudButton>
+                </div>
+            </DialogActions>
+        </MudDialog>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>

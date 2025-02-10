@@ -27,7 +27,7 @@ namespace Grains.Services
             var service = new DriveService();
             string[] scopes = new string[] { Scope.Drive };
             try
-            {
+            { 
                 var dynamicObject = JsonConvert.SerializeObject(_appSettings.GoogleDrive);
 
                 var credential = GoogleCredential.FromJson(dynamicObject)

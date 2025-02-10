@@ -1,7 +1,15 @@
 @namespace TozawaNGO.Shared
-@inherits BaseDialog
+@using ShareRazorClassLibrary.Helpers
+@inherits BaseDialog<ErrorHandlingDialog>
 
-<MudDialog Class="@MudDialog.Id.ToString()">
+<style>
+    .tz-mud-overlay {
+        background: repeating-linear-gradient(135deg, #ccc, #ccc 10px, #aaa 10px, #aaa 20px) !important;
+        opacity: 0.7 !important;
+    }
+</style>
+
+<MudDialog Class="@($"tzModal")">
     <TitleContent>
         <MudText Typo="Typo.h6">
             <MudIcon Icon="@Icons.Material.Filled.Warning" Color="Color.Error" Class="mr-3 mb-n1" />
@@ -12,6 +20,10 @@
         <MudText>@body</MudText>
     </DialogContent>
     <DialogActions>
+        <MudButton StartIcon="@Icons.Material.Filled.Autorenew"
+            Color="Color.Secondary" OnClick="Reload" Variant="Variant.Filled">
+            <SystemText TextId="@SystemTextId.ReloadPage" FallbackText="Reload page"></SystemText>
+        </MudButton>
         <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="@(e => Confirm())">
             OK
         </MudButton>

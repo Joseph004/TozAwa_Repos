@@ -1,4 +1,7 @@
 
+using Grains.Auth.Models.Authentication;
+using Grains.Models;
+
 namespace Grains.Auth.Models.Dtos;
 
 public class CurrentUserDto
@@ -9,11 +12,20 @@ public class CurrentUserDto
     public string RefreshToken { get; set; }
     public string FirstName { get; set; } = "";
     public string LastName { get; set; } = "";
-    public string Adress { get; set; } = "";
     public bool Admin { get; init; }
+    public List<int> Features { get; set; }
+    public List<AddressDto> Addresses { get; set; }
+    public List<CurrentUserOrganizationDto> Organizations { get; set; }
     public List<RoleDto> Roles { get; init; } = [];
-    public Guid PartnerId { get; init; }
-    public string Partner { get; init; } = "";
     public string Country { get; set; } = "";
+    public Gender Gender { get; set; }
     public Guid Id { get; init; }
+    public Guid WorkingOrganizationId { get; set; }
+    public List<CurrentUserFunctionDto> Functions { get; set; } = [];
+    public FunctionType[] GetFunctions()
+    {
+        return Roles != null
+            ? Roles.SelectMany(x => x.Functions).Distinct().Select(x => x.FunctionType).Distinct().ToArray()
+            : [];
+    }
 }

@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
-using System.IO;
 using Microsoft.AspNetCore.Http;
 
 namespace OrleansHost.Attachment.Converters;
@@ -39,12 +38,10 @@ public static class FormFileConverter
         {
             using var ms = new MemoryStream(fileBytes);
             ms.Position = 0;
-#pragma warning disable CA1416 // Validate platform compatibility
             using (Image.FromStream(ms))
             {
                 return true;
             }
-#pragma warning restore CA1416 // Validate platform compatibility
         }
         catch (Exception ex)
         {
@@ -59,27 +56,24 @@ public static class FormFileConverter
         fileName += ".png";
         return fileName;
     }
-
+    public static async Task<byte[]> ImageToPng(byte[] buffer)
+    {
+        using var ms = new MemoryStream(buffer);
+        return await Task.FromResult(GetPngBytes(ms));
+    }
 
     public static async Task<byte[]> ImageToPng(IFormFile file)
     {
         using var ms = new MemoryStream();
         await file.CopyToAsync(ms).ConfigureAwait(false);
         return GetPngBytes(ms);
-
     }
 
     private static byte[] GetPngBytes(MemoryStream ms)
     {
         using var saveStream = new MemoryStream();
-#pragma warning disable CA1416 // Validate platform compatibility
         var image = Image.FromStream(ms);
-#pragma warning restore CA1416 // Validate platform compatibility
-#pragma warning disable CA1416 // Validate platform compatibility
-#pragma warning disable CA1416 // Validate platform compatibility
         image.Save(saveStream, ImageFormat.Png);
-#pragma warning restore CA1416 // Validate platform compatibility
-#pragma warning restore CA1416 // Validate platform compatibility
         return saveStream.ToArray();
     }
 }

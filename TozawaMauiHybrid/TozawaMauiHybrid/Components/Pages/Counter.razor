@@ -1,0 +1,41 @@
+﻿@page "/counter"
+@attribute [Authorize(Policy = "admin-member")]
+@using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Services
+
+<h1>Counter</h1>
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+
+<p role="status">Store count: @storeCount</p>
+
+@code {
+    [Inject]
+    private PreferencesStoreClone Storage { get; set; }
+    private int currentCount = 0;
+    private int storeCount = 0;
+
+    [Inject] ScrollTopState ScrollTopState { get; set; }
+    [Inject] NavMenuTabState NavMenuTabState { get; set; }
+    protected override async Task OnInitializedAsync()
+    {
+        NavMenuTabState.SetActiveTab(TozawaMauiHybrid.Services.ActiveTab.Counter);
+        ScrollTopState.SetSource("Counter");
+        ScrollTopState.OnChange += SetScroll;
+        await base.OnInitializedAsync();
+    }
+    protected virtual void Dispose()
+    {
+        ScrollTopState.OnChange -= SetScroll;
+    }
+    private void SetScroll()
+    {
+    }
+    private void IncrementCount()
+    {
+        currentCount++;
+        Storage.Set("mytest", currentCount);
+        storeCount = Storage.Get<int>("mytest");
+    }
+}

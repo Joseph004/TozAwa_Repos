@@ -1,5 +1,6 @@
 ﻿@page "/fetchdata1"
 @inherits BasePage
+@using ShareRazorClassLibrary.Services
 @using TozawaNGO.State.Counter
 @using Fluxor
 @inject IState<CounterState> CounterState
@@ -45,10 +46,10 @@
     @onclick="StopCount">Stop</button>
 
 @code {
-    //private int currentCount = 0;
-    //private bool stop = false;
+    [Inject] NavMenuTabState NavMenuTabState { get; set; }
     protected override async Task OnInitializedAsync()
     {
+        NavMenuTabState.SetActiveTab(ShareRazorClassLibrary.Services.ActiveTab.Counter);
         await base.OnInitializedAsync();
     }
 

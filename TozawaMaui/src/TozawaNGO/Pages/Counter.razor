@@ -1,4 +1,5 @@
 ﻿@page "/counter"
+@using ShareRazorClassLibrary.Services
 @attribute [Authorize]
 
 <PageTitle>Counter</PageTitle>
@@ -10,8 +11,13 @@
 <button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
 
 @code {
+    [Inject] NavMenuTabState NavMenuTabState { get; set; }
     private int currentCount = 0;
-
+    protected override async Task OnInitializedAsync()
+    {
+        NavMenuTabState.SetActiveTab(ShareRazorClassLibrary.Services.ActiveTab.Counter);
+        await base.OnInitializedAsync();
+    }
     private void IncrementCount()
     {
         currentCount++;

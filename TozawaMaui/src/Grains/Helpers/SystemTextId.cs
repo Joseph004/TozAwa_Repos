@@ -119,5 +119,11 @@ public static partial class SystemTextId
     public static Guid ToDoOwnerId => Guid.Parse("d4812849-17a7-46c6-84b1-030d8d9aea8d");
     public static Guid TranslationOwnerId => Guid.Parse("d5852b85-0666-4e46-a5aa-539159484ffb");
     public static Guid MemberOwnerId => Guid.Parse("e8a6e03d-3620-46d6-9192-d7e3594c9f19");
+    public static Guid LoggedInOwnerId => Guid.Parse("8e864d50-04e5-4b96-8a99-ee3027384f27");
     public static Guid AttachmentOwnerId => Guid.Parse("368607f5-07d4-49c2-8014-415729f1fb01");
+    public static Guid FeatureOwnerId => Guid.Parse("46ed5ee0-4b20-44b0-adff-e7451fed0bb4");
+    public static Guid RoleOwnerId => Guid.Parse("15459754-9a70-4fdc-b64b-97ae7b804749");
+    public static Guid OrganizationOwnerId => Guid.Parse("b30492e3-d63c-4f13-b800-2424f2a4902d");
+    public static Guid AddressOwnerId => Guid.Parse("9ba8917a-eddc-4e4e-af16-b977df9963de");
+    public static Guid EmailOwnerId => Guid.Parse("3aad2163-f07f-4412-98ff-25ec8e192d20");
 }

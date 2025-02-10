@@ -9,6 +9,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.SignalR;
 using Shared.SignalR;
 using Grains.Helpers;
+using Grains.Auth.Models.Authentication;
+using Grains.Auth.Models.Dtos;
+using OrleansHost.Auth.Models.Queries;
 
 namespace Grains.Auth.Controllers
 {
@@ -24,19 +27,38 @@ namespace Grains.Auth.Controllers
 
         public async Task<Models.Dtos.Backend.MemberDto> Handle(PatchMemberCommand request, CancellationToken cancellationToken)
         {
-            var member = await _context.TzUsers
-                           .FirstOrDefaultAsync(x => x.UserId == request.Id, cancellationToken: cancellationToken);
+            if (!_currentUserService.IsAdmin())
+            {
+                throw new UnauthorizedAccessException("user not allowed to update");
+            }
 
-            if (member == null)
+            var member = await _context.TzUsers
+                    .Include(t => t.UserOrganizations)
+                    .Include(y => y.Organizations)
+                    .ThenInclude(u => u.OrganizationUsers)
+                    .Include(y => y.Organizations)
+                    .ThenInclude(u => u.Features)
+                    .Include(w => w.Addresses)
+                    .Include(u => u.Roles)
+                    .ThenInclude(y => y.Role)
+                    .Include(u => u.Roles)
+                    .ThenInclude(y => y.Role.Functions)
+                    .FirstOrDefaultAsync(x => x.UserId == request.Id, cancellationToken: cancellationToken);
+
+
+            if (member == null || (!_currentUserService.User.Roles.Any(x => x.Role == Grains.Auth.Models.Dtos.Role.VicePresident) && member.AdminMember) || (member.UserId == _currentUserService.User.Id && !_currentUserService.User.Roles.Any(r => r.Role == Grains.Auth.Models.Dtos.Role.President)))
             {
                 _logger.LogWarning("Member not found {id}", request.Id);
                 throw new Exception(nameof(request));
             }
+            var memberItem = await _factory.GetGrain<IMemberGrain>(member.UserId).GetAsync();
 
             if (request.PatchModel.GetPatchValue<bool>("DeleteForever"))
             {
                 var translationId = member.DescriptionTextId;
                 var memberId = member.UserId;
+                var commentTranslationId = member.CommentTextId;
+                var commentTranslation = await _context.Translations.FirstOrDefaultAsync(x => x.TextId == commentTranslationId, cancellationToken: cancellationToken);
                 var translation = await _context.Translations.FirstOrDefaultAsync(x => x.TextId == translationId, cancellationToken: cancellationToken);
                 var ownerAttachements = await _context.OwnerFileAttachments.Include(x => x.FileAttachment).Where(y => y.OwnerId == memberId).ToListAsync(cancellationToken: cancellationToken);
                 var attachementIds = ownerAttachements.Select(x => x.FileAttachmentId).Distinct();
@@ -55,6 +77,10 @@ namespace Grains.Auth.Controllers
                 {
                     _context.Translations.Remove(translation);
                 }
+                if (commentTranslation != null)
+                {
+                    _context.Translations.Remove(commentTranslation);
+                }
                 _context.SaveChanges();
 
                 foreach (var attachId in attachementIds)
@@ -68,7 +94,27 @@ namespace Grains.Auth.Controllers
 
                 await _factory.GetGrain<IMemberGrain>(memberId).ClearAsync();
                 await _hub.Clients.All.SendAsync("MemberUpdated", memberId, true, cancellationToken: cancellationToken);
-                return MemberConverter.Convert(member, true);
+
+                _context.UserLogs.Add(new UserLog
+                {
+                    Event = LogEventType.DeleteUser,
+                    UserName = member.UserName,
+                    Email = member.Email
+                });
+                _context.SaveChanges();
+
+                var address = member.Addresses.Select(x => new AddressDto
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    Address = x.Address,
+                    City = x.City,
+                    State = x.State,
+                    Country = x.Country,
+                    ZipCode = x.ZipCode,
+                    Active = x.Active
+                }).ToList();
+                return MemberConverter.Convert(memberItem, [], [], [], [], true);
             }
 
             if (request.PatchModel.GetPatchValue<string>("Description") != null)
@@ -118,10 +164,9 @@ namespace Grains.Auth.Controllers
             request.PatchModel.ApplyTo(member);
 
             _context.SaveChanges();
-
+            var attachmentsCount = await context.FileAttachments.Include(t => t.Owners).CountAsync(x => x.Owners.Any(y => y.OwnerId == member.UserId), cancellationToken);
             var item = new MemberItem(
                 member.UserId,
-      member.PartnerId,
       member.Description,
      member.DescriptionTextId,
       member.FirstName,
@@ -130,9 +175,7 @@ namespace Grains.Auth.Controllers
       member.LastLoginCity,
       member.LastLoginState,
       member.LastLoginIPAdress,
-      member.Adress,
-      member.UserPasswordHash,
-      member.Roles,
+      member.Roles.Select(r => r.Role.RoleEnum).ToList(),
       member.LastAttemptLogin,
       member.RefreshToken,
       member.RefreshTokenExpiryTime,
@@ -147,10 +190,66 @@ namespace Grains.Auth.Controllers
       member.StationIds,
       member.Email,
       member.PasswordHash,
+      attachmentsCount,
+      member.Tenants.Select(x => x.UserTenant_TenantUser.UserId).ToList(),
+      member.LandLords.Select(x => x.UserLandLord_LandLordUser.UserId).ToList(),
+      member.Organizations?.SelectMany(o => o.Features) != null
+            ? member.Organizations?.SelectMany(o => o.Features).Select(x => x.Feature).ToList()
+            : [],
+      member.Roles
+                .SelectMany(x => x.Role.Functions)
+                .Select(function => function.FunctionType)
+                .Distinct()
+                .ToList(),
+      member.Comment,
+      member.CommentTextId,
+      member.UserOrganizations?.Select(x => x.OrganizationId).ToList(),
+      member.CityCode,
+      member.CountryCode,
+      member.Gender,
       SystemTextId.MemberOwnerId
             );
-            var memberDto = MemberConverter.Convert(member);
             await _factory.GetGrain<IMemberGrain>(member.UserId).SetAsync(item);
+            var addressDtos = member.Addresses.Select(x => new AddressDto
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Address = x.Address,
+                City = x.City,
+                State = x.State,
+                Country = x.Country,
+                ZipCode = x.ZipCode,
+                Active = x.Active
+            }).ToList();
+            var organizations = new List<CurrentUserOrganizationDto>();
+            foreach (var orgItem in member.UserOrganizations)
+            {
+                var org = (await _mediator.Send(new GetOrganizationQuery { Id = orgItem.OrganizationId })) ?? new();
+                organizations.Add(new CurrentUserOrganizationDto
+                {
+                    Id = org.Id,
+                    Addresses = org.Addresses,
+                    Features = org.Features,
+                    Name = org.Name,
+                    Active = true
+                });
+            }
+            var roleDtos = await _mediator.Send(new GetRolesQuery(member.UserId));
+            var functions = roleDtos.SelectMany(x => x.Functions).Select(y => new CurrentUserFunctionDto
+            {
+                FunctionType = y.FunctionType
+            }).Distinct().ToList();
+            var memberDto = MemberConverter.Convert(item, organizations, addressDtos, roleDtos.ToList(), functions);
+
+            _context.UserLogs.Add(new UserLog
+            {
+                Event = LogEventType.UpdateUser,
+                UserName = memberDto.UserName,
+                Email = memberDto.Email
+            });
+            _context.SaveChanges();
+
+            memberDto.AttachmentsCount = attachmentsCount;
             await _hub.Clients.All.SendAsync("MemberUpdated", member.UserId, false, cancellationToken: cancellationToken);
 
             return memberDto;

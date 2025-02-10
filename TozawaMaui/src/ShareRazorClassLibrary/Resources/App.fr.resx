@@ -399,4 +399,80 @@
     <value>L'adresse mail requis</value>
     <comment>.</comment>
   </data>
+  <data name="cff59b9e-9269-40bc-9c1d-d550bef95d5f" xml:space="preserve">
+    <value>Fichier</value>
+    <comment>.</comment>
+  </data>
+  <data name="d176a986-b45d-4439-8595-ef3acd447917" xml:space="preserve">
+    <value>Telecharger</value>
+    <comment>.</comment>
+  </data>
+  <data name="a28165f2-0ce0-490d-bfeb-6d572d12f905" xml:space="preserve">
+    <value>Vous devriez ecrire votre mot de passe. Aucun copier coller n*est autoriser.</value>
+    <comment>.</comment>
+  </data>
+  <data name="667d3f20-2377-49c6-9f95-0eadd44dc4b9" xml:space="preserve">
+    <value>Erreur, Veuillez contacter le service client si ceci persiste.</value>
+    <comment>.</comment>
+  </data>
+  <data name="82c74c77-fdda-427a-bd40-ffd17ed578e4" xml:space="preserve">
+    <value>Vous avez été temporairement bloquer, vueillez contactez le service client.</value>
+    <comment>.</comment>
+  </data>
+   <data name="7943411d-e62f-4d79-8cef-712a369652a7" xml:space="preserve">
+    <value>L'email ou le mot de passe sont mal ecrit. Vueillez reessayer</value>
+    <comment>.</comment>
+  </data>
+  <data name="be0145f5-65d8-4fbb-8c62-978465cea86f" xml:space="preserve">
+    <value>seulment le pdf et les images peuvent etres visualisé</value>
+    <comment>.</comment>
+  </data>
+  <data name="d2232c5d-c73d-4714-87d6-c1e76c858090" xml:space="preserve">
+    <value>Visualiser en pdf</value>
+    <comment>.</comment>
+  </data>
+  <data name="fe71f628-b733-4123-a7d3-81a32730fa75" xml:space="preserve">
+    <value>Telecharger en pdf</value>
+    <comment>.</comment>
+  </data>
+  <data name="4c4a82df-5135-442e-913a-108b6dc4626a" xml:space="preserve">
+    <value>Vous n'etes pas authorisé à acceder cette page.</value>
+    <comment>.</comment>
+  </data>
+  <data name="f8eb2e15-fe92-4106-9138-86c90b49f5af" xml:space="preserve">
+    <value>Vous pouvez peut etre vous identifier comme un autre utilisateur.</value>
+    <comment>.</comment>
+  </data>
+  <data name="5608eef3-268b-49fe-9ff9-f293d8677785" xml:space="preserve">
+    <value>Desolé.</value>
+    <comment>.</comment>
+  </data>
+  <data name="970dcdc8-6d74-4c08-aa2f-e18c7f46e52b" xml:space="preserve">
+    <value>Actualisez la page</value>
+    <comment>.</comment>
+  </data>
+   <data name="68eccf80-8989-4f2e-858b-e89fd8f208cf" xml:space="preserve">
+    <value>Paramètres des cookies</value>
+    <comment>.</comment>
+  </data>
+   <data name="a65a7b8b-2def-4718-b98e-13e09ae14fba" xml:space="preserve">
+    <value>Discutez avec nous</value>
+    <comment>.</comment>
+  </data>
+  <data name="ebbaca4b-1ed8-4b37-89f4-55efaf18f37d" xml:space="preserve">
+    <value>Cliquer ici</value>
+    <comment>.</comment>
+  </data>
+   <data name="c0de5755-e1c6-4027-a079-fcb45c2ab83f" xml:space="preserve">
+    <value>Fermez</value>
+    <comment>.</comment>
+  </data>
+  <data name="26707fc9-f33d-44ac-a51f-d961602f202c" xml:space="preserve">
+    <value>Suivant</value>
+    <comment>.</comment>
+  </data>
+   <data name="7c8f888f-5f99-4391-ade0-d312ffea409d" xml:space="preserve">
+    <value>Precedent</value>
+    <comment>.</comment>
+  </data>
 </root>

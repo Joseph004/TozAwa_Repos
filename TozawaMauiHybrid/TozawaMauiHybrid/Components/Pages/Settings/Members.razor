@@ -1,0 +1,233 @@
+@attribute [Authorize(Policy = "admin-member")]
+
+<style>
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.selected,
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.selected:nth-of-type(odd) {
+        background-color: var(--mud-palette-info-darken);
+    }
+
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.selected:hover,
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.selected:hover:nth-of-type(odd) {
+        background-color: var(--mud-palette-info-lighten);
+    }
+
+    .mud-table-row.selected>td.mud-table-cell,
+    .mud-table-row.selected:nth-of-type(odd)>td.mud-table-cell {
+        color: var(--mud-palette-primary-text);
+    }
+
+    .mud-table-row.selected>td.mud-table-cell .mud-input,
+    .mud-table-row.selected:nth-of-type(odd)>td.mud-table-cell .mud-input {
+        color: var(--mud-palette-primary-text);
+    }
+
+    .mud-table-row.selected .mud-icon-root.mud-svg-icon {
+        fill: var(--mud-palette-primary-text);
+    }
+
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.created,
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.created:nth-of-type(odd) {
+        background-color: var(--mud-palette-primary-lighten);
+    }
+
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.created:hover,
+    .mud-table-hover .mud-table-container .mud-table-root .mud-table-body .mud-table-row.created:hover:nth-of-type(odd) {
+        background-color: var(--mud-palette-primary-lighten);
+    }
+
+    .mud-table-row.created>td.mud-table-cell,
+    .mud-table-row.created:nth-of-type(odd)>td.mud-table-cell {
+        color: var(--mud-palette-primary-text);
+    }
+
+    .mud-table-row.created>td.mud-table-cell .mud-input,
+    .mud-table-row.created:nth-of-type(odd)>td.mud-table-cell .mud-input {
+        color: var(--mud-palette-primary-text);
+    }
+
+    .mud-table-row.created .mud-icon-root.mud-svg-icon {
+        fill: var(--mud-palette-primary-text);
+    }
+
+    .mud-table-row.selected .mud-icon-root.mud-svg-icon.mud-success-text {
+        fill: var(--mud-palette-success-lighten);
+    }
+
+    .mud-table-row.selected .mud-icon-root.mud-svg-icon.mud-error-text {
+        fill: var(--mud-palette-error-darken);
+    }
+
+    .mud-table-row.selected .mud-button-root.mud-icon-button.mud-error-text .mud-icon-root.mud-svg-icon {
+        fill: var(--mud-palette-error-darken);
+    }
+    .mud-table-row.selected .fileIcon .mud-icon-root.mud-svg-icon {
+      fill: #d4af37; 
+    }
+    .memberTable>div:nth-child(1) {
+       height: 60px;
+       max-height: 60px;
+   }
+   .memberTable>div:nth-child(2) {
+       height: calc(100% - 60px);
+       max-height:  calc(100% - 60px);
+   }
+   .memberDescription>div>div input {
+    overflow:hidden;
+    display:inline-block;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+   }
+</style>
+
+@namespace TozawaMauiHybrid.Components.Pages.Settings
+@using TozawaMauiHybrid.Component
+@using TozawaMauiHybrid.Helpers
+@using TozawaMauiHybrid.Models.Dtos
+@using TozawaMauiHybrid.Models.Enums
+@inherits BasePage
+
+<style>
+    .mud-tabs-panels{
+     background-color: #f2f2f2 !important;
+    }
+</style>
+
+<ErrorHandling  TCategoryName=@typeof(Members)>
+    <ChildContent>
+        @if (MemberState.Value.IsLoading && MemberState.Value.Members.Count == 0)
+{
+ SetLoading();
+}
+else
+{
+    <MudTable Class="memberTable" Style="height: calc(100% - 40px); max-height: calc(100% - 40px); background-color: #f0f5f5;" Items="@MemberState.Value.Members" Dense="true" Hover="true"
+        Striped="true" @ref="_table" Breakpoint="Breakpoint.Xs" CustomHeader="true" RowClassFunc="@SelectedRowClassFunc" T="MemberDto" RowsPerPage="20"
+        OnRowClick="RowClickEvent" @bind-SelectedItem="_selectedItem" RowClass="cursor-pointer">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6" Color="Color.Secondary">
+                <SystemText TextId=SystemTextId.Members FallbackText="Members" />
+            </MudText>
+            <MudSpacer />
+            <MudTextField T="string" DebounceInterval="500" Margin="Margin.Dense" @bind-Value="_searchString"
+                OnDebounceIntervalElapsed="s => OnSearch(s)" Placeholder="@Translate(SystemTextId.SearchText)"
+                Adornment="Adornment.Start" AdornmentColor="Color.Secondary" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium"
+                Class="mt-0">
+            </MudTextField>
+            <MudSpacer />
+            <MudAvatar Color="Color.Primary" Rounded="true" Variant="Variant.Outlined">
+                <MudMenu AnchorOrigin="@Origin.BottomRight" TransformOrigin="@Origin.TopRight"
+                    Dense="true" Icon="@Icons.Material.Filled.MoreVert" Color="Color.Secondary">
+                    <MudMenuItem OnClick="@((e) => OpenDialog())">
+                        <MudText Typo="Typo.body1">
+                            <MudIcon Class="text-icon" Icon="@Icons.Material.Filled.AddCircle"></MudIcon>
+                            <SystemText TextId=SystemTextId.Add FallbackText="Add" />
+                        </MudText>
+                    </MudMenuItem>
+                </MudMenu>
+            </MudAvatar>
+        </ToolBarContent>
+        <ColGroup>
+        <MudHidden Breakpoint="Breakpoint.Xs">
+            <col style="width: 2%;" />
+            <col style="width: 21%;" />
+            <col style="width: 21%;" />
+            <col style="width: 34%;" />
+            <col style="width: 4%;" />
+            <col style="width: 10%;" />
+            <col style="width: 4%;" />
+            <col style="width: 4%;" />
+        </MudHidden>
+        </ColGroup>
+        <HeaderContent>
+            <MudTHeadRow Class="header-centered">
+                <MudTh></MudTh>
+                <MudTh>
+                    <SystemText TextId=SystemTextId.FirstName FallbackText="First name" />
+                </MudTh>
+                <MudTh>
+                    <SystemText TextId=SystemTextId.LastName FallbackText="Last name" />
+                </MudTh>
+                <MudTh>
+                    <SystemText TextId=SystemTextId.Email FallbackText="Email" />
+                </MudTh>
+                <MudTh>
+                </MudTh>
+                <MudTh></MudTh>
+                <MudTh></MudTh>
+                <MudTh></MudTh>
+            </MudTHeadRow>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd>@(MemberState.Value.Members.IndexOf(context) + 1)</MudTd>
+            <MudTd DataLabel="@(GetLabel(SystemTextId.FirstName, "FirstName"))">@context.FirstName</MudTd>
+            <MudTd DataLabel="@(GetLabel(SystemTextId.LastName, "LastName"))">@context.LastName</MudTd>
+            <MudTd DataLabel="@(GetLabel(SystemTextId.Email, "Email"))">@context.Email </MudTd>
+            <MudTd DataLabel="@(GetLabel(SystemTextId.Description, "Description"))">
+                <div @onclick:stopPropagation="true" @onclick:preventDefault="true">
+                     <MudTooltip ShowOnHover=@(!string.IsNullOrEmpty(string.IsNullOrEmpty(context.Description) ? GetHelpText(context.Description) : context.Description.Length > 20 ? context.Description.Substring(0, 20) + "..." : context.Description))>
+                            <ChildContent>
+                                <MudIconButton Style="@GetDescColor(context.Description)" Color=@(Color.Default)
+                                 Icon="@(Icons.Material.Filled.Info)" @onclick="@(e => ShowLongText(context, TypeOfText.Description))" >
+                                 </MudIconButton>
+                            </ChildContent>
+                            <TooltipContent>
+                                @(string.IsNullOrEmpty(context.Description) ? GetHelpText(context.Description) : context.Description.Length > 20 ? context.Description.Substring(0, 20) + "..." : context.Description)
+                            </TooltipContent>
+                        </MudTooltip>
+                </div>
+            </MudTd>
+            <MudTd Class="fileIcon" DataLabel="@(GetLabel(SystemTextId.Files, "Files"))" onclick="event.stopPropagation()" @onmousedown="() => ToggleFiles(context)">
+                <MudBadge Content="@context.AttachmentsCount" Overlap="true" Color="Color.Primary">
+                    <MudIcon Icon="@Icons.Material.Filled.Folder" Style="height:24px;width:24px; color:#d4af37;" />
+                </MudBadge>                     
+            </MudTd>
+            <MudTd DataLabel="@(GetLabel(SystemTextId.Update, "Edit"))">
+                <div @onclick:stopPropagation="true" @onclick:preventDefault="true">
+                    <MudIconButton Disabled="@context.Deleted" Icon="@(Icons.Material.Filled.Edit)" @onclick="@(e => ToggleEdit(context))" Color=@(Color.Default)></MudIconButton>
+                </div>
+            </MudTd>
+            <MudTd DataLabel="@(GetLabel(SystemTextId.Delete, "Delete"))">
+                <div class="d-flex align-center">
+                <div @onclick:stopPropagation="true" @onclick:preventDefault="true">
+                    <MudIconButton
+                        Title="@(context.Deleted == true ? Translate(SystemTextId.Restore) : Translate(SystemTextId.Delete))"
+                        Icon="@(context.Deleted != true ? Icons.Material.Filled.Delete : Icons.Material.Filled.RestoreFromTrash)" @onclick="@(e => ToggleDeleted(context))" Color=@(context.Deleted
+                        == true ? Color.Error : Color.Default)></MudIconButton>
+                </div>
+                @if (context.Deleted)
+                {
+                    <MudText>|</MudText>
+                    <div @onclick:stopPropagation="true" @onclick:preventDefault="true">
+                        <MudIconButton Title="@(Translate(SystemTextId.Delete) + " " + Translate(SystemTextId.Definitively))" Icon="@Icons.Material.Filled.Delete"
+                        @onclick="@(e => ToggleDeleted(context, true))" Color=@(Color.Error)></MudIconButton>
+                    </div>
+                }
+                </div>
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent>
+            <MudText>
+                <SystemText TextId=SystemTextId.NoMachingRecords FallbackText="No matching records found" />
+            </MudText>
+        </NoRecordsContent>
+        <LoadingContent>
+            <MudText>
+                <SystemText TextId=SystemTextId.Loading FallbackText="Loading" />
+            </MudText>
+        </LoadingContent>
+        <PagerContent>
+            <MudTablePager Class="pa-4" PageSizeOptions="@_pageSizeOptions"
+                RowsPerPageString="@(Translate(SystemTextId.RowsPerPage, "Rows per page"))" />
+        </PagerContent>
+    </MudTable>
+    <div style="height: 40px; max-height: 50px;" @onclick:stopPropagation="true" @onclick:preventDefault="true">
+        <MudSwitch T="@bool" @bind-value="_includeDeleted" @onclick="@(() => ToggleIncludeDeleted())" Color="Color.Primary"
+        Label="@(Translate(SystemTextId.ShowDeletedItems))" />
+    </div>
+}
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>
+

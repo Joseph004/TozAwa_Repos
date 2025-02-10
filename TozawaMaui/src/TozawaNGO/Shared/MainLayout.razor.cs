@@ -13,31 +13,59 @@ using Microsoft.AspNetCore.Components.Web;
 using ShareRazorClassLibrary.Services;
 using ShareRazorClassLibrary.Configurations;
 using ShareRazorClassLibrary.Helpers;
+using MudBlazor.Extensions.Options;
+using MudBlazor.Extensions;
+using TozawaNGO.Helpers;
+using Nextended.Core.Extensions;
+using MudBlazor.Extensions.Core;
+using ShareRazorClassLibrary.Models.Dtos;
 
 namespace TozawaNGO.Shared
 {
     public partial class MainLayout : BaseComponentLayout
     {
+        [Inject] private NavMenuTabState NavMenuTabState { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }
+        [Inject] ILogger<MainLayout> _logger { get; set; }
         [Inject] NavigationManager _navigationManager { get; set; }
         [Inject] ICurrentUserService CurrentUserService { get; set; }
         [Inject] AppSettings _appSettings { get; set; }
         [Inject] private IDialogService DialogService { get; set; }
         [Inject] LoadingState LoadingState { get; set; }
         [Inject] ILocalStorageService _localStorageService { get; set; }
+        [Inject] AuthenticationService AuthenticationService { get; set; }
         [Inject] private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+        private (bool isOpen, int leftSize, int rightSize) _sideSettings = new(true, 97, 97);
         public string _loginUrl { get; set; } = $"";
+        private string _containerPaddingClass { get; set; } = "pt-16 px-16 flex-1 d-flex";
         private Timer _timer;
         private readonly int _timerInterval = 15 * 60 * 1000; //15 min
         private bool _disabledPage = false;
         private string _disableAttrString = "";
         private ErrorBoundary _errorBoundary;
+        private bool _value = true;
+        private bool _sidebarOpen
+        {
+            get => _value;
+            set
+            {
+                if (_value == value) return;
+                _value = value;
+                _sideSettings = new(_value, _value ? 97 : 95, _value ? 97 : 95);
+                if (NavMenuTabState.IsMenuOpen != _value)
+                {
+                    NavMenuTabState.SetMenuOpen(_sidebarOpen);
+                }
+                StateHasChanged();
+            }
+        }
+        private bool _firstLoaded = false;
 
-        private bool _sidebarOpen = true;
-        private void ToggleTheme(MudTheme changedTheme) => _currentTheme = changedTheme;
         private void ToggleSidebar()
         {
             _sidebarOpen = !_sidebarOpen;
+            _sideSettings = new(_sidebarOpen, _sidebarOpen ? 97 : 95, _sidebarOpen ? 97 : 95);
+            NavMenuTabState.SetMenuOpen(_sidebarOpen);
             StateHasChanged();
         }
         protected override void OnParametersSet()
@@ -50,13 +78,14 @@ namespace TozawaNGO.Shared
         }
         private MudTheme _currentTheme = new()
         {
-            Palette = new PaletteLight()
+            PaletteLight = new PaletteLight()
             {
                 AppbarBackground = "#000000"
             }
         };
         protected async override Task OnInitializedAsync()
         {
+            NavMenuTabState.OnChange += StateHasChanged;
             LoadingState.OnChange += DisabledPage;
             await base.OnInitializedAsync();
         }
@@ -70,35 +99,64 @@ namespace TozawaNGO.Shared
                 StateHasChanged();
             });
         }
+
         protected async override Task OnAfterRenderAsync(bool firstRender)
         {
             if (firstRender)
             {
+                var userResponse = new LoginResponseDto();
+                if (await _localStorageService.ContainKeyAsync("auth_loggedIn"))
+                {
+                    var idBytes = EncryptDecrypt.Decrypt(await _localStorageService.GetItemAsync<byte[]>("auth_loggedIn"),
+                    "PG=?1PowK<ai57:t%`Ro}L9~1q2&-i/H", "HK2nvSMadZRDeTbB");
+                    if (!string.IsNullOrEmpty(Encoding.UTF8.GetString(idBytes)))
+                    {
+                        var response = await AuthenticationService.GetLoggedInMember(Guid.Parse(Encoding.UTF8.GetString(idBytes)));
+                        if (response.Success && response.Entity != null)
+                        {
+                            userResponse = response.Entity;
+                            if (((AuthStateProvider)_authStateProvider).ValidateCurrentToken(response.Entity.Token))
+                            {
+                                ((AuthStateProvider)_authStateProvider).UserLoginStateDto.Set(true, response.Entity.Token,
+                                response.Entity.RefreshToken, Guid.Empty);
+                                await ((AuthStateProvider)_authStateProvider).NotifyUserAuthentication(response.Entity.Token, response.Entity.RefreshToken);
+                            }
+                            else
+                            {
+                                await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
+                            }
+                        }
+                    }
+                }
+
+                NavMenuTabState.SetMenuOpen(_sidebarOpen);
                 _timer = new Timer(_timerInterval);
                 _timer.Elapsed += LogoutTimeout;
                 _timer.AutoReset = false;
                 _timer.Start();
-
-                await LogoutIfUserExipired();
+                _firstLoaded = true;
                 StateHasChanged();
+                await LogoutIfUserExipired(userResponse);
+                await base.OnAfterRenderAsync(firstRender);
             }
-
-            await base.OnAfterRenderAsync(firstRender);
         }
-        private async Task LogoutIfUserExipired()
+        private async Task LogoutIfUserExipired(LoginResponseDto loginResponse)
         {
             var auth = await _authStateProvider.GetAuthenticationStateAsync();
 
-            if (auth.User.Identity.IsAuthenticated)
+            if (auth.User.Identity != null && auth.User.Identity.IsAuthenticated)
             {
-                var token = await _localStorageService.GetItemAsync<string>("authToken");
-                var refreshToken = await _localStorageService.GetItemAsync<string>("refreshToken");
-
-                if (!string.IsNullOrEmpty(token) && !string.IsNullOrEmpty(refreshToken) && !ValidateCurrentToken(token))
+                if (!string.IsNullOrEmpty(loginResponse.Token) && !string.IsNullOrEmpty(loginResponse.RefreshToken) && !ValidateCurrentToken(loginResponse.Token))
                 {
                     var exp = auth.User.Claims.First(x => x.Type == "logoutexpat").Value;
+                    var year = Convert.ToInt32(exp.Split("/")[2].Split(":")[0].Split(" ")[0]);
+                    var month = Convert.ToInt32(exp.Split("/")[1]);
+                    var day = Convert.ToInt32(exp.Split("/")[0]);
+                    var hour = Convert.ToInt32(exp.Split("/")[2].Split(":")[0].Split(" ")[1]);
+                    var minute = Convert.ToInt32(exp.Split("/")[2].Split(":")[1]);
+                    var seconde = Convert.ToInt32(exp.Split("/")[2].Split(":")[2]);
                     var currentDate = DateTime.UtcNow;
-                    var expDate = DateTime.Parse(exp);
+                    var expDate = new DateTime(year, month, day, hour, minute, seconde);
 
                     if (currentDate > expDate)
                     {
@@ -125,8 +183,9 @@ namespace TozawaNGO.Shared
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_appSettings.JWTSettings.SecurityKey))
                 }, out SecurityToken validatedToken);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                _logger.LogError(ex, "Could not logout user");
                 return false;
             }
             return true;
@@ -141,14 +200,37 @@ namespace TozawaNGO.Shared
             InvokeAsync(async () =>
               {
                   var context = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-                  if (context.User.Identity.IsAuthenticated)
+                  if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
                   {
                       var parameters = new DialogParameters
                       {
                           ["Title"] = "Logout"
                       };
-                      DialogOptions options = new() { DisableBackdropClick = true, Position = DialogPosition.TopCenter };
-                      var dialog = DialogService.Show<ExpireModal>("Logout", parameters, options);
+                      var options = new DialogOptionsEx
+                      {
+                          BackgroundClass = "tz-mud-overlay",
+                          BackdropClick = false,
+                          CloseButton = false,
+                          MaxWidth = MaxWidth.Small,
+                          MaximizeButton = true,
+                          FullHeight = false,
+                          FullWidth = true,
+                          DragMode = MudDialogDragMode.Simple,
+                          Animations = [AnimationType.Pulse],
+                          Position = DialogPosition.Center
+                      };
+
+                      options.SetProperties(ex => ex.Resizeable = true);
+                      options.DialogAppearance = MudExAppearance.FromStyle(b =>
+                      {
+                          b.WithBackgroundImage("url('/images/plain-white-background.jpg')")
+              .WithBackgroundSize("cover")
+              .WithBackgroundPosition("center center")
+              .WithBackgroundRepeat("no-repeat")
+              .WithOpacity(0.9);
+                      });
+
+                      var dialog = await DialogService.ShowEx<ExpireModal>("Logout", parameters, options);
                       var result = await dialog.Result;
 
                       if (!result.Canceled)
@@ -160,40 +242,27 @@ namespace TozawaNGO.Shared
         }
         private async Task Logout()
         {
-            await _localStorageService.RemoveItemAsync("authToken");
-            await _localStorageService.RemoveItemAsync("refreshToken");
-
-            ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
-
-            var logoutUrl = $"logout{NavigateToReturnPage()}";
-            await JSRuntime.InvokeVoidAsync("open", Decode(logoutUrl), "_top");
-        }
-        private string NavigateToReturnPage()
-        {
-            var currentPath = _navigationManager.Uri.Split(_navigationManager.BaseUri)[1];
-
-            if (string.IsNullOrEmpty(currentPath))
-            {
-                return "/home";
-            }
-            else
-            {
-                return $"/{currentPath}";
-            }
+            var user = await ((AuthStateProvider)_authStateProvider).GetUserFromToken();
+            await AuthenticationService.PostLogout(user.Id);
+            await ((AuthStateProvider)_authStateProvider).NotifyUserLogout();
         }
         private void RefreshTimer(EventArgs e)
         {
-            _timer.Interval = _timerInterval;
+            if (_timer != null)
+            {
+                _timer.Interval = _timerInterval;
+            }
         }
-#pragma warning disable CA1816 // Dispose methods should call SuppressFinalize
+
         public override void Dispose()
-#pragma warning restore CA1816 // Dispose methods should call SuppressFinalize
         {
+            NavMenuTabState.OnChange -= StateHasChanged;
             LoadingState.OnChange -= DisabledPage;
             if (_timer != null)
             {
                 _timer.Elapsed -= LogoutTimeout;
             }
+            base.Dispose();
         }
     }
 }

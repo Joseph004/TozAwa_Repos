@@ -1,4 +1,4 @@
-using Tozawa.HttpClients;
+using ShareRazorClassLibrary.HttpClients;
 
 namespace TozawaNGO.Shared;
 

@@ -6,7 +6,7 @@ using TozawaNGO.Shared;
 
 namespace TozawaNGO.Pages
 {
-    public partial class DeleteEntityDialog : BaseDialog
+    public partial class DeleteEntityDialog : BaseDialog<DeleteEntityDialog>
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
         [Inject] IJSRuntime JSRuntime { get; set; }

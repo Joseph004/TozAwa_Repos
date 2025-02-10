@@ -14,8 +14,9 @@ namespace Grains.Auth.Controllers
     [AuthorizeUserRequirementWithNoExpireToken]
     [Produces("application/json")]
     [ApiController]
-    public class TokenController(UserManager<ApplicationUser> userManager, IMediator mediator, IUserTokenService userTokenService) : ControllerBase
+    public class TokenController(UserManager<ApplicationUser> userManager, IMediator mediator, IUserTokenService userTokenService, IGrainFactory factory) : ControllerBase
     {
+        private readonly IGrainFactory _factory = factory;
         private readonly UserManager<ApplicationUser> _userManager = userManager;
         private readonly IUserTokenService _userTokenService = userTokenService;
         private readonly IMediator _mediator = mediator;
@@ -40,8 +41,19 @@ namespace Grains.Auth.Controllers
 
             user.RefreshToken = _userTokenService.GenerateRefreshToken();
             await _userManager.UpdateAsync(user);
-
+            await _factory.GetGrain<ILoggedInGrain>(user.UserId).SetAsync(new LoggedInItem(user.UserId, token, user.RefreshToken, SystemTextId.LoggedInOwnerId));
             return Ok(new LoginResponseDto { Token = token, RefreshToken = user.RefreshToken, LoginSuccess = true });
+        }
+
+        [HttpPost]
+        [Route("logout/{id}")]
+        public async Task<IActionResult> Logout(Guid id)
+        {
+            await _factory.GetGrain<ILoggedInGrain>(id).ClearAsync();
+            return Ok(new LoginResponseDto
+            {
+                LoginSuccess = true
+            });
         }
     }
 }

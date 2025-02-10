@@ -1,0 +1,38 @@
+@inherits BaseComponent<SystemText>
+@implements IDisposable
+@namespace TozawaMauiHybrid.Component
+<style>
+    .notTranslated {
+        color: #c00 !important;
+        text-decoration: underline double;
+    }
+
+    .mud-popover.mud-popover-open.opaque {
+        opacity: 80%;
+    }
+</style>
+
+<ErrorHandling TCategoryName=@typeof(SystemText)>
+    <ChildContent>
+        @if (FirstloadState.IsFirstLoaded)
+        {
+            <MudTooltip Class="pa-0 ma-0 opaque">
+                <ChildContent>
+                    <MudText Style="@Style" data-guid="@TextId" Class="@NotTranslated" Typo=SystemTextTypo>@Translate()
+                    </MudText>
+                </ChildContent>
+                <TooltipContent>
+                    @if (!string.IsNullOrEmpty(NotTranslatedTitle))
+                    {
+                        <MudPaper Class="pa-1" Style="@($"color:{Colors.Gray.Lighten5}; background:{Colors.Red.Lighten1};")">
+                            <MudText Style="@Style" Typo="Typo.body1">@NotTranslatedTitle</MudText>
+                        </MudPaper>
+                    }
+                </TooltipContent>
+            </MudTooltip>
+        }
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>

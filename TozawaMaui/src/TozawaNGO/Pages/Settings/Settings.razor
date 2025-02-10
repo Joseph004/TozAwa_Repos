@@ -1,25 +1,26 @@
 @page "/settings"
-@attribute [Authorize(Policy = "admin-member")]
+@attribute [Authorize(Roles = "LandLoard")]
 
 @namespace TozawaNGO.Pages
 @using ShareRazorClassLibrary.Helpers
 @using TozawaNGO.Shared
 @inherits BasePage
 
+<style>
+    .mud-tabs-tabbar {
+        background-color: #000 !important;
+        color: white;
+    }
+    .mud-tab-active {
+        color: #e59866 !important;
+    }
+</style>
+
 <MudTabs Elevation="2" Rounded="true" ApplyEffectsToContainer="true" PanelClass="pa-6">
-    <MudTabPanel OnClick="() => Activate(ActiveTab.Members)" Text=@(Translate(SystemTextId.Members))>
+    <MudTabPanel IconColor="Color.Secondary" Icon="@Icons.Material.Filled.Groups"
+        OnClick="() => Activate(ActiveTab.Members)" Text=@(Translate(SystemTextId.Members))>
         <MudItem xs="12" sm="12" md="12">
             <Members />
-        </MudItem>
-    </MudTabPanel>
-    <MudTabPanel OnClick="() => Activate(ActiveTab.Organizations)" Text=@(Translate(SystemTextId.Partners))>
-        <MudItem xs="12" sm="12" md="12">
-            This is organization
-        </MudItem>
-    </MudTabPanel>
-    <MudTabPanel OnClick="() => Activate(ActiveTab.Files)" Text=@(Translate(SystemTextId.Files))>
-        <MudItem xs="12" sm="12" md="12">
-            This is files
         </MudItem>
     </MudTabPanel>
 </MudTabs>

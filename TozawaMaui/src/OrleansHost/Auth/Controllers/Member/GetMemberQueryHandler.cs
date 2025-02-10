@@ -3,7 +3,8 @@ using MediatR;
 using Grains.Auth.Models.Authentication;
 using Grains.Auth.Models.Converters;
 using Grains.Auth.Models.Dtos.Backend;
-using OrleansHost.Attachment.Models.Queries;
+using OrleansHost.Auth.Models.Queries;
+using Grains.Auth.Models.Dtos;
 
 namespace Grains.Auth.Controllers
 {
@@ -17,39 +18,31 @@ namespace Grains.Auth.Controllers
         {
             var memberItem = await _factory.GetGrain<IMemberGrain>(request.Id).GetAsync();
 
-            var member = MemberConverter.Convert(new ApplicationUser
+            if (memberItem == null) return new MemberDto();
+            var organizations = new List<CurrentUserOrganizationDto>();
+            foreach (var orgItem in memberItem.OrganizationIds)
             {
-                UserId = memberItem.UserId,
-                PartnerId = memberItem.PartnerId,
-                Email = memberItem.Email,
-                Description = memberItem.Description,
-                DescriptionTextId = memberItem.DescriptionTextId,
-                FirstName = memberItem.FirstName,
-                LastName = memberItem.LastName,
-                LastLoginCountry = memberItem.LastLoginCountry,
-                LastLoginCity = memberItem.LastLoginCity,
-                LastLoginState = memberItem.LastLoginState,
-                LastLoginIPAdress = memberItem.LastLoginIPAdress,
-                Adress = memberItem.Adress,
-                UserPasswordHash = memberItem.UserPasswordHash,
-                Roles = memberItem.Roles,
-                LastAttemptLogin = memberItem.LastAttemptLogin,
-                RefreshToken = memberItem.RefreshToken,
-                RefreshTokenExpiryTime = memberItem.RefreshTokenExpiryTime,
-                UserCountry = memberItem.UserCountry,
-                Deleted = memberItem.Deleted,
-                AdminMember = memberItem.AdminMember,
-                LastLogin = memberItem.LastLogin,
-                CreatedBy = memberItem.CreatedBy,
-                CreateDate = memberItem.CreateDate,
-                ModifiedBy = memberItem.ModifiedBy,
-                ModifiedDate = memberItem.ModifiedDate,
-                StationIds = memberItem.StationIds
-            });
+                var org = (await _mediator.Send(new GetOrganizationQuery { Id = orgItem }, cancellationToken)) ?? new();
+                organizations.Add(new CurrentUserOrganizationDto
+                {
+                    Id = org.Id,
+                    Addresses = org.Addresses,
+                    Features = org.Features,
+                    Name = org.Name,
+                    Active = true,
+                    PrimaryOrganization = org.Id == memberItem.OwnerKey
+                });
+            }
+            var primaryOrganization = organizations.First(x => x.PrimaryOrganization);
+            var roleDtos = ((await _mediator.Send(new GetRolesQuery(memberItem.UserId), cancellationToken)) ?? []).Where(x => x.OrganizationId == primaryOrganization.Id);
+            var addressesDtos = await _mediator.Send(new GetAddressesQuery(memberItem.UserId), cancellationToken);
+            var functions = roleDtos.SelectMany(x => x.Functions).Select(y => new CurrentUserFunctionDto
+            {
+                FunctionType = y.FunctionType
+            }).Distinct().ToList();
+            var member = MemberConverter.Convert(memberItem, organizations, addressesDtos.ToList(), roleDtos.ToList(), functions);
             member.Timestamp = memberItem.Timestamp;
-
             await SetTranslation(member);
-            await GetAttachments(member);
             return member;
         }
 
@@ -78,26 +71,6 @@ namespace Grains.Auth.Controllers
                     else
                     {
                         member.Description = "";
-                    }
-                }
-            }
-        }
-
-        private async Task GetAttachments(MemberDto member)
-        {
-            var request = new GetAttachmentsByOwnerIdsQuery
-            {
-                OwnerIds = [member.Id]
-            };
-            var ownerAttachments = await _mediator.Send(request);
-            if (ownerAttachments != null)
-            {
-                foreach (var ownerAttachment in ownerAttachments)
-                {
-                    member.Attachments.AddRange(ownerAttachment.Attachments);
-                    if (member.Attachments != null && member.Attachments.Any(x => !string.IsNullOrEmpty(x.MiniatureId) && !string.IsNullOrEmpty(x.Thumbnail)))
-                    {
-                        member.Thumbnail = member.Attachments.First(x => !string.IsNullOrEmpty(x.MiniatureId) && !string.IsNullOrEmpty(x.Thumbnail)).Thumbnail;
                     }
                 }
             }

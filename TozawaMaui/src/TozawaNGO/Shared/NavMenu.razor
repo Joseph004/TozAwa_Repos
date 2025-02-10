@@ -1,11 +1,14 @@
 ﻿@namespace TozawaNGO.Shared
 @using ShareRazorClassLibrary.Helpers
-@inherits TozawaNGO.Shared.BaseComponent
+@using ShareRazorClassLibrary.Models.Dtos
+@using ShareRazorClassLibrary.Services
+@inherits TozawaNGO.Shared.BaseComponent<NavMenu>
 
 <style>
     .tznavmenu {
         max-height: 100vh;
         height: 100vh;
+        text-shadow: 8px 8px 10px #0000008c;
     }
 
     .tznavmenu>div:nth-child(1) {
@@ -14,32 +17,73 @@
     }
 </style>
 
-<MudDrawer Class="tznavmenu d-flex flex-column flex-grow-1 gap-4" Style="border: 0.5px outset" @bind-Open="SideBarOpen"
-    Elevation="1">
-    <MudDrawerHeader style="background-color: white; max-height: 150px; height: 150px;">
-        <img src="/images/TR_Max.png" asp-append-version="true" />
-    </MudDrawerHeader>
-    <MudNavMenu Class="mt-5 flex-1" Color="Color.Warning">
-        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/home" Match="NavLinkMatch.All"
-            Icon="@Icons.Material.Filled.Home">
-            <SystemText TextId=SystemTextId.Home FallbackText="Home" IsFirstLoaded="@IsFirstLoaded"></SystemText>
-        </MudNavLink>
-        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/fetchdata1" Icon="@Icons.Material.Filled.Storage">
-            Counter</MudNavLink>
-        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/fetchdata" Icon="@Icons.Material.Filled.Storage">
-            Fetch data</MudNavLink>
-        <MudNavLink Style="border-bottom: 0.1px solid;" Href="/todo" Icon="@Icons.Material.Filled.Storage">
-            To do</MudNavLink>
-        <MudNavGroup Style="border-bottom: 0.1px solid;" Title="Expanding"
-            Icon="@Icons.Material.Filled.DashboardCustomize" Expanded="false">
-            <MudNavLink Href="#" Icon="@Icons.Material.Filled.Camera">Photos</MudNavLink>
-            <MudNavLink Href="#" Icon="@Icons.Material.Filled.Celebration">Party</MudNavLink>
-        </MudNavGroup>
-        @if (_currentUser != null && _currentUser.Admin)
-        {
-            <MudNavLink Style="border-bottom: 0.1px solid;" Href="/settings" Icon="@Icons.Material.Filled.Settings">
-                <SystemText TextId=SystemTextId.Setting FallbackText="Setting" IsFirstLoaded="@IsFirstLoaded"></SystemText>
-            </MudNavLink>
-        }
-    </MudNavMenu>
-</MudDrawer>
+<ErrorHandling TCategoryName="@typeof(NavMenu)">
+    <ChildContent>
+        <MudDrawer Class="tznavmenu d-flex flex-column flex-grow-1 gap-4"
+            Style="border: 0.5px outset; overflow: hidden;" @bind-Open="@SideBarOpen" Anchor="Anchor.Start"
+            Elevation="1">
+            <MudDrawerHeader
+                style="background-color: white; height: 20%; max-height: 20%; width: 100%; max-width: 100%;">
+                <img src="/images/@_logo" asp-append-version="true" @onclick="@(()=>GoToHome())"
+                    style="max-height: 100%; width: 100%; max-width: 100%; height: 100%; cursor: pointer;" />
+            </MudDrawerHeader>
+            <MudNavMenu Style="overflow: auto; width: 100%; max-width: 100%; flex: 1;" Class="mt-5"
+                Color="Color.Warning">
+                @if (FirstloadState.IsFirstLoaded)
+                {
+                    <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Home ? "navlinkcolor" : "" )"
+                        Style="border-bottom: 0.1px solid;" OnClick="@(()=>OnClickTab("/"))"
+                        IconColor="@(NavMenuTabState.ActiveTab == ActiveTab.Home ? Color.Warning : Color.Default)"
+                        Icon="@Icons.Material.Filled.Home">
+                        <SystemText TextId=SystemTextId.Home FallbackText="Home"></SystemText>
+                    </MudNavLink>
+                    <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Counter ? "navlinkcolor" : "" )"
+                        Style="border-bottom: 0.1px solid;" OnClick="@(()=>OnClickTab("/fetchdata1"))"
+                        IconColor="@(NavMenuTabState.ActiveTab == ActiveTab.Counter ? Color.Warning : Color.Default)"
+                        Icon="@Icons.Material.Filled.Storage">
+                        Counter
+                    </MudNavLink>
+                    <AuthorizeView Roles="@GetNavMudGroupRoles()">
+                        <Authorized>
+                            <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Weather ? "navlinkcolor" : "" )"
+                                Style="border-bottom: 0.1px solid;" OnClick="@(()=>OnClickTab("/fetchdata"))"
+                                IconColor="@(NavMenuTabState.ActiveTab == ActiveTab.Weather ? Color.Warning : Color.Default)"
+                                Icon="@Icons.Material.Filled.Storage">
+                                Fetch data</MudNavLink>
+                        </Authorized>
+                    </AuthorizeView>
+                    <MudNavGroup Style="border-bottom: 0.1px solid;" Title="Expanding"
+                        Icon="@Icons.Material.Filled.DashboardCustomize" Expanded="false">
+                        <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Home ? "navlinkcolor" : "" )"
+                            IconColor="@(NavMenuTabState.ActiveTab == ActiveTab.Home ? Color.Warning : Color.Default)"
+                            OnClick="@(()=>OnClickTab("/"))" Icon="@Icons.Material.Filled.Camera">Photos
+                        </MudNavLink>
+                        <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Home ? "navlinkcolor" : "" )"
+                            IconColor="@(NavMenuTabState.ActiveTab == ActiveTab.Home ? Color.Warning : Color.Default)"
+                            OnClick="@(()=>OnClickTab("/"))" Icon="@Icons.Material.Filled.Celebration">Party
+                        </MudNavLink>
+                    </MudNavGroup>
+                    <AuthorizeView Roles="@GetNavMudGroupRoles()">
+                        <Authorized>
+                            <MudNavLink Class="@(NavMenuTabState.ActiveTab == ActiveTab.Settings ? "navlinkcolor" : "" )"
+                                Style="border-bottom: 0.1px solid;" OnClick="@(()=>OnClickTab("/settings"))"
+                                IconColor="@(NavMenuTabState.ActiveTab == ActiveTab.Settings ? Color.Warning : Color.Default)"
+                                Icon="@Icons.Material.Filled.Settings">
+                                <SystemText TextId=SystemTextId.Setting FallbackText="Setting"></SystemText>
+                            </MudNavLink>
+                        </Authorized>
+                    </AuthorizeView>
+                }
+            </MudNavMenu>
+            <MudNavMenu Style="overflow: auto; width: 100%; max-width: 100%; flex: none;">
+                @if (SideBarOpen)
+                {
+                    <LeftSideMenu Settings="@Settings" />
+                }
+            </MudNavMenu>
+        </MudDrawer>
+    </ChildContent>
+    <ErrorContent Context="ex">
+        @string.Empty
+    </ErrorContent>
+</ErrorHandling>
