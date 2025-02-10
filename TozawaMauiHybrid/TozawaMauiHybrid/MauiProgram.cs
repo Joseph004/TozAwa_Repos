@@ -80,6 +80,7 @@ namespace TozawaMauiHybrid
             });
             builder.Services.AddScoped<FileService>();
             builder.Services.AddScoped<MemberService>();
+            builder.Services.AddScoped<FeatureService>();
             builder.Services.AddScoped<ISnackBarService, SnackBarService>();
             builder.Services.AddScoped<AuthStateProvider>();
             builder.Services.AddScoped<AuthenticationStateProvider>(s => s.GetRequiredService<AuthStateProvider>());

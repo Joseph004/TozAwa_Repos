@@ -1,7 +1,7 @@
 @namespace TozawaMauiHybrid.Pages
 @using TozawaMauiHybrid.Helpers
 @using TozawaMauiHybrid.Component
-@inherits BaseDialog<DescriptionMemberDialog>
+@inherits BaseDialog<EntityTextDialog>
 
 <style>
     .tz-mud-overlay {
@@ -15,7 +15,7 @@
     }
 </style>
 
-<ErrorHandling TCategoryName=@typeof(DescriptionMemberDialog)>
+<ErrorHandling TCategoryName=@typeof(EntityTextDialog)>
     <ChildContent>
         <MudDialog Class="tzModal">
             <TitleContent>
@@ -24,8 +24,8 @@
                 </MudText>
             </TitleContent>
             <DialogContent>
-                <MudTextField Margin="Margin.Dense" T="string" Text="@Entity.Description"
-                    Label="@(Translate(SystemTextId.Description))" Lines="5" Disabled />
+                <MudTextField Margin="Margin.Dense" T="string" Text="@GetText()" Label="@GetLabel()" Lines="5"
+                    Disabled />
             </DialogContent>
             <DialogActions>
                 <MudButton StartIcon="@Icons.Material.Filled.Close" Variant="Variant.Filled" Color="Color.Primary"

@@ -1,0 +1,43 @@
+<header>
+    <div style="display: flex;">
+        <div style="width: calc(100% - 150px);">
+            <div class="logo">
+                <img src="assets/abbeconnection.png" class="logo" alt="">
+            </div>
+        </div>
+        <div style="flex: none; 
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            justify-content: center;">
+            <div class="dropdown basket">
+                <button class="btn btn-primary dropdown-toggle" (click)="toggleDropdown()" type="button"
+                    data-toggle="dropdown">
+                    <i [ngClass]="getClassForCurrentFlag()"></i>
+                </button>
+                <ul class="dropdown-menu">
+                    <li (click)="selectLanguage('en')">
+                        <a>
+                            <span>
+                                <i [ngClass]="getClassForActiveFlag('us')"></i>
+                            </span>
+                        </a>
+                    </li>
+                    <li (click)="selectLanguage('fr')">
+                        <a>
+                            <span>
+                                <i [ngClass]="getClassForActiveFlag('fr')"></i>
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <div class="basket" (click)="openBasket()">
+                <a href="#">
+                    <span class="notify-badge">5</span>
+                    <i style="font-size: 2em;" class="fal fa-shopping-basket"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</header>

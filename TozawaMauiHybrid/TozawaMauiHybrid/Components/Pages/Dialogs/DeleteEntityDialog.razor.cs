@@ -9,7 +9,6 @@ namespace TozawaMauiHybrid.Pages
     public partial class DeleteEntityDialog : BaseDialog<DeleteEntityDialog>
     {
         [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-        [Inject] IJSRuntime JSRuntime { get; set; }
         [Parameter] public BaseDto item { get; set; }
         [Parameter] public string title { get; set; }
         [Parameter] public bool hardDelete { get; set; }

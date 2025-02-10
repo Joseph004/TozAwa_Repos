@@ -67,13 +67,14 @@ namespace TozawaMauiHybrid.Components.Pages.Settings
             });
         }
 
-        private string GetDescColor(MemberDto member)
+        private string GetDescColor(string text)
         {
-            return string.IsNullOrEmpty(member.Description) ? $"color: #c4c4c4;" : "";
+            return string.IsNullOrEmpty(text) ? $"color: #c4c4c4;" : "";
         }
-        private async Task ShowLongText(MemberDto member)
+        private async Task ShowLongText(MemberDto member, TypeOfText typeOfText)
         {
-            if (string.IsNullOrEmpty(member.Description)) return;
+            if (typeOfText == TypeOfText.Description && string.IsNullOrEmpty(member.Description)) return;
+            if (typeOfText == TypeOfText.Comment && string.IsNullOrEmpty(member.Comment)) return;
             var options = new DialogOptionsEx
             {
                 BackgroundClass = "tz-mud-overlay",
@@ -101,9 +102,10 @@ namespace TozawaMauiHybrid.Components.Pages.Settings
             var parameters = new DialogParameters
             {
                 ["Entity"] = member,
+                ["TypeOfText"] = typeOfText,
                 ["Title"] = member.FirstName + " " + member.LastName
             };
-            var dialog = await DialogService.ShowEx<DescriptionMemberDialog>(member.FirstName + " " + member.LastName, parameters, options);
+            var dialog = await DialogService.ShowEx<EntityTextDialog>(member.FirstName + " " + member.LastName, parameters, options);
             var result = await dialog.Result;
         }
         private void SetLoading()

@@ -11,6 +11,7 @@
         background-color: #000 !important;
         color: white;
     }
+
     .mud-tab-active {
         color: #e59866 !important;
     }
@@ -26,7 +27,7 @@
     <MudTabPanel IconColor="Color.Secondary" Icon="@Icons.Material.Filled.DesktopAccessDisabled"
         OnClick="() => Activate(ActiveTab.Features)" Text="Features">
         <MudItem xs="12" sm="12" md="12">
-            This is features
+            <Features />
         </MudItem>
     </MudTabPanel>
 </MudTabs>

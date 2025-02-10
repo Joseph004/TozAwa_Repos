@@ -85,7 +85,8 @@ public static class Redures
         {
             if (!action.member.Deleted)
             {
-                state.Members[state.Members.IndexOf(current)] = action.member;
+                state.Members.Remove(current);
+                state.Members.Add(action.member);
                 if (!state.DescriptionIcon.ContainsKey(action.member.Id))
                 {
                     state.DescriptionIcon.Add(action.member.Id, action.member.Description.Length > 20 ? Icons.Material.Outlined.Info : "");
@@ -150,7 +151,8 @@ public static class Redures
         {
             if (action.member.Timestamp > current.Timestamp)
             {
-                state.Members[state.Members.IndexOf(current)] = action.member;
+                state.Members.Remove(current);
+                state.Members.Add(action.member);
             }
         }
         else

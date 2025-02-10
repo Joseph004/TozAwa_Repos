@@ -76,7 +76,7 @@
                         </MudListSubheader>
                                             @if (CurrentUserOrganizations.Count > 1)
                                         {
-                            <div style="max-height: 350px; overflow: auto;"> @* in Model.Select((value, i) => new { i, value }) *@
+                            <div style="max-height: 350px; overflow: auto;">
                                                 @foreach (var org in CurrentUserOrganizations.Where(x => x.Id != SelectedOrganization.Id))
                                                 {
                                   <MudListItem OnClick="@(()=> SetWorkingOrganization(org))" Class="organizationsItems" Style="

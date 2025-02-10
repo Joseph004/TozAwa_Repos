@@ -13,7 +13,7 @@ public class MemberService(ITozAwaBffHttpClient client)
 
     public async Task<GetResponse<TableData<MemberDto>>> GetItems(string page, string pageSize, bool includeDeleted, string searchString, string pageOfEmail, string email = "")
     {
-        var uri = new GetItemsQueryParameters(page, pageSize, includeDeleted, searchString, email, pageOfEmail).ToQueryString(_baseUriPath);
+        var uri = new GetItemsQueryParameters(page, pageSize, includeDeleted, searchString, email, pageOfEmail, null).ToQueryString(_baseUriPath);
         return await _client.SendGet<TableData<MemberDto>>(uri);
     }
     public async Task<GetResponse<MemberDto>> GetItem(Guid id)

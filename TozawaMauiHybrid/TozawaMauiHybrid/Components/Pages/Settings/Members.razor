@@ -83,6 +83,7 @@
 @using TozawaMauiHybrid.Component
 @using TozawaMauiHybrid.Helpers
 @using TozawaMauiHybrid.Models.Dtos
+@using TozawaMauiHybrid.Models.Enums
 @inherits BasePage
 
 <style>
@@ -165,8 +166,8 @@ else
                 <div @onclick:stopPropagation="true" @onclick:preventDefault="true">
                      <MudTooltip ShowOnHover=@(!string.IsNullOrEmpty(string.IsNullOrEmpty(context.Description) ? GetHelpText(context.Description) : context.Description.Length > 20 ? context.Description.Substring(0, 20) + "..." : context.Description))>
                             <ChildContent>
-                                <MudIconButton Style="@GetDescColor(context)" Color=@(Color.Default)
-                                 Icon="@(Icons.Material.Filled.Info)" @onclick="@(e => ShowLongText(context))" >
+                                <MudIconButton Style="@GetDescColor(context.Description)" Color=@(Color.Default)
+                                 Icon="@(Icons.Material.Filled.Info)" @onclick="@(e => ShowLongText(context, TypeOfText.Description))" >
                                  </MudIconButton>
                             </ChildContent>
                             <TooltipContent>

@@ -1,0 +1,37 @@
+p,
+span,
+i {
+    color: white !important;
+}
+header {
+    padding: 10px;
+    background: #012a5b;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+}
+
+.logo {
+    width: 90px;
+    border-radius: 30px;
+    margin-left: 25px;
+}
+
+.logo:hover {
+    cursor: pointer;
+}
+.basket {
+    position:relative;
+    padding-top:20px;
+    display:inline-block;
+}
+.notify-badge{
+    position: absolute;
+    right:-20px;
+    top:10px;
+    background:red;
+    text-align: center;
+    border-radius: 10px 10px 10px 10px;
+    color:white;
+    padding:5px 10px;
+    /* font-size:20px; */
+}
